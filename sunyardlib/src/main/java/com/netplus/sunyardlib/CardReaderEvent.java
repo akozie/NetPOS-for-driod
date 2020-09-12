@@ -2,19 +2,18 @@ package com.netplus.sunyardlib;
 
 public abstract class CardReaderEvent {
 
-    public static class CardScanned extends CardReaderEvent {
-        public CardScanned() {
-        }
+    public static class CardDetected extends CardReaderEvent {
+
     }
 
-    public static class CardRead<T> extends CardReaderEvent {
-        private T data;
+    public static class CardRead extends CardReaderEvent {
+        private CardReadResult data;
 
-        public T getData() {
+        public CardReadResult getData() {
             return data;
         }
 
-        public CardRead(T data) {
+        CardRead(CardReadResult data) {
             this.data = data;
         }
     }

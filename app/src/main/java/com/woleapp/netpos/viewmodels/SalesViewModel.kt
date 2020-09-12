@@ -32,10 +32,8 @@ class SalesViewModel : ViewModel() {
     val message: LiveData<Event<String>>
         get() = _message
 
-    fun setCardPin(pinFromPad:String){
-        Timber.e("setting pin: $pinFromPad")
-        pin = pinFromPad
-        Timber.e("Pin Set: $pin")
+    fun setCustomerName(name: String) {
+        customerName.value = name
     }
 
     fun makePayment(context: Context, transactionType: TransactionType = TransactionType.PURCHASE) {
@@ -120,7 +118,15 @@ class SalesViewModel : ViewModel() {
                 appendTerminalId(NetPosTerminalConfig.getTerminalId())
                 appendTransactionType(transactionResponse.transactionType.name)
                 appendTransactionStatus(if (transactionResponse.responseCode == "00") "Approved" else "Declined")
-                appendResponseCode("${transactionResponse.responseCode}")
+                appendResponseCode(
+                    "${transactionResponse.responseCode}\nMessage: ${
+                        try {
+                            transactionResponse.responseMessage
+                        } catch (ex: Exception) {
+                            "Error"
+                        }
+                    }"
+                )
             }.print().subscribeOn(Schedulers.io())
     }
 

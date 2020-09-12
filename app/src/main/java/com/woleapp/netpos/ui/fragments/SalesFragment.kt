@@ -3,6 +3,7 @@
 package com.woleapp.netpos.ui.fragments
 
 import android.app.AlertDialog
+import android.app.ProgressDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -15,12 +16,14 @@ import com.danbamitale.epmslib.entities.TransactionType
 import com.danbamitale.epmslib.entities.clearPinKey
 import com.danbamitale.epmslib.utils.TripleDES
 import com.google.android.material.snackbar.Snackbar
+import com.netplus.sunyardlib.CardReaderEvent
 import com.netplus.sunyardlib.CardReaderService
 import com.netplus.sunyardlib.GetPin
 import com.socsi.aidl.pinservice.OperationPinListener
 import com.socsi.smartposapi.ped.KeyBoardConstant
 import com.socsi.smartposapi.ped.Ped
 import com.socsi.smartposapi.ped.Ped.KEYS_TYPE_MK_SK
+import com.socsi.utils.HexDump
 import com.socsi.utils.Log
 import com.sunyard.i80.util.Util
 import com.woleapp.netpos.R
@@ -78,67 +81,62 @@ class SalesFragment : BaseFragment() {
     }
 
     private fun showCardDialog() {
-        val dialog = AlertDialog.Builder(requireContext())
-            .setTitle("Input Card")
-            .setMessage("Please Insert Your card").show()
-        val getPin =
-            GetPin { pan, getPinHandler ->
-                showToastOnUiThread("GetPin Here")
-                //showPinpad(Util.BytesToString(pan), getPinHandler)
-                getPinHandler!!.onGetPin(1, pan)
+        val dialog = ProgressDialog(requireContext())
+            .apply {
+                setMessage("Waiting for card")
+                setCancelable(false)
             }
-        val c = CardReaderService.initiateICCCardPayment(context, 1000, 0L, getPin)
+        val c = CardReaderService.initiateICCCardPayment(
+            context,
+            1000,
+            0L,
+            NetPosTerminalConfig.getKeyHolder()?.clearPinKey
+        )
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { cardData, throwable ->
-                cardData?.let { cardReadResult ->
-                    try {
+            .subscribe({
+                when (it) {
+                    is CardReaderEvent.CardRead -> {
+                        val cardResult = it.data
+                        Timber.e(cardResult.toString())
+                        Timber.e("pinblock: ${cardResult.pinBlock}")
+                        Timber.e("nibss pin: ${cardResult.encryptedPinBlock}")
+                        Timber.e("nibss subset: ${cardResult.nibssIccSubset}")
+                        Timber.e("Card Holder name: ${HexDump.hexStr2Str(cardResult.cardHolderName)}")
+                        viewModel.setCustomerName(HexDump.hexStr2Str(cardResult.cardHolderName).replace("/", " "))
                         val card = CardData(
-                            track2Data = cardReadResult.track2Data,
-                            nibssIccSubset = cardReadResult.nibssIccSubset,
-                            panSequenceNumber = cardReadResult.applicationPANSequenceNumber,
+                            track2Data = cardResult.track2Data,
+                            nibssIccSubset = cardResult.nibssIccSubset,
+                            panSequenceNumber = cardResult.applicationPANSequenceNumber,
                             posEntryMode = "051"
-                        )
-                        Timber.e("cardholder name: ${cardReadResult.cardHolderName}")
-                        showPinpad(cardData.applicationPrimaryAccountNumber, card)
-                        //viewModel.cardData = card
-                        //Timber.e(card.toString())
-//                        if (viewModel.pin == null)
-//                            showPinpad(
-//                                cardReadResult.applicationPrimaryAccountNumber,
-//                                proceed = true
-//                            )
-//                        else
-//                            viewModel.makePayment(requireContext(), transactionType)
-                        //viewModel.makePayment(requireContext(), transactionType)
-                        Timber.e("Card $card")
-                        //viewModel.makePayment(requireContext(), transactionType)
-                    } catch (e: Exception) {
-                        Timber.e("error: ${e.localizedMessage}")
-                        Toast.makeText(
-                            requireContext(),
-                            "Error: ${e.localizedMessage}",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        ).apply {
+                            pinBlock = cardResult.encryptedPinBlock
+                        }
+                        viewModel.cardData = card
                     }
-                    //Timber.e("icc data: ${cardReadResult.nibssIccSubset}")
-                    //Timber.e(cardReadResult.applicationPANSequenceNumber)
-                    //Timber.e(cardReadResult.applicationPrimaryAccountNumber)
-                    //Timber.e(cardReadResult.toString())
-                    if (dialog.isShowing)
-                        dialog.dismiss()
+                    is CardReaderEvent.CardDetected -> {
+                        dialog.setMessage("Reading Card Please Wait")
+                        Timber.e("Card Detected")
+                    }
+                }
+            }, {
+                it?.let {
+                    dialog.dismiss()
+                    Timber.e("error: ${it.localizedMessage}")
+                    Toast.makeText(
+                        requireContext(),
+                        "Error: ${it.localizedMessage}",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
 
-                    Toast.makeText(context, "Done Reading Card", Toast.LENGTH_SHORT).show()
-                    //Timber.e(it.toString())
-                }
-                throwable?.let {
-                    Toast.makeText(context, "Error ${it.localizedMessage}", Toast.LENGTH_SHORT)
-                        .show()
-                    Timber.e(it)
-                    if (dialog.isShowing)
-                        dialog.dismiss()
-                }
-            }
+            }, {
+                dialog.dismiss()
+                Toast.makeText(requireContext(), "complete", Toast.LENGTH_LONG).show()
+                Timber.e("complete")
+                viewModel.makePayment(requireContext(), transactionType)
+            })
+        dialog.show()
         compositeDisposable.add(c)
     }
 

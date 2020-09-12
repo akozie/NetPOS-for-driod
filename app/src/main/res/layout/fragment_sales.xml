@@ -89,13 +89,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:autofillHints="@string/enter_name"
+                android:background="@drawable/services_edittext_background_disabled"
+                android:enabled="false"
+                android:focusable="false"
                 android:hint="@string/enter_name"
                 android:inputType="text"
                 android:text="@={viewmodel.customerName}"
                 app:layout_constraintTop_toBottomOf="@id/price_input_layout" />
 
             <EditText
-                android:visibility="gone"
                 android:id="@+id/enter_pin"
                 style="@style/ServicesInputLayout"
                 android:layout_width="match_parent"
@@ -104,6 +106,7 @@
                 android:hint="@string/enter_pin"
                 android:inputType="numberPassword"
                 android:text="@={viewmodel.pin}"
+                android:visibility="gone"
                 app:layout_constraintTop_toBottomOf="@id/enter_name" />
 
             <Button

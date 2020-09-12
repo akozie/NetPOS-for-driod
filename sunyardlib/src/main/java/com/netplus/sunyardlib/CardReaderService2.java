@@ -51,50 +51,44 @@ public class CardReaderService2 {
     private static void searchCard(Activity context, ObservableEmitter<CardReaderEvent> emitter) {
         try {
             CardReader cardReader = CardReader.getInstance();
-            cardReader.setMagCardSearchCallback(new MagCardSearchCallback() {
-                public void onSearchResult(int ret) {
-                    switch (ret) {
-                        case 0:
-                            updateResult(Magcard.getInstance().readUnEncryptTrack().toString());
-                            break;
-                        case 1:
-                            updateResult("read timeout");
-                            break;
-                        default:
-                            updateResult("read fail:" + ret);
-                            break;
-                    }
-                }
-            });
-            cardReader.setIcCardSearchCallback(new IcCardSearchCallback() {
-                public void onSearchResult(int ret) {
-                    switch (ret) {
-                        case 0:
-                            startProcess(0, context, emitter);
-                            return;
-                        case 1:
-                            updateResult("read timeout");
-                            break;
-                        case 2:
-                            updateResult("read fail: unknown card type");
-                            break;
-                        default:
-                            updateResult("read fail:" + ret);
-                            break;
-                    }
-                }
-            });
-            cardReader.setRfSearchCallback(new RfSearchCallback() {
-                public void onSearchResult(int ret, int cardType, byte[] SerialNumber, byte[] ATQA) {
-                    if (ret == 0) {
-                        startProcess(1, context, emitter);
-                        return;
-                    }
-                    if (ret == 1) {
+            cardReader.setMagCardSearchCallback(ret -> {
+                switch (ret) {
+                    case 0:
+                        updateResult(Magcard.getInstance().readUnEncryptTrack().toString());
+                        break;
+                    case 1:
                         updateResult("read timeout");
-                    } else {
+                        break;
+                    default:
                         updateResult("read fail:" + ret);
-                    }
+                        break;
+                }
+            });
+            cardReader.setIcCardSearchCallback(ret -> {
+                switch (ret) {
+                    case 0:
+                        startProcess(0, context, emitter);
+                        return;
+                    case 1:
+                        updateResult("read timeout");
+                        break;
+                    case 2:
+                        updateResult("read fail: unknown card type");
+                        break;
+                    default:
+                        updateResult("read fail:" + ret);
+                        break;
+                }
+            });
+            cardReader.setRfSearchCallback((ret, cardType, SerialNumber, ATQA) -> {
+                if (ret == 0) {
+                    startProcess(1, context, emitter);
+                    return;
+                }
+                if (ret == 1) {
+                    updateResult("read timeout");
+                } else {
+                    updateResult("read fail:" + ret);
                 }
             });
             cardReader.searchCard((int) (byte) (((byte) (((byte) (0 | 1)) | 2)) | 4), (int) Priority.INFO_INT);
@@ -107,7 +101,7 @@ public class CardReaderService2 {
 
 
     private static void startProcess(int channelType, Activity context, ObservableEmitter<CardReaderEvent> emitter) {
-        emitter.onNext(new CardReaderEvent.CardScanned());
+        emitter.onNext(new CardReaderEvent.CardDetected());
         int i = channelType;
         EmvL2.getInstance(context, context.getPackageName()).resetProcess();
         //EmvL2.getInstance(context,context.getPackageName()).addCapk();
@@ -432,7 +426,7 @@ public class CardReaderService2 {
         }
 
         List<Tlv> list = TlvUtils.builderTlvList(Util.BytesToString(cardData));
-        emitter.onNext(new CardReaderEvent.CardRead<>(new CardReadResult(cardReadResultCode, list, Util.BytesToString(cardData))));
+        emitter.onNext(new CardReaderEvent.CardRead(new CardReadResult(cardReadResultCode, list, Util.BytesToString(cardData))));
         emitter.onComplete();
         //updateResult(result);
     }

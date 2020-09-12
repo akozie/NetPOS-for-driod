@@ -44,10 +44,15 @@ public class CardReadResult {
     private String issuerApplicationDiscretionaryData;
     private String formFactorIndicator;
     private String originalPan;
-    private String pinData;
+    private String encryptedPinBlock;
+    public String pinBlock;
 
-    public String getPinData(){
-        return pinData;
+    public String getEncryptedPinBlock() {
+        return encryptedPinBlock;
+    }
+
+    public void setEncryptedPinBlock(String encryptedPinBlock) {
+        this.encryptedPinBlock = encryptedPinBlock;
     }
 
 
@@ -139,9 +144,6 @@ public class CardReadResult {
                     break;
                 case "9F6E":
                     this.formFactorIndicator = tlv.getValue();
-                    break;
-                case "99":
-                    this.pinData = tlv.getValue();
                     break;
             }
         }
