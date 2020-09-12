@@ -2,14 +2,17 @@ package com.netplus.sunyardlib;
 
 import android.content.Context;
 
+import com.socsi.aidl.pinservice.OperationPinListener;
 import com.socsi.smartposapi.card.CardReader;
 import com.socsi.smartposapi.emv2.AsyncEmvCallback;
 import com.socsi.smartposapi.emv2.EmvL2;
 import com.socsi.smartposapi.icc.Icc;
 import com.socsi.smartposapi.ped.Ped;
 import com.socsi.smartposapi.terminal.TerminalManager;
+import com.socsi.utils.HexDump;
 import com.socsi.utils.Log;
 import com.socsi.utils.TlvUtil;
+import com.sunyard.i80.util.HexUtil;
 import com.sunyard.i80.util.StringUtil;
 import com.sunyard.i80.util.TlvUtils;
 import com.sunyard.i80.util.Util;
@@ -62,6 +65,10 @@ public class CardReaderService {
             emvStartProcessParam.mSeqNo = NetPosUtils.nextTransactionCounterValue(context);
             emvStartProcessParam.mTransAmt = amount;
             emvStartProcessParam.mCashbackAmt = cashBackAmount;
+            //emvStartProcessParam.mTransCurrCode = "0556".getBytes();
+            //emvStartProcessParam.mTermCountryCode = "0556".getBytes();
+            emvStartProcessParam.mTransCurrCode = HexDump.hexStringToByteArray("0566");
+            emvStartProcessParam.mTermCountryCode = HexDump.hexStringToByteArray("0566");
             Date date = new Date();
             DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
             emvStartProcessParam.mTransDate = StringUtil.hexStr2Bytes(dateFormat.format(date));
@@ -72,7 +79,6 @@ public class CardReaderService {
             emvStartProcessParam.mChannelType = channelType;
             emvStartProcessParam.mIsQpbocForceOnline = true;
             EmvL2.getInstance(context, context.getPackageName()).init();
-
             String[] aids = getAids();
 
             int ret = EmvL2.getInstance(context, context.getPackageName()).clearAids();
@@ -88,7 +94,7 @@ public class CardReaderService {
             }
 
             //check if des type is correct for nibss
-            EmvL2.getInstance(context, context.getPackageName()).setDukptParam((byte) 1, Ped.DES_TYPE_3DES, (byte) 0x02, null);
+            //EmvL2.getInstance(context, context.getPackageName()).setDukptParam((byte) 1, Ped.DES_TYPE_3DES, (byte) 0x02, null);
 
             EmvL2.getInstance(context, context.getPackageName()).startProcess(emvStartProcessParam, new AsyncEmvCallback() {
 
@@ -229,7 +235,9 @@ public class CardReaderService {
     private static void updateICCardData(Context context, int cardReadResultCode, SingleEmitter<CardReadResult> cardDataEmitter) {
 
         android.util.Log.d(TAG, "updateICCardData: in");
-        byte[] cardData = getTlvData(context, context.getPackageName(), "5A575F345F20" + "9F269F279F109F379F36959A9C9F025F2A829F1A9F039F339F349F359F1E849F099F419F63" +
+//        byte[] cardData = getTlvData(context, context.getPackageName(), "5A575F345F20" + "9F269F279F109F379F36959A9C9F025F2A829F1A9F039F339F349F359F1E849F099F419F635F309F208E" +
+//                "917172DF32DF33DF345F249F129F53");
+        byte[] cardData = getTlvData(context, context.getPackageName(), "5A575F345F20" + "9F269F279F109F379F36959A9C9F025F2A829F1A9F039F339F349F359F1E849F099F419F638E" +
                 "917172DF32DF33DF345F249F129F53");
 
         if (cardData == null) {
@@ -313,6 +321,8 @@ public class CardReaderService {
         emvStartProcessParam.mCashbackAmt = 0;
         emvStartProcessParam.mTransDate = StringUtil.hexStr2Bytes("20180101");
         emvStartProcessParam.mTransTime = StringUtil.hexStr2Bytes("123344");
+        emvStartProcessParam.mTransCurrCode = HexDump.hexStringToByteArray("0566");
+        emvStartProcessParam.mTermCountryCode = HexDump.hexStringToByteArray("0566");
         //交易类型，TAG 9C的值
         emvStartProcessParam.mTag9CValue = 0x00;
         //是否支持电子现金

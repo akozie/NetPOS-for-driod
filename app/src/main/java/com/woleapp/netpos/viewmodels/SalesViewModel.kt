@@ -23,7 +23,8 @@ class SalesViewModel : ViewModel() {
     val transactionState = MutableLiveData(STATE_PAYMENT_STAND_BY)
     private val lastTransactionResponse = MutableLiveData<TransactionResponse>()
     val amount: MutableLiveData<String> = MutableLiveData<String>("")
-    val pin: MutableLiveData<String> = MutableLiveData<String>("")
+    var amountLong = 0L
+    var pin: String? = null
     val customerName = MutableLiveData("")
     private val _message: MutableLiveData<Event<String>> by lazy {
         MutableLiveData<Event<String>>()
@@ -31,21 +32,26 @@ class SalesViewModel : ViewModel() {
     val message: LiveData<Event<String>>
         get() = _message
 
+    fun setCardPin(pinFromPad:String){
+        Timber.e("setting pin: $pinFromPad")
+        pin = pinFromPad
+        Timber.e("Pin Set: $pin")
+    }
 
-    fun makePayment(context: Context, transactionType: TransactionType = TransactionType.PRE_AUTHORIZATION) {
+    fun makePayment(context: Context, transactionType: TransactionType = TransactionType.PURCHASE) {
         val amountDbl = (amount.value!!.toDoubleOrNull() ?: kotlin.run {
             _message.value = Event("Enter a valid amount")
             return
         }) * 100
         Timber.e(cardData.toString())
-        cardData?.apply {
-            pinBlock = pin.value
-        }
+        val hexStringPin = "042539FFFFFFFFFF"
+        val hexCardNum = "0000009181414442"
+
+        Timber.e("Pin to make transaction: ${xorHex(hexStringPin, hexCardNum)}")
         val configData = NetPosTerminalConfig.getConfigData() ?: kotlin.run {
             _message.value = Event("Please wait a bit, terminal configuration in progress")
             return
         }
-        Timber.e(cardData!!.pinBlock)
         val keyHolder = NetPosTerminalConfig.getKeyHolder()!!
         val hostConfig = HostConfig(
             NetPosTerminalConfig.getTerminalId(),
@@ -53,7 +59,8 @@ class SalesViewModel : ViewModel() {
             keyHolder,
             configData
         )
-        val requestData = TransactionRequestData(transactionType, amountDbl.toLong(), 0L)
+        this.amountLong = amountDbl.toLong()
+        val requestData = TransactionRequestData(transactionType, amountLong, 0L)
         val processor = TransactionProcessor(hostConfig)
         transactionState.value = STATE_PAYMENT_STARTED
         val disposable = processor.processTransaction(context, requestData, cardData!!)
@@ -113,7 +120,7 @@ class SalesViewModel : ViewModel() {
                 appendTerminalId(NetPosTerminalConfig.getTerminalId())
                 appendTransactionType(transactionResponse.transactionType.name)
                 appendTransactionStatus(if (transactionResponse.responseCode == "00") "Approved" else "Declined")
-                appendResponseCode(transactionResponse.responseCode)
+                appendResponseCode("${transactionResponse.responseCode}")
             }.print().subscribeOn(Schedulers.io())
     }
 

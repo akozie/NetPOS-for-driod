@@ -4,14 +4,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import com.woleapp.netpos.R
 import com.woleapp.netpos.adapter.ServiceAdapter
 import com.woleapp.netpos.databinding.FragmentDashboardBinding
 import com.woleapp.netpos.model.Service
-import timber.log.Timber
 
 
 class DashboardFragment : BaseFragment() {
@@ -27,7 +25,8 @@ class DashboardFragment : BaseFragment() {
         adapter = ServiceAdapter {
             val nextFrag: Fragment = when (it.id) {
                 0 -> TransactionsFragment()
-                else -> TransactionHistoryFragment.NewInstance()
+                1 -> TransactionHistoryFragment.NewInstance()
+                else -> NipNotificationFragment.newInstance()
             }
             addFragmentWithoutRemove(nextFrag)
         }
@@ -46,6 +45,7 @@ class DashboardFragment : BaseFragment() {
             .apply {
                 add(Service(0, "Transaction", R.drawable.ic_trans))
                 add(Service(1, "Inquiry", R.drawable.ic_write))
+                add(Service(2, "Bank Transfer", R.drawable.ic_lending))
             }
         adapter.submitList(listOfServices)
     }

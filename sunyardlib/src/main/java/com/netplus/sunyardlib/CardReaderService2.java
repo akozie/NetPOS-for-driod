@@ -24,6 +24,7 @@ import com.socsi.smartposapi.terminal.TerminalManager;
 import com.socsi.utils.DateUtil;
 import com.socsi.utils.HexUtil;
 import com.socsi.utils.TlvUtil;
+import com.socsi.utils.Utils;
 import com.socsi.utils.log4j.Priority;
 import com.socsi.smartposapi.emv2.AsyncEmvCallback;
 import com.sunyard.i80.util.EncryptKey;
@@ -104,11 +105,12 @@ public class CardReaderService2 {
         }
     }
 
+
     private static void startProcess(int channelType, Activity context, ObservableEmitter<CardReaderEvent> emitter) {
         emitter.onNext(new CardReaderEvent.CardScanned());
         int i = channelType;
         EmvL2.getInstance(context, context.getPackageName()).resetProcess();
-        //EmvL2.getInstance(context, context.getPackageName())
+        //EmvL2.getInstance(context,context.getPackageName()).addCapk();
         EmvStartProcessParam emvStartProcessParam = new EmvStartProcessParam();
         emvStartProcessParam.mIfdSerialNum = TerminalManager.getInstance().getSN().getBytes();
         if (i == 1) {
@@ -357,7 +359,7 @@ public class CardReaderService2 {
             }
 
             public void lcdMsg(byte[] title, byte[] msg, boolean isYesNo, int timeout, com.sunyard.smartposapi.emv2.EmvL2.LcdMsgHandler handler) {
-               updateResult("[lcdMsg]title:" + new String(title) + ", msg:" + new String(msg) + ", isYesNo:" + isYesNo + ", timeout:" + timeout);
+                updateResult("[lcdMsg]title:" + new String(title) + ", msg:" + new String(msg) + ", isYesNo:" + isYesNo + ", timeout:" + timeout);
                 handler.onLcdMsg(1);
             }
 
@@ -408,10 +410,12 @@ public class CardReaderService2 {
         });
     }
 
-        private static void updateICCardData(Activity context, int cardReadResultCode, ObservableEmitter<CardReaderEvent> emitter) {
-        byte[] cardData = getTlvData(context, context.getPackageName(), "5A575F345F20");
+    private static void updateICCardData(Activity context, int cardReadResultCode, ObservableEmitter<CardReaderEvent> emitter) {
+        byte[] cardData = getTlvData(context, context.getPackageName(), "5A575F345F20" + "9F269F279F109F379F36959A9C9F025F2A829F1A9F039F339F349F359F1E849F099F419F638E" +
+                "917172DF32DF33DF345F249F129F53");
         if (cardData == null) {
             updateResult("get ic data fail");
+            emitter.onError(new NetposException(ICCCardProcessHandler.GET_ICC_DATA_FAILED, ICCCardProcessHandler.errorMessage(ICCCardProcessHandler.GET_ICC_DATA_FAILED)));
             return;
         }
         Map<String, String> cardDataMap = TlvUtil.tlvToMap(cardData);
@@ -420,20 +424,14 @@ public class CardReaderService2 {
             pan = pan.replace("F", "");
         }
         String result = "card no: " + pan + "\ncardHolderName:" + cardDataMap.get("5F20") + "\ntrack 2:" + cardDataMap.get("57") + "\ntlv data: ";
-        List<Tlv> tlvList = TlvUtils.builderTlvList(Util.BytesToString(getTlvData(context, context.getPackageName(), "9F269F279F109F379F36959A9C9F025F2A829F1A9F039F339F349F359F1E849F099F419F63917172DF32DF33DF34")));
+        List<Tlv> tlvList = TlvUtils.builderTlvList(Util.BytesToString(getTlvData(context, context.getPackageName(), Util.BytesToString(cardData))));
         if (tlvList != null) {
             for (Tlv tlv : tlvList) {
                 result = (result + "\ntag:" + tlv.getTag()) + " value:" + tlv.getValue();
             }
         }
-        if (cardData == null) {
-            Log.e("TAG", "updateICCardData: error");
-            emitter.onError(new NetposException(ICCCardProcessHandler.GET_ICC_DATA_FAILED, ICCCardProcessHandler.errorMessage(ICCCardProcessHandler.GET_ICC_DATA_FAILED)));
-            return;
-        }
 
         List<Tlv> list = TlvUtils.builderTlvList(Util.BytesToString(cardData));
-
         emitter.onNext(new CardReaderEvent.CardRead<>(new CardReadResult(cardReadResultCode, list, Util.BytesToString(cardData))));
         emitter.onComplete();
         //updateResult(result);

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="nip"
+            type="com.woleapp.netpos.model.NipNotification" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:background="@android:color/white"
+        android:clickable="true"
+        android:focusable="true">
+
+        <TextView
+            android:id="@+id/beneficiaryAccountNumber"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{String.format(@string/beneficiaryAccountNumber, nip.beneficiaryAccountNumber)}"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="@string/beneficiaryAccountNumber" />
+
+        <TextView
+            android:id="@+id/sourceName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{String.format(@string/sourceName, nip.sourceName)}"
+            app:layout_constraintStart_toStartOf="@id/beneficiaryAccountNumber"
+            app:layout_constraintTop_toBottomOf="@id/beneficiaryAccountNumber"
+            tools:text="@string/sourceName" />
+
+        <TextView
+            android:id="@+id/sourceAccountNumber"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{String.format(@string/sourceAccountNumber, nip.sourceAccountNumber)}"
+            app:layout_constraintStart_toStartOf="@id/sourceName"
+            app:layout_constraintTop_toBottomOf="@id/sourceName"
+            tools:text="@string/sourceAccountNumber" />
+
+        <TextView
+            android:id="@+id/amount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{String.format(@string/nip_amount, nip.amount)}"
+            app:layout_constraintStart_toStartOf="@id/sourceAccountNumber"
+            app:layout_constraintTop_toBottomOf="@id/sourceAccountNumber"
+            tools:text="@string/nip_amount" />
+
+        <TextView
+            android:id="@+id/createdAt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{String.format(@string/createdAt, nip.createdAt)}"
+            app:layout_constraintStart_toStartOf="@id/amount"
+            app:layout_constraintTop_toBottomOf="@id/amount"
+            tools:text="@string/createdAt" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

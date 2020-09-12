@@ -68,5 +68,16 @@
         <item name="android:textColorHint">@android:color/black</item>
     </style>
 
+    <style name="SheetDialog" parent="Theme.MaterialComponents.Light.BottomSheetDialog">
+        <!--<item name="android:windowCloseOnTouchOutside">false</item>-->
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:colorBackground">@android:color/transparent</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:backgroundDimAmount">0.3</item>
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowIsFloating">true</item>
+    </style>
+
     <dimen name="text_size_12sp">12sp</dimen>
 </resources>

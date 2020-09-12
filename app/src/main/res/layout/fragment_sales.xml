@@ -95,6 +95,7 @@
                 app:layout_constraintTop_toBottomOf="@id/price_input_layout" />
 
             <EditText
+                android:visibility="gone"
                 android:id="@+id/enter_pin"
                 style="@style/ServicesInputLayout"
                 android:layout_width="match_parent"

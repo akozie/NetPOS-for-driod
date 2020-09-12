@@ -42,4 +42,14 @@
     <string name="reset_password">Reset Password</string>
     <string name="close_dialog">close dialog</string>
     <string name="enter_your_registered_e_mail_with_storm">Enter your registered E-mail with Storm</string>
+    <string name="nip_notifications">NIP NOTIFICATIONS</string>
+    <string name="beneficiaryAccountNumber"><b>Beneficiary Account Number:</b> %s</string>
+    <string name="sourceName"><b>Source Name:</b> %s</string>
+    <string name="sourceAccountNumber"><b>Source Account Number:</b> %s</string>
+    <string name="nip_amount"><b>Amount:</b> ₦%s</string>
+    <string name="createdAt"><b>Created At:</b> %s</string>
+    <string name="session_code">Enter narration</string>
+    <string name="tap_to_copy_reference">Tap to copy reference</string>
+    <string name="done">Done</string>
+    <string name="account_transfer_note">Please note that you might not be notified of this payment immediately, but you can always verify the status of the transaction on the transactions page on your dashboard.</string>
 </resources>

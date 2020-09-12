@@ -1,6 +1,7 @@
 package com.woleapp.netpos
 
 import com.danbamitale.epmslib.entities.TransactionType
+import com.socsi.utils.HexDump
 import org.junit.Test
 
 import org.junit.Assert.*
@@ -13,6 +14,8 @@ import org.junit.Assert.*
 class ExampleUnitTest {
     @Test
     fun addition_isCorrect() {
+        println(HexDump.hexStr2Str("4A2F41444547424F5945"))
+        println(HexDump.toHexString(java.lang.Byte.parseByte("${16/2}")))
         assertEquals(4, 2 + 2)
     }
 

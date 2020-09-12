@@ -8,5 +8,4 @@ object Keys {
    const val liveKey1 = "E6891F73948F16C4D6E979D68534D0F4"
    const val liveKey2 = "3D10EF707F98E3543E32B570E9E9AE86"
 
-
 }

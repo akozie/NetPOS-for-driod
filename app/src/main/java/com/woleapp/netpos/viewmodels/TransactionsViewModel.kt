@@ -11,10 +11,7 @@ import com.woleapp.netpos.database.AppDatabase
 import com.woleapp.netpos.nibss.NetPosTerminalConfig
 import com.woleapp.netpos.nibss.NetPosTerminalConfig.Companion.getConnectionData
 import com.woleapp.netpos.nibss.NetPosTerminalConfig.Companion.getTerminalId
-import com.woleapp.netpos.util.HISTORY_ACTION_REFUND
-import com.woleapp.netpos.util.HISTORY_ACTION_REPRINT
-import com.woleapp.netpos.util.disposeWith
-import com.woleapp.netpos.util.formatDate
+import com.woleapp.netpos.util.*
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -22,6 +19,7 @@ import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 
 class TransactionsViewModel : ViewModel() {
+    var cardData: CardData? = null
     private val compositeDisposable = CompositeDisposable()
     private var appDatabase: AppDatabase? = null
     val selectedTransaction = MutableLiveData<TransactionResponse>()
@@ -29,6 +27,10 @@ class TransactionsViewModel : ViewModel() {
     private val _selectedAction = MutableLiveData<String>()
     val inProgress = MutableLiveData(false)
     private val _done = MutableLiveData(false)
+    private val _beginGetCardDetails = MutableLiveData<Event<Boolean>>()
+
+    val beginGetCardDetails: LiveData<Event<Boolean>>
+        get() = _beginGetCardDetails
 
     val done: LiveData<Boolean>
         get() = _done
@@ -49,11 +51,17 @@ class TransactionsViewModel : ViewModel() {
         _selectedAction.value = action
     }
 
-    fun performAction(context: Context) {
+    fun performAction() {
         when (_selectedAction.value) {
             HISTORY_ACTION_REPRINT -> startPrintingReceipt(selectedTransaction.value!!)
-            HISTORY_ACTION_REFUND -> refundTransaction(selectedTransaction.value!!, context)
+            HISTORY_ACTION_REFUND -> {
+                _beginGetCardDetails.value = Event(true)
+            }
         }
+    }
+
+    fun refundTransaction(context: Context){
+        refundTransaction(selectedTransaction.value!!, context)
     }
 
     fun reset() {
@@ -79,7 +87,7 @@ class TransactionsViewModel : ViewModel() {
         val disposable = TransactionProcessor(hostConfig).processTransaction(
             context,
             requestData,
-            NetPosTerminalConfig.sampleCardData
+            cardData!!
         ).flatMap {
             if (it.responseCode != "00")
                 throw Exception("Transaction Failed")
@@ -104,6 +112,7 @@ class TransactionsViewModel : ViewModel() {
     }
 
     private fun startPrintingReceipt(transactionResponse: TransactionResponse) {
+        Timber.e(transactionResponse.toString())
         inProgress.value = true
         printReceipt(transactionResponse)
             .subscribeOn(Schedulers.io())

@@ -5,9 +5,11 @@ import com.woleapp.netpos.util.PREF_USER_TOKEN
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Response
+import okhttp3.ResponseBody
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
+import timber.log.Timber
 
 class StormApiClient {
 
@@ -43,6 +45,11 @@ class TokenInterceptor : Interceptor {
                 request = request.newBuilder().addHeader("Authorization", "Bearer $it").build()
             }
         }
-        return chain.proceed(request)
+        val response = chain.proceed(request)
+        val body = response.body()
+        val bodyString = body?.string()
+        Timber.e("resp: $bodyString")
+        return response.newBuilder().body(ResponseBody.create(body!!.contentType(), bodyString!!))
+            .build()
     }
 }
