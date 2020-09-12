@@ -73,7 +73,7 @@ class DashboardFragment : BaseFragment() {
                 t1?.let {
 
                 }
-                t2.let{
+                t2?.let{
                     Toast.makeText(requireContext(), "Error: ${it.localizedMessage}",Toast.LENGTH_LONG).show()
                     Timber.e("Error: ${it.localizedMessage}")
                 }
