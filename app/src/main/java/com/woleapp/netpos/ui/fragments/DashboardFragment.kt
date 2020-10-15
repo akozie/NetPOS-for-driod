@@ -5,18 +5,19 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
-import com.danbamitale.epmslib.entities.responseMessage
 import com.danbamitale.epmslib.extensions.formatCurrencyAmount
 import com.netplus.sunyardlib.ReceiptBuilder
+import com.pixplicity.easyprefs.library.Prefs
 import com.woleapp.netpos.BuildConfig
 import com.woleapp.netpos.R
 import com.woleapp.netpos.adapter.ServiceAdapter
 import com.woleapp.netpos.databinding.FragmentDashboardBinding
-import com.woleapp.netpos.model.Service
+import com.woleapp.netpos.model.*
+import com.woleapp.netpos.mqtt.MqttHelper
 import com.woleapp.netpos.nibss.NetPosTerminalConfig
-import com.woleapp.netpos.util.formatDate
+import com.woleapp.netpos.util.PREF_USER
+import com.woleapp.netpos.util.Singletons
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
@@ -38,12 +39,33 @@ class DashboardFragment : BaseFragment() {
                 1 -> addFragmentWithoutRemove(TransactionHistoryFragment.NewInstance())
                 2 -> addFragmentWithoutRemove(NipNotificationFragment.newInstance())
                 else ->{
-                    printSampleReceipt()
+                    sendPayload()
                 }
             }
             //addFragmentWithoutRemove(nextFrag)
         }
         return binding.root
+    }
+
+    fun sendPayload(){
+        val user = Singletons.gson.fromJson(Prefs.getString(PREF_USER, ""), User::class.java)
+        val event = MqttEvent(
+            user.netplus_id!!,
+            user.business_name!!,
+            NetPosTerminalConfig.getTerminalId(),
+            "JKEWUBUBIBSBBWUBUWBYUB89243"
+        )
+        val authEventData = AuthenticationEventData(event.business_name, event.storm_id, event.deviceSerial)
+        event.apply {
+            this.event = MqttEvents.AUTHENTICATION.event
+            this.status = MqttStatus.SUCCESS.name
+            this.code = MqttStatus.SUCCESS.code
+            timestamp = System.currentTimeMillis()
+            this.geo = "lat:51.507351-long:-0.127758"
+            this.data = authEventData
+        }
+        MqttHelper.sendPayload(event)
+        //Timber.e(Singletons.gson.toJson(event))
     }
 
     private fun printSampleReceipt(){

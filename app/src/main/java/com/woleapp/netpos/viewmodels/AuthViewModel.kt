@@ -24,6 +24,10 @@ class AuthViewModel : ViewModel() {
     val passwordLiveData = MutableLiveData("")
     private val _message = MutableLiveData<Event<String>>()
     private val _authDone = MutableLiveData<Event<Boolean>>()
+    private val _gotoAdminPage = MutableLiveData<Event<Boolean>>()
+
+    val gotoAdminPage: LiveData<Event<Boolean>>
+        get() = _gotoAdminPage
 
     val authDone: LiveData<Event<Boolean>>
         get() = _authDone
@@ -88,6 +92,10 @@ class AuthViewModel : ViewModel() {
                     throw Exception("Login Failed, Check Credentials")
                 }
                 val userToken = it.token
+                if (JWTHelper.isAdmin(userToken)) {
+                    //raise a fake exception to stop the process
+                    throw Exception("ADMIN")
+                }
                 val stormId: String =
                     JWTHelper.getStormId(userToken) ?: throw Exception("Login Failed")
                 Prefs.putString(PREF_USER_TOKEN, userToken)
@@ -102,6 +110,10 @@ class AuthViewModel : ViewModel() {
                     _authDone.value = Event(true)
                 }
                 error?.let {
+                    if (it.message.equals("admin", true)) {
+                        _gotoAdminPage.value = Event(true)
+                        return@let
+                    }
                     Timber.e(it.localizedMessage)
                     _message.value = Event(it.localizedMessage)
                 }

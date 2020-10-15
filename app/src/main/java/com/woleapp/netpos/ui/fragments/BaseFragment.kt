@@ -11,7 +11,7 @@ open class BaseFragment : Fragment() {
         fragmentName: String? = null
     ) {
         val tag = fragment.javaClass.simpleName
-        activity!!.supportFragmentManager.beginTransaction().apply {
+        requireActivity().supportFragmentManager.beginTransaction().apply {
             setCustomAnimations(
                 R.anim.right_to_left, R.anim.left_to_right,
                 R.anim.right_to_left, R.anim.left_to_right
@@ -22,7 +22,7 @@ open class BaseFragment : Fragment() {
     }
 
     open fun showFragment(targetFragment: Fragment?, className: String?) {
-        val ft = activity!!.supportFragmentManager.beginTransaction()
+        val ft = requireActivity().supportFragmentManager.beginTransaction()
         ft.setCustomAnimations(R.anim.right_to_left, R.anim.left_to_right)
         ft.replace(R.id.container_main, targetFragment!!, className)
         ft.commitAllowingStateLoss()

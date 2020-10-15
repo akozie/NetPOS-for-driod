@@ -11,8 +11,11 @@ import com.woleapp.netpos.R
 import com.woleapp.netpos.adapter.ServiceAdapter
 import com.woleapp.netpos.databinding.FragmentNipNotificationsBinding
 import com.woleapp.netpos.databinding.LayoutBankDetailsBinding
-import com.woleapp.netpos.model.Service
+import com.woleapp.netpos.model.*
+import com.woleapp.netpos.mqtt.MqttHelper
 import com.woleapp.netpos.network.StormApiClient
+import com.woleapp.netpos.nibss.NetPosTerminalConfig
+import com.woleapp.netpos.util.Singletons
 import com.woleapp.netpos.util.copyTextToClipboard
 import com.woleapp.netpos.util.disposeWith
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -24,6 +27,8 @@ class NipNotificationFragment : BaseFragment() {
     private lateinit var binding: FragmentNipNotificationsBinding
     private lateinit var adapter: ServiceAdapter
     private val compositeDisposable = CompositeDisposable()
+    private lateinit var event: MqttEvent
+    private val user = Singletons.getCurrentlyLoggedInUser()
 
     companion object {
         fun newInstance(): NipNotificationFragment {
@@ -55,6 +60,15 @@ class NipNotificationFragment : BaseFragment() {
         binding.rvTransactions.layoutManager = GridLayoutManager(context, 2)
         binding.rvTransactions.adapter = adapter
         setService()
+        event = MqttEvent(
+            user!!.netplus_id!!,
+            user.business_name!!,
+            NetPosTerminalConfig.getTerminalId(),
+            "JKEWUBUBIBSBBWUBUWBYUB89243"
+        )
+            .apply {
+                this.geo = "lat:51.507351-long:-0.127758"
+            }
 
         return binding.root
     }
@@ -64,9 +78,24 @@ class NipNotificationFragment : BaseFragment() {
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe { sessionCode, throwable ->
                 sessionCode?.let {
+                    event.apply {
+                        this.event = MqttEvents.NIP_NEW.event
+                        this.code = "00"
+                        this.timestamp = System.currentTimeMillis()
+                        this.data = NipEvent(session_code = it.sessionCode)
+                        this.status = MqttStatus.SUCCESS.name
+                    }
+                    MqttHelper.sendPayload(event)
                     showDialogForAccountTransfer(it.sessionCode)
                 }
                 throwable?.let {
+                    event.apply {
+                        this.event = MqttEvents.NIP_NEW.event
+                        this.code = "99"
+                        this.timestamp = System.currentTimeMillis()
+                        this.status = MqttStatus.ERROR.name
+                    }
+                    MqttHelper.sendPayload(event)
                     Timber.e("Nip Error: ${it.localizedMessage}")
                     Toast.makeText(
                         requireContext(),

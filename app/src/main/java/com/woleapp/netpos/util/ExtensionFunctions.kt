@@ -47,3 +47,9 @@ fun copyTextToClipboard(context: Context, label: String, text: String) {
     val clip = ClipData.newPlainText(label, text)
     clipboard!!.setPrimaryClip(clip)
 }
+
+fun String.isValidIpAddress(): Boolean {
+    val PATTERN =
+        Regex.fromLiteral("^((0|1\\d?\\d?|2[0-4]?\\d?|25[0-5]?|[3-9]\\d?)\\.){3}(0|1\\d?\\d?|2[0-4]?\\d?|25[0-5]?|[3-9]\\d?)$")
+    return this.matches(PATTERN)
+}

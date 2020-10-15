@@ -8,6 +8,11 @@ import com.netplus.sunyardlib.ReceiptBuilder
 import com.socsi.smartposapi.printer.PrintRespCode
 import com.woleapp.netpos.BuildConfig
 import com.woleapp.netpos.database.AppDatabase
+import com.woleapp.netpos.model.CardReaderMqttEvent
+import com.woleapp.netpos.model.MqttEvent
+import com.woleapp.netpos.model.MqttEvents
+import com.woleapp.netpos.model.PrinterEventData
+import com.woleapp.netpos.mqtt.MqttHelper
 import com.woleapp.netpos.nibss.NetPosTerminalConfig
 import com.woleapp.netpos.nibss.NetPosTerminalConfig.Companion.getConnectionData
 import com.woleapp.netpos.nibss.NetPosTerminalConfig.Companion.getTerminalId
@@ -28,7 +33,7 @@ class TransactionsViewModel : ViewModel() {
     val inProgress = MutableLiveData(false)
     private val _done = MutableLiveData(false)
     private val _beginGetCardDetails = MutableLiveData<Event<Boolean>>()
-
+    private var event: MqttEvent
     val beginGetCardDetails: LiveData<Event<Boolean>>
         get() = _beginGetCardDetails
 
@@ -37,6 +42,17 @@ class TransactionsViewModel : ViewModel() {
     val selectedAction: LiveData<String>
         get() = _selectedAction
 
+
+
+    init {
+        val user = Singletons.getCurrentlyLoggedInUser()
+        event = MqttEvent(
+            user!!.netplus_id!!,
+            user.business_name!!,
+            getTerminalId(),
+            "JKEWUBUBIBSBBWUBUWBYUB89243"
+        )
+    }
 
     fun setSelectedTransaction(transactionResponse: TransactionResponse) {
         selectedTransaction.value = transactionResponse
@@ -89,8 +105,19 @@ class TransactionsViewModel : ViewModel() {
             requestData,
             cardData!!
         ).flatMap {
-            if (it.responseCode != "00")
-                throw Exception("Transaction Failed")
+            event.apply {
+                this.event = MqttEvents.TRANSACTIONS.event
+                this.code = it.responseCode
+                this.timestamp = System.currentTimeMillis()
+                this.data = it
+                this.transactionType = it.transactionType.name
+                this.status = try {
+                    it.responseMessage
+                } catch (ex: Exception) {
+                    "Error"
+                }
+            }
+            MqttHelper.sendPayload(event)
             it.id = transactionResponse.id
             lastTransactionResponse.postValue(it)
             appDatabase!!.transactionResponseDao().updateTransaction(it)
@@ -117,7 +144,17 @@ class TransactionsViewModel : ViewModel() {
         printReceipt(transactionResponse)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { _, t2 ->
+            .subscribe { t1, t2 ->
+                t1?.let {
+                    event.apply {
+                        this.event = MqttEvents.PRINTING_RECEIPT.event
+                        this.code = it.name
+                        this.timestamp = System.currentTimeMillis()
+                        this.data = PrinterEventData(transactionResponse.RRN, it.name)
+                        this.status = it.name
+                    }
+                    MqttHelper.sendPayload(event)
+                }
                 _done.value = true
                 inProgress.value = false
 
@@ -148,5 +185,14 @@ class TransactionsViewModel : ViewModel() {
                 appendResponseCode(transactionResponse.responseCode)
             }.print()
 
+    fun sendCardEvent(status: String, code: String, eventData: CardReaderMqttEvent) {
+        event.apply {
+            data = eventData
+            this.status = status
+            timestamp = System.currentTimeMillis()
+            this.code = code
+        }
+        MqttHelper.sendPayload(event)
+    }
 
 }

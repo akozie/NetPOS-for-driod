@@ -1,2 +1,2 @@
 rootProject.name='NetPOS'
-include ':app', ':sunyardlib'
+include ':app', ':epmslib-release', ':sunyardlib'

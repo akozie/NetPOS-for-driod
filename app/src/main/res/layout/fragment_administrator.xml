@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="viewmodel"
+            type="com.woleapp.netpos.viewmodels.AdministratorViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/white"
+        android:clickable="true"
+        android:focusable="true"
+        android:paddingHorizontal="16dp">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/nibss_ip_wrapper"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <EditText
+                android:id="@+id/nibss_ip"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints="@string/nibss_ip"
+                android:hint="@string/nibss_ip"
+                android:inputType="text"
+                android:text="@={viewmodel.configurationData.ip}"
+                tools:text="192.168.100.101" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/nibss_port_wrapper"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="@id/nibss_ip_wrapper"
+            app:layout_constraintStart_toStartOf="@id/nibss_ip_wrapper"
+            app:layout_constraintTop_toBottomOf="@id/nibss_ip_wrapper">
+
+            <EditText
+                android:id="@+id/nibss_port"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints="@string/nibss_port"
+                android:hint="@string/nibss_port"
+                android:text="@={viewmodel.configurationData.port}"
+                android:inputType="number"
+                tools:text="5083" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/nibss_terminal_id_wrapper"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="@id/nibss_ip_wrapper"
+            app:layout_constraintStart_toStartOf="@id/nibss_ip_wrapper"
+            app:layout_constraintTop_toBottomOf="@id/nibss_port_wrapper">
+
+            <EditText
+                android:id="@+id/nibss_terminal_id"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints="@string/terminal_id"
+                android:hint="@string/terminal_id"
+                android:inputType="number"
+                android:text="@={viewmodel.configurationData.terminalId}"
+                tools:text="20HAKNAD94" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/nibss_key_1_wrapper"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="@id/nibss_ip_wrapper"
+            app:layout_constraintStart_toStartOf="@id/nibss_ip_wrapper"
+            app:layout_constraintTop_toBottomOf="@id/nibss_terminal_id_wrapper">
+
+            <EditText
+                android:id="@+id/nibss_key_1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints="@string/key1"
+                android:hint="@string/key1"
+                android:inputType="text"
+                android:text="@={viewmodel.configurationData.key1}"
+                tools:text="KLDMSIMFE9P5FEIOIEIFOG" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/nibss_key_2_wrapper"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="@id/nibss_ip_wrapper"
+            app:layout_constraintStart_toStartOf="@id/nibss_ip_wrapper"
+            app:layout_constraintTop_toBottomOf="@id/nibss_key_1_wrapper">
+
+            <EditText
+                android:id="@+id/nibss_key_2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints="@string/key2"
+                android:hint="@string/key2"
+                android:inputType="text"
+                android:text="@={viewmodel.configurationData.key2}"
+                tools:text="KLDMSIMFE9P5FEIOIEIFOG" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <Button
+            android:id="@+id/save_configuration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:onClick="@{() -> viewmodel.saveConfiguration()}"
+            android:text="@string/save_configuration"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/nibss_key_2_wrapper" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

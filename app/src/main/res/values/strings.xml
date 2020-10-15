@@ -52,4 +52,18 @@
     <string name="tap_to_copy_reference">Tap to copy reference</string>
     <string name="done">Done</string>
     <string name="account_transfer_note">Please note that you might not be notified of this payment immediately, but you can always verify the status of the transaction on the transactions page on your dashboard.</string>
+    <string name="select_account_type">Select Account Type</string>
+    <string name="savings">Savings</string>
+    <string name="current">Current</string>
+    <string name="bonus_account">Bonus Account</string>
+    <string name="credit">Credit</string>
+    <string name="investment_account">Investment Account</string>
+    <string name="universal_account">Universal Account</string>
+    <string name="cancel">cancel</string>
+    <string name="nibss_ip">NIBSS IP Address</string>
+    <string name="nibss_port">NIBSS port</string>
+    <string name="terminal_id">Terminal ID</string>
+    <string name="key1">NIBSS Key 1</string>
+    <string name="key2">NIBSS Key 2</string>
+    <string name="save_configuration">Save Configuration</string>
 </resources>

@@ -5,12 +5,16 @@ import androidx.lifecycle.*
 import com.danbamitale.epmslib.entities.*
 import com.danbamitale.epmslib.extensions.formatCurrencyAmount
 import com.danbamitale.epmslib.processors.TransactionProcessor
+import com.danbamitale.epmslib.utils.IsoAccountType
 import com.netplus.sunyardlib.ReceiptBuilder
 import com.socsi.smartposapi.printer.PrintRespCode
 import com.woleapp.netpos.BuildConfig
 import com.woleapp.netpos.database.AppDatabase
+import com.woleapp.netpos.model.*
+import com.woleapp.netpos.mqtt.MqttHelper
 import com.woleapp.netpos.nibss.NetPosTerminalConfig
 import com.woleapp.netpos.util.*
+import com.woleapp.netpos.util.Singletons.getCurrentlyLoggedInUser
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -23,12 +27,25 @@ class SalesViewModel : ViewModel() {
     val transactionState = MutableLiveData(STATE_PAYMENT_STAND_BY)
     private val lastTransactionResponse = MutableLiveData<TransactionResponse>()
     val amount: MutableLiveData<String> = MutableLiveData<String>("")
+    private var event: MqttEvent
     var amountLong = 0L
     var pin: String? = null
     val customerName = MutableLiveData("")
+    var isoAccountType: IsoAccountType? = null
     private val _message: MutableLiveData<Event<String>> by lazy {
         MutableLiveData<Event<String>>()
     }
+
+    init {
+        val user = getCurrentlyLoggedInUser()
+        event = MqttEvent(
+            user!!.netplus_id!!,
+            user.business_name!!,
+            NetPosTerminalConfig.getTerminalId(),
+            "JKEWUBUBIBSBBWUBUWBYUB89243"
+        )
+    }
+
     val message: LiveData<Event<String>>
         get() = _message
 
@@ -47,7 +64,8 @@ class SalesViewModel : ViewModel() {
 
         Timber.e("Pin to make transaction: ${xorHex(hexStringPin, hexCardNum)}")
         val configData = NetPosTerminalConfig.getConfigData() ?: kotlin.run {
-            _message.value = Event("Please wait a bit, terminal configuration in progress")
+            _message.value =
+                Event("Terminal has not been configured, restart the application to configure")
             return
         }
         val keyHolder = NetPosTerminalConfig.getKeyHolder()!!
@@ -57,22 +75,30 @@ class SalesViewModel : ViewModel() {
             keyHolder,
             configData
         )
+        //IsoAccountType.
         this.amountLong = amountDbl.toLong()
-        val requestData = TransactionRequestData(transactionType, amountLong, 0L)
+        val requestData =
+            TransactionRequestData(transactionType, amountLong, 0L, accountType = isoAccountType!!)
         val processor = TransactionProcessor(hostConfig)
         transactionState.value = STATE_PAYMENT_STARTED
         val disposable = processor.processTransaction(context, requestData, cardData!!)
             .flatMap {
-                Timber.e(it.toString())
-                Timber.e(it.responseMessage)
-                Timber.e("${it.isApproved}")
+                event.apply {
+                    this.event = MqttEvents.TRANSACTIONS.event
+                    this.code = it.responseCode
+                    this.timestamp = System.currentTimeMillis()
+                    this.data = it
+                    this.transactionType = transactionType.name
+                    this.status = try {
+                        it.responseMessage
+                    } catch (ex: Exception) {
+                        "Error"
+                    }
+                }
+                MqttHelper.sendPayload(event)
                 it.cardHolder = customerName.value!!
                 lastTransactionResponse.postValue(it)
-//                if (!it.isApproved) {
-//                    _message.postValue(Event("Transaction not approved"))
-//                    throw Exception("Transaction not approved")
-//                }
-                //transactionState.postValue(STATE_PAYMENT_APPROVED)
+
                 _message.postValue(Event(if (it.responseCode == "00") "Transaction Approved" else "Transaction Not approved"))
                 AppDatabase.getDatabaseInstance(context).transactionResponseDao()
                     .insertNewTransaction(it)
@@ -86,6 +112,14 @@ class SalesViewModel : ViewModel() {
                 transactionState.value = STATE_PAYMENT_STAND_BY
             }.subscribe { t1, throwable ->
                 t1?.let {
+                    event.apply {
+                        this.event = MqttEvents.PRINTING_RECEIPT.event
+                        this.code = it.name
+                        this.timestamp = System.currentTimeMillis()
+                        this.data = PrinterEventData(lastTransactionResponse.value!!.RRN, it.name)
+                        this.status = it.name
+                    }
+                    MqttHelper.sendPayload(event)
                     _message.value = Event("${transactionType.name} Completed")
                 }
                 throwable?.let {
@@ -111,7 +145,7 @@ class SalesViewModel : ViewModel() {
                 appendAuthorizationCode(transactionResponse.authCode)
                 appendCardHolderName(transactionResponse.cardHolder)
                 appendCardNumber(transactionResponse.maskedPan)
-                appendCardScheme("card scheme")
+                appendCardScheme("Card ${transactionResponse.cardLabel}")
                 appendDateTime(transactionResponse.transactionTimeInMillis.formatDate())
                 appendRRN(transactionResponse.RRN)
                 appendStan(transactionResponse.STAN)
@@ -127,13 +161,26 @@ class SalesViewModel : ViewModel() {
                         }
                     }"
                 )
-            }.print().subscribeOn(Schedulers.io())
+            }.isCustomerCopy().print().subscribeOn(Schedulers.io())
     }
 
+    fun sendCardEvent(status: String, code: String, eventData: CardReaderMqttEvent) {
+        event.apply {
+            data = eventData
+            this.status = status
+            timestamp = System.currentTimeMillis()
+            this.code = code
+        }
+        MqttHelper.sendPayload(event)
+    }
 
     override fun onCleared() {
         super.onCleared()
         compositeDisposable.clear()
+    }
+
+    fun setAccountType(accountType: IsoAccountType) {
+        this.isoAccountType = accountType
     }
 
 }

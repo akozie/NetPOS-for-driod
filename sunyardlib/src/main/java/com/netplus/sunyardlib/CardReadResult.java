@@ -45,7 +45,6 @@ public class CardReadResult {
     private String formFactorIndicator;
     private String originalPan;
     private String encryptedPinBlock;
-    public String pinBlock;
 
     public String getEncryptedPinBlock() {
         return encryptedPinBlock;

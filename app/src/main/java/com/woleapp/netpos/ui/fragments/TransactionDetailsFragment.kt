@@ -2,9 +2,9 @@
 
 package com.woleapp.netpos.ui.fragments
 
-import android.app.AlertDialog
 import android.app.ProgressDialog
 import android.os.Bundle
+import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,7 +16,6 @@ import com.danbamitale.epmslib.entities.clearPinKey
 import com.danbamitale.epmslib.utils.TripleDES
 import com.netplus.sunyardlib.CardReaderEvent
 import com.netplus.sunyardlib.CardReaderService
-import com.netplus.sunyardlib.GetPin
 import com.socsi.aidl.pinservice.OperationPinListener
 import com.socsi.smartposapi.ped.KeyBoardConstant
 import com.socsi.smartposapi.ped.Ped
@@ -24,13 +23,16 @@ import com.socsi.utils.HexDump
 import com.socsi.utils.Log
 import com.sunyard.i80.util.Util
 import com.woleapp.netpos.databinding.FragmentTransactionDetailsBinding
+import com.woleapp.netpos.model.CardReaderMqttEvent
 import com.woleapp.netpos.nibss.NetPosTerminalConfig
 import com.woleapp.netpos.util.HISTORY_ACTION_DEFAULT
+import com.woleapp.netpos.util.disposeWith
 import com.woleapp.netpos.util.xorHex
 import com.woleapp.netpos.viewmodels.TransactionsViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import org.apache.commons.lang.StringUtils
 import timber.log.Timber
 
 class TransactionDetailsFragment : BaseFragment() {
@@ -77,6 +79,7 @@ class TransactionDetailsFragment : BaseFragment() {
     }
 
     private fun showCardDialog() {
+        var hasCardBeenRead = false
         val dialog = ProgressDialog(requireContext())
             .apply {
                 setMessage("Waiting for card")
@@ -93,9 +96,10 @@ class TransactionDetailsFragment : BaseFragment() {
             .subscribe({
                 when (it) {
                     is CardReaderEvent.CardRead -> {
+                        hasCardBeenRead = true
                         val cardResult = it.data
                         Timber.e(cardResult.toString())
-                        Timber.e("pinblock: ${cardResult.pinBlock}")
+                        //Timber.e("pinblock: ${cardResult.pinBlock}")
                         Timber.e("nibss pin: ${cardResult.encryptedPinBlock}")
                         Timber.e("nibss subset: ${cardResult.nibssIccSubset}")
                         Timber.e("Card Holder name: ${HexDump.hexStr2Str(cardResult.cardHolderName)}")
@@ -108,14 +112,28 @@ class TransactionDetailsFragment : BaseFragment() {
                             pinBlock = cardResult.encryptedPinBlock
                         }
                         viewModel.cardData = card
+//                        val cardReaderMqttEvent = CardReaderMqttEvent(
+//                            cardExpiry = cardResult.expirationDate,
+//                            cardHolder = cardResult.cardHolderName,
+//                            maskedPan = StringUtils.overlay(
+//                                cardResult.applicationPANSequenceNumber,
+//                                "xxxxxx",
+//                                6,
+//                                12
+//                            )
+//                        )
+//                        viewModel.sendCardEvent("SUCCESS", "00", cardReaderMqttEvent)
                     }
                     is CardReaderEvent.CardDetected -> {
+                        hasCardBeenRead = true
                         dialog.setMessage("Reading Card Please Wait")
                         Timber.e("Card Detected")
                     }
                 }
             }, {
                 it?.let {
+//                    val cardReaderMqttEvent = CardReaderMqttEvent(readerError = it.localizedMessage)
+//                    viewModel.sendCardEvent("ERROR", "99", cardReaderMqttEvent)
                     dialog.dismiss()
                     Timber.e("error: ${it.localizedMessage}")
                     Toast.makeText(
@@ -131,8 +149,15 @@ class TransactionDetailsFragment : BaseFragment() {
                 Timber.e("complete")
                 viewModel.refundTransaction(requireContext())
             })
+        c.disposeWith(compositeDisposable)
+        val handler = Handler().postDelayed({
+            if (!hasCardBeenRead) {
+                Toast.makeText(requireContext(), "Timed out while waiting for card", Toast.LENGTH_LONG).show()
+                c.dispose()
+                dialog.dismiss()
+            }
+        }, 45000)
         dialog.show()
-        compositeDisposable.add(c)
     }
 
 

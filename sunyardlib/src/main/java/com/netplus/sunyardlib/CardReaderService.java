@@ -2,9 +2,7 @@ package com.netplus.sunyardlib;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.widget.Toast;
 
-import com.danbamitale.epmslib.utils.TripleDES;
 import com.socsi.aidl.pinservice.OperationPinListener;
 import com.socsi.smartposapi.card.CardReader;
 import com.socsi.smartposapi.emv2.AsyncEmvCallback;
@@ -17,7 +15,6 @@ import com.socsi.utils.HexDump;
 import com.socsi.utils.Log;
 import com.socsi.utils.TlvUtil;
 import com.socsi.utils.log4j.Priority;
-import com.sunyard.i80.util.HexUtil;
 import com.sunyard.i80.util.StringUtil;
 import com.sunyard.i80.util.TlvUtils;
 import com.sunyard.i80.util.Util;
@@ -47,6 +44,8 @@ import static com.netplus.sunyardlib.ICCCardProcessHandler.EMV_TRANS_QPBOC_ACCEP
 import static com.netplus.sunyardlib.ICCCardProcessHandler.EMV_TRANS_QPBOC_DENIAL;
 import static com.netplus.sunyardlib.ICCCardProcessHandler.EMV_TRANS_TERMINATE;
 import static com.netplus.sunyardlib.ICCCardProcessHandler.UNVERIFIED_RESULT;
+import static com.sunyard.i80.util.Keys.mainKeyDefault;
+import static com.sunyard.i80.util.Keys.workKeyDefault;
 
 /**
  *
@@ -77,10 +76,10 @@ public class CardReaderService {
                 }
             });
             byte type = 0x00;
-            type = (byte) (type | 0x01);    //support magnetic card
+            //type = (byte) (type | 0x01);    //support magnetic card
             type = (byte) (type | 0x02);    //support ic card
-            type = (byte) (type | 0x04);    //support non-contact card
-            cardReader.searchCard(type, Priority.INFO_INT);
+            //type = (byte) (type | 0x04);    //support non-contact card
+            cardReader.searchCard(type, 20 * 1000);
         });
     }
 
@@ -283,6 +282,52 @@ public class CardReaderService {
 
     }
 
+    /*@SuppressWarnings("deprecation")
+    private static void showPinPad(Context context, CardReadResult cardReadResult, String clearPinKey, ObservableEmitter<CardReaderEvent> emitter) {
+        Ped.getInstance().loadMKey((byte) 0xff, (byte) 1, mainKeyDefault, 1, Ped.KEY_TYPE_UNENCTYPTED_KEY, null, false);
+        Ped.getInstance().loadWorkKeyByIdx((byte) 1, Ped.WORK_KEY_TYPE_PIN_KEY, (byte) 1, clearPinKey, null);
+        Bundle param = new Bundle();
+        param.putBoolean("isOnline", true);
+        param.putString("pan", cardReadResult.getApplicationPrimaryAccountNumber());
+        param.putString("promptString", "Please input the pin");
+        param.putIntArray("pinLimit", new int[]{4, 5, 6, 7, 8, 9, 10});
+        param.putByte("keysType", Ped.KEYS_TYPE_MK_SK);
+        param.putByte("pinAlgMode", Ped.ALGORITHMTYPE_USE_PAN_SUPPLY_F);
+        param.putByteArray("random", Util.StringToBytes("AACC9675BBA5EF44"));
+        param.putInt(KeyBoardConstant.BUNDLE_KEY_DESTYPE, 1);
+        //param.putInt(KeyBoardConstant.BUNDLE_KEY_KEYSTYPE, 1);
+        param.putInt("timeout", 90);
+        Ped.getInstance().startPinInput(context, 1, param, new OperationPinListener() {
+
+            @Override
+            public void onInput(int i, int i1) {
+
+            }
+
+            @Override
+            public void onConfirm(byte[] bytes, boolean b) {
+                String pin = Util.BytesToString(bytes);
+                Log.e(TAG, "Pin: "+pin);
+//                pin = "0" + (pin.length()) + pin + "FFFFFFFFFF";
+//                String cardNum = "0000" + cardReadResult.getApplicationPrimaryAccountNumber().substring(3, 15);
+//                //cardReadResult.pinBlock = NetPosUtils.xorHex(pin, cardNum);
+                cardReadResult.setEncryptedPinBlock(pin);
+                emitter.onNext(new CardReaderEvent.CardRead(cardReadResult));
+                emitter.onComplete();
+            }
+
+            @Override
+            public void onCancel() {
+                emitter.onError(new NetposException(1, "PinPad was closed by user"));
+            }
+
+            @Override
+            public void onError(int i) {
+                emitter.onError(new NetposException(i, "PinPad ran into an unexpected error"));
+            }
+        });
+    }*/
+
     @SuppressWarnings("deprecation")
     private static void showPinPad(Context context, CardReadResult cardReadResult, String clearPinKey, ObservableEmitter<CardReaderEvent> emitter) {
         Bundle param = new Bundle();
@@ -308,8 +353,8 @@ public class CardReaderService {
                 String pin = Util.BytesToString(bytes);
                 pin = "0" + (pin.length()) + pin + "FFFFFFFFFF";
                 String cardNum = "0000" + cardReadResult.getApplicationPrimaryAccountNumber().substring(3, 15);
-                cardReadResult.pinBlock = NetPosUtils.xorHex(pin, cardNum);
-                cardReadResult.setEncryptedPinBlock(TripleDES.encrypt(NetPosUtils.xorHex(pin, cardNum), clearPinKey));
+                //cardReadResult.pinBlock = NetPosUtils.xorHex(pin, cardNum);
+                cardReadResult.setEncryptedPinBlock(TripleDes.encrypt(NetPosUtils.xorHex(pin, cardNum), clearPinKey));
                 emitter.onNext(new CardReaderEvent.CardRead(cardReadResult));
                 emitter.onComplete();
             }

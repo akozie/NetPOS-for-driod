@@ -8,6 +8,8 @@ import androidx.fragment.app.Fragment
 import com.pixplicity.easyprefs.library.Prefs
 import com.woleapp.netpos.R
 import com.woleapp.netpos.databinding.ActivityAuthenticationBinding
+import com.woleapp.netpos.mqtt.MqttHelper
+import com.woleapp.netpos.nibss.NetPosTerminalConfig
 import com.woleapp.netpos.ui.fragments.LoginFragment
 import com.woleapp.netpos.util.PREF_AUTHENTICATED
 
@@ -23,31 +25,11 @@ class AuthenticationActivity : AppCompatActivity() {
                 flags =
                     Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             })
+            MqttHelper.init()
+            NetPosTerminalConfig.init(applicationContext)
             finish()
         }
         showFragment(LoginFragment())
-
-
-        /*try {
-            val libs: MutableSet<String> = HashSet()
-            val mapsFile = "/proc/" + Process.myPid() + "/maps"
-            val reader = BufferedReader(FileReader(mapsFile))
-            var line: String
-            while (reader.readLine().also { line = it } != null) {
-                if (line.endsWith(".so")) {
-                    val n = line.lastIndexOf(" ")
-                    libs.add(line.substring(n + 1))
-                }
-            }
-            Timber.d("%s libraries:", libs.size.toString())
-            for (lib in libs) {
-                Timber.d(lib)
-            }
-        } catch (e: FileNotFoundException) {
-            // Do some error handling...
-        } catch (e: IOException) {
-            // Do some error handling...
-        }*/
     }
 
     private fun showFragment(targetFragment: Fragment) {
