@@ -148,6 +148,7 @@ public class CardReaderService {
             public void getPin(int type, int retryTimes, EmvL2.GetPinHandler getPinHandler) {
                 Log.d("EMVDevice process startProcess getPin");
                 //getPin.getPin(pan, getPinHandler);
+                //don't show pin pad here, fails sometimes, force it to show later.
                 getPinHandler.onGetPin(1, pan);
             }
 
