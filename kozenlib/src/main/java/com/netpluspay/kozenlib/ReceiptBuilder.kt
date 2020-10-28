@@ -8,17 +8,34 @@ import com.pos.sdk.printer.models.PrintLine
 import com.pos.sdk.printer.models.TextPrintLine
 import io.reactivex.Single
 
-class ReceiptBuilder(context: Context? = null) :
+
+class ReceiptBuilder :
     AndroidTerminalReceiptBuilderFactory<ReceiptBuilder, Single<PrinterResponse>>() {
-    private val printerManager: POIPrinterManage = POIPrinterManage.getDefault(context)
     private val textPrintLine = TextPrintLine().apply {
         type = PrintLine.TEXT
     }
 
-    override fun getThis(): ReceiptBuilder = this
+    companion object {
+        var isInitialized: Boolean = false
+        @Volatile
+        internal var printerManager: POIPrinterManage? = null
+        fun initialize(context: Context): POIPrinterManage = printerManager ?: synchronized(this) {
+            isInitialized = true
+            printerManager ?: POIPrinterManage.getDefault(context)
+        }
+    }
+
+    override fun getThis(): ReceiptBuilder {
+        if (isInitialized.not())
+            throw NullPointerException(
+                "KozenLib has not been initialized, you must call " +
+                        "KozenLib.init(context) first, this call needs to be made just once."
+            )
+        return this
+    }
 
     override fun appendTextEntity(p0: String?) {
-        printerManager.addPrintLine(
+        printerManager?.addPrintLine(
             textPrintLine.apply {
                 content = p0
                 position = PrintLine.LEFT
@@ -30,7 +47,7 @@ class ReceiptBuilder(context: Context? = null) :
     }
 
     override fun appendTextEntityBold(p0: String?) {
-        printerManager.addPrintLine(
+        printerManager?.addPrintLine(
             textPrintLine.apply {
                 content = p0
                 position = PrintLine.LEFT
@@ -42,7 +59,7 @@ class ReceiptBuilder(context: Context? = null) :
     }
 
     override fun appendTextEntityFontSixteen(p0: String?) {
-        printerManager.addPrintLine(
+        printerManager?.addPrintLine(
             textPrintLine.apply {
                 content = p0
                 position = PrintLine.LEFT
@@ -54,7 +71,7 @@ class ReceiptBuilder(context: Context? = null) :
     }
 
     override fun appendTextEntityFontSixteenCenter(p0: String?) {
-        printerManager.addPrintLine(
+        printerManager?.addPrintLine(
             textPrintLine.apply {
                 content = p0
                 position = PrintLine.CENTER
@@ -66,7 +83,7 @@ class ReceiptBuilder(context: Context? = null) :
     }
 
     override fun appendTextEntityCenter(p0: String?) {
-        printerManager.addPrintLine(
+        printerManager?.addPrintLine(
             textPrintLine.apply {
                 content = p0
                 position = PrintLine.CENTER
@@ -79,7 +96,7 @@ class ReceiptBuilder(context: Context? = null) :
 
     override fun print(): Single<PrinterResponse> =
         Single.create {
-            printerManager.beginPrint(object : POIPrinterManage.IPrinterListener {
+            printerManager?.beginPrint(object : POIPrinterManage.IPrinterListener {
                 override fun onError(p0: Int, p1: String?) {
                     it.onError(Throwable("message:$p1 - code:$p0"))
                 }

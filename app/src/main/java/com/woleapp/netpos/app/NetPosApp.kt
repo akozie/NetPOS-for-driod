@@ -2,6 +2,7 @@ package com.woleapp.netpos.app
 
 import android.app.Application
 import android.content.ContextWrapper
+import com.netpluspay.kozenlib.KozenLib
 import com.pixplicity.easyprefs.library.Prefs
 import com.woleapp.netpos.nibss.NetPosTerminalConfig
 import com.woleapp.netpos.ui.fragments.DashboardFragment
@@ -19,13 +20,14 @@ class NetPosApp: Application() {
             .setPrefsName(packageName)
             .setUseDefaultSharedPreference(true)
             .build()
-        Thread.setDefaultUncaughtExceptionHandler { _, e ->
+        /*Thread.setDefaultUncaughtExceptionHandler { _, e ->
             Timber.e("LMAOOOOO, e wan crash")
             Timber.e(e)
             throw e
-        }
+        }*/
+        KozenLib.init(applicationContext)
         NetPosTerminalConfig.init(applicationContext)
-        //DashboardFragment.printSampleReceipt()
+        DashboardFragment.printSampleReceipt()
         //SunyardLib.init(this)
     }
 }
