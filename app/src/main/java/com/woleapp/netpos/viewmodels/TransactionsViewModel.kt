@@ -4,8 +4,8 @@ import android.content.Context
 import androidx.lifecycle.*
 import com.danbamitale.epmslib.entities.*
 import com.danbamitale.epmslib.processors.TransactionProcessor
-import com.netplus.sunyardlib.ReceiptBuilder
-import com.socsi.smartposapi.printer.PrintRespCode
+import com.netpluspay.kozenlib.PrinterResponse
+import com.netpluspay.kozenlib.ReceiptBuilder
 import com.woleapp.netpos.BuildConfig
 import com.woleapp.netpos.database.AppDatabase
 import com.woleapp.netpos.model.CardReaderMqttEvent
@@ -148,10 +148,10 @@ class TransactionsViewModel : ViewModel() {
                 t1?.let {
                     event.apply {
                         this.event = MqttEvents.PRINTING_RECEIPT.event
-                        this.code = it.name
+                        this.code = it.code.toString()
                         this.timestamp = System.currentTimeMillis()
-                        this.data = PrinterEventData(transactionResponse.RRN, it.name)
-                        this.status = it.name
+                        this.data = PrinterEventData(transactionResponse.RRN, it.message)
+                        this.status = it.message
                     }
                     MqttHelper.sendPayload(event)
                 }
@@ -164,7 +164,7 @@ class TransactionsViewModel : ViewModel() {
             }.disposeWith(compositeDisposable)
     }
 
-    private fun printReceipt(transactionResponse: TransactionResponse): Single<PrintRespCode> =
+    private fun printReceipt(transactionResponse: TransactionResponse): Single<PrinterResponse> =
         ReceiptBuilder()
             .apply {
                 appendAID(transactionResponse.AID)

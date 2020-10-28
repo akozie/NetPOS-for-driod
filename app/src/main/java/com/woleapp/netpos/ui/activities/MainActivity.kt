@@ -25,9 +25,6 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.danbamitale.epmslib.entities.clearPinKey
 import com.danbamitale.epmslib.utils.TripleDES
 import com.pixplicity.easyprefs.library.Prefs
-import com.socsi.aidl.pinservice.OperationPinListener
-import com.socsi.smartposapi.ped.Ped
-import com.sunyard.i80.util.Util
 import com.woleapp.netpos.R
 import com.woleapp.netpos.databinding.ActivityMainBinding
 import com.woleapp.netpos.model.User
@@ -227,65 +224,6 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
             e.printStackTrace()
         }
 
-    }
-
-    private fun showPinpad(
-        pan: String,
-        getPinHandler: com.socsi.smartposapi.emv2.EmvL2.GetPinHandler? = null,
-        proceed: Boolean = false
-    ) {
-        val key = NetPosTerminalConfig.getKeyHolder()?.clearPinKey!!
-        val dadada = TripleDES.encrypt("0425A8EF8B7A6E66", key)
-        Timber.e("Test encrypt $dadada")
-        val lalala = TripleDES.decrypt(dadada, key)
-        Timber.e("Test decrypt $lalala")
-        Timber.e("Pan passed to pin Handler: $pan")
-        val param = CardUtil.buildParam(pan)
-        //param.putInt(KeyBoardConstant.BUNDLE_KEY_KEYSTYPE, 1)
-        val ped = Ped.getInstance()
-        ped.loadMKey(Ped.KEY_TYPE_DES_KEY, key, true)
-        ped.startPinInput(this, 1, param, object : OperationPinListener {
-            override fun onInput(len: Int, key: Int) {
-                showToastOnUiThread("Len: $len")
-            }
-
-            override fun onError(errorCode: Int) {
-                showToastOnUiThread("Error: $errorCode")
-                Timber.e("onError:::: errorCode:$errorCode")
-            }
-
-            override fun onConfirm(@Nullable data: ByteArray, @Nullable isNonePin: Boolean) {
-                getPinHandler?.onGetPin(1, data)
-                showToastOnUiThread("Confirm: ${Util.BytesToString(data)}")
-                Timber.e("ContentValues ${Util.BytesToString(data)}")
-//                    val encryptedPin = Ped.getInstance().encryptPIN(1, 1, 1, data, "")
-//                    Timber.e(encryptedPin)
-                Timber.e("Byte Array $data")
-                val ssPin = "042539FFFFFFFFFF"
-                val cardNum = "0000${pan.substring(3, 15)}"
-                val hexed = xorHex(ssPin, cardNum)
-                Timber.e("hexed: $hexed")
-                Timber.e("encrypt: ${TripleDES.encrypt(hexed, key)}")
-                val pin = Util.BytesToString(data)
-                Timber.e("pin from pad: $pin")
-                Timber.e(
-                    pin
-                )
-                Timber.e("decrypted from pad: ${TripleDES.decrypt(pin, key)}")
-//                    val encryptedPin = Ped.getInstance().encryptPIN(1,1,1, data, "")
-//                    Timber.e("encryptedPin: $encryptedPin")
-                //viewModel.setCardPin(pin)
-//                    if (proceed)
-//                        requireActivity().runOnUiThread {
-//                            viewModel.makePayment(requireContext(), transactionType)
-//                        }
-            }
-
-            override fun onCancel() {
-                showToastOnUiThread("canceled")
-                Timber.e("onCancel")
-            }
-        })
     }
 
     private fun showToastOnUiThread(message: String) {

@@ -4,7 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.netplus.sunyardlib.ReceiptBuilder
+import com.netpluspay.kozenlib.ReceiptBuilder
 import com.woleapp.netpos.databinding.FragmentReprintTransactionsBinding
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -37,7 +37,7 @@ class ReprintTransactionFragment : BaseFragment() {
                 appendResponseCode("00")
             }.print().subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { t, c ->
+            .subscribe { _, _ ->
 
             }
         return binding.root

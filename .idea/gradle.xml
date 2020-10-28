@@ -13,8 +13,6 @@
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/epmslib-release" />
             <option value="$PROJECT_DIR$/kozenlib" />
-            <option value="$PROJECT_DIR$/sunyardlib" />
-            <option value="$PROJECT_DIR$/terminal_core" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />

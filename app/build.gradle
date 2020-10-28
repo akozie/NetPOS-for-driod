@@ -23,7 +23,7 @@ android {
     buildTypes {
         debug {
             ndk {
-                abiFilters "armeabi-v7a"
+                abiFilters "armeabi-v7a", "x86"
             }
         }
         release {
@@ -67,7 +67,10 @@ dependencies {
     implementation 'net.sf.j8583:j8583:1.12.0'
 
     //SUNYARD
-    implementation project(path: ':sunyardlib')
+    //implementation project(path: ':sunyardlib')
+
+    //Kozen lib
+    implementation project(path: ':kozenlib')
 
     //Timber
     implementation 'com.jakewharton.timber:timber:4.7.1'

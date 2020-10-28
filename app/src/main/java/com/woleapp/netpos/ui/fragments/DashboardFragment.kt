@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.recyclerview.widget.GridLayoutManager
 import com.danbamitale.epmslib.extensions.formatCurrencyAmount
-import com.netplus.sunyardlib.ReceiptBuilder
+import com.netpluspay.kozenlib.ReceiptBuilder
 import com.pixplicity.easyprefs.library.Prefs
 import com.woleapp.netpos.BuildConfig
 import com.woleapp.netpos.R
@@ -38,7 +38,7 @@ class DashboardFragment : BaseFragment() {
                 0 -> addFragmentWithoutRemove(TransactionsFragment())
                 1 -> addFragmentWithoutRemove(TransactionHistoryFragment.NewInstance())
                 2 -> addFragmentWithoutRemove(NipNotificationFragment.newInstance())
-                else ->{
+                else -> {
                     sendPayload()
                 }
             }
@@ -47,7 +47,7 @@ class DashboardFragment : BaseFragment() {
         return binding.root
     }
 
-    fun sendPayload(){
+    fun sendPayload() {
         val user = Singletons.gson.fromJson(Prefs.getString(PREF_USER, ""), User::class.java)
         val event = MqttEvent(
             user.netplus_id!!,
@@ -55,7 +55,8 @@ class DashboardFragment : BaseFragment() {
             NetPosTerminalConfig.getTerminalId(),
             "JKEWUBUBIBSBBWUBUWBYUB89243"
         )
-        val authEventData = AuthenticationEventData(event.business_name, event.storm_id, event.deviceSerial)
+        val authEventData =
+            AuthenticationEventData(event.business_name, event.storm_id, event.deviceSerial)
         event.apply {
             this.event = MqttEvents.AUTHENTICATION.event
             this.status = MqttStatus.SUCCESS.name
@@ -68,38 +69,39 @@ class DashboardFragment : BaseFragment() {
         //Timber.e(Singletons.gson.toJson(event))
     }
 
-    private fun printSampleReceipt(){
-        val c = ReceiptBuilder()
-            .apply {
-                appendAID("AID")
-                appendAddress("NETPOS")
-                appendAmount(
-                    100.formatCurrencyAmount("\u20A6")
-                )
-                appendAppName("NetPOS")
-                appendAppVersion(BuildConfig.VERSION_NAME)
-                appendAuthorizationCode("Auth code")
-                appendCardHolderName("Card Holder")
-                appendCardNumber("Masked Pan")
-                appendCardScheme("card scheme")
-                appendDateTime("")
-                appendRRN("RRN")
-                appendStan("STAN")
-                appendTerminalId(NetPosTerminalConfig.getTerminalId())
-                appendTransactionType("PURCHASEE")
-                appendTransactionStatus("APPROVED")
-                appendResponseCode("00")
-            }.print().subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { t1, t2 ->
-                t1?.let {
+    companion object {
+        fun printSampleReceipt() {
+            val c = ReceiptBuilder()
+                .apply {
+                    appendAID("AID")
+                    appendAddress("NETPOS")
+                    appendAmount(
+                        100.formatCurrencyAmount("\u20A6")
+                    )
+                    appendAppName("NetPOS")
+                    appendAppVersion(BuildConfig.VERSION_NAME)
+                    appendAuthorizationCode("Auth code")
+                    appendCardHolderName("Card Holder")
+                    appendCardNumber("Masked Pan")
+                    appendCardScheme("card scheme")
+                    appendDateTime("")
+                    appendRRN("RRN")
+                    appendStan("STAN")
+                    appendTerminalId(NetPosTerminalConfig.getTerminalId())
+                    appendTransactionType("PURCHASEE")
+                    appendTransactionStatus("APPROVED")
+                    appendResponseCode("00")
+                }.print().subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { t1, t2 ->
+                    t1?.let {
 
+                    }
+                    t2?.let {
+                        Timber.e("Error: ${it.localizedMessage}")
+                    }
                 }
-                t2?.let{
-                    Toast.makeText(requireContext(), "Error: ${it.localizedMessage}",Toast.LENGTH_LONG).show()
-                    Timber.e("Error: ${it.localizedMessage}")
-                }
-            }
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

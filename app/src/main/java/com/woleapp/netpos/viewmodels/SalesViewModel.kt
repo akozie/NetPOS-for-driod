@@ -6,8 +6,8 @@ import com.danbamitale.epmslib.entities.*
 import com.danbamitale.epmslib.extensions.formatCurrencyAmount
 import com.danbamitale.epmslib.processors.TransactionProcessor
 import com.danbamitale.epmslib.utils.IsoAccountType
-import com.netplus.sunyardlib.ReceiptBuilder
-import com.socsi.smartposapi.printer.PrintRespCode
+import com.netpluspay.kozenlib.PrinterResponse
+import com.netpluspay.kozenlib.ReceiptBuilder
 import com.woleapp.netpos.BuildConfig
 import com.woleapp.netpos.database.AppDatabase
 import com.woleapp.netpos.model.*
@@ -114,10 +114,10 @@ class SalesViewModel : ViewModel() {
                 t1?.let {
                     event.apply {
                         this.event = MqttEvents.PRINTING_RECEIPT.event
-                        this.code = it.name
+                        this.code = it.code.toString()
                         this.timestamp = System.currentTimeMillis()
-                        this.data = PrinterEventData(lastTransactionResponse.value!!.RRN, it.name)
-                        this.status = it.name
+                        this.data = PrinterEventData(lastTransactionResponse.value!!.RRN, "Printer code name")
+                        this.status = it.message
                     }
                     MqttHelper.sendPayload(event)
                     _message.value = Event("${transactionType.name} Completed")
@@ -131,7 +131,7 @@ class SalesViewModel : ViewModel() {
         compositeDisposable.add(disposable)
     }
 
-    private fun printReceipt(): Single<PrintRespCode> {
+    private fun printReceipt(): Single<PrinterResponse> {
         val transactionResponse = lastTransactionResponse.value!!
         return ReceiptBuilder()
             .apply {

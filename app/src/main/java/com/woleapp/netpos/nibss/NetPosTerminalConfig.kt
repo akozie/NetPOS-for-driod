@@ -7,7 +7,7 @@ import com.danbamitale.epmslib.entities.*
 import com.danbamitale.epmslib.processors.TerminalConfigurator
 import com.google.gson.Gson
 import com.pixplicity.easyprefs.library.Prefs
-import com.socsi.smartposapi.terminal.TerminalManager
+
 import com.woleapp.netpos.model.ConfigurationData
 import com.woleapp.netpos.util.PREF_CONFIG_DATA
 import com.woleapp.netpos.util.PREF_KEYHOLDER
