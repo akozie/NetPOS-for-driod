@@ -1,3 +1,4 @@
+include ':kozenlib'
 include ':terminal_core'
 rootProject.name='NetPOS'
 include ':app', ':epmslib-release', ':sunyardlib'
