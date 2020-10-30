@@ -28,19 +28,19 @@ public class EmvParam {
         // EMV TAG 9F16 Len 15
         bundle.putByteArray(EmvTermCfgConstraints.MERCHID, "000000000000000".getBytes());
         // EMV TAG 9F15 Len 4
-        bundle.putByteArray(EmvTermCfgConstraints.MERCHCATECODE, "0840".getBytes());
+        bundle.putByteArray(EmvTermCfgConstraints.MERCHCATECODE, "0566".getBytes());
         // EMV TAG 9F4E Len V
         bundle.putByteArray(EmvTermCfgConstraints.MERCHNAME, "Railway Operator".getBytes());
         // EMV TAG 9F1C Len 8
         bundle.putByteArray(EmvTermCfgConstraints.TERMID, "Terminal".getBytes());
         // EMV TAG 9F1A Len 4
-        bundle.putByteArray(EmvTermCfgConstraints.TERMINALCOUNTRYCODE, "0840".getBytes());
+        bundle.putByteArray(EmvTermCfgConstraints.TERMINALCOUNTRYCODE, "0566".getBytes());
         // EMV TAG 5F2A Len 4
-        bundle.putByteArray(EmvTermCfgConstraints.TRANSCURRCODE, "0840".getBytes());
+        bundle.putByteArray(EmvTermCfgConstraints.TRANSCURRCODE, "0566".getBytes());
         // EMV TAG 5F36 Len 2
         bundle.putByteArray(EmvTermCfgConstraints.TRANSCURREXP, "02".getBytes());
         // EMV TAG 9F3C Len 4
-        bundle.putByteArray(EmvTermCfgConstraints.REFERCURRCODE, "0840".getBytes());
+        bundle.putByteArray(EmvTermCfgConstraints.REFERCURRCODE, "0566".getBytes());
         // EMV TAG 9F3D Len 2
         bundle.putByteArray(EmvTermCfgConstraints.REFERCURREXP, "02".getBytes());
 
