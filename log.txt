@@ -1,0 +1,21 @@
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :sunyardlib:preBuild UP-TO-DATE
+> Task :sunyardlib:preDebugBuild UP-TO-DATE
+> Task :sunyardlib:compileDebugAidl FAILED
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':sunyardlib:compileDebugAidl'.
+> 1 exception was raised by workers:
+  org.gradle.process.internal.ExecException: A problem occurred starting process 'command '/home/oluwatayo/Android/Sdk/build-tools/28.0.3/aidl''
+
+
+* Try:
+Run with --stacktrace option to get the stack trace. Run with --info or --debug option to get more log output. Run with --scan to get full insights.
+
+* Get more help at https://help.gradle.org
+
+BUILD FAILED in 5s
+1 actionable task: 1 executed
