@@ -15,7 +15,7 @@ class ReceiptBuilder :
     }
     private val printerManager = KozenLib.getPrinterManager().apply {
         setPrintGray(Integer.valueOf("4000"))
-        setLineSpace(Integer.valueOf("0"))
+        setLineSpace(Integer.valueOf("1"))
         cleanCache()
     }
 
