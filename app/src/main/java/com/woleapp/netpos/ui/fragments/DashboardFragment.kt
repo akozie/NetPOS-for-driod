@@ -86,15 +86,16 @@ class DashboardFragment : BaseFragment() {
                     appendDateTime("")
                     appendRRN("RRN")
                     appendStan("STAN")
-                    appendTerminalId(NetPosTerminalConfig.getTerminalId())
+                    appendTerminalId("terminal id")
                     appendTransactionType("PURCHASEE")
                     appendTransactionStatus("APPROVED")
                     appendResponseCode("00")
+                    isCustomerCopy
                 }.print().subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { t1, t2 ->
                     t1?.let {
-
+                        Timber.e("printed ${it.message}")
                     }
                     t2?.let {
                         Timber.e("Error: ${it.localizedMessage}")

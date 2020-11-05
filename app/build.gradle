@@ -8,7 +8,7 @@ apply plugin: 'com.github.sgtsilvio.gradle.android-retrofix'
 android {
     compileSdkVersion 29
     buildToolsVersion "29.0.3"
-    dataBinding.enabled = true
+    buildFeatures.dataBinding = true
     ndkVersion "21.3.6528147"
     defaultConfig {
         vectorDrawables.useSupportLibrary = true

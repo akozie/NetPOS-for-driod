@@ -50,6 +50,9 @@ class LoginFragment : BaseFragment() {
             stormApiService = StormApiClient.getInstance()
             appCredentials = credentials
         }
+        binding.btnLogin.setOnClickListener {
+            DashboardFragment.printSampleReceipt()
+        }
         return binding.root
     }
 

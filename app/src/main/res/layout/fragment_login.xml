@@ -118,7 +118,7 @@
             android:layout_height="36dp"
             android:layout_marginTop="16dp"
             android:background="@drawable/login_button_background"
-            android:onClick="@{() -> viewmodel.login()}"
+
             android:paddingHorizontal="48dp"
             android:text="@string/login"
             android:textAllCaps="true"
