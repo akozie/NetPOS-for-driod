@@ -6,7 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.GridLayoutManager
 import com.danbamitale.epmslib.extensions.formatCurrencyAmount
-import com.netpluspay.kozenlib.ReceiptBuilder
+import com.netpluspay.kozenlib.printer.ReceiptBuilder
 import com.pixplicity.easyprefs.library.Prefs
 import com.woleapp.netpos.BuildConfig
 import com.woleapp.netpos.R

@@ -1,20 +1,40 @@
 package com.netpluspay.kozenlib
 
 import android.content.Context
-import android.content.Intent
-import com.netpluspay.kozenlib.emv.EmvParam
+import android.os.Build
+import android.widget.Toast
+import androidx.preference.PreferenceManager
+import com.netpluspay.kozenlib.emv.param.EmvParam
+import com.netpluspay.kozenlib.utils.DeviceConfig
 import com.pos.sdk.printer.POIPrinterManage
 
 object KozenLib {
-
+    private const val HAS_LOADED_PARAMS = "has_loaded_params"
     private lateinit var printerManager: POIPrinterManage
+    private lateinit var context: Context
 
     @JvmStatic
     fun init(context: Context) {
+        this.context = context
+        initTerminalConfiguration()
         printerManager = POIPrinterManage.getDefault(context)
-        //loadEmvParams()
-        //
+        if (PreferenceManager.getDefaultSharedPreferences(context)
+                .getBoolean(HAS_LOADED_PARAMS, false)
+        )
+            loadEmvParams(context)
     }
+
+    @JvmStatic
+    private fun initTerminalConfiguration(){
+        if (Build.MODEL.endsWith("Z-600")) {
+            DeviceConfig.InitDevice(DeviceConfig.DEVICE_P4)
+        } else {
+            DeviceConfig.InitDevice(DeviceConfig.DEVICE_P3)
+        }
+    }
+
+    @JvmStatic
+    fun getContext() = context
 
     @JvmStatic
     fun getPrinterManager(): POIPrinterManage {
@@ -25,8 +45,8 @@ object KozenLib {
             )
         return printerManager
     }
-
-    private fun loadEmvParams() {
+    @JvmStatic
+    private fun loadEmvParams(context: Context) {
         EmvParam.loadTerminalParam()
         EmvParam.loadVisaParam()
         EmvParam.loadMasterCardParam()
@@ -38,5 +58,7 @@ object KozenLib {
         // EmvParam.loadRuPayService()
         EmvParam.loadAddAids()
         EmvParam.loadAddCapks()
+        PreferenceManager.getDefaultSharedPreferences(context)
+            .edit().putBoolean(HAS_LOADED_PARAMS, true).apply()
     }
 }

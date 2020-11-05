@@ -9,6 +9,8 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.viewModels
 import com.google.gson.JsonObject
+import com.netpluspay.kozenlib.emv.CardReaderEvent
+import com.netpluspay.kozenlib.emv.CardReaderService
 import com.woleapp.netpos.R
 import com.woleapp.netpos.databinding.DialogPasswordResetBinding
 import com.woleapp.netpos.databinding.FragmentLoginBinding
@@ -21,6 +23,9 @@ import com.woleapp.netpos.nibss.NetPosTerminalConfig
 import com.woleapp.netpos.ui.activities.MainActivity
 import com.woleapp.netpos.util.Singletons
 import com.woleapp.netpos.viewmodels.AuthViewModel
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
+import timber.log.Timber
 
 class LoginFragment : BaseFragment() {
 
@@ -51,7 +56,7 @@ class LoginFragment : BaseFragment() {
             appCredentials = credentials
         }
         binding.btnLogin.setOnClickListener {
-            DashboardFragment.printSampleReceipt()
+            viewModel.login()
         }
         return binding.root
     }

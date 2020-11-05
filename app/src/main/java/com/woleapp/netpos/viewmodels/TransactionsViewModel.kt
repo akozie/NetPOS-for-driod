@@ -4,8 +4,8 @@ import android.content.Context
 import androidx.lifecycle.*
 import com.danbamitale.epmslib.entities.*
 import com.danbamitale.epmslib.processors.TransactionProcessor
-import com.netpluspay.kozenlib.PrinterResponse
-import com.netpluspay.kozenlib.ReceiptBuilder
+import com.netpluspay.kozenlib.printer.PrinterResponse
+import com.netpluspay.kozenlib.printer.ReceiptBuilder
 import com.woleapp.netpos.BuildConfig
 import com.woleapp.netpos.database.AppDatabase
 import com.woleapp.netpos.model.CardReaderMqttEvent

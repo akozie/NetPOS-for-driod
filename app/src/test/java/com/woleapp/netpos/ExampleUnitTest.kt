@@ -1,7 +1,6 @@
 package com.woleapp.netpos
 
 import com.danbamitale.epmslib.entities.TransactionType
-import com.socsi.utils.HexDump
 import org.apache.commons.lang.StringUtils
 import org.junit.Test
 

@@ -1,8 +1,8 @@
 package com.netpluspay.kozenlib.utils;
 
 
-import com.netpluspay.kozenlib.constant.EncryptKeyType;
-import com.netpluspay.kozenlib.constant.EncryptModeType;
+import com.netpluspay.kozenlib.emv.constant.EncryptKeyType;
+import com.netpluspay.kozenlib.emv.constant.EncryptModeType;
 
 public class GlobalData {
 

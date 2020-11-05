@@ -6,8 +6,8 @@ import com.danbamitale.epmslib.entities.*
 import com.danbamitale.epmslib.extensions.formatCurrencyAmount
 import com.danbamitale.epmslib.processors.TransactionProcessor
 import com.danbamitale.epmslib.utils.IsoAccountType
-import com.netpluspay.kozenlib.PrinterResponse
-import com.netpluspay.kozenlib.ReceiptBuilder
+import com.netpluspay.kozenlib.printer.PrinterResponse
+import com.netpluspay.kozenlib.printer.ReceiptBuilder
 import com.woleapp.netpos.BuildConfig
 import com.woleapp.netpos.database.AppDatabase
 import com.woleapp.netpos.model.*
@@ -62,7 +62,7 @@ class SalesViewModel : ViewModel() {
         val hexStringPin = "042539FFFFFFFFFF"
         val hexCardNum = "0000009181414442"
 
-        Timber.e("Pin to make transaction: ${xorHex(hexStringPin, hexCardNum)}")
+        //Timber.e("Pin to make transaction: ${xorHex(hexStringPin, hexCardNum)}")
         val configData = NetPosTerminalConfig.getConfigData() ?: kotlin.run {
             _message.value =
                 Event("Terminal has not been configured, restart the application to configure")
