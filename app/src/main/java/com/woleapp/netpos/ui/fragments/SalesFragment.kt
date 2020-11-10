@@ -115,11 +115,6 @@ class SalesFragment : BaseFragment() {
                     is CardReaderEvent.CardRead -> {
                         hasCardBeenRead = true
                         val cardResult = it.getData()
-                        Timber.e(cardResult.toString())
-                        Timber.e("nibss pin: ${cardResult.encryptedPinBlock}")
-                        Timber.e("nibss subset: ${cardResult.nibssIccSubset}")
-                        Timber.e("Card Holder name: ${cardResult.cardHolderName}")
-                        Timber.e("pinblock: ${cardResult.encryptedPinBlock}")
                         viewModel.setCustomerName(
                             cardResult.cardHolderName!!
                         )
@@ -129,7 +124,7 @@ class SalesFragment : BaseFragment() {
                             panSequenceNumber = cardResult.applicationPANSequenceNumber!!,
                             posEntryMode = "051"
                         ).apply {
-                            pinBlock = TripleDES.encrypt("0425396E7EBEBBBD", NetPosTerminalConfig.getKeyHolder()?.clearPinKey)
+                            pinBlock = cardResult.encryptedPinBlock
                         }
                         //Timber.e(card.toString())
                         //Timber.e("pinblock: ${cardResult.encryptedPinBlock}")
@@ -174,7 +169,11 @@ class SalesFragment : BaseFragment() {
         c.disposeWith(compositeDisposable)
         val handler = Handler().postDelayed({
             if (!hasCardBeenRead) {
-                Toast.makeText(requireContext(), "Timed out while waiting for card", Toast.LENGTH_LONG).show()
+                Toast.makeText(
+                    requireContext(),
+                    "Timed out while waiting for card",
+                    Toast.LENGTH_LONG
+                ).show()
                 c.dispose()
                 dialog.dismiss()
             }
@@ -186,6 +185,12 @@ class SalesFragment : BaseFragment() {
     private fun showSelectAccountTypeDialog() {
         val dialog = AlertDialog.Builder(requireContext())
             .apply {
+                dialogSelectAccountTypeBinding.apply {
+                    root.parent?.let {
+                        (it as ViewGroup).removeView(dialogSelectAccountTypeBinding.root)
+                    }
+                    accountTypes.clearCheck()
+                }
                 setView(dialogSelectAccountTypeBinding.root)
                 setCancelable(false)
             }.create()
@@ -199,10 +204,12 @@ class SalesFragment : BaseFragment() {
                 R.id.universal_account -> IsoAccountType.UNIVERSAL_ACCOUNT
                 else -> IsoAccountType.DEFAULT_UNSPECIFIED
             }
-            viewModel.setAccountType(accountType)
             dialog.dismiss()
-            viewModel.makePayment(requireContext(), transactionType)
             Timber.e("$checkedId")
+            if (accountType != IsoAccountType.DEFAULT_UNSPECIFIED) {
+                viewModel.setAccountType(accountType)
+                viewModel.makePayment(requireContext(), transactionType)
+            }
         }
         dialogSelectAccountTypeBinding.cancelButton.setOnClickListener {
             dialog.dismiss()

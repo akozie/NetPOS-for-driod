@@ -18,14 +18,14 @@ object KozenLib {
         this.context = context
         initTerminalConfiguration()
         printerManager = POIPrinterManage.getDefault(context)
-        if (PreferenceManager.getDefaultSharedPreferences(context)
-                .getBoolean(HAS_LOADED_PARAMS, false)
-        )
-            loadEmvParams(context)
+//        if (PreferenceManager.getDefaultSharedPreferences(context)
+//                .getBoolean(HAS_LOADED_PARAMS, false)
+//        )
+        loadEmvParams(context)
     }
 
     @JvmStatic
-    private fun initTerminalConfiguration(){
+    private fun initTerminalConfiguration() {
         if (Build.MODEL.endsWith("Z-600")) {
             DeviceConfig.InitDevice(DeviceConfig.DEVICE_P4)
         } else {
@@ -45,6 +45,7 @@ object KozenLib {
             )
         return printerManager
     }
+
     @JvmStatic
     private fun loadEmvParams(context: Context) {
         EmvParam.loadTerminalParam()

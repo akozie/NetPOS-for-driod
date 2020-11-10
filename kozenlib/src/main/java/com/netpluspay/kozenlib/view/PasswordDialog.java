@@ -18,6 +18,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.Group;
 
@@ -267,7 +268,7 @@ public class PasswordDialog {
         byte pFmtData[] = {0, 0, 0, 0, 0, 0, 0, 0};
         System.arraycopy(pFmtData, 0, pPan, 16, 8);
 
-        return hsmManage.PedGetPinBlock(keyMode, tpkIndex, 0, DEFAULT_TIMEOUT_MS, pPan, DEFAULT_EXP_PIN_LEN_IND);
+        return hsmManage.PedGetPinBlock(keyMode, tpkIndex, 0x00, DEFAULT_TIMEOUT_MS, pPan, DEFAULT_EXP_PIN_LEN_IND);
     }
 
     private class PinEventListener implements POIHsmManage.EventListener {
@@ -551,7 +552,7 @@ public class PasswordDialog {
 
     public interface Listener {
 
-        void onConfirm(int verifyResult, byte[] pinBlock, byte[] pinKsn);
+        void onConfirm(int verifyResult, @Nullable byte[] pinBlock, @Nullable byte[] pinKsn);
 
         void onError(int verifyResult, int pinTryCntOut);
     }

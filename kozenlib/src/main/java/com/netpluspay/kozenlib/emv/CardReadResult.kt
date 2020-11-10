@@ -2,9 +2,11 @@ package com.netpluspay.kozenlib.emv
 
 import android.util.Log
 import com.netpluspay.kozenlib.emv.data.TransactionData
+import com.netpluspay.kozenlib.utils.HexDump
 import com.netpluspay.kozenlib.utils.tlv.BerTlvParser
 import com.netpluspay.kozenlib.utils.tlv.HexUtil
 import org.apache.commons.lang.StringUtils
+
 
 class CardReadResult(val readResultCode: Int, transactionData: TransactionData) {
     var applicationPrimaryAccountNumber: String? = null
@@ -66,6 +68,7 @@ class CardReadResult(val readResultCode: Int, transactionData: TransactionData) 
         val mTlvs = mTlvParser.parse(data)
         val sp = StringBuffer()
         for (tlv in mTlvs.list) {
+            //Log.e("TAG", "Emv tag: ${tlv.tag.berTagHex}  -  value ${tlv.hexValue}")
             when (tlv.tag.berTagHex) {
                 "5A" -> applicationPrimaryAccountNumber = tlv.hexValue
                 "5F20" -> cardHolderName = tlv.textValue
@@ -82,10 +85,7 @@ class CardReadResult(val readResultCode: Int, transactionData: TransactionData) 
                 "9C" -> transactionType = tlv.hexValue
                 "9F02" -> amount = tlv.hexValue
                 "5F24" -> expirationDate = tlv.hexValue
-                "5F2A" -> {
-                    transactionCurrencyCode = tlv.hexValue
-                    applicationInterchangeProfile = tlv.hexValue
-                }
+                "5F2A" -> transactionCurrencyCode = tlv.hexValue
                 "82" -> applicationInterchangeProfile = tlv.hexValue
                 "9F1A" -> terminalCountryCode = tlv.hexValue
                 "9F03" -> cashBackAmount = tlv.hexValue
@@ -104,111 +104,110 @@ class CardReadResult(val readResultCode: Int, transactionData: TransactionData) 
         Log.e("TAG", "Extract values")
     }
 
-    //.append("91").append(this.issueAuthenticationData);
-    //.append("9F6E").append(this.formFactorIndicator);
     val nibssIccSubset: String
         get() {
-            val builder = StringBuilder()
+            val builder = java.lang.StringBuilder()
             builder.append("9F26")
-                .append(HexUtil.toHexString(("" + authorizationRequest!!.length / 2).encodeToByteArray()))
+                .append(HexDump.toHexString(("" + authorizationRequest!!.length / 2).toByte()))
                 .append(
                     authorizationRequest
                 )
-                .append("9F27")
-                .append(HexUtil.toHexString(("" + cryptogram!!.length / 2).encodeToByteArray())).append(
+                .append("9F27").append(HexDump.toHexString(("" + cryptogram!!.length / 2).toByte()))
+                .append(
                     cryptogram
                 )
                 .append("9F10")
-                .append(HexUtil.toHexString(("" + issuerApplicationDiscretionaryData!!.length / 2).encodeToByteArray()))
+                .append(HexDump.toHexString(("" + issuerApplicationDiscretionaryData!!.length / 2).toByte()))
                 .append(
                     issuerApplicationDiscretionaryData
                 )
                 .append("9F37")
-                .append(HexUtil.toHexString(("" + unpredictableNumber!!.length / 2).encodeToByteArray()))
+                .append(HexDump.toHexString(("" + unpredictableNumber!!.length / 2).toByte()))
                 .append(
                     unpredictableNumber
                 )
                 .append("9F36")
-                .append(HexUtil.toHexString(("" + applicationTransactionCounter!!.length / 2).encodeToByteArray()))
+                .append(HexDump.toHexString(("" + applicationTransactionCounter!!.length / 2).toByte()))
                 .append(
                     applicationTransactionCounter
                 )
                 .append("95")
-                .append(HexUtil.toHexString(("" + terminalVerificationResults!!.length / 2).encodeToByteArray()))
+                .append(HexDump.toHexString(("" + terminalVerificationResults!!.length / 2).toByte()))
                 .append(
                     terminalVerificationResults
                 )
                 .append("9A")
-                .append(HexUtil.toHexString(("" + transactionDate!!.length / 2).encodeToByteArray()))
+                .append(HexDump.toHexString(("" + transactionDate!!.length / 2).toByte()))
                 .append(
                     transactionDate
                 )
                 .append("9C")
-                .append(HexUtil.toHexString(("" + transactionType!!.length / 2).encodeToByteArray()))
+                .append(HexDump.toHexString(("" + transactionType!!.length / 2).toByte()))
                 .append(
                     transactionType
                 )
-                .append("9F02")
-                .append(HexUtil.toHexString(("" + amount!!.length / 2).encodeToByteArray())).append(
-                    amount
-                )
+                .append("9F02").append(HexDump.toHexString(("" + amount!!.length / 2).toByte()))
+                .append(amount)
                 .append("5F2A")
-                .append(HexUtil.toHexString(("" + transactionCurrencyCode!!.length / 2).encodeToByteArray()))
+                .append(HexDump.toHexString(("" + transactionCurrencyCode!!.length / 2).toByte()))
                 .append(
                     transactionCurrencyCode
                 )
                 .append("82")
-                .append(HexUtil.toHexString(("" + applicationInterchangeProfile!!.length / 2).encodeToByteArray()))
+                .append(HexDump.toHexString(("" + applicationInterchangeProfile!!.length / 2).toByte()))
                 .append(
                     applicationInterchangeProfile
                 )
                 .append("9F1A")
-                .append(HexUtil.toHexString(("" + terminalCountryCode!!.length / 2).encodeToByteArray()))
+                .append(HexDump.toHexString(("" + terminalCountryCode!!.length / 2).toByte()))
                 .append(
                     terminalCountryCode
                 )
                 .append("9F34")
-                .append(HexUtil.toHexString(("" + cardholderVerificationMethod!!.length / 2).encodeToByteArray()))
+                .append(HexDump.toHexString(("" + cardholderVerificationMethod!!.length / 2).toByte()))
                 .append(
                     cardholderVerificationMethod
                 )
                 .append("9F33")
-                .append(HexUtil.toHexString(("" + terminalCapabilities!!.length / 2).encodeToByteArray()))
+                .append(HexDump.toHexString(("" + terminalCapabilities!!.length / 2).toByte()))
                 .append(
                     terminalCapabilities
                 )
                 .append("9F35")
-                .append(HexUtil.toHexString(("" + terminalType!!.length / 2).encodeToByteArray())).append(
+                .append(HexDump.toHexString(("" + terminalType!!.length / 2).toByte()))
+                .append(
                     terminalType
                 )
                 .append("9F1E")
-                .append(HexUtil.toHexString(("" + deviceSerialNumber!!.length / 2).encodeToByteArray()))
+                .append(HexDump.toHexString(("" + deviceSerialNumber!!.length / 2).toByte()))
                 .append(
                     deviceSerialNumber
                 )
                 .append("84")
-                .append(HexUtil.toHexString(("" + authorizationResponseCode!!.length / 2).encodeToByteArray()))
+                .append(HexDump.toHexString(("" + authorizationResponseCode!!.length / 2).toByte()))
                 .append(
                     authorizationResponseCode
                 )
                 .append("9F09")
-                .append(HexUtil.toHexString(("" + applicationVersionNumber!!.length / 2).encodeToByteArray()))
+                .append(HexDump.toHexString(("" + applicationVersionNumber!!.length / 2).toByte()))
                 .append(
                     applicationVersionNumber
                 )
                 .append("9F03")
-                .append(HexUtil.toHexString(("" + cashBackAmount!!.length / 2).encodeToByteArray()))
+                .append(HexDump.toHexString(("" + cashBackAmount!!.length / 2).toByte()))
                 .append(
                     cashBackAmount
                 )
                 .append("5F34")
-                .append(HexUtil.toHexString(("" + originalPan!!.length / 2).encodeToByteArray())).append(
+                .append(HexDump.toHexString(("" + originalPan!!.length / 2).toByte()))
+                .append(
                     originalPan
                 )
             //.append("91").append(this.issueAuthenticationData);
             //.append("9F6E").append(this.formFactorIndicator);
             return builder.toString()
         }
+
 
     override fun toString(): String {
         return "CardReadResult{" +

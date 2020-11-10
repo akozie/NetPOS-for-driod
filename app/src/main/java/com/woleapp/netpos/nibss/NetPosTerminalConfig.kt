@@ -5,13 +5,15 @@ import android.content.Intent
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.danbamitale.epmslib.entities.*
 import com.danbamitale.epmslib.processors.TerminalConfigurator
-import com.google.gson.Gson
+import com.netpluspay.kozenlib.utils.DeviceConfig
+import com.netpluspay.kozenlib.utils.tlv.HexUtil
 import com.pixplicity.easyprefs.library.Prefs
-
+import com.pos.sdk.security.POIHsmManage
+import com.pos.sdk.security.PedKcvInfo
+import com.pos.sdk.security.PedKeyInfo
 import com.woleapp.netpos.model.ConfigurationData
 import com.woleapp.netpos.util.PREF_CONFIG_DATA
 import com.woleapp.netpos.util.PREF_KEYHOLDER
-import com.woleapp.netpos.util.Singletons
 import com.woleapp.netpos.util.Singletons.getSavedConfigurationData
 import com.woleapp.netpos.util.Singletons.gson
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -115,6 +117,7 @@ class NetPosTerminalConfig {
                     configData?.let {
                         //TerminalManager.getInstance().beep(context, TerminalManager.BEEP_MODE_SUCCESS)
                         configurationStatus = 1
+                        writeTpkKey(DeviceConfig.TPKIndex, keyHolder!!.clearPinKey)
                         sendIntent.putExtra(CONFIGURATION_STATUS, configurationStatus)
                         localBroadcastManager.sendBroadcast(sendIntent)
                         Timber.e("Config data set")
@@ -124,6 +127,16 @@ class NetPosTerminalConfig {
                     }
                 }
             disposables.add(disposable)
+        }
+
+        private fun writeTpkKey(keyIndex: Int, keyData: String): Int {
+            Timber.e("Writing tpk key")
+            val pedKeyInfo = PedKeyInfo(
+                0, 0, POIHsmManage.PED_TPK, keyIndex, 0, 16,
+                HexUtil.parseHex(keyData)
+            )
+            Timber.e("key that was wrote: $keyData")
+            return POIHsmManage.getDefault().PedWriteKey(pedKeyInfo, PedKcvInfo(0, ByteArray(5)))
         }
 
         var sampleCardData = CardData(

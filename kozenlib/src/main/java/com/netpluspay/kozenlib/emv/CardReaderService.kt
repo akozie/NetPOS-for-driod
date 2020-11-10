@@ -24,6 +24,7 @@ import com.pos.sdk.emvcore.PosEmvErrCode
 import com.pos.sdk.utils.PosUtils
 import io.reactivex.Observable
 import io.reactivex.ObservableEmitter
+import java.util.*
 
 class CardReaderService(activity: Activity) :
     AndroidTerminalCardReaderFactory<Observable<CardReaderEvent>>() {
@@ -116,11 +117,14 @@ class CardReaderService(activity: Activity) :
                     setPinListener(object : PasswordDialog.Listener {
                         override fun onConfirm(
                             verifyResult: Int,
-                            pinBlock: ByteArray,
+                            pinBlock: ByteArray?,
                             pinKsn: ByteArray?
                         ) {
-                            cardPinBlock = HexUtil.toHexString(pinBlock)
-                            Log.e("TAG", "pinblock: ${HexUtil.toHexString(pinBlock)}")
+                            cardPinBlock = ""
+                            pinBlock?.let {
+                                cardPinBlock = HexUtil.toHexString(it).toLowerCase(Locale.getDefault())
+                                Log.e("TAG", "pinblock: ${HexUtil.toHexString(it).toLowerCase(Locale.getDefault())}")
+                            }
                             emvCoreManager.onSetConfirmPin(Bundle())
                         }
 
@@ -280,14 +284,14 @@ class CardReaderService(activity: Activity) :
         p2: String?
     ): Observable<CardReaderEvent> {
         reqData = Bundle().apply {
-            putInt(EmvTransDataConstraints.TRANSTYPE, EMV_PAYMENT)
+            putInt(EmvTransDataConstraints.TRANSTYPE, EMV_GOODS)
             putInt(EmvTransDataConstraints.TRANSAMT, p0.toInt())
             putInt(EmvTransDataConstraints.CASHBACKAMT, p1.toInt())
             putInt(EmvTransDataConstraints.TRANSMODE, 0 or DEV_ICC)
             putInt(EmvTransDataConstraints.TRANSTIMEOUTMS, 60)
         }
         transactionData.apply {
-            transType = EMV_PAYMENT
+            transType = EMV_GOODS
             transAmount = java.lang.Double.valueOf(p0.toDouble())
             transCashAmount = java.lang.Double.valueOf(p1.toDouble())
             transState = PosEmvErrCode.EMV_OTHER_ERROR

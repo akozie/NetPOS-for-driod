@@ -29,7 +29,7 @@ public class EmvParam {
         // EMV TAG 9F16 Len 15
         bundle.putByteArray(EmvTermCfgConstraints.MERCHID, "000000000000000".getBytes());
         // EMV TAG 9F15 Len 4
-        bundle.putByteArray(EmvTermCfgConstraints.MERCHCATECODE, "0566".getBytes());
+        bundle.putByteArray(EmvTermCfgConstraints.MERCHCATECODE, "3900".getBytes());
         // EMV TAG 9F4E Len V
         bundle.putByteArray(EmvTermCfgConstraints.MERCHNAME, "Railway Operator".getBytes());
         // EMV TAG 9F1C Len 8
@@ -48,14 +48,15 @@ public class EmvParam {
         // EMV TAG 9F35 Len 2
         bundle.putByteArray(EmvTermCfgConstraints.TERMINALTYPE, "22".getBytes());
         // EMV TAG 9F33 Len 6
-        bundle.putByteArray(EmvTermCfgConstraints.TERMINALCAPABILITY, "E0F8C8".getBytes());
+        //bundle.putByteArray(EmvTermCfgConstraints.TERMINALCAPABILITY, "E0F8C8".getBytes());
+        bundle.putByteArray(EmvTermCfgConstraints.TERMINALCAPABILITY, "E068C8".getBytes());
         // EMV TAG 9F40 Len 10
         bundle.putByteArray(EmvTermCfgConstraints.TERMINALEXCAPABILITY, "F000F0F001".getBytes());
         // EMV TAG 9F1E Len 8
         bundle.putByteArray(EmvTermCfgConstraints.IFDSERIALNUMBER,
                 POIGeneralAPI.getDefault().getVersion(POIGeneralAPI.VERSION_TYPE_DSN).getBytes());
         // EMV TAG 9F39 Len 2
-        bundle.putByteArray(EmvTermCfgConstraints.TERMINALENTRYMODE, "05".getBytes());
+        bundle.putByteArray(EmvTermCfgConstraints.TERMINALENTRYMODE, "051".getBytes());
 
         // EMV default configuration.
         bundle.putBoolean(EmvTermCfgConstraints.PSE, true);
@@ -97,6 +98,11 @@ public class EmvParam {
 //        appList.TerminalCapabilities = PosUtils.hexStringToBytes("E0F8C8");
 //        appList.TerminalRiskManagementData = PosUtils.hexStringToBytes("0000000000000000");
 //        appList.AdditionalTerminalCapabilities = PosUtils.hexStringToBytes("F000F0F001");
+        mEmvCoreManager.EmvAddAid(appList);
+
+        appList = addAidParam("A0000003710001", "008C", true);
+        appList.ContactlessTransMoneyLimit = 200001;
+        appList.TermDoCvmMoneyLimit = 200001;
         mEmvCoreManager.EmvAddAid(appList);
 
         appList = addAidParam("A0000000031010", "008C", true);

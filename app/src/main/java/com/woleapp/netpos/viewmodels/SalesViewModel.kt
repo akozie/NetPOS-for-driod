@@ -98,7 +98,9 @@ class SalesViewModel : ViewModel() {
                 MqttHelper.sendPayload(event)
                 it.cardHolder = customerName.value!!
                 lastTransactionResponse.postValue(it)
-
+                Timber.e(it.toString())
+                Timber.e(it.responseCode)
+                Timber.e(it.responseMessage)
                 _message.postValue(Event(if (it.responseCode == "00") "Transaction Approved" else "Transaction Not approved"))
                 AppDatabase.getDatabaseInstance(context).transactionResponseDao()
                     .insertNewTransaction(it)
