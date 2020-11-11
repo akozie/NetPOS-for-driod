@@ -6,6 +6,7 @@ import com.danbamitale.epmslib.entities.*
 import com.danbamitale.epmslib.extensions.formatCurrencyAmount
 import com.danbamitale.epmslib.processors.TransactionProcessor
 import com.danbamitale.epmslib.utils.IsoAccountType
+import com.netpluspay.kozenlib.emv.constant.EmvCardScheme
 import com.netpluspay.kozenlib.printer.PrinterResponse
 import com.netpluspay.kozenlib.printer.ReceiptBuilder
 import com.woleapp.netpos.BuildConfig
@@ -32,6 +33,7 @@ class SalesViewModel : ViewModel() {
     var pin: String? = null
     val customerName = MutableLiveData("")
     var isoAccountType: IsoAccountType? = null
+    private var cardScheme: String? = null
     private val _message: MutableLiveData<Event<String>> by lazy {
         MutableLiveData<Event<String>>()
     }
@@ -97,6 +99,7 @@ class SalesViewModel : ViewModel() {
                 }
                 MqttHelper.sendPayload(event)
                 it.cardHolder = customerName.value!!
+                it.cardLabel = cardScheme!!
                 lastTransactionResponse.postValue(it)
                 Timber.e(it.toString())
                 Timber.e(it.responseCode)
@@ -118,7 +121,10 @@ class SalesViewModel : ViewModel() {
                         this.event = MqttEvents.PRINTING_RECEIPT.event
                         this.code = it.code.toString()
                         this.timestamp = System.currentTimeMillis()
-                        this.data = PrinterEventData(lastTransactionResponse.value!!.RRN, "Printer code name")
+                        this.data = PrinterEventData(
+                            lastTransactionResponse.value!!.RRN,
+                            "Printer code name"
+                        )
                         this.status = it.message
                     }
                     MqttHelper.sendPayload(event)
@@ -147,7 +153,7 @@ class SalesViewModel : ViewModel() {
                 appendAuthorizationCode(transactionResponse.authCode)
                 appendCardHolderName(transactionResponse.cardHolder)
                 appendCardNumber(transactionResponse.maskedPan)
-                appendCardScheme("Card ${transactionResponse.cardLabel}")
+                appendCardScheme(cardScheme!!)
                 appendDateTime(transactionResponse.transactionTimeInMillis.formatDate())
                 appendRRN(transactionResponse.RRN)
                 appendStan(transactionResponse.STAN)
@@ -183,6 +189,10 @@ class SalesViewModel : ViewModel() {
 
     fun setAccountType(accountType: IsoAccountType) {
         this.isoAccountType = accountType
+    }
+
+    fun setCardScheme(cardScheme: String?) {
+        this.cardScheme = if (cardScheme.equals("no match", true)) "VERVE" else cardScheme
     }
 
 }

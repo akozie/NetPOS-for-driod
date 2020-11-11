@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.lifecycle.*
 import com.danbamitale.epmslib.entities.*
 import com.danbamitale.epmslib.processors.TransactionProcessor
+import com.danbamitale.epmslib.utils.IsoAccountType
 import com.netpluspay.kozenlib.printer.PrinterResponse
 import com.netpluspay.kozenlib.printer.ReceiptBuilder
 import com.woleapp.netpos.BuildConfig
@@ -34,6 +35,13 @@ class TransactionsViewModel : ViewModel() {
     private val _done = MutableLiveData(false)
     private val _beginGetCardDetails = MutableLiveData<Event<Boolean>>()
     private var event: MqttEvent
+    private var accountType: IsoAccountType = IsoAccountType.DEFAULT_UNSPECIFIED
+    private lateinit var cardHolderName: String
+    private val _message = MutableLiveData<Event<String>>()
+    private var cardScheme: String? = null
+
+    val message: LiveData<Event<String>>
+        get() = _message
     val beginGetCardDetails: LiveData<Event<Boolean>>
         get() = _beginGetCardDetails
 
@@ -41,7 +49,6 @@ class TransactionsViewModel : ViewModel() {
         get() = _done
     val selectedAction: LiveData<String>
         get() = _selectedAction
-
 
 
     init {
@@ -76,7 +83,7 @@ class TransactionsViewModel : ViewModel() {
         }
     }
 
-    fun refundTransaction(context: Context){
+    fun refundTransaction(context: Context) {
         refundTransaction(selectedTransaction.value!!, context)
     }
 
@@ -97,7 +104,8 @@ class TransactionsViewModel : ViewModel() {
         val requestData = TransactionRequestData(
             transactionType = TransactionType.REVERSAL,
             amount = originalDataElements.originalAmount,
-            originalDataElements = originalDataElements
+            originalDataElements = originalDataElements,
+            accountType = accountType
         )
         inProgress.value = true
         val disposable = TransactionProcessor(hostConfig).processTransaction(
@@ -105,6 +113,9 @@ class TransactionsViewModel : ViewModel() {
             requestData,
             cardData!!
         ).flatMap {
+            _message.postValue(Event("Transaction: ${it.responseMessage}"))
+            it.cardHolder = cardHolderName
+            it.cardLabel = cardScheme!!
             event.apply {
                 this.event = MqttEvents.TRANSACTIONS.event
                 this.code = it.responseCode
@@ -127,6 +138,7 @@ class TransactionsViewModel : ViewModel() {
             .subscribe { response, error ->
                 error?.let {
                     inProgress.value = false
+                    _message.value = Event(it.localizedMessage)
                     Timber.e(it)
                     it.printStackTrace()
                 }
@@ -160,6 +172,7 @@ class TransactionsViewModel : ViewModel() {
 
                 t2?.let {
                     Timber.e(it)
+                    _message.value = Event(it.localizedMessage)
                 }
             }.disposeWith(compositeDisposable)
     }
@@ -175,7 +188,7 @@ class TransactionsViewModel : ViewModel() {
                 appendAuthorizationCode(transactionResponse.authCode)
                 appendCardHolderName(transactionResponse.cardHolder)
                 appendCardNumber(transactionResponse.maskedPan)
-                appendCardScheme("card scheme")
+                appendCardScheme(transactionResponse.cardLabel)
                 appendDateTime(transactionResponse.transactionTimeInMillis.formatDate())
                 appendRRN(transactionResponse.RRN)
                 appendStan(transactionResponse.STAN)
@@ -193,6 +206,18 @@ class TransactionsViewModel : ViewModel() {
             this.code = code
         }
         MqttHelper.sendPayload(event)
+    }
+
+    fun setCustomerName(cardHolderName: String) {
+        this.cardHolderName = cardHolderName
+    }
+
+    fun setAccountType(accountType: IsoAccountType) {
+        this.accountType = accountType
+    }
+
+    fun setCardScheme(cardScheme: String?){
+        this.cardScheme = if (cardScheme.equals("no match", true)) "VERVE" else cardScheme
     }
 
 }

@@ -1,14 +1,16 @@
 package com.netpluspay.kozenlib.emv
 
 import android.util.Log
+import com.netpluspay.kozenlib.emv.data.EmvCard
 import com.netpluspay.kozenlib.emv.data.TransactionData
 import com.netpluspay.kozenlib.utils.HexDump
 import com.netpluspay.kozenlib.utils.tlv.BerTlvParser
 import com.netpluspay.kozenlib.utils.tlv.HexUtil
 import org.apache.commons.lang.StringUtils
+import java.util.stream.Stream
 
 
-class CardReadResult(val readResultCode: Int, transactionData: TransactionData) {
+class CardReadResult(private val readResultCode: Int, transactionData: TransactionData) {
     var applicationPrimaryAccountNumber: String? = null
         private set
     var cardHolderName: String? = null
@@ -56,6 +58,8 @@ class CardReadResult(val readResultCode: Int, transactionData: TransactionData) 
         private set
     var expirationDate: String? = null
         private set
+    var cardScheme: String? = null
+        private set
     val iCCRelateData: String? = null
     private var authorizationRequest: String? = null
     private var issuerApplicationDiscretionaryData: String? = null
@@ -63,6 +67,7 @@ class CardReadResult(val readResultCode: Int, transactionData: TransactionData) 
     private var originalPan: String? = null
     var encryptedPinBlock: String? = null
     private fun extractValues(transactionData: TransactionData) {
+        this.cardScheme = EmvCard(transactionData.transData).type.getName()
         val mTlvParser = BerTlvParser()
         val data = transactionData.transData
         val mTlvs = mTlvParser.parse(data)

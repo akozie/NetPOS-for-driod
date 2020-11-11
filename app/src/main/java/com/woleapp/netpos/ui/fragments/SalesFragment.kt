@@ -53,11 +53,6 @@ class SalesFragment : BaseFragment() {
         savedInstanceState: Bundle?
     ): View? {
         val binding = FragmentSalesBinding.inflate(inflater, container, false)
-        dialogSelectAccountTypeBinding =
-            DialogSelectAccountTypeBinding.inflate(inflater, container, false).apply {
-                lifecycleOwner = viewLifecycleOwner
-                executePendingBindings()
-            }
         transactionType = TransactionType.valueOf(
             arguments?.getString(
                 TRANSACTION_TYPE,
@@ -106,7 +101,7 @@ class SalesFragment : BaseFragment() {
         val c = CardReaderService(requireActivity()).initiateICCCardPayment(
             1000,
             0L,
-            NetPosTerminalConfig.getKeyHolder()?.clearPinKey
+            null
         )
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
@@ -118,6 +113,7 @@ class SalesFragment : BaseFragment() {
                         viewModel.setCustomerName(
                             cardResult.cardHolderName!!
                         )
+                        viewModel.setCardScheme(cardResult.cardScheme)
                         val card = CardData(
                             track2Data = cardResult.track2Data!!,
                             nibssIccSubset = cardResult.nibssIccSubset,
@@ -185,12 +181,11 @@ class SalesFragment : BaseFragment() {
     private fun showSelectAccountTypeDialog() {
         val dialog = AlertDialog.Builder(requireContext())
             .apply {
-                dialogSelectAccountTypeBinding.apply {
-                    root.parent?.let {
-                        (it as ViewGroup).removeView(dialogSelectAccountTypeBinding.root)
+                dialogSelectAccountTypeBinding =
+                    DialogSelectAccountTypeBinding.inflate(LayoutInflater.from(requireContext()), null, false).apply {
+                        lifecycleOwner = viewLifecycleOwner
+                        executePendingBindings()
                     }
-                    accountTypes.clearCheck()
-                }
                 setView(dialogSelectAccountTypeBinding.root)
                 setCancelable(false)
             }.create()
