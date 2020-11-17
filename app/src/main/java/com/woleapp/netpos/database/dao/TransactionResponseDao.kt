@@ -18,4 +18,7 @@ interface TransactionResponseDao {
 
     @Query("SELECT * FROM transactionresponse ORDER BY id DESC")
     fun getTransactions(): LiveData<List<TransactionResponse>>
+
+    @Query("SELECT * FROM transactionresponse WHERE transactionTimeInMillis >= :beginningOfDay and transactionTimeInMillis <= :endOfDay")
+    fun getEndOfDayTransaction(beginningOfDay: Long, endOfDay: Long): LiveData<List<TransactionResponse>>
 }

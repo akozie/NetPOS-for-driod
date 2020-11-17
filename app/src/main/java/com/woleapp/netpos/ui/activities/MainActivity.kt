@@ -21,11 +21,14 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.danbamitale.epmslib.entities.clearPinKey
+import com.danbamitale.epmslib.entities.responseMessage
 import com.danbamitale.epmslib.utils.TripleDES
 import com.pixplicity.easyprefs.library.Prefs
 import com.woleapp.netpos.R
+import com.woleapp.netpos.database.AppDatabase
 import com.woleapp.netpos.databinding.ActivityMainBinding
 import com.woleapp.netpos.model.User
 import com.woleapp.netpos.nibss.CONFIGURATION_ACTION
@@ -35,6 +38,8 @@ import com.woleapp.netpos.receivers.BatteryReceiver
 import com.woleapp.netpos.ui.fragments.DashboardFragment
 import com.woleapp.netpos.util.*
 import com.woleapp.netpos.util.Singletons.gson
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import pub.devrel.easypermissions.EasyPermissions
 import timber.log.Timber
 

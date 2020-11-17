@@ -66,4 +66,11 @@
     <string name="key1">NIBSS Key 1</string>
     <string name="key2">NIBSS Key 2</string>
     <string name="save_configuration">Save Configuration</string>
+    <string name="end_of_day_transaction">End Of Day Transaction</string>
+    <string name="approved_transactions">Approved Transactions</string>
+    <string name="declined_transactions">Declined Transactions</string>
+    <string name="all">All</string>
+    <string name="approved">Approved</string>
+    <string name="declined">Declined</string>
+    <string name="total_transaction_count">Total Transactions: %s</string>
 </resources>

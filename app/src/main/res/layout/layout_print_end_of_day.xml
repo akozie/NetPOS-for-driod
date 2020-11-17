@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/bottom_sheet_background"
+        android:paddingHorizontal="16dp">
+
+        <ImageButton
+            android:id="@+id/close_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackground"
+            android:contentDescription="@string/close_dialog"
+            android:padding="8dp"
+            android:src="@drawable/ic_cal_clear"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/header_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/end_of_day_transaction"
+            android:textColor="@android:color/black"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/close_button" />
+
+        <ImageView
+            android:id="@+id/approved_icon"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_marginTop="16dp"
+            android:contentDescription="@string/approved_transactions"
+            android:src="@drawable/ic_card_approved"
+            app:layout_constraintEnd_toStartOf="@id/declined_icon"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/header_title" />
+
+        <ImageView
+            android:id="@+id/declined_icon"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:contentDescription="@string/declined_transactions"
+            android:src="@drawable/ic_card_declined"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/approved_icon"
+            app:layout_constraintTop_toTopOf="@id/approved_icon" />
+
+        <TextView
+            android:id="@+id/approved_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/approved_transactions"
+            app:layout_constraintEnd_toEndOf="@id/approved_icon"
+            app:layout_constraintStart_toStartOf="@id/approved_icon"
+            app:layout_constraintTop_toBottomOf="@id/approved_icon" />
+
+        <TextView
+            android:id="@+id/approved_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="@id/approved_text"
+            app:layout_constraintStart_toStartOf="@id/approved_text"
+            app:layout_constraintTop_toBottomOf="@id/approved_text"
+            tools:text="20" />
+
+        <TextView
+            android:id="@+id/declined_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/declined_transactions"
+            app:layout_constraintEnd_toEndOf="@id/declined_icon"
+            app:layout_constraintStart_toStartOf="@id/declined_icon"
+            app:layout_constraintTop_toBottomOf="@id/declined_icon" />
+
+        <TextView
+            android:id="@+id/declined_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="@id/declined_text"
+            app:layout_constraintStart_toStartOf="@id/declined_text"
+            app:layout_constraintTop_toBottomOf="@id/declined_text"
+            tools:text="20" />
+
+        <TextView
+            android:id="@+id/total_transactions"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textColor="@color/colorPrimary"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/declined_count"
+            tools:text="Total Transactions: 40" />
+
+        <TextView
+            android:id="@+id/print_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dimen_16dp"
+            android:text="@string/print"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/total_transactions" />
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chip_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/print_label"
+            app:singleSelection="true">
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/print_all"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="@string/all" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/print_approved"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/approved" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/print_declined"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/declined" />
+
+        </com.google.android.material.chip.ChipGroup>
+
+        <Button
+            android:id="@+id/print"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/print"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/chip_group" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

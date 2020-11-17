@@ -33,6 +33,20 @@ class StormApiClient {
                     INSTANCE = it
                 }
         }
+
+        private const val NIP_BASE_URL = "https://178.79.179.174/"
+        private var NIPINSTANCE: NipService? = null
+        fun getNipInstance(): NipService = NIPINSTANCE ?: synchronized(this) {
+            NIPINSTANCE ?: Retrofit.Builder()
+                .baseUrl(NIP_BASE_URL)
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create())
+                .build()
+                .create(NipService::class.java)
+                .also {
+                    NIPINSTANCE = it
+                }
+        }
     }
 }
 

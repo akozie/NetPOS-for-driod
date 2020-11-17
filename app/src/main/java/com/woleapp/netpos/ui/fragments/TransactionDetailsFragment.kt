@@ -85,8 +85,7 @@ class TransactionDetailsFragment : BaseFragment() {
             }
         val c = CardReaderService(requireActivity()).initiateICCCardPayment(
             1000,
-            0L,
-            null
+            0L
         )
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())

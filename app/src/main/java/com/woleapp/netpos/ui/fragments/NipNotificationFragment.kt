@@ -113,7 +113,7 @@ class NipNotificationFragment : BaseFragment() {
         )
         val bottomSheetDialog = BottomSheetDialog(requireContext(), R.style.SheetDialog)
         bottomSheetDialog.setCancelable(false)
-        bottomSheetDialog.setContentView(bankDetailsBinding.getRoot())
+        bottomSheetDialog.setContentView(bankDetailsBinding.root)
         val bank = "GTB"
         val accountNumber = "0597024646"
         val accountName = "NETPLUS/STORM"

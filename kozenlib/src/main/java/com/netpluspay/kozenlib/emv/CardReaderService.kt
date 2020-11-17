@@ -16,7 +16,7 @@ import com.netpluspay.kozenlib.utils.tlv.BerTlvs
 import com.netpluspay.kozenlib.utils.tlv.HexUtil
 import com.netpluspay.kozenlib.view.MaterialDialog
 import com.netpluspay.kozenlib.view.PasswordDialog
-import com.netpluspay.terminal_core.AndroidTerminalCardReaderFactory
+import com.netpluspay.terminalcore.AndroidTerminalCardReaderFactory
 import com.pos.sdk.emvcore.IPosEmvCoreListener
 import com.pos.sdk.emvcore.POIEmvCoreManager
 import com.pos.sdk.emvcore.POIEmvCoreManager.*
@@ -280,8 +280,7 @@ class CardReaderService(activity: Activity) :
 
     override fun initiateICCCardPayment(
         p0: Long,
-        p1: Long,
-        p2: String?
+        p1: Long
     ): Observable<CardReaderEvent> {
         reqData = Bundle().apply {
             putInt(EmvTransDataConstraints.TRANSTYPE, EMV_GOODS)

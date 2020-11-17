@@ -153,7 +153,7 @@ class SalesViewModel : ViewModel() {
                 appendAuthorizationCode(transactionResponse.authCode)
                 appendCardHolderName(transactionResponse.cardHolder)
                 appendCardNumber(transactionResponse.maskedPan)
-                appendCardScheme(cardScheme!!)
+                appendCardScheme(transactionResponse.cardLabel)
                 appendDateTime(transactionResponse.transactionTimeInMillis.formatDate())
                 appendRRN(transactionResponse.RRN)
                 appendStan(transactionResponse.STAN)
