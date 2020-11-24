@@ -73,4 +73,7 @@
     <string name="approved">Approved</string>
     <string name="declined">Declined</string>
     <string name="total_transaction_count">Total Transactions: %s</string>
+    <string name="enter_reference">Enter Reference</string>
+    <string name="print_all">Print All</string>
+    <string name="log_out">Log Out</string>
 </resources>

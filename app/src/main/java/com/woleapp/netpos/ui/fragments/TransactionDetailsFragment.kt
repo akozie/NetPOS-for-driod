@@ -59,7 +59,7 @@ class TransactionDetailsFragment : BaseFragment() {
         }
         viewModel.done.observe(viewLifecycleOwner) {
             if (it) {
-                showFragment(DashboardFragment(), DashboardFragment::class.simpleName)
+                Toast.makeText(requireContext(), "Done", Toast.LENGTH_SHORT).show()
                 viewModel.reset()
             }
         }

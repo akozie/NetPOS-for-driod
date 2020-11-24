@@ -53,8 +53,17 @@ class NipNotificationFragment : BaseFragment() {
                     Toast.makeText(requireContext(), "Please wait!!!", Toast.LENGTH_SHORT).show()
                     getCode()
                 }
-                1 -> addFragmentWithoutRemove(NipNotificationListFragment())
-                2 -> addFragmentWithoutRemove(NipNotificationSearch())
+                1 -> addFragmentWithoutRemove(
+                    NipNotificationListFragment.newInstance(
+                        NipNotificationListFragment.LAST_TWO
+                    )
+                )
+                2 -> addFragmentWithoutRemove(
+                    NipNotificationListFragment.newInstance(
+                        NipNotificationListFragment.END_OF_DAY
+                    )
+                )
+                3 -> addFragmentWithoutRemove(NipNotificationSearch())
             }
         }
         binding.rvTransactions.layoutManager = GridLayoutManager(context, 2)
@@ -158,7 +167,6 @@ class NipNotificationFragment : BaseFragment() {
         }
         bankDetailsBinding.btnDone.setOnClickListener {
             if (bottomSheetDialog.isShowing) bottomSheetDialog.cancel()
-            showFragment(DashboardFragment(), DashboardFragment::class.java.simpleName)
         }
         bottomSheetDialog.show()
     }
@@ -167,8 +175,9 @@ class NipNotificationFragment : BaseFragment() {
         val listOfService = ArrayList<Service>()
             .apply {
                 add(Service(0, "New", R.drawable.ic_add))
-                add(Service(1, "Pull", R.drawable.ic_write))
-                add(Service(2, "Search", R.drawable.ic_search))
+                add(Service(1, "Last Two Transfers", R.drawable.ic_write))
+                add(Service(2, "End Of Day Notification", R.drawable.ic_end_of_day))
+                add(Service(3, "Search with Reference", R.drawable.ic_search))
             }
         adapter.submitList(listOfService)
     }

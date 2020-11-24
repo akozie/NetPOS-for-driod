@@ -3,13 +3,9 @@ package com.woleapp.netpos.viewmodels
 import android.content.Context
 import androidx.lifecycle.*
 import com.danbamitale.epmslib.entities.*
-import com.danbamitale.epmslib.extensions.formatCurrencyAmount
 import com.danbamitale.epmslib.processors.TransactionProcessor
 import com.danbamitale.epmslib.utils.IsoAccountType
-import com.netpluspay.kozenlib.emv.constant.EmvCardScheme
 import com.netpluspay.kozenlib.printer.PrinterResponse
-import com.netpluspay.kozenlib.printer.ReceiptBuilder
-import com.woleapp.netpos.BuildConfig
 import com.woleapp.netpos.database.AppDatabase
 import com.woleapp.netpos.model.*
 import com.woleapp.netpos.mqtt.MqttHelper
@@ -61,8 +57,6 @@ class SalesViewModel : ViewModel() {
             return
         }) * 100
         Timber.e(cardData.toString())
-        val hexStringPin = "042539FFFFFFFFFF"
-        val hexCardNum = "0000009181414442"
 
         //Timber.e("Pin to make transaction: ${xorHex(hexStringPin, hexCardNum)}")
         val configData = NetPosTerminalConfig.getConfigData() ?: kotlin.run {
@@ -71,6 +65,7 @@ class SalesViewModel : ViewModel() {
             return
         }
         val keyHolder = NetPosTerminalConfig.getKeyHolder()!!
+        Timber.e("terminal id for transaction ${NetPosTerminalConfig.getTerminalId()}")
         val hostConfig = HostConfig(
             NetPosTerminalConfig.getTerminalId(),
             NetPosTerminalConfig.getConnectionData(),
@@ -141,35 +136,7 @@ class SalesViewModel : ViewModel() {
 
     private fun printReceipt(): Single<PrinterResponse> {
         val transactionResponse = lastTransactionResponse.value!!
-        return ReceiptBuilder()
-            .apply {
-                appendAID(transactionResponse.AID)
-                appendAddress("NETPOS")
-                appendAmount(
-                    transactionResponse.amount.div(100).formatCurrencyAmount("\u20A6")
-                )
-                appendAppName("NetPOS")
-                appendAppVersion(BuildConfig.VERSION_NAME)
-                appendAuthorizationCode(transactionResponse.authCode)
-                appendCardHolderName(transactionResponse.cardHolder)
-                appendCardNumber(transactionResponse.maskedPan)
-                appendCardScheme(transactionResponse.cardLabel)
-                appendDateTime(transactionResponse.transactionTimeInMillis.formatDate())
-                appendRRN(transactionResponse.RRN)
-                appendStan(transactionResponse.STAN)
-                appendTerminalId(NetPosTerminalConfig.getTerminalId())
-                appendTransactionType(transactionResponse.transactionType.name)
-                appendTransactionStatus(if (transactionResponse.responseCode == "00") "Approved" else "Declined")
-                appendResponseCode(
-                    "${transactionResponse.responseCode}\nMessage: ${
-                        try {
-                            transactionResponse.responseMessage
-                        } catch (ex: Exception) {
-                            "Error"
-                        }
-                    }"
-                )
-            }.isCustomerCopy().print().subscribeOn(Schedulers.io())
+        return transactionResponse.print().subscribeOn(Schedulers.io())
     }
 
     fun sendCardEvent(status: String, code: String, eventData: CardReaderMqttEvent) {

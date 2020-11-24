@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import com.danbamitale.epmslib.entities.TransactionType
 import com.woleapp.netpos.R
@@ -24,7 +25,7 @@ class TransactionsFragment : BaseFragment() {
     ): View? {
         binding = FragmentTransactionsBinding.inflate(inflater, container, false)
         adapter = ServiceAdapter {
-            val nextFrag = when (it.id) {
+            val nextFrag : Fragment = when (it.id) {
                 0 -> SalesFragment.newInstance()
                 1 -> TransactionHistoryFragment.NewInstance(action = HISTORY_ACTION_REFUND)
                 3 -> ReprintFragment()

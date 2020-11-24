@@ -116,8 +116,12 @@ class ReceiptBuilder :
         val bitmapPrintLine = BitmapPrintLine()
         bitmapPrintLine.type = PrintLine.BITMAP
         bitmapPrintLine.position = PrintLine.CENTER
-        val bitmap: Bitmap = BitmapFactory.decodeResource(KozenLib.getContext().resources, R.drawable.ic_netpos_logo)
-        bitmapPrintLine.bitmap = Bitmap.createScaledBitmap(bitmap, 120, 120, false)
+        val bitmap: Bitmap = BitmapFactory.decodeResource(KozenLib.getContext().resources, R.drawable.ic_netpos_new)
+        bitmapPrintLine.bitmap = Bitmap.createScaledBitmap(bitmap, 180, 120, false)
         printerManager.addPrintLine(bitmapPrintLine)
+    }
+
+    override fun appendLogo() {
+        appendImageCenter()
     }
 }

@@ -32,6 +32,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:autofillHints="@string/nibss_ip"
+                android:background="@drawable/edittext_bg"
                 android:hint="@string/nibss_ip"
                 android:inputType="text"
                 android:text="@={viewmodel.configurationData.ip}"
@@ -51,9 +52,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:autofillHints="@string/nibss_port"
+                android:background="@drawable/edittext_bg"
                 android:hint="@string/nibss_port"
-                android:text="@={viewmodel.configurationData.port}"
                 android:inputType="number"
+                android:text="@={viewmodel.configurationData.port}"
                 tools:text="5083" />
 
         </com.google.android.material.textfield.TextInputLayout>
@@ -71,8 +73,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:autofillHints="@string/terminal_id"
+                android:background="@drawable/edittext_bg"
                 android:hint="@string/terminal_id"
-                android:inputType="number"
+                android:inputType="text"
                 android:text="@={viewmodel.configurationData.terminalId}"
                 tools:text="20HAKNAD94" />
 
@@ -91,6 +94,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:autofillHints="@string/key1"
+                android:background="@drawable/edittext_bg"
                 android:hint="@string/key1"
                 android:inputType="text"
                 android:text="@={viewmodel.configurationData.key1}"
@@ -111,6 +115,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:autofillHints="@string/key2"
+                android:background="@drawable/edittext_bg"
                 android:hint="@string/key2"
                 android:inputType="text"
                 android:text="@={viewmodel.configurationData.key2}"

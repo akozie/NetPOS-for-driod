@@ -3,7 +3,7 @@ package com.netpluspay.terminalcore;
 /**
  * @param <T> The ReceiptBuilder class which extends this class
  * @param <K> The return value of the final print function
- * */
+ */
 public abstract class AndroidTerminalReceiptBuilderFactory<T, K> {
     protected String title;
     protected String merchantName;
@@ -121,14 +121,15 @@ public abstract class AndroidTerminalReceiptBuilderFactory<T, K> {
         return getThis();
     }
 
+    public abstract void appendLogo();
+
     protected void printLine() {
         appendTextEntity("\n");
         appendTextEntity("-------------------------------");
+        appendTextEntity("\n");
     }
 
-    protected void build(){
-        appendImageCenter();
-
+    protected void build() {
         if (title != null)
             appendTextEntity(title);
 
@@ -207,12 +208,17 @@ public abstract class AndroidTerminalReceiptBuilderFactory<T, K> {
         printLine();
     }
 
-    protected abstract void appendTextEntity(String str);
-    protected abstract void appendTextEntityBold(String str);
-    protected abstract void appendTextEntityFontSixteen(String str);
-    protected abstract void appendTextEntityFontSixteenCenter(String str);
-    protected abstract void appendTextEntityCenter(String str);
-    protected abstract void appendImageCenter();
+    public abstract void appendTextEntity(String str);
+
+    public abstract void appendTextEntityBold(String str);
+
+    public abstract void appendTextEntityFontSixteen(String str);
+
+    public abstract void appendTextEntityFontSixteenCenter(String str);
+
+    public abstract void appendTextEntityCenter(String str);
+
+    public abstract void appendImageCenter();
 
     public abstract K print();
 }

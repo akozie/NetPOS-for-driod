@@ -10,25 +10,17 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
 import android.widget.Toast
-import androidx.annotation.Nullable
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import com.danbamitale.epmslib.entities.clearPinKey
-import com.danbamitale.epmslib.entities.responseMessage
-import com.danbamitale.epmslib.utils.TripleDES
 import com.pixplicity.easyprefs.library.Prefs
 import com.woleapp.netpos.R
-import com.woleapp.netpos.database.AppDatabase
 import com.woleapp.netpos.databinding.ActivityMainBinding
 import com.woleapp.netpos.model.User
 import com.woleapp.netpos.nibss.CONFIGURATION_ACTION
@@ -38,8 +30,6 @@ import com.woleapp.netpos.receivers.BatteryReceiver
 import com.woleapp.netpos.ui.fragments.DashboardFragment
 import com.woleapp.netpos.util.*
 import com.woleapp.netpos.util.Singletons.gson
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
 import pub.devrel.easypermissions.EasyPermissions
 import timber.log.Timber
 
@@ -104,16 +94,24 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
         checkTokenExpiry()
     }
 
+    private fun logout(){
+        Prefs.remove(PREF_USER)
+        Prefs.remove(PREF_USER_TOKEN)
+        Prefs.remove(PREF_AUTHENTICATED)
+        Prefs.remove(PREF_KEYHOLDER)
+        Prefs.remove(PREF_CONFIG_DATA)
+        val intent = Intent(this, AuthenticationActivity::class.java)
+        intent.flags =
+            Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+        finish()
+    }
+
     private fun checkTokenExpiry() {
         val token = Prefs.getString(PREF_USER_TOKEN, null)
         token?.let {
             if (JWTHelper.isExpired(it)) {
-                Prefs.remove(PREF_USER_TOKEN)
-                Prefs.remove(PREF_AUTHENTICATED)
-                Prefs.remove(PREF_KEYHOLDER)
-                Prefs.remove(PREF_CONFIG_DATA)
-                startActivity(Intent(this, AuthenticationActivity::class.java))
-                finish()
+                logout()
             }
         }
     }
@@ -163,6 +161,9 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
         }
         val user = gson.fromJson(Prefs.getString(PREF_USER, ""), User::class.java)
         binding.dashboardHeader.username.text = user.business_name
+        binding.dashboardHeader.logout.setOnClickListener {
+            logout()
+        }
         showFragment(DashboardFragment(), DashboardFragment::class.java.simpleName)
     }
 
@@ -229,11 +230,5 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
             e.printStackTrace()
         }
 
-    }
-
-    private fun showToastOnUiThread(message: String) {
-        runOnUiThread {
-            Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
-        }
     }
 }

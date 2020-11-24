@@ -49,9 +49,8 @@ class NipNotificationSearch : BaseFragment() {
         binding.searchButton.setOnClickListener {
             if (binding.sessionCode.text.toString().isEmpty())
                 return@setOnClickListener
-            StormApiClient.getInstance().getNotificationByReference(
-                binding.sessionCode.text.toString(),
-                user.netplus_id!!, userToken
+            StormApiClient.getNipInstance().getNotificationByReference(
+                binding.sessionCode.text.toString()
             ).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnSubscribe { binding.progressCircular.visibility = View.VISIBLE }

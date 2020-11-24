@@ -14,6 +14,7 @@ import com.pos.sdk.security.PedKeyInfo
 import com.woleapp.netpos.model.ConfigurationData
 import com.woleapp.netpos.util.PREF_CONFIG_DATA
 import com.woleapp.netpos.util.PREF_KEYHOLDER
+import com.woleapp.netpos.util.Singletons
 import com.woleapp.netpos.util.Singletons.getSavedConfigurationData
 import com.woleapp.netpos.util.Singletons.gson
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -32,7 +33,7 @@ const val DEFAULT_TERMINAL_ID = "2057H63U"
 class NetPosTerminalConfig {
 
     companion object {
-        private val defaultConfigurationData: ConfigurationData = getSavedConfigurationData()
+        private var configurationData: ConfigurationData = getSavedConfigurationData()
         private val disposables = CompositeDisposable()
         private var connectionData: ConnectionData? = null
         private var terminalId: String? = null
@@ -44,7 +45,7 @@ class NetPosTerminalConfig {
         private var context: Context? = null
 
 
-        private fun setTerminalId(configurationData: ConfigurationData){
+        private fun setTerminalId(configurationData: ConfigurationData) {
             terminalId = configurationData.terminalId
         }
 
@@ -67,12 +68,16 @@ class NetPosTerminalConfig {
         fun getKeyHolder(): KeyHolder? = keyHolder
 
         fun init(context: Context, newConfigurationData: ConfigurationData? = null) {
-            val configurationData = newConfigurationData ?: defaultConfigurationData
+            newConfigurationData?.let { it ->
+                configurationData = it
+            }
+            Timber.e(configurationData.toString())
             setConnectionData(configurationData)
             setTerminalId(configurationData)
+            Timber.e("Terminal ID: $terminalId")
             //keyHolder = Singletons.getKeyHolder()
             //configData = Singletons.getConfigData()
-            if (keyHolder != null && configData != null){
+            if (keyHolder != null && configData != null) {
                 Timber.e("done here")
                 //return
             }
@@ -116,6 +121,7 @@ class NetPosTerminalConfig {
                     }
                     configData?.let {
                         //TerminalManager.getInstance().beep(context, TerminalManager.BEEP_MODE_SUCCESS)
+
                         configurationStatus = 1
                         writeTpkKey(DeviceConfig.TPKIndex, keyHolder!!.clearPinKey)
                         sendIntent.putExtra(CONFIGURATION_STATUS, configurationStatus)

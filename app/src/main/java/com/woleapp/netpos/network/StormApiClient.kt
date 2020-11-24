@@ -1,7 +1,10 @@
 package com.woleapp.netpos.network
 
 import com.pixplicity.easyprefs.library.Prefs
+import com.woleapp.netpos.model.User
+import com.woleapp.netpos.util.PREF_USER
 import com.woleapp.netpos.util.PREF_USER_TOKEN
+import com.woleapp.netpos.util.Singletons
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Response
@@ -19,6 +22,10 @@ class StormApiClient {
                 .addInterceptor(TokenInterceptor())
                 .build()
 
+        private fun getNipOkHttpClient() = OkHttpClient.Builder()
+            .addInterceptor(NipInterceptor())
+            .build()
+
         private const val BASE_URL = "https://storm.netpluspay.com/"
         private var INSTANCE: StormApiService? = null
         fun getInstance(): StormApiService = INSTANCE ?: synchronized(this) {
@@ -34,13 +41,14 @@ class StormApiClient {
                 }
         }
 
-        private const val NIP_BASE_URL = "https://178.79.179.174/"
+        private const val NIP_BASE_URL = "http://storm.test.netpluspay.com/"
         private var NIPINSTANCE: NipService? = null
         fun getNipInstance(): NipService = NIPINSTANCE ?: synchronized(this) {
             NIPINSTANCE ?: Retrofit.Builder()
                 .baseUrl(NIP_BASE_URL)
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .addConverterFactory(GsonConverterFactory.create())
+                .client(getNipOkHttpClient())
                 .build()
                 .create(NipService::class.java)
                 .also {
@@ -65,5 +73,18 @@ class TokenInterceptor : Interceptor {
         Timber.e("resp: $bodyString")
         return response.newBuilder().body(ResponseBody.create(body!!.contentType(), bodyString!!))
             .build()
+    }
+}
+
+class NipInterceptor : Interceptor {
+    override fun intercept(chain: Interceptor.Chain): Response {
+        val request = chain.request()
+        val builder = request.newBuilder()
+        val userId =
+            Singletons.gson.fromJson(Prefs.getString(PREF_USER, ""), User::class.java).netplus_id
+        val userToken = Prefs.getString(PREF_USER_TOKEN, "")
+        builder.addHeader("X-CLIENT-ID", "d84d4cba-2d14-4ceb-944f-a0a48344b768")
+        builder.addHeader("X-ACCESSCODE", "78b4311d3e83a85c924edcc60dddc99d76fde9a21459e879fcd88878a31de8c5")
+        return chain.proceed(builder.build())
     }
 }

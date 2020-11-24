@@ -32,7 +32,6 @@ class AdministratorFragment : Fragment() {
                     1 -> {
                         Toast.makeText(context!!, "Terminal Configured", Toast.LENGTH_LONG).show()
                         dismissProgressDialogIfShowing()
-                        viewModel.saveConfigurationToPreference()
                     }
                     -1 -> {
                         dismissProgressDialogIfShowing()
@@ -87,7 +86,8 @@ class AdministratorFragment : Fragment() {
             }
         }
         viewModel.saveConfigurationData.observe(viewLifecycleOwner) {
-            NetPosTerminalConfig.init(requireContext())
+            viewModel.saveConfigurationToPreference()
+            NetPosTerminalConfig.init(requireContext(), viewModel.configurationData.value)
         }
     }
 

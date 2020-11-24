@@ -137,7 +137,7 @@ class AuthViewModel : ViewModel() {
         }
         stormApiService!!.passwordReset(appToken, payload).subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { t1, t2 -> }.disposeWith(disposables)
+            .subscribe { _, _ -> }.disposeWith(disposables)
     }
 
     override fun onCleared() {

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
 
@@ -14,16 +15,26 @@
         android:clickable="true"
         android:focusable="true">
 
-        <EditText
-            android:id="@+id/session_code"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/session_code_wrapper"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:autofillHints="@string/session_code"
-            android:hint="@string/session_code"
-            android:inputType="text"
+            android:layout_marginTop="16dp"
+            android:hint="@string/enter_reference"
             app:layout_constraintEnd_toStartOf="@id/search_button"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/session_code"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                tools:text="190332" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
 
         <ImageButton
             android:id="@+id/search_button"
@@ -33,17 +44,17 @@
             android:contentDescription="@string/search"
             android:padding="8dp"
             android:src="@drawable/ic_search"
-            app:layout_constraintBottom_toBottomOf="@id/session_code"
+            app:layout_constraintBottom_toBottomOf="@id/session_code_wrapper"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/session_code"
-            app:layout_constraintTop_toTopOf="@id/session_code" />
+            app:layout_constraintStart_toEndOf="@id/session_code_wrapper"
+            app:layout_constraintTop_toTopOf="@id/session_code_wrapper" />
 
         <ProgressBar
             android:id="@+id/progress_circular"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:visibility="gone"
-            app:layout_constraintTop_toBottomOf="@id/search_button" />
+            app:layout_constraintTop_toBottomOf="@id/session_code_wrapper" />
 
         <include
             android:id="@+id/nip"

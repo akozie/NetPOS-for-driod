@@ -41,7 +41,7 @@ class AdministratorViewModel : ViewModel() {
     private fun validateInputs(configurationData: ConfigurationData): Boolean {
         configurationData.run {
             if (ip.isEmpty() || !ip.isValidIpAddress()) {
-                _message.value = Event("please enter a valid IP address")
+                //_message.value = Event("please enter a valid IP address")
                 return false
             }
             if (port.isEmpty() || key1.isEmpty() || key2.isEmpty() || terminalId.isEmpty()) {

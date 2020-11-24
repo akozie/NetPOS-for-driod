@@ -23,16 +23,24 @@ object Singletons {
                 Prefs.getString(PREF_CONFIGURATION_DATA, null),
                 ConfigurationData::class.java
             )
-        configurationData?.let {
-            return it
-        }
-        return ConfigurationData(
+
+        return configurationData ?: ConfigurationData(
             DEFAULT_NIBSS_IP,
             DEFAULT_NIBSS_PORT.toString(),
             DEFAULT_TERMINAL_ID,
             Keys.liveKey1,
             Keys.liveKey2
         )
+//        configurationData?.let {
+//            return it
+//        }
+//        return ConfigurationData(
+//            DEFAULT_NIBSS_IP,
+//            DEFAULT_NIBSS_PORT.toString(),
+//            DEFAULT_TERMINAL_ID,
+//            Keys.liveKey1,
+//            Keys.liveKey2
+//        )
     }
 
     fun getKeyHolder(): KeyHolder? =

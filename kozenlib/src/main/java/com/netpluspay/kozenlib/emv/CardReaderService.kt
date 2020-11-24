@@ -123,12 +123,13 @@ class CardReaderService(activity: Activity) :
                             cardPinBlock = ""
                             pinBlock?.let {
                                 cardPinBlock = HexUtil.toHexString(it).toLowerCase(Locale.getDefault())
-                                Log.e("TAG", "pinblock: ${HexUtil.toHexString(it).toLowerCase(Locale.getDefault())}")
                             }
                             emvCoreManager.onSetConfirmPin(Bundle())
                         }
 
-                        override fun onError(verifyResult: Int, pinTryCntOut: Int) {}
+                        override fun onError(verifyResult: Int, pinTryCntOut: Int) {
+                            emitter.onError(Throwable("Pinpad Error $verifyResult $pinTryCntOut"))
+                        }
                     })
                     showDialog()
                 }
@@ -269,7 +270,6 @@ class CardReaderService(activity: Activity) :
                     transactionData.transState = PosEmvErrCode.EMV_APPROVED
                 }
             }
-            Log.e(logTag, "Got here too")
             emitter.onNext(CardReaderEvent.CardRead(CardReadResult(result, transactionData).apply {
                 encryptedPinBlock = cardPinBlock
             }))

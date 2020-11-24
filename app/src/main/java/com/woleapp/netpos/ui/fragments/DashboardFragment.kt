@@ -1,5 +1,6 @@
 package com.woleapp.netpos.ui.fragments
 
+import android.app.DatePickerDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -21,6 +22,8 @@ import com.woleapp.netpos.util.*
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
+import java.util.*
+import kotlin.collections.ArrayList
 
 
 class DashboardFragment : BaseFragment() {
@@ -38,7 +41,7 @@ class DashboardFragment : BaseFragment() {
                 0 -> addFragmentWithoutRemove(TransactionsFragment())
                 1 -> addFragmentWithoutRemove(TransactionHistoryFragment.NewInstance())
                 2 -> addFragmentWithoutRemove(NipNotificationFragment.newInstance())
-                3 -> getEndOfDayTransactions()
+                3 -> showCalendarDialog()
                 else -> {
                     sendPayload()
                 }
@@ -76,7 +79,8 @@ class DashboardFragment : BaseFragment() {
                     .subscribe({ printResp ->
                         Timber.e(printResp.toString())
                     }, { err ->
-                        Timber.e(err)
+                        Toast.makeText(requireContext(), err.localizedMessage, Toast.LENGTH_LONG).show()
+                        //Timber.e(err.localizedMessage)
                     }, {
                         Timber.e("On Complete")
                     })
@@ -94,17 +98,29 @@ class DashboardFragment : BaseFragment() {
         }
     }
 
-    private fun getEndOfDayTransactions() {
+    private fun getEndOfDayTransactions(timestamp: Long? = null) {
         Toast.makeText(requireContext(), "Please wait", Toast.LENGTH_LONG).show()
         AppDatabase.getDatabaseInstance(requireContext())
             .transactionResponseDao()
             .getEndOfDayTransaction(
-                getBeginningOfDay(),
-                getEndOfDayTimeStamp()
+                getBeginningOfDay(timestamp),
+                getEndOfDayTimeStamp(timestamp)
             )
             .observe(viewLifecycleOwner) {
                 showEndOfDayBottomSheetDialog(it)
             }
+    }
+
+    private fun showCalendarDialog() {
+        val calendar = Calendar.getInstance()
+        DatePickerDialog(
+            requireContext(), { _, i, i2, i3 ->
+                getEndOfDayTransactions(
+                    Calendar.getInstance().apply { set(i, i2, i3) }.timeInMillis
+                )
+            },
+            calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)
+        ).show()
     }
 
     private fun sendPayload() {

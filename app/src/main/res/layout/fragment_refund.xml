@@ -48,9 +48,8 @@
         <Button
             android:id="@+id/refund"
             android:layout_width="100dp"
-            android:layout_height="30dp"
+            android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:background="@color/colorPrimary"
             android:text="@string/refund"
             android:textColor="@android:color/white"
             app:layout_constraintEnd_toEndOf="parent"
