@@ -1,5 +1,6 @@
 package com.woleapp.netpos.ui.fragments
 
+import android.app.DatePickerDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -22,6 +23,8 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
+import java.util.*
+import kotlin.collections.ArrayList
 
 class NipNotificationFragment : BaseFragment() {
     private lateinit var binding: FragmentNipNotificationsBinding
@@ -58,11 +61,10 @@ class NipNotificationFragment : BaseFragment() {
                         NipNotificationListFragment.LAST_TWO
                     )
                 )
-                2 -> addFragmentWithoutRemove(
-                    NipNotificationListFragment.newInstance(
-                        NipNotificationListFragment.END_OF_DAY
-                    )
-                )
+                2 -> {
+                    showCalendarDialog()
+                }
+
                 3 -> addFragmentWithoutRemove(NipNotificationSearch())
             }
         }
@@ -80,6 +82,24 @@ class NipNotificationFragment : BaseFragment() {
             }
 
         return binding.root
+    }
+
+    private fun showCalendarDialog() {
+        val calendar = Calendar.getInstance()
+        DatePickerDialog(
+            requireContext(),
+            { _, i, i2, i3 ->
+                addFragmentWithoutRemove(
+                    NipNotificationListFragment.newInstance(
+                        NipNotificationListFragment.END_OF_DAY,
+                        Calendar.getInstance().apply { set(i, i2, i3) }.timeInMillis
+                    )
+                )
+            },
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH)
+        ).show()
     }
 
     private fun getCode() {

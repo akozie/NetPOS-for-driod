@@ -41,7 +41,7 @@ class StormApiClient {
                 }
         }
 
-        private const val NIP_BASE_URL = "http://storm.test.netpluspay.com/"
+        private const val NIP_BASE_URL = "https://storm.netpluspay.com/"
         private var NIPINSTANCE: NipService? = null
         fun getNipInstance(): NipService = NIPINSTANCE ?: synchronized(this) {
             NIPINSTANCE ?: Retrofit.Builder()

@@ -7,7 +7,6 @@ import android.app.AlertDialog
 import android.app.ProgressDialog
 import android.os.Handler
 import android.view.LayoutInflater
-import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.danbamitale.epmslib.entities.CardData
@@ -28,7 +27,11 @@ data class ICCCardHelper(
     val error: Throwable? = null
 )
 
-private fun showCardDialog(context: Activity, amount: Long, cashBackAmount: Long): LiveData<Event<ICCCardHelper>> {
+fun showCardDialog(
+    context: Activity,
+    amount: Long,
+    cashBackAmount: Long
+): LiveData<Event<ICCCardHelper>> {
     val liveData = MutableLiveData<Event<ICCCardHelper>>()
     var hasCardBeenRead = false
     val dialog = ProgressDialog(context)
@@ -56,7 +59,11 @@ private fun showCardDialog(context: Activity, amount: Long, cashBackAmount: Long
                     ).apply {
                         pinBlock = cardResult.encryptedPinBlock
                     }
-                    iccCardHelper = ICCCardHelper(customerName = cardResult.cardHolderName, cardScheme = cardResult.cardScheme, cardData = card)
+                    iccCardHelper = ICCCardHelper(
+                        customerName = cardResult.cardHolderName,
+                        cardScheme = cardResult.cardScheme,
+                        cardData = card
+                    )
 //                        val cardReaderMqttEvent = CardReaderMqttEvent(
 //                            cardExpiry = cardResult.expirationDate,
 //                            cardHolder = cardResult.cardHolderName,
@@ -86,14 +93,13 @@ private fun showCardDialog(context: Activity, amount: Long, cashBackAmount: Long
 
         }, {
             dialog.dismiss()
-            Toast.makeText(context, "complete", Toast.LENGTH_LONG).show()
-            Timber.e("complete")
             showSelectAccountTypeDialog(context, iccCardHelper!!, liveData)
         })
 
     Handler().postDelayed({
         if (!hasCardBeenRead) {
-            liveData.value = Event(ICCCardHelper(error = Throwable("Timed out while waiting for card")))
+            liveData.value =
+                Event(ICCCardHelper(error = Throwable("Timed out while waiting for card")))
             c.dispose()
             dialog.dismiss()
         }
@@ -102,14 +108,19 @@ private fun showCardDialog(context: Activity, amount: Long, cashBackAmount: Long
     return liveData
 }
 
-private fun showSelectAccountTypeDialog(context: Activity, iccCardHelper: ICCCardHelper, liveData: MutableLiveData<Event<ICCCardHelper>>) {
+private fun showSelectAccountTypeDialog(
+    context: Activity,
+    iccCardHelper: ICCCardHelper,
+    liveData: MutableLiveData<Event<ICCCardHelper>>
+) {
     var dialogSelectAccountTypeBinding: DialogSelectAccountTypeBinding
     val dialog = AlertDialog.Builder(context)
         .apply {
             dialogSelectAccountTypeBinding =
-                DialogSelectAccountTypeBinding.inflate(LayoutInflater.from(context), null, false).apply {
-                    executePendingBindings()
-                }
+                DialogSelectAccountTypeBinding.inflate(LayoutInflater.from(context), null, false)
+                    .apply {
+                        executePendingBindings()
+                    }
             setView(dialogSelectAccountTypeBinding.root)
             setCancelable(false)
         }.create()

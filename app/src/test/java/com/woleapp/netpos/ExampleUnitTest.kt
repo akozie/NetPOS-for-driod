@@ -25,8 +25,9 @@ class ExampleUnitTest {
         //println(StringUtils.overlay("5199118765421994", "xxxxxx", 6, 12))
         //println(SimpleDateFormat("dd/MM/YYYY HH:mm a").format(Date(1601723293000)))
         //println(playAround())
-        println(getBeginningOfDay(1604664119161))
-        println(getEndOfDayTimeStamp(1604664119161))
+        //println("78b4311d3e83a85c924edcc60dddc99d76fde9a21459e879fcd88878a31de8c5" == "78b4311d3e83a85c924edcc60dddc99d76fde9a21459e879fcd88878a31de8c5")
+        println(SimpleDateFormat("y-MM-dd HH:mm:ss").format(getBeginningOfDay(1606290839000)))
+        println(SimpleDateFormat("y-MM-dd HH:mm:ss").format(getEndOfDayTimeStamp(1606290839000)))
         assertEquals(4, 2 + 2)
     }
 

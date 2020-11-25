@@ -136,12 +136,10 @@ class NetPosTerminalConfig {
         }
 
         private fun writeTpkKey(keyIndex: Int, keyData: String): Int {
-            Timber.e("Writing tpk key")
             val pedKeyInfo = PedKeyInfo(
                 0, 0, POIHsmManage.PED_TPK, keyIndex, 0, 16,
                 HexUtil.parseHex(keyData)
             )
-            Timber.e("key that was wrote: $keyData")
             return POIHsmManage.getDefault().PedWriteKey(pedKeyInfo, PedKcvInfo(0, ByteArray(5)))
         }
 

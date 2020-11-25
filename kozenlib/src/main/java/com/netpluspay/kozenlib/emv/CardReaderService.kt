@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import android.widget.Toast
 import com.netpluspay.kozenlib.KozenLib
 import com.netpluspay.kozenlib.emv.data.TransactionData
 import com.netpluspay.kozenlib.utils.DeviceConfig
@@ -53,6 +54,7 @@ class CardReaderService(activity: Activity) :
                         //tvMessage1.setText("Mag Card Trans")
                     }
                     DEV_PICC -> {
+                        Log.e("TAG", "PICC Card trans")
                         //tvMessage1.setText("Picc Card Trans")
                     }
                 }
@@ -286,7 +288,7 @@ class CardReaderService(activity: Activity) :
             putInt(EmvTransDataConstraints.TRANSTYPE, EMV_GOODS)
             putInt(EmvTransDataConstraints.TRANSAMT, p0.toInt())
             putInt(EmvTransDataConstraints.CASHBACKAMT, p1.toInt())
-            putInt(EmvTransDataConstraints.TRANSMODE, 0 or DEV_ICC)
+            putInt(EmvTransDataConstraints.TRANSMODE, 0 or DEV_ICC or DEV_PICC)
             putInt(EmvTransDataConstraints.TRANSTIMEOUTMS, 60)
         }
         transactionData.apply {

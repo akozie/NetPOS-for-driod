@@ -1,13 +1,18 @@
 package com.woleapp.netpos.ui.fragments
 
+import android.app.AlertDialog
 import android.app.DatePickerDialog
+import android.app.ProgressDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.recyclerview.widget.GridLayoutManager
-import com.danbamitale.epmslib.entities.TransactionResponse
+import com.danbamitale.epmslib.entities.*
+import com.danbamitale.epmslib.extensions.formatCurrencyAmount
+import com.danbamitale.epmslib.processors.TransactionProcessor
+import com.danbamitale.epmslib.utils.IsoAccountType
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.pixplicity.easyprefs.library.Prefs
 import com.woleapp.netpos.R
@@ -28,6 +33,8 @@ import kotlin.collections.ArrayList
 
 class DashboardFragment : BaseFragment() {
 
+    private lateinit var progressDialog: ProgressDialog
+
     private lateinit var binding: FragmentDashboardBinding
     private lateinit var adapter: ServiceAdapter
     override fun onCreateView(
@@ -39,7 +46,7 @@ class DashboardFragment : BaseFragment() {
         adapter = ServiceAdapter {
             when (it.id) {
                 0 -> addFragmentWithoutRemove(TransactionsFragment())
-                1 -> addFragmentWithoutRemove(TransactionHistoryFragment.NewInstance())
+                1 -> getBalance()
                 2 -> addFragmentWithoutRemove(NipNotificationFragment.newInstance())
                 3 -> showCalendarDialog()
                 else -> {
@@ -48,7 +55,87 @@ class DashboardFragment : BaseFragment() {
             }
             //addFragmentWithoutRemove(nextFrag)
         }
+        progressDialog = ProgressDialog(requireContext())
         return binding.root
+    }
+
+    private fun getBalance() {
+        showCardDialog(requireActivity(), 1000, 0L).observe(viewLifecycleOwner) { event ->
+            event.getContentIfNotHandled()?.let {
+                it.error?.let { error ->
+                    Timber.e(error)
+                    Toast.makeText(requireContext(), error.localizedMessage, Toast.LENGTH_SHORT)
+                        .show()
+                }
+                it.cardData?.let { cardData ->
+                    checkBalance(cardData, it.accountType!!)
+                }
+            }
+        }
+    }
+
+    private fun checkBalance(cardData: CardData, accountType: IsoAccountType = IsoAccountType.DEFAULT_UNSPECIFIED) {
+        if (NetPosTerminalConfig.getKeyHolder() == null) {
+            Toast.makeText(requireContext(), "Terminal not configured", Toast.LENGTH_LONG).show()
+            return
+        }
+
+        val hostConfig = HostConfig(
+            NetPosTerminalConfig.getTerminalId(),
+            NetPosTerminalConfig.getConnectionData(),
+            NetPosTerminalConfig.getKeyHolder()!!,
+            NetPosTerminalConfig.getConfigData()!!
+        )
+        val requestData = TransactionRequestData(TransactionType.BALANCE, 0L, accountType = accountType)
+        progressDialog.setMessage("Checking Balance...")
+        progressDialog.show()
+        val processor = TransactionProcessor(hostConfig)
+        //processor.
+        val disposable = processor.processTransaction(requireContext(), requestData, cardData)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe { response, error ->
+                if (progressDialog.isShowing)
+                    progressDialog.dismiss()
+                error?.let {
+                    it.printStackTrace()
+                    Toast.makeText(
+                        requireContext(),
+                        "Error ${it.localizedMessage}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+
+                response?.let {
+                    println(it)
+
+                    val messageString = if (it.isApproved) {
+                        "Account Balance:\n " + it.accountBalances.joinToString("\n") { accountBalance ->
+                            "${accountBalance.accountType}, ${
+                                accountBalance.amount.div(100).formatCurrencyAmount()
+                            }"
+                        }
+                    } else {
+                        "${it.responseMessage}(${it.responseCode})"
+                    }
+
+                    showMessage(if (it.isApproved) "Approved" else "Declined", messageString)
+                }
+            }
+
+        //compositeDisposable.add(disposable)
+    }
+
+    private fun showMessage(s: String, messageString: String) {
+        AlertDialog.Builder(requireContext())
+            .apply {
+                setTitle(s)
+                setMessage(messageString)
+                setPositiveButton("Ok"){
+                    dialog, _ -> dialog.dismiss()
+                }
+                create().show()
+            }
     }
 
     private fun showEndOfDayBottomSheetDialog(transactions: List<TransactionResponse>) {
@@ -79,7 +166,8 @@ class DashboardFragment : BaseFragment() {
                     .subscribe({ printResp ->
                         Timber.e(printResp.toString())
                     }, { err ->
-                        Toast.makeText(requireContext(), err.localizedMessage, Toast.LENGTH_LONG).show()
+                        Toast.makeText(requireContext(), err.localizedMessage, Toast.LENGTH_LONG)
+                            .show()
                         //Timber.e(err.localizedMessage)
                     }, {
                         Timber.e("On Complete")
@@ -114,12 +202,15 @@ class DashboardFragment : BaseFragment() {
     private fun showCalendarDialog() {
         val calendar = Calendar.getInstance()
         DatePickerDialog(
-            requireContext(), { _, i, i2, i3 ->
+            requireContext(),
+            { _, i, i2, i3 ->
                 getEndOfDayTransactions(
                     Calendar.getInstance().apply { set(i, i2, i3) }.timeInMillis
                 )
             },
-            calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH)
         ).show()
     }
 
@@ -156,7 +247,7 @@ class DashboardFragment : BaseFragment() {
         val listOfServices = ArrayList<Service>()
             .apply {
                 add(Service(0, "Transaction", R.drawable.ic_trans))
-                add(Service(1, "Inquiry", R.drawable.ic_write))
+                add(Service(1, "Balance Inquiry", R.drawable.ic_write))
                 add(Service(2, "Bank Transfer", R.drawable.ic_lending))
                 add(Service(3, "Print End Of Day Transactions", R.drawable.ic_print))
             }

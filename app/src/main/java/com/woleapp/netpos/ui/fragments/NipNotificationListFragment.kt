@@ -15,13 +15,13 @@ import com.woleapp.netpos.databinding.LayoutNipNotificationItemBinding
 import com.woleapp.netpos.model.NipNotification
 import com.woleapp.netpos.network.StormApiClient
 import com.woleapp.netpos.nibss.NetPosTerminalConfig
-import com.woleapp.netpos.util.disposeWith
-import com.woleapp.netpos.util.print
-import com.woleapp.netpos.util.printAllNotifications
+import com.woleapp.netpos.util.*
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
+import java.text.SimpleDateFormat
+import java.util.*
 
 class NipNotificationListFragment : BaseFragment() {
 
@@ -29,10 +29,12 @@ class NipNotificationListFragment : BaseFragment() {
         const val LAST_TWO = 1
         const val END_OF_DAY = 2
         private const val NOTIFICATION_TYPE = "notification_type"
-        fun newInstance(notificationType: Int): NipNotificationListFragment =
+        private const val NOTIFICATION_TIME = "notification_time"
+        fun newInstance(notificationType: Int, timeInMillis: Long = 0L): NipNotificationListFragment =
             NipNotificationListFragment().apply {
                 arguments = Bundle().apply {
                     putInt(NOTIFICATION_TYPE, notificationType)
+                    putLong(NOTIFICATION_TIME, timeInMillis)
                 }
             }
     }
@@ -93,12 +95,16 @@ class NipNotificationListFragment : BaseFragment() {
         }
         val nipService = StormApiClient.getNipInstance()
         val request = when (requireArguments().getInt(NOTIFICATION_TYPE, LAST_TWO)) {
-            END_OF_DAY -> nipService.getEndOfDayNotifications(
-                NetPosTerminalConfig.getTerminalId(),
-                "",
-                ""
-            )
-            else -> nipService.getLastTwoTransfers("2214160A")
+            END_OF_DAY -> {
+                val time = requireArguments().getLong(NOTIFICATION_TIME, 0L)
+                val format = SimpleDateFormat("y-MM-dd HH:mm:ss", Locale.getDefault())
+                nipService.getEndOfDayNotifications(
+                    NetPosTerminalConfig.getTerminalId(),
+                    format.format(getBeginningOfDay(time)),
+                    format.format(getEndOfDayTimeStamp(time))
+                )
+            }
+            else -> nipService.getLastTwoTransfers(NetPosTerminalConfig.getTerminalId())
         }
         request
             .subscribeOn(Schedulers.io())
@@ -106,6 +112,8 @@ class NipNotificationListFragment : BaseFragment() {
             .doFinally { binding.refresh.isRefreshing = false }
             .subscribe { notifications, throwable ->
                 notifications?.let {
+                    if (it.isEmpty())
+                        Toast.makeText(requireContext(), "No Bank transfers", Toast.LENGTH_LONG).show()
                     adapter.submitList(it)
                 }
                 throwable?.let {
