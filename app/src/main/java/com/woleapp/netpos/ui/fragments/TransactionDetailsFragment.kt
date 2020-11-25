@@ -63,7 +63,7 @@ class TransactionDetailsFragment : BaseFragment() {
                             }
                             it.cardData?.let { cardData ->
                                 viewModel.setCardScheme(it.cardScheme!!)
-                                viewModel.setCustomerName(it.customerName!!)
+                                viewModel.setCustomerName(it.customerName ?: "Customer")
                                 viewModel.setAccountType(it.accountType!!)
                                 viewModel.cardData = cardData
                                 viewModel.refundTransaction(requireContext())
