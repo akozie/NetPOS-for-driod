@@ -8,6 +8,8 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.recyclerview.widget.GridLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.netpluspay.kozenlib.KozenLib
+import com.pixplicity.easyprefs.library.Prefs
 import com.woleapp.netpos.R
 import com.woleapp.netpos.adapter.ServiceAdapter
 import com.woleapp.netpos.databinding.FragmentNipNotificationsBinding
@@ -16,6 +18,7 @@ import com.woleapp.netpos.model.*
 import com.woleapp.netpos.mqtt.MqttHelper
 import com.woleapp.netpos.network.StormApiClient
 import com.woleapp.netpos.nibss.NetPosTerminalConfig
+import com.woleapp.netpos.util.PREF_USER
 import com.woleapp.netpos.util.Singletons
 import com.woleapp.netpos.util.copyTextToClipboard
 import com.woleapp.netpos.util.disposeWith
@@ -75,7 +78,7 @@ class NipNotificationFragment : BaseFragment() {
             user!!.netplus_id!!,
             user.business_name!!,
             NetPosTerminalConfig.getTerminalId(),
-            "JKEWUBUBIBSBBWUBUWBYUB89243"
+            KozenLib.getDeviceSerial()
         )
             .apply {
                 this.geo = "lat:51.507351-long:-0.127758"
@@ -143,11 +146,17 @@ class NipNotificationFragment : BaseFragment() {
         val bottomSheetDialog = BottomSheetDialog(requireContext(), R.style.SheetDialog)
         bottomSheetDialog.setCancelable(false)
         bottomSheetDialog.setContentView(bankDetailsBinding.root)
-        val bank = "GTB"
-        val accountNumber = "0597024646"
-        val accountName = "NETPLUS/STORM"
-        val accountNumber2 = "2684362099"
-        val bank2 = "FCMB"
+        val user = Singletons.gson.fromJson(Prefs.getString(PREF_USER, ""), User::class.java)
+//        val bank = "GTB"
+//        val accountNumber = "0597024646"
+//        val accountName = "NETPLUS/STORM"
+        val bank = user.bank!!
+        val accountNumber = user.account_number ?: "account number"
+        val accountName = user.name ?: "account name"
+        //val accountNumber2 = "2684362099"
+        //val bank2 = "FCMB"
+        val accountNumber2 = ""
+        val bank2 = ""
         bankDetailsBinding.accountNumber2.text = accountNumber2
         bankDetailsBinding.bank2.text = bank2
         bankDetailsBinding.accountNumber.text = accountNumber

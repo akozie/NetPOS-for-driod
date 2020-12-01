@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import com.netpluspay.kozenlib.KozenLib
 import com.pixplicity.easyprefs.library.Prefs
 import com.woleapp.netpos.databinding.FragmentNipNotificationSearchBinding
 import com.woleapp.netpos.model.MqttEvent
@@ -41,7 +42,7 @@ class NipNotificationSearch : BaseFragment() {
             user!!.netplus_id!!,
             user.business_name!!,
             NetPosTerminalConfig.getTerminalId(),
-            "JKEWUBUBIBSBBWUBUWBYUB89243"
+            KozenLib.getDeviceSerial()
         )
             .apply {
                 this.geo = "lat:51.507351-long:-0.127758"

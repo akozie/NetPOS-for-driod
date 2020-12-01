@@ -6,12 +6,12 @@ import android.content.Context.BATTERY_SERVICE
 import android.content.Intent
 import android.os.BatteryManager
 import android.widget.Toast
+import com.netpluspay.kozenlib.KozenLib
 import com.woleapp.netpos.model.BatteryEvents
 import com.woleapp.netpos.model.MqttEvent
 import com.woleapp.netpos.model.MqttEvents
 import com.woleapp.netpos.model.User
 import com.woleapp.netpos.mqtt.MqttHelper
-import com.woleapp.netpos.nibss.NetPosTerminalConfig
 import com.woleapp.netpos.util.Singletons
 import timber.log.Timber
 
@@ -19,12 +19,13 @@ import timber.log.Timber
 class BatteryReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, batteryStatus: Intent?) {
         val user: User? = Singletons.getCurrentlyLoggedInUser()
+        val savedConfigurationData = Singletons.getSavedConfigurationData()
         user?.let {
             var event: MqttEvent? = MqttEvent(
                 it.netplus_id!!,
                 it.business_name!!,
-                NetPosTerminalConfig.getTerminalId(),
-                "JKEWUBUBIBSBBWUBUWBYUB89243"
+                savedConfigurationData.terminalId,
+                KozenLib.getDeviceSerial()
             ).apply {
                 status = "SUCCESS"
                 code = "00"

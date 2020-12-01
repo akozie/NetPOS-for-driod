@@ -6,8 +6,12 @@ import android.util.Log
 import androidx.preference.PreferenceManager
 import com.netpluspay.kozenlib.emv.param.EmvParam
 import com.netpluspay.kozenlib.utils.DeviceConfig
+import com.netpluspay.kozenlib.utils.tlv.HexUtil
 import com.pos.sdk.accessory.POIGeneralAPI
 import com.pos.sdk.printer.POIPrinterManage
+import com.pos.sdk.security.POIHsmManage
+import com.pos.sdk.security.PedKcvInfo
+import com.pos.sdk.security.PedKeyInfo
 
 object KozenLib {
     private const val HAS_LOADED_PARAMS = "has_loaded_params"
@@ -32,6 +36,9 @@ object KozenLib {
         )
             loadEmvParams(context)
     }
+    
+    @JvmStatic
+    fun getDeviceSerial(): String = POIGeneralAPI.getDefault().getVersion(POIGeneralAPI.VERSION_TYPE_DSN)
 
     @JvmStatic
     private fun initTerminalConfiguration() {
@@ -77,5 +84,14 @@ object KozenLib {
         EmvParam.loadAddCapks()
         PreferenceManager.getDefaultSharedPreferences(context)
             .edit().putBoolean(HAS_LOADED_PARAMS, true).apply()
+    }
+
+    @JvmStatic
+    fun writeTpkKey(keyIndex: Int, keyData: String): Int {
+        val pedKeyInfo = PedKeyInfo(
+            0, 0, POIHsmManage.PED_TPK, keyIndex, 0, 16,
+            HexUtil.parseHex(keyData)
+        )
+        return POIHsmManage.getDefault().PedWriteKey(pedKeyInfo, PedKcvInfo(0, ByteArray(5)))
     }
 }

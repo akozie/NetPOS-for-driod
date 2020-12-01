@@ -5,6 +5,7 @@ import androidx.lifecycle.*
 import com.danbamitale.epmslib.entities.*
 import com.danbamitale.epmslib.processors.TransactionProcessor
 import com.danbamitale.epmslib.utils.IsoAccountType
+import com.netpluspay.kozenlib.KozenLib
 import com.netpluspay.kozenlib.printer.PrinterResponse
 import com.woleapp.netpos.database.AppDatabase
 import com.woleapp.netpos.model.*
@@ -40,7 +41,7 @@ class SalesViewModel : ViewModel() {
             user!!.netplus_id!!,
             user.business_name!!,
             NetPosTerminalConfig.getTerminalId(),
-            "JKEWUBUBIBSBBWUBUWBYUB89243"
+            KozenLib.getDeviceSerial()
         )
     }
 

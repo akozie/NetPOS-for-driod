@@ -5,16 +5,12 @@ import android.content.Intent
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.danbamitale.epmslib.entities.*
 import com.danbamitale.epmslib.processors.TerminalConfigurator
+import com.netpluspay.kozenlib.KozenLib.writeTpkKey
 import com.netpluspay.kozenlib.utils.DeviceConfig
-import com.netpluspay.kozenlib.utils.tlv.HexUtil
 import com.pixplicity.easyprefs.library.Prefs
-import com.pos.sdk.security.POIHsmManage
-import com.pos.sdk.security.PedKcvInfo
-import com.pos.sdk.security.PedKeyInfo
 import com.woleapp.netpos.model.ConfigurationData
 import com.woleapp.netpos.util.PREF_CONFIG_DATA
 import com.woleapp.netpos.util.PREF_KEYHOLDER
-import com.woleapp.netpos.util.Singletons
 import com.woleapp.netpos.util.Singletons.getSavedConfigurationData
 import com.woleapp.netpos.util.Singletons.gson
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -23,8 +19,8 @@ import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 
 
-const val NIBSS_TEST_IP = "196.6.103.72"
-const val NIBSS_PROD_IP = "196.6.103.73"
+//const val NIBSS_TEST_IP = "196.6.103.72"
+//const val NIBSS_PROD_IP = "196.6.103.73"
 const val TERMINAL_SERIAL = "0123456789ABC"
 const val CONFIGURATION_STATUS = "terminal_configuration_status"
 const val CONFIGURATION_ACTION = "com.woleapp.netpos.TERMINAL_CONFIGURATION"
@@ -135,21 +131,6 @@ class NetPosTerminalConfig {
             disposables.add(disposable)
         }
 
-        private fun writeTpkKey(keyIndex: Int, keyData: String): Int {
-            val pedKeyInfo = PedKeyInfo(
-                0, 0, POIHsmManage.PED_TPK, keyIndex, 0, 16,
-                HexUtil.parseHex(keyData)
-            )
-            return POIHsmManage.getDefault().PedWriteKey(pedKeyInfo, PedKcvInfo(0, ByteArray(5)))
-        }
-
-        var sampleCardData = CardData(
-            track2Data = "4761739001010135D191220119559258",
-            nibssIccSubset = "9F26088F8BFBE76089D66F9F2701809F10201F220100A48802000000000000000000000000000000000000000000000000009F3704389456479F360202A1950500800088009A031902189C01009F02060000000001005F2A020566820238009F1A0205669F34030103029F3303E0F9C89F3501519F1E0830303030303030318407A00000000310109F090200009F03060000000000005F3401018E10000000000000000001031E0302031F00",
-            panSequenceNumber = "001", posEntryMode = "051"
-        ).apply {
-            pinBlock = null
-        }//TODO get card information from terminal
 
         private fun disposeDisposables() {
             disposables.clear()
