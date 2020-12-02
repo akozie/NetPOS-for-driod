@@ -106,7 +106,7 @@
                 android:hint="@string/enter_pin"
                 android:inputType="numberPassword"
                 android:text="@={viewmodel.pin}"
-                android:visibility="visible"
+                android:visibility="gone"
                 app:layout_constraintTop_toBottomOf="@id/enter_name" />
 
             <Button
