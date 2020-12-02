@@ -55,24 +55,37 @@ class SalesFragment : BaseFragment() {
                 showSnackBar(s)
             }
         }
-
-        binding.process.setOnClickListener {
-            showCardDialog(requireActivity(), 1000, 0L).observe(viewLifecycleOwner) { event ->
-                event.getContentIfNotHandled()?.let {
-                    it.error?.let { error ->
-                        Timber.e(error)
-                        Toast.makeText(requireContext(), error.localizedMessage, Toast.LENGTH_SHORT)
-                            .show()
+        viewModel.getCardData.observe(viewLifecycleOwner) { event ->
+            event.getContentIfNotHandled()?.let { shouldGetCardData ->
+                if (shouldGetCardData)
+                    showCardDialog(
+                        requireActivity(),
+                        1000,
+                        0L
+                    ).observe(viewLifecycleOwner) { event ->
+                        event.getContentIfNotHandled()?.let {
+                            it.error?.let { error ->
+                                Timber.e(error)
+                                Toast.makeText(
+                                    requireContext(),
+                                    error.localizedMessage,
+                                    Toast.LENGTH_SHORT
+                                )
+                                    .show()
+                            }
+                            it.cardData?.let { cardData ->
+                                viewModel.setCardScheme(it.cardScheme!!)
+                                viewModel.setCustomerName(it.customerName ?: "Customer")
+                                viewModel.setAccountType(it.accountType!!)
+                                viewModel.cardData = cardData
+                                viewModel.makePayment(requireContext(), transactionType)
+                            }
+                        }
                     }
-                    it.cardData?.let { cardData ->
-                        viewModel.setCardScheme(it.cardScheme!!)
-                        viewModel.setCustomerName(it.customerName ?: "Customer")
-                        viewModel.setAccountType(it.accountType!!)
-                        viewModel.cardData = cardData
-                        viewModel.makePayment(requireContext(), transactionType)
-                    }
-                }
             }
+        }
+        binding.process.setOnClickListener {
+            viewModel.validateField()
         }
         return binding.root
     }

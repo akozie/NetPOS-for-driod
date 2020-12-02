@@ -31,9 +31,14 @@ class SalesViewModel : ViewModel() {
     val customerName = MutableLiveData("")
     var isoAccountType: IsoAccountType? = null
     private var cardScheme: String? = null
+    private var amountDbl: Double = 0.0
     private val _message: MutableLiveData<Event<String>> by lazy {
         MutableLiveData<Event<String>>()
     }
+    private val _getCardData = MutableLiveData<Event<Boolean>>()
+
+    val getCardData: LiveData<Event<Boolean>>
+        get() = _getCardData
 
     init {
         val user = getCurrentlyLoggedInUser()
@@ -52,11 +57,15 @@ class SalesViewModel : ViewModel() {
         customerName.value = name
     }
 
-    fun makePayment(context: Context, transactionType: TransactionType = TransactionType.PURCHASE) {
-        val amountDbl = (amount.value!!.toDoubleOrNull() ?: kotlin.run {
+    fun validateField() {
+        amountDbl = (amount.value!!.toDoubleOrNull() ?: kotlin.run {
             _message.value = Event("Enter a valid amount")
             return
         }) * 100
+        _getCardData.value = Event(true)
+    }
+
+    fun makePayment(context: Context, transactionType: TransactionType = TransactionType.PURCHASE) {
         Timber.e(cardData.toString())
 
         //Timber.e("Pin to make transaction: ${xorHex(hexStringPin, hexCardNum)}")

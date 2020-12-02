@@ -15,7 +15,7 @@
     <string name="sales">Sales</string>
     <string name="hint_amount">Enter Amount</string>
     <string name="naira_symbol">₦</string>
-    <string name="enter_pin">Enter pin</string>
+    <string name="enter_pin">Enter Card Pin</string>
     <string name="proceess">Process</string>
     <string name="transaction_failed">transaction failed</string>
     <string name="transaction_status">Transaction Status</string>
