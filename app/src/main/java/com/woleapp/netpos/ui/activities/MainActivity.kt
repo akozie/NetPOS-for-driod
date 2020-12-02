@@ -86,15 +86,16 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
         registerReceiver(batteryReceiver, iFilter)
         LocalBroadcastManager.getInstance(this)
             .registerReceiver(receiver, IntentFilter(CONFIGURATION_ACTION))
-        if (NetPosTerminalConfig.isConfigurationInProcess)
-            showProgressDialog()
-        else if (NetPosTerminalConfig.configurationStatus == -1)
-            NetPosTerminalConfig.init(applicationContext)
+        when {
+            NetPosTerminalConfig.isConfigurationInProcess -> showProgressDialog()
+            NetPosTerminalConfig.configurationStatus == -1 -> NetPosTerminalConfig.init(applicationContext)
+            NetPosTerminalConfig.configurationStatus == 1 -> dismissProgressDialogIfShowing()
+        }
 
         checkTokenExpiry()
     }
 
-    private fun logout(){
+    private fun logout() {
         Prefs.remove(PREF_USER)
         Prefs.remove(PREF_USER_TOKEN)
         Prefs.remove(PREF_AUTHENTICATED)

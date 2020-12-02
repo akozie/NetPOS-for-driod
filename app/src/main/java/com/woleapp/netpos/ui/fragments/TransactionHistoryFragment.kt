@@ -13,12 +13,13 @@ import com.woleapp.netpos.database.AppDatabase
 import com.woleapp.netpos.databinding.FragmentTransactionHistoryBinding
 import com.woleapp.netpos.util.HISTORY_ACTION
 import com.woleapp.netpos.util.HISTORY_ACTION_DEFAULT
+import com.woleapp.netpos.util.HISTORY_ACTION_PREAUTH
 import com.woleapp.netpos.viewmodels.TransactionsViewModel
 
 class TransactionHistoryFragment : BaseFragment() {
 
     companion object {
-        fun NewInstance(action: String = HISTORY_ACTION_DEFAULT) =
+        fun newInstance(action: String = HISTORY_ACTION_DEFAULT) =
             TransactionHistoryFragment().apply {
                 arguments = Bundle().apply {
                     putString(HISTORY_ACTION, action)
@@ -46,9 +47,15 @@ class TransactionHistoryFragment : BaseFragment() {
         if (action != HISTORY_ACTION_DEFAULT) {
             binding.historyHeader.text = getString(R.string.history_header_template, action)
         }
+        viewModel.setAction(action)
+        if (action == HISTORY_ACTION_PREAUTH){
+            val header = "Select PREAUTH Transaction"
+            binding.historyHeader.text = header
+            binding.historyButton.visibility = View.GONE
+            binding.searchButton.visibility = View.GONE
+        }
         adapter = TransactionsAdapter {
             viewModel.setSelectedTransaction(it)
-            viewModel.setAction(action)
             addFragmentWithoutRemove(TransactionDetailsFragment())
         }
         val tabListener = View.OnClickListener {

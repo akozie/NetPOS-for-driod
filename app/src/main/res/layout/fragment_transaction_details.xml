@@ -28,97 +28,13 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/text_transaction_type"
+        <TextView
+            android:id="@+id/details"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:textColorHint="@android:color/black"
-            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginHorizontal="8dp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/transactions_header">
-
-            <EditText
-                android:id="@+id/transaction_type"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:autofillHints="@string/transaction_type"
-                android:background="@drawable/services_edittext_background_disabled"
-                android:enabled="false"
-                android:focusable="false"
-                android:hint="@string/transaction_type"
-                android:inputType="text"
-                android:padding="8dp"
-                android:singleLine="true"
-                android:text="@{viewmodel.selectedTransaction.transactionType.name()}"
-                android:textAllCaps="true"
-                android:textColor="@android:color/black"
-                android:textColorHint="@android:color/darker_gray"
-                android:textSize="15sp"
-                tools:ignore="TextFields" />
-
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/text_transaction_amount"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:textColorHint="@android:color/black"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/text_transaction_type">
-
-            <EditText
-                android:id="@+id/transaction_amount"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:autofillHints="@string/amount"
-                android:background="@drawable/services_edittext_background_disabled"
-                android:enabled="false"
-                android:focusable="false"
-                android:hint="@string/amount"
-                android:inputType="text"
-                android:padding="8dp"
-                android:singleLine="true"
-                android:textAllCaps="true"
-                android:textColor="@android:color/black"
-                android:textColorHint="@android:color/darker_gray"
-                android:textSize="15sp"
-                app:formatAmount="@{viewmodel.selectedTransaction.amount}"
-                tools:ignore="TextFields" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/text_transaction_ref"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:textColorHint="@android:color/black"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/text_transaction_amount">
-
-            <EditText
-                android:id="@+id/transaction_ref"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:autofillHints="@string/transaction_ref"
-                android:background="@drawable/services_edittext_background_disabled"
-                android:enabled="false"
-                android:focusable="false"
-                android:hint="@string/transaction_ref"
-                android:inputType="text"
-                android:padding="8dp"
-                android:singleLine="true"
-                android:text="@{viewmodel.selectedTransaction.RRN}"
-                android:textAllCaps="true"
-                android:textColor="@android:color/black"
-                android:textColorHint="@android:color/darker_gray"
-                android:textSize="15sp"
-                tools:ignore="TextFields" />
-
-        </com.google.android.material.textfield.TextInputLayout>
+            app:layout_constraintTop_toBottomOf="@id/transactions_header" />
 
         <Button
             android:id="@+id/action_button"
@@ -127,11 +43,52 @@
             android:layout_marginTop="16dp"
             android:paddingHorizontal="24dp"
             android:textColor="@android:color/white"
+            android:visibility="visible"
             app:buttonInProgress="@{viewmodel.inProgress}"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_chainStyle="spread"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/text_transaction_ref"
+            app:layout_constraintTop_toBottomOf="@id/details"
             tools:text="Hello Button" />
+
+        <Button
+            android:id="@+id/pre_auth_complete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:paddingHorizontal="24dp"
+            android:text="@string/completion"
+            android:textColor="@android:color/white"
+            android:visibility="gone"
+            app:buttonInProgress="@{viewmodel.inProgress}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/pre_auth_refund"
+            app:layout_constraintTop_toTopOf="@id/action_button"
+            tools:text="Hello Button" />
+
+        <Button
+            android:id="@+id/pre_auth_refund"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:backgroundTint="@color/colorError"
+            android:paddingHorizontal="24dp"
+            android:text="@string/refund"
+            android:visibility="gone"
+            app:buttonInProgress="@{viewmodel.inProgress}"
+            app:layout_constraintEnd_toStartOf="@id/pre_auth_complete"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/action_button" />
+
+        <TextView
+            android:id="@+id/message"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="8dp"
+            android:gravity="center_horizontal"
+            app:layout_constraintTop_toBottomOf="@id/action_button" />
 
         <ProgressBar
             android:id="@+id/action_progress"
@@ -145,6 +102,20 @@
             app:layout_constraintBottom_toBottomOf="@id/action_button"
             app:layout_constraintEnd_toEndOf="@id/action_button"
             app:layout_constraintTop_toTopOf="@id/action_button"
+            app:progressBarInProgress="@{viewmodel.inProgress}" />
+
+        <ProgressBar
+            android:id="@+id/action_progress_"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="2dp"
+            android:layout_marginBottom="8dp"
+            android:elevation="2dp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@id/pre_auth_refund"
+            app:layout_constraintEnd_toEndOf="@id/pre_auth_refund"
+            app:layout_constraintTop_toTopOf="@id/pre_auth_refund"
             app:progressBarInProgress="@{viewmodel.inProgress}" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

@@ -12,6 +12,7 @@ import com.pos.sdk.printer.models.BitmapPrintLine
 import com.pos.sdk.printer.models.PrintLine
 import com.pos.sdk.printer.models.TextPrintLine
 import io.reactivex.Single
+import java.lang.Exception
 
 
 class ReceiptBuilder :
@@ -21,7 +22,12 @@ class ReceiptBuilder :
         type = PrintLine.TEXT
     }
     private val printerManager = KozenLib.getPrinterManager().apply {
-        setPrintGray(Integer.valueOf("4000"))
+        try {
+            setPrintGray(Integer.valueOf("4000"))
+        }catch (e: Exception){
+            e.printStackTrace()
+            Log.e("TAG", "Error: ${e.localizedMessage}")
+        }
         setLineSpace(Integer.valueOf("1"))
         cleanCache()
     }

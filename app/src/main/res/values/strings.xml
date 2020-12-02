@@ -76,4 +76,6 @@
     <string name="enter_reference">Enter Reference</string>
     <string name="print_all">Print All</string>
     <string name="log_out">Log Out</string>
+    <string name="completion">Completion</string>
+    <string name="new_preauth">New</string>
 </resources>

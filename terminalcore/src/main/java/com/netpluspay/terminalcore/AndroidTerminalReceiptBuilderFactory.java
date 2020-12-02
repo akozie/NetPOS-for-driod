@@ -23,8 +23,13 @@ public abstract class AndroidTerminalReceiptBuilderFactory<T, K> {
     protected String appName;
     protected String appVersion;
     protected String receiptCopy;
+    private StringBuilder builder = new StringBuilder();
 
     abstract protected T getThis();
+
+    public StringBuilder getBuilder() {
+        return builder;
+    }
 
     public T appendTitle(String title) {
         this.title = title;
@@ -129,7 +134,7 @@ public abstract class AndroidTerminalReceiptBuilderFactory<T, K> {
         appendTextEntity("\n");
     }
 
-    protected void build() {
+    public T build() {
         if (title != null)
             appendTextEntity(title);
 
@@ -138,11 +143,13 @@ public abstract class AndroidTerminalReceiptBuilderFactory<T, K> {
 
         if (terminalId != null) {
             appendTextEntity("TERMINAL ID: " + terminalId);
+            builder.append("TERMINAL ID: ").append(terminalId).append("\n");
             appendTextEntity("\n");
         }
 
         if (transactionType != null) {
             appendTextEntityFontSixteenCenter(transactionType);
+            builder.append(transactionType).append("\n");
             appendTextEntity("\n");
         }
 
@@ -151,11 +158,13 @@ public abstract class AndroidTerminalReceiptBuilderFactory<T, K> {
 
         if (dateTime != null) {
             appendTextEntity("DATE/TIME: " + dateTime);
+            builder.append("DATE/TIME: ").append(dateTime).append("\n");
             //appendTextEntity("\n");
         }
 
         if (amount != null) {
             appendTextEntityBold("AMOUNT: " + amount);
+            builder.append("AMOUNT: ").append(amount).append("\n");
             //appendTextEntity("\n");
         }
 
@@ -164,8 +173,10 @@ public abstract class AndroidTerminalReceiptBuilderFactory<T, K> {
             appendTextEntity("\n");
         }
 
-        if (cardScheme != null)
+        if (cardScheme != null){
             appendTextEntity(cardScheme);
+            builder.append(cardScheme).append("Ending with").append(cardNumber.substring(cardNumber.length() - 4)).append("\n");
+        }
 
         if (cardNumber != null) {
             appendTextEntity(cardNumber);
@@ -187,8 +198,10 @@ public abstract class AndroidTerminalReceiptBuilderFactory<T, K> {
             appendTextEntity("\n");
         }
 
-        if (responseCode != null)
+        if (responseCode != null){
             appendTextEntity("RESPONSE CODE: " + responseCode);
+            builder.append("RESPONSE CODE: ").append(responseCode).append("\n");
+        }
 
         if (aid != null)
             appendTextEntity("AID: " + aid);
@@ -206,6 +219,7 @@ public abstract class AndroidTerminalReceiptBuilderFactory<T, K> {
             appendTextEntityCenter(receiptCopy);
         }
         printLine();
+        return getThis();
     }
 
     public abstract void appendTextEntity(String str);

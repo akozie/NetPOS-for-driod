@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
 import com.danbamitale.epmslib.entities.TransactionResponse
+import com.danbamitale.epmslib.entities.TransactionType
 import io.reactivex.Single
 
 @Dao
@@ -20,5 +21,15 @@ interface TransactionResponseDao {
     fun getTransactions(): LiveData<List<TransactionResponse>>
 
     @Query("SELECT * FROM transactionresponse WHERE transactionTimeInMillis >= :beginningOfDay and transactionTimeInMillis <= :endOfDay")
-    fun getEndOfDayTransaction(beginningOfDay: Long, endOfDay: Long): LiveData<List<TransactionResponse>>
+    fun getEndOfDayTransaction(
+        beginningOfDay: Long,
+        endOfDay: Long
+    ): LiveData<List<TransactionResponse>>
+
+    @Query("SELECT * FROM transactionresponse WHERE transactionType=:transactionType ORDER BY id DESC")
+    fun getTransactionByTransactionType(transactionType: TransactionType): LiveData<List<TransactionResponse>>
+
+    @Query("SELECT * FROM transactionresponse WHERE transactionType='PURCHASE' AND responseCode='00'")
+    fun getRefundableTransactions(): LiveData<List<TransactionResponse>>
+
 }

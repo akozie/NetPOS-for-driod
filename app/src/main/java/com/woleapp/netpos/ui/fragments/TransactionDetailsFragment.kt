@@ -3,6 +3,7 @@
 package com.woleapp.netpos.ui.fragments
 
 import android.app.AlertDialog
+import android.app.ProgressDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -13,6 +14,8 @@ import com.google.android.material.snackbar.Snackbar
 import com.woleapp.netpos.R
 import com.woleapp.netpos.databinding.FragmentTransactionDetailsBinding
 import com.woleapp.netpos.util.HISTORY_ACTION_DEFAULT
+import com.woleapp.netpos.util.HISTORY_ACTION_PREAUTH
+import com.woleapp.netpos.util.builder
 import com.woleapp.netpos.util.showCardDialog
 import com.woleapp.netpos.viewmodels.TransactionsViewModel
 import timber.log.Timber
@@ -20,6 +23,7 @@ import timber.log.Timber
 class TransactionDetailsFragment : BaseFragment() {
     private val viewModel by activityViewModels<TransactionsViewModel>()
     private lateinit var binding: FragmentTransactionDetailsBinding
+    private lateinit var progressDialog: ProgressDialog
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -31,6 +35,11 @@ class TransactionDetailsFragment : BaseFragment() {
                 executePendingBindings()
                 viewmodel = viewModel
             }
+        progressDialog = ProgressDialog(requireContext())
+            .apply {
+                setCancelable(false)
+                setMessage("Please wait")
+            }
         return binding.root
     }
 
@@ -41,40 +50,76 @@ class TransactionDetailsFragment : BaseFragment() {
                 binding.actionButton.visibility = View.GONE
             else
                 binding.actionButton.text = it
+            if (it == HISTORY_ACTION_PREAUTH) {
+                binding.actionButton.visibility = View.GONE
+                if (viewModel.selectedTransaction.value!!.responseCode == "00") {
+                    binding.preAuthComplete.visibility = View.VISIBLE
+                    binding.preAuthRefund.visibility = View.VISIBLE
+                } else {
+                    val m = "This Pre Auth Transaction wasn't successful"
+                    binding.message.text = m
+                }
+            }
+        }
+        binding.preAuthRefund.setOnClickListener {
+            gotoAction { viewModel.preAuthRefund(requireContext()) }
+        }
+
+        binding.preAuthComplete.setOnClickListener {
+            gotoAction { viewModel.doSaleCompletion(requireContext()) }
         }
         binding.actionButton.setOnClickListener {
             viewModel.performAction()
         }
+        binding.details.text = viewModel.selectedTransaction.value!!.builder().toString()
         viewModel.done.observe(viewLifecycleOwner) {
             if (it) {
                 Toast.makeText(requireContext(), "Done", Toast.LENGTH_SHORT).show()
                 viewModel.reset()
             }
         }
-        viewModel.beginGetCardDetails.observe(viewLifecycleOwner) {event ->
+        viewModel.showProgressDialog.observe(viewLifecycleOwner) { event ->
+            event.getContentIfNotHandled()?.let {
+                if (it) progressDialog.show() else progressDialog.dismiss()
+            }
+
+        }
+        viewModel.beginGetCardDetails.observe(viewLifecycleOwner) { event ->
             event.getContentIfNotHandled()?.let { startCardReader ->
                 if (startCardReader)
-                    showCardDialog(requireActivity(), 1000, 0L).observe(viewLifecycleOwner) { event ->
-                        event.getContentIfNotHandled()?.let {
-                            it.error?.let { error ->
-                                Timber.e(error)
-                                Toast.makeText(requireContext(), error.localizedMessage, Toast.LENGTH_SHORT)
-                                    .show()
-                            }
-                            it.cardData?.let { cardData ->
-                                viewModel.setCardScheme(it.cardScheme!!)
-                                viewModel.setCustomerName(it.customerName ?: "Customer")
-                                viewModel.setAccountType(it.accountType!!)
-                                viewModel.cardData = cardData
-                                viewModel.refundTransaction(requireContext())
-                            }
-                        }
-                    }
+                    gotoAction { viewModel.refundTransaction(requireContext()) }
             }
         }
         viewModel.message.observe(viewLifecycleOwner) {
             it.getContentIfNotHandled()?.let { s ->
                 showSnackBar(s)
+            }
+        }
+    }
+
+    private fun gotoAction(action: () -> Unit) {
+        showCardDialog(
+            requireActivity(),
+            1000,
+            0L
+        ).observe(viewLifecycleOwner) { event ->
+            event.getContentIfNotHandled()?.let {
+                it.error?.let { error ->
+                    Timber.e(error)
+                    Toast.makeText(
+                        requireContext(),
+                        error.localizedMessage,
+                        Toast.LENGTH_SHORT
+                    )
+                        .show()
+                }
+                it.cardData?.let { cardData ->
+                    viewModel.setCardScheme(it.cardScheme!!)
+                    viewModel.setCustomerName(it.customerName ?: "Customer")
+                    viewModel.setAccountType(it.accountType!!)
+                    viewModel.cardData = cardData
+                    action.invoke()
+                }
             }
         }
     }

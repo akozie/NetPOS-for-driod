@@ -22,7 +22,7 @@ class ReprintFragment : BaseFragment() {
         binding = FragmentReprintBinding.inflate(inflater, container, false)
         adapter = ServiceAdapter {
             if (it.id == 0)
-                addFragmentWithoutRemove(TransactionHistoryFragment.NewInstance(action = HISTORY_ACTION_REPRINT))
+                addFragmentWithoutRemove(TransactionHistoryFragment.newInstance(action = HISTORY_ACTION_REPRINT))
             else
                 printAllDialog()
         }

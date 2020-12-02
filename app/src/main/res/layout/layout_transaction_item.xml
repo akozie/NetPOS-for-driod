@@ -10,22 +10,39 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackground"
         android:clickable="true"
         android:focusable="true"
-        android:background="?attr/selectableItemBackground"
         android:paddingVertical="8dp"
         tools:ignore="UnusedAttribute">
+
+        <TextView
+            android:id="@+id/holder_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:textColor="@android:color/black"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Jane Doe" />
+
+        <TextView
+            android:id="@+id/card_details"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="@id/holder_name"
+            app:layout_constraintTop_toBottomOf="@id/holder_name"
+            tools:text="5199xxxxxxxx4423 - VISA" />
 
         <TextView
             android:id="@+id/transaction_date"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
             android:textColor="@android:color/black"
             app:layout_constraintEnd_toStartOf="@id/transaction_amount"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="@id/holder_name"
+            app:layout_constraintTop_toBottomOf="@id/card_details"
             tools:text="15th August 2020" />
 
         <TextView
@@ -34,7 +51,6 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:textColor="@android:color/black"
-            android:textSize="16sp"
             app:layout_constraintEnd_toEndOf="@id/transaction_date"
             app:layout_constraintStart_toStartOf="@id/transaction_date"
             app:layout_constraintTop_toBottomOf="@id/transaction_date"
@@ -46,8 +62,9 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:textColor="@android:color/black"
+            app:layout_constraintBottom_toBottomOf="@+id/transaction_ref"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/transaction_date"
+            app:layout_constraintTop_toTopOf="@+id/holder_name"
             tools:text="\u20A65000" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

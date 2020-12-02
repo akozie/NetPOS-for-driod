@@ -12,6 +12,7 @@ import io.reactivex.Observable
 import io.reactivex.ObservableEmitter
 import io.reactivex.Single
 import timber.log.Timber
+import java.lang.StringBuilder
 
 fun List<TransactionResponse>.printAll(isMerchantCopy: Boolean): Observable<PrinterResponse> {
     var emitter: ObservableEmitter<PrinterResponse>? = null
@@ -53,11 +54,13 @@ fun TransactionResponse.print(
 
 fun TransactionResponse.print() = buildReceipt().print()
 
+fun TransactionResponse.builder(): StringBuilder = buildReceipt().build().builder
+
 fun TransactionResponse.buildReceipt(isMerchantCopy: Boolean = false) =
     ReceiptBuilder().also { builder ->
         builder.appendLogo()
         builder.appendAID(AID)
-        builder.appendAddress("NETPOS")
+        builder.appendAddress(Singletons.getCurrentlyLoggedInUser()!!.business_name)
         builder.appendAmount(
             amount.div(100).formatCurrencyAmount("\u20A6")
         )

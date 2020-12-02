@@ -7,8 +7,6 @@ import com.danbamitale.epmslib.processors.TransactionProcessor
 import com.danbamitale.epmslib.utils.IsoAccountType
 import com.netpluspay.kozenlib.KozenLib
 import com.netpluspay.kozenlib.printer.PrinterResponse
-import com.netpluspay.kozenlib.printer.ReceiptBuilder
-import com.woleapp.netpos.BuildConfig
 import com.woleapp.netpos.database.AppDatabase
 import com.woleapp.netpos.model.CardReaderMqttEvent
 import com.woleapp.netpos.model.MqttEvent
@@ -40,6 +38,10 @@ class TransactionsViewModel : ViewModel() {
     private lateinit var cardHolderName: String
     private val _message = MutableLiveData<Event<String>>()
     private var cardScheme: String? = null
+    private val _showProgressDialog = MutableLiveData<Event<Boolean>>()
+
+    val showProgressDialog: LiveData<Event<Boolean>>
+        get() = _showProgressDialog
 
     val message: LiveData<Event<String>>
         get() = _message
@@ -70,7 +72,16 @@ class TransactionsViewModel : ViewModel() {
         this.appDatabase = appDatabase
     }
 
-    fun getTransactions() = appDatabase!!.transactionResponseDao().getTransactions()
+    fun getTransactions() =
+        when (_selectedAction.value) {
+            HISTORY_ACTION_PREAUTH -> appDatabase!!.transactionResponseDao()
+                .getTransactionByTransactionType(TransactionType.PRE_AUTHORIZATION)
+            HISTORY_ACTION_REFUND -> appDatabase!!.transactionResponseDao()
+                .getRefundableTransactions()
+            else -> appDatabase!!.transactionResponseDao().getTransactions()
+        }
+
+
     fun setAction(action: String?) {
         _selectedAction.value = action
     }
@@ -179,25 +190,7 @@ class TransactionsViewModel : ViewModel() {
     }
 
     private fun printReceipt(transactionResponse: TransactionResponse): Single<PrinterResponse> =
-        ReceiptBuilder()
-            .apply {
-                appendAID(transactionResponse.AID)
-                appendAddress("NETPOS")
-                appendAmount(transactionResponse.amount.div(100).toString())
-                appendAppName("NetPOS")
-                appendAppVersion(BuildConfig.VERSION_NAME)
-                appendAuthorizationCode(transactionResponse.authCode)
-                appendCardHolderName(transactionResponse.cardHolder)
-                appendCardNumber(transactionResponse.maskedPan)
-                appendCardScheme(transactionResponse.cardLabel)
-                appendDateTime(transactionResponse.transactionTimeInMillis.formatDate())
-                appendRRN(transactionResponse.RRN)
-                appendStan(transactionResponse.STAN)
-                appendTerminalId(getTerminalId())
-                appendTransactionType(transactionResponse.transactionType.name)
-                appendTransactionStatus(if (transactionResponse.responseCode == "00") "Approved" else "Declined")
-                appendResponseCode(transactionResponse.responseCode)
-            }.print()
+        transactionResponse.print()
 
     fun sendCardEvent(status: String, code: String, eventData: CardReaderMqttEvent) {
         event.apply {
@@ -217,8 +210,123 @@ class TransactionsViewModel : ViewModel() {
         this.accountType = accountType
     }
 
-    fun setCardScheme(cardScheme: String?){
+    fun setCardScheme(cardScheme: String?) {
         this.cardScheme = if (cardScheme.equals("no match", true)) "VERVE" else cardScheme
+    }
+
+    fun doSaleCompletion(context: Context) {
+        val transactionResponse = selectedTransaction.value!!
+        val originalDataElements = transactionResponse.toOriginalDataElements()
+        val hostConfig = HostConfig(
+            getTerminalId(),
+            getConnectionData(),
+            NetPosTerminalConfig.getKeyHolder()!!,
+            NetPosTerminalConfig.getConfigData()!!
+        )
+
+        val requestData = TransactionRequestData(
+            transactionType = TransactionType.PRE_AUTHORIZATION_COMPLETION,
+            amount = originalDataElements.originalAmount,
+            originalDataElements = originalDataElements
+        )
+
+        _showProgressDialog.value = Event(true)
+        val disposable = TransactionProcessor(hostConfig).processTransaction(
+            context, requestData,
+            cardData!!
+        ).flatMap {
+            _showProgressDialog.postValue(Event(false))
+            _message.postValue(Event("Transaction: ${it.responseMessage}"))
+            it.cardHolder = cardHolderName
+            it.cardLabel = cardScheme!!
+            event.apply {
+                this.event = MqttEvents.TRANSACTIONS.event
+                this.code = it.responseCode
+                this.timestamp = System.currentTimeMillis()
+                this.data = it
+                this.transactionType = it.transactionType.name
+                this.status = try {
+                    it.responseMessage
+                } catch (ex: Exception) {
+                    "Error"
+                }
+            }
+            MqttHelper.sendPayload(event)
+            it.id = transactionResponse.id
+            lastTransactionResponse.postValue(it)
+            appDatabase!!.transactionResponseDao().updateTransaction(it)
+        }.subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe { response, error ->
+                error?.let {
+                    _message.value = Event(it.localizedMessage)
+                    Timber.e(it)
+                    it.printStackTrace()
+                }
+
+                response?.let {
+                    startPrintingReceipt(lastTransactionResponse.value!!)
+                }
+            }
+
+        compositeDisposable.add(disposable)
+    }
+
+    fun preAuthRefund(context: Context) {
+        val transactionResponse = selectedTransaction.value!!
+        val originalDataElements = transactionResponse.toOriginalDataElements()
+
+        val hostConfig = HostConfig(
+            getTerminalId(),
+            getConnectionData(),
+            NetPosTerminalConfig.getKeyHolder()!!,
+            NetPosTerminalConfig.getConfigData()!!
+        )
+
+        val requestData = TransactionRequestData(
+            transactionType = TransactionType.REFUND,
+            amount = originalDataElements.originalAmount,
+            originalDataElements = originalDataElements
+        )
+        _showProgressDialog.value = Event(true)
+        val disposable =
+            TransactionProcessor(hostConfig).processTransaction(context, requestData, cardData!!)
+                .flatMap {
+                    _showProgressDialog.postValue(Event(false))
+                    _message.postValue(Event("Transaction: ${it.responseMessage}"))
+                    it.cardHolder = cardHolderName
+                    it.cardLabel = cardScheme!!
+                    event.apply {
+                        this.event = MqttEvents.TRANSACTIONS.event
+                        this.code = it.responseCode
+                        this.timestamp = System.currentTimeMillis()
+                        this.data = it
+                        this.transactionType = it.transactionType.name
+                        this.status = try {
+                            it.responseMessage
+                        } catch (ex: Exception) {
+                            "Error"
+                        }
+                    }
+                    MqttHelper.sendPayload(event)
+                    it.id = transactionResponse.id
+                    lastTransactionResponse.postValue(it)
+                    appDatabase!!.transactionResponseDao().updateTransaction(it)
+                }.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { response, error ->
+                    error?.let {
+                        _message.value = Event(it.localizedMessage)
+                        Timber.e(it)
+                        it.printStackTrace()
+                    }
+
+                    response?.let {
+                        startPrintingReceipt(lastTransactionResponse.value!!)
+                    }
+                }
+
+        compositeDisposable.add(disposable)
     }
 
 }

@@ -24,10 +24,10 @@ object KozenLib {
         initTerminalConfiguration()
         val poiGeneralAPI = POIGeneralAPI.getDefault()
         poiGeneralAPI.apply {
-            Log.e("TAG", "HW: ${getVersion(POIGeneralAPI.VERSION_TYPE_HW)}")
-            Log.e("TAG", "AP: ${getVersion(POIGeneralAPI.VERSION_TYPE_AP)}")
-            Log.e("TAG", "DSN: ${getVersion(POIGeneralAPI.VERSION_TYPE_DSN)}")
-            Log.e("TAG", "SP: ${getVersion(POIGeneralAPI.VERSION_TYPE_SP)}")
+//            Log.e("TAG", "HW: ${getVersion(POIGeneralAPI.VERSION_TYPE_HW)}")
+//            Log.e("TAG", "AP: ${getVersion(POIGeneralAPI.VERSION_TYPE_AP)}")
+//            Log.e("TAG", "DSN: ${getVersion(POIGeneralAPI.VERSION_TYPE_DSN)}")
+//            Log.e("TAG", "SP: ${getVersion(POIGeneralAPI.VERSION_TYPE_SP)}")
 
         }
         printerManager = POIPrinterManage.getDefault(context)
@@ -42,9 +42,9 @@ object KozenLib {
 
     @JvmStatic
     private fun initTerminalConfiguration() {
-        Log.e("TAG", "Model ${Build.MODEL}")
-        Log.e("TAG", "Manufacturer ${Build.MANUFACTURER}")
-        Log.e("TAG", "Brand ${Build.BRAND}")
+//        Log.e("TAG", "Model ${Build.MODEL}")
+//        Log.e("TAG", "Manufacturer ${Build.MANUFACTURER}")
+//        Log.e("TAG", "Brand ${Build.BRAND}")
         if (Build.MODEL == "P3")
             DeviceConfig.InitDevice(DeviceConfig.DEVICE_P3)
         else
