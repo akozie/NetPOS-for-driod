@@ -1,6 +1,7 @@
 package com.woleapp.netpos.viewmodels
 
 import android.content.Context
+import android.os.Build
 import androidx.lifecycle.*
 import com.danbamitale.epmslib.entities.*
 import com.danbamitale.epmslib.processors.TransactionProcessor
@@ -39,6 +40,10 @@ class TransactionsViewModel : ViewModel() {
     private val _message = MutableLiveData<Event<String>>()
     private var cardScheme: String? = null
     private val _showProgressDialog = MutableLiveData<Event<Boolean>>()
+    private val _showPrintDialog = MutableLiveData<Event<String>>()
+
+    val showPrintDialog: LiveData<Event<String>>
+        get() = _showPrintDialog
 
     val showProgressDialog: LiveData<Event<Boolean>>
         get() = _showProgressDialog
@@ -189,8 +194,12 @@ class TransactionsViewModel : ViewModel() {
             }.disposeWith(compositeDisposable)
     }
 
-    private fun printReceipt(transactionResponse: TransactionResponse): Single<PrinterResponse> =
-        transactionResponse.print()
+    private fun printReceipt(transactionResponse: TransactionResponse): Single<PrinterResponse> {
+        if (Build.MODEL != "P3") _showPrintDialog.postValue(Event(transactionResponse.builder().toString()))
+        return if (Build.MODEL == "P3") transactionResponse.print()
+        else Single.just(PrinterResponse())
+    }
+
 
     fun sendCardEvent(status: String, code: String, eventData: CardReaderMqttEvent) {
         event.apply {

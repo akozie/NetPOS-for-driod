@@ -1,6 +1,7 @@
 package com.woleapp.netpos
 
 import com.danbamitale.epmslib.entities.TransactionType
+import com.danbamitale.epmslib.utils.TripleDES
 import com.woleapp.netpos.util.getBeginningOfDay
 import com.woleapp.netpos.util.getEndOfDayTimeStamp
 import com.woleapp.netpos.util.playAround
@@ -38,5 +39,12 @@ class ExampleUnitTest {
         println(sampleName)
         println(TransactionType.valueOf(sampleName).name)
         assertEquals(4, 2 + 2)
+    }
+
+    @Test
+    fun testTripleDesEncrypt() {
+        val pib = TripleDES.encrypt("0420BDCBA669F8F9", "ab20ef34b9ea1c9425132c0816c22951")
+        println(pib)
+        assertEquals("1631f8f70ecad7c3", pib)
     }
 }

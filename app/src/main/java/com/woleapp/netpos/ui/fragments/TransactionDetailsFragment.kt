@@ -24,6 +24,7 @@ class TransactionDetailsFragment : BaseFragment() {
     private val viewModel by activityViewModels<TransactionsViewModel>()
     private lateinit var binding: FragmentTransactionDetailsBinding
     private lateinit var progressDialog: ProgressDialog
+    private lateinit var alertDialog: AlertDialog
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -93,6 +94,16 @@ class TransactionDetailsFragment : BaseFragment() {
         viewModel.message.observe(viewLifecycleOwner) {
             it.getContentIfNotHandled()?.let { s ->
                 showSnackBar(s)
+            }
+        }
+        alertDialog = AlertDialog.Builder(requireContext()).setCancelable(false)
+            .setPositiveButton("Done") { dialog, _ -> dialog.dismiss() }.create()
+        viewModel.showPrintDialog.observe(viewLifecycleOwner){event ->
+            event.getContentIfNotHandled()?.let {
+                alertDialog.apply {
+                    setMessage(it)
+                    show()
+                }
             }
         }
     }

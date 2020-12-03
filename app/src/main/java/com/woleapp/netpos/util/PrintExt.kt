@@ -1,5 +1,6 @@
 package com.woleapp.netpos.util
 
+import android.os.Build
 import com.danbamitale.epmslib.entities.TransactionResponse
 import com.danbamitale.epmslib.entities.responseMessage
 import com.danbamitale.epmslib.extensions.formatCurrencyAmount
@@ -8,6 +9,8 @@ import com.netpluspay.kozenlib.printer.ReceiptBuilder
 import com.pos.sdk.printer.POIPrinterManage
 import com.woleapp.netpos.BuildConfig
 import com.woleapp.netpos.model.NipNotification
+import com.woleapp.netpos.util.Singletons.firestore
+import com.woleapp.netpos.util.Singletons.gson
 import io.reactivex.Observable
 import io.reactivex.ObservableEmitter
 import io.reactivex.Single
@@ -53,6 +56,18 @@ fun TransactionResponse.print(
 }
 
 fun TransactionResponse.print() = buildReceipt().print()
+
+fun TransactionResponse.sendLog() {
+    firestore.collection("transaction_IB_${Build.MODEL}")
+        .add(this)
+        .addOnCompleteListener {
+            if (it.isSuccessful)
+                Timber.e("sent log")
+            else{
+                Timber.e(it.exception)
+            }
+        }
+}
 
 fun TransactionResponse.builder(): StringBuilder = buildReceipt().build().builder
 

@@ -4,6 +4,7 @@ import com.danbamitale.epmslib.entities.ConfigData
 import com.danbamitale.epmslib.entities.DEFAULT_NIBSS_IP
 import com.danbamitale.epmslib.entities.DEFAULT_NIBSS_PORT
 import com.danbamitale.epmslib.entities.KeyHolder
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.gson.Gson
 import com.pixplicity.easyprefs.library.Prefs
 import com.woleapp.netpos.model.ConfigurationData
@@ -13,6 +14,7 @@ import com.woleapp.netpos.nibss.Keys
 import com.woleapp.netpos.nibss.NetPosTerminalConfig
 
 object Singletons {
+    val firestore = FirebaseFirestore.getInstance()
     val gson = Gson()
     fun getCurrentlyLoggedInUser(): User? =
         gson.fromJson(Prefs.getString(PREF_USER, ""), User::class.java)

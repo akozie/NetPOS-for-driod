@@ -273,6 +273,10 @@ class CardReaderService(activity: Activity) :
                 }
             }
             emitter.onNext(CardReaderEvent.CardRead(CardReadResult(result, transactionData).apply {
+                if (::cardPinBlock.isInitialized.not()){
+                    emitter.onError(Throwable("Fatal Error"))
+                    return
+                }
                 encryptedPinBlock = cardPinBlock
             }))
             emitter.onComplete()
