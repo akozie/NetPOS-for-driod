@@ -38,7 +38,6 @@ import kotlin.collections.ArrayList
 class DashboardFragment : BaseFragment() {
 
     private lateinit var progressDialog: ProgressDialog
-    private val salesViewModel by viewModels<SalesViewModel>()
     private lateinit var binding: FragmentDashboardBinding
     private lateinit var adapter: ServiceAdapter
     override fun onCreateView(
@@ -72,11 +71,6 @@ class DashboardFragment : BaseFragment() {
                         .show()
                 }
                 it.cardData?.let { cardData ->
-                    salesViewModel.setCardScheme(it.cardScheme!!)
-                    salesViewModel.setCustomerName(it.customerName ?: "Customer")
-                    salesViewModel.setAccountType(it.accountType!!)
-                    salesViewModel.cardData = cardData
-                    salesViewModel.logCardData()
                     checkBalance(cardData, it.accountType!!)
                 }
             }
@@ -120,7 +114,6 @@ class DashboardFragment : BaseFragment() {
                 }
 
                 response?.let {
-                    it.sendLog()
                     println(it)
 
                     val messageString = if (it.isApproved) {

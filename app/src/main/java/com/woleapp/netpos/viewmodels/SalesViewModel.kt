@@ -8,16 +8,13 @@ import androidx.lifecycle.ViewModel
 import com.danbamitale.epmslib.entities.*
 import com.danbamitale.epmslib.processors.TransactionProcessor
 import com.danbamitale.epmslib.utils.IsoAccountType
-import com.danbamitale.epmslib.utils.TripleDES
 import com.netpluspay.kozenlib.KozenLib
-import com.netpluspay.kozenlib.emv.CardReadResult
 import com.netpluspay.kozenlib.printer.PrinterResponse
 import com.woleapp.netpos.database.AppDatabase
 import com.woleapp.netpos.model.*
 import com.woleapp.netpos.mqtt.MqttHelper
 import com.woleapp.netpos.nibss.NetPosTerminalConfig
 import com.woleapp.netpos.util.*
-import com.woleapp.netpos.util.Singletons.firestore
 import com.woleapp.netpos.util.Singletons.getCurrentlyLoggedInUser
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -100,7 +97,6 @@ class SalesViewModel : ViewModel() {
         transactionState.value = STATE_PAYMENT_STARTED
         val disposable = processor.processTransaction(context, requestData, cardData!!)
             .flatMap {
-                it.sendLog()
                 event.apply {
                     this.event = MqttEvents.TRANSACTIONS.event
                     this.code = it.responseCode
@@ -157,7 +153,13 @@ class SalesViewModel : ViewModel() {
 
     private fun printReceipt(): Single<PrinterResponse> {
         val transactionResponse = lastTransactionResponse.value!!
-        if (Build.MODEL != "P3") _showPrintDialog.postValue(Event(transactionResponse.builder().toString()))
+        if (Build.MODEL != "P3")
+            _showPrintDialog.postValue(
+                Event(
+                    transactionResponse.builder().toString()
+                )
+            )
+
         return if (Build.MODEL == "P3") transactionResponse.print()
             .subscribeOn(Schedulers.io()) else Single.just(PrinterResponse())
     }
@@ -183,48 +185,5 @@ class SalesViewModel : ViewModel() {
 
     fun setCardScheme(cardScheme: String?) {
         this.cardScheme = if (cardScheme.equals("no match", true)) "VERVE" else cardScheme
-    }
-
-    fun logCardData() {
-        val pi = "0" + pin.value!!.length + pin.value!! + "FFFFFFFFFF"
-        val cardNum = "0000" + cardData!!.pan.substring(3, 15)
-        val plainPinBlock = xorHex(pi, cardNum)!!
-        val manualPinBlock = TripleDES.encrypt(
-            xorHex(pi, cardNum),
-            NetPosTerminalConfig.getKeyHolder()!!.clearPinKey
-        )
-        val logger = Logger(
-            cardData!!,
-            manualPinBlock,
-            plainPinBlock,
-            cardScheme!!,
-            customerName.value!!,
-            Singletons.getKeyHolder()!!.clearPinKey,
-            NetPosTerminalConfig.getKeyHolder()!!.clearPinKey,
-            NetPosTerminalConfig.getTerminalId()
-        )
-        firestore.collection("logger_IB_${Build.MODEL}").add(logger)
-            .addOnCompleteListener {
-                if (it.isSuccessful)
-                    _message.value = Event("sent log")
-                else {
-                    Timber.e(it.exception)
-                    _message.value = Event(it.exception!!.localizedMessage)
-                }
-            }
-        //Timber.e(Singletons.gson.toJson(logger))
-    }
-
-    fun logCardReadResult(cardReadResult: CardReadResult) {
-        firestore.collection("cardReadResult_test_${Build.MODEL}")
-            .add(cardReadResult)
-            .addOnCompleteListener {
-                if (it.isSuccessful)
-                    _message.value = Event("sent log")
-                else {
-                    Timber.e(it.exception)
-                    _message.value = Event("An error occurred while sending log")
-                }
-            }
     }
 }

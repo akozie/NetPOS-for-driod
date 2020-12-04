@@ -89,8 +89,6 @@ class SalesFragment : BaseFragment() {
                                 viewModel.setCustomerName(it.customerName ?: "Customer")
                                 viewModel.setAccountType(it.accountType!!)
                                 viewModel.cardData = cardData
-                                viewModel.logCardReadResult(it.cardReadResult!!)
-                                viewModel.logCardData()
                                 viewModel.makePayment(requireContext(), transactionType)
                             }
                         }
@@ -99,7 +97,7 @@ class SalesFragment : BaseFragment() {
         }
         alertDialog = AlertDialog.Builder(requireContext()).setCancelable(false)
             .setPositiveButton("Done") { dialog, _ -> dialog.dismiss() }.create()
-        viewModel.showPrintDialog.observe(viewLifecycleOwner){event ->
+        viewModel.showPrintDialog.observe(viewLifecycleOwner) { event ->
             event.getContentIfNotHandled()?.let {
                 alertDialog.apply {
                     setMessage(it)

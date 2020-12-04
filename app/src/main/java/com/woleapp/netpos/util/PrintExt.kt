@@ -9,8 +9,6 @@ import com.netpluspay.kozenlib.printer.ReceiptBuilder
 import com.pos.sdk.printer.POIPrinterManage
 import com.woleapp.netpos.BuildConfig
 import com.woleapp.netpos.model.NipNotification
-import com.woleapp.netpos.util.Singletons.firestore
-import com.woleapp.netpos.util.Singletons.gson
 import io.reactivex.Observable
 import io.reactivex.ObservableEmitter
 import io.reactivex.Single
@@ -57,19 +55,26 @@ fun TransactionResponse.print(
 
 fun TransactionResponse.print() = buildReceipt().print()
 
-fun TransactionResponse.sendLog() {
-    firestore.collection("transaction_IB_${Build.MODEL}")
-        .add(this)
-        .addOnCompleteListener {
-            if (it.isSuccessful)
-                Timber.e("sent log")
-            else{
-                Timber.e(it.exception)
+fun TransactionResponse.builder() = StringBuilder().apply {
+    append("Merchant Name: ").append(Singletons.getCurrentlyLoggedInUser()!!.business_name)
+    append("\nTERMINAL ID: ").append(terminalId).append("\n")
+    append(transactionType).append("\n")
+    append("DATE/TIME: ").append(transmissionDateTime).append("\n")
+    append("AMOUNT: ").append(amount).append("\n")
+    append(cardLabel).append(" Ending with").append(maskedPan.substring(maskedPan.length - 4))
+        .append("\n")
+    append("RESPONSE CODE: ").append(responseCode).append("\n").append(
+        " : ${
+            try {
+                responseMessage
+            } catch (ex: Exception) {
+                "Error"
             }
-        }
+        }"
+    )
 }
 
-fun TransactionResponse.builder(): StringBuilder = buildReceipt().build().builder
+fun TransactionResponse.newBuilder(): StringBuilder = buildReceipt().buildString().builder
 
 fun TransactionResponse.buildReceipt(isMerchantCopy: Boolean = false) =
     ReceiptBuilder().also { builder ->

@@ -2,6 +2,7 @@ package com.netpluspay.kozenlib.printer
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.os.Build
 import android.util.Log
 import com.netpluspay.kozenlib.KozenLib
 import com.netpluspay.kozenlib.R
@@ -22,14 +23,16 @@ class ReceiptBuilder :
         type = PrintLine.TEXT
     }
     private val printerManager = KozenLib.getPrinterManager().apply {
-        try {
-            setPrintGray(Integer.valueOf("4000"))
-        }catch (e: Exception){
-            e.printStackTrace()
-            Log.e("TAG", "Error: ${e.localizedMessage}")
+        if (Build.MODEL == "P3") {
+            try {
+                setPrintGray(Integer.valueOf("4000"))
+                setLineSpace(Integer.valueOf("1"))
+                cleanCache()
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Log.e("TAG", "Error: ${e.localizedMessage}")
+            }
         }
-        setLineSpace(Integer.valueOf("1"))
-        cleanCache()
     }
 
     override fun getThis(): ReceiptBuilder = this
@@ -95,7 +98,7 @@ class ReceiptBuilder :
             })
     }
 
-    fun print(printerListener: POIPrinterManage.IPrinterListener){
+    fun print(printerListener: POIPrinterManage.IPrinterListener) {
         build()
         printerManager.beginPrint(printerListener)
     }
@@ -122,7 +125,8 @@ class ReceiptBuilder :
         val bitmapPrintLine = BitmapPrintLine()
         bitmapPrintLine.type = PrintLine.BITMAP
         bitmapPrintLine.position = PrintLine.CENTER
-        val bitmap: Bitmap = BitmapFactory.decodeResource(KozenLib.getContext().resources, R.drawable.ic_netpos_new)
+        val bitmap: Bitmap =
+            BitmapFactory.decodeResource(KozenLib.getContext().resources, R.drawable.ic_netpos_new)
         bitmapPrintLine.bitmap = Bitmap.createScaledBitmap(bitmap, 180, 120, false)
         printerManager.addPrintLine(bitmapPrintLine)
     }
