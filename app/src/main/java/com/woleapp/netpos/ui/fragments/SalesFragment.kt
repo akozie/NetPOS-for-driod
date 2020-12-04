@@ -9,10 +9,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.viewModels
+import com.danbamitale.epmslib.entities.CardData
 import com.danbamitale.epmslib.entities.TransactionType
+import com.danbamitale.epmslib.entities.clearPinKey
+import com.danbamitale.epmslib.utils.IsoAccountType
+import com.danbamitale.epmslib.utils.TripleDES
 import com.google.android.material.snackbar.Snackbar
 import com.woleapp.netpos.R
 import com.woleapp.netpos.databinding.FragmentSalesBinding
+import com.woleapp.netpos.nibss.NetPosTerminalConfig
 import com.woleapp.netpos.util.TRANSACTION_TYPE
 import com.woleapp.netpos.util.showCardDialog
 import com.woleapp.netpos.viewmodels.SalesViewModel
@@ -31,6 +36,7 @@ class SalesFragment : BaseFragment() {
 
     private val viewModel by viewModels<SalesViewModel>()
     private lateinit var transactionType: TransactionType
+    private lateinit var alertDialog: AlertDialog
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -55,6 +61,11 @@ class SalesFragment : BaseFragment() {
                 showSnackBar(s)
             }
         }
+        /*viewModel.getCardData.observe(viewLifecycleOwner){event ->
+            event.getContentIfNotHandled()?.let {
+                quickPay()
+            }
+        }*/
         viewModel.getCardData.observe(viewLifecycleOwner) { event ->
             event.getContentIfNotHandled()?.let { shouldGetCardData ->
                 if (shouldGetCardData)
@@ -84,6 +95,16 @@ class SalesFragment : BaseFragment() {
                     }
             }
         }
+        alertDialog = AlertDialog.Builder(requireContext()).setCancelable(false)
+            .setPositiveButton("Done") { dialog, _ -> dialog.dismiss() }.create()
+        viewModel.showPrintDialog.observe(viewLifecycleOwner) { event ->
+            event.getContentIfNotHandled()?.let {
+                alertDialog.apply {
+                    setMessage(it)
+                    show()
+                }
+            }
+        }
         binding.process.setOnClickListener {
             viewModel.validateField()
         }
@@ -105,6 +126,24 @@ class SalesFragment : BaseFragment() {
         }
         viewModel.makePayment(requireContext(), transactionType)
     }*/
+
+    private fun quickPay() {
+        viewModel.setAccountType(IsoAccountType.SAVINGS)
+        viewModel.setCardScheme("Master Card")
+        viewModel.setCustomerName("SUBAIR/BABATUNDE")
+        viewModel.cardData = CardData(
+            track2Data = "5399834599607066D22032210014182625",
+            nibssIccSubset = "9F2608F564EF96AC6AFE8F9F2701809F10120110A04003220000000000000000000000FF9F3704BAD5E42A9F3602030A950500000480009A032012039C01009F02060000000010005F2A020566820239009F1A0205669F34034203009F3303E068C89F3501229F1E0842313739314531588407A00000000410109F090200029F03060000000000005F340101",
+            panSequenceNumber = "001",
+            posEntryMode = "051"
+        ).apply {
+            pinBlock = TripleDES.encrypt(
+                "0420BDCBA669F8F9",
+                NetPosTerminalConfig.getKeyHolder()!!.clearPinKey
+            )
+        }
+        viewModel.makePayment(requireContext(), transactionType)
+    }
 
     private fun showSnackBar(message: String) {
         if (message == "Transaction not approved") {

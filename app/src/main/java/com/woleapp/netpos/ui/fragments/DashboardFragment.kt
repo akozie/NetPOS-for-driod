@@ -8,6 +8,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import com.danbamitale.epmslib.entities.*
 import com.danbamitale.epmslib.extensions.formatCurrencyAmount
@@ -25,6 +27,7 @@ import com.woleapp.netpos.model.*
 import com.woleapp.netpos.mqtt.MqttHelper
 import com.woleapp.netpos.nibss.NetPosTerminalConfig
 import com.woleapp.netpos.util.*
+import com.woleapp.netpos.viewmodels.SalesViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
@@ -35,7 +38,6 @@ import kotlin.collections.ArrayList
 class DashboardFragment : BaseFragment() {
 
     private lateinit var progressDialog: ProgressDialog
-
     private lateinit var binding: FragmentDashboardBinding
     private lateinit var adapter: ServiceAdapter
     override fun onCreateView(
@@ -75,7 +77,10 @@ class DashboardFragment : BaseFragment() {
         }
     }
 
-    private fun checkBalance(cardData: CardData, accountType: IsoAccountType = IsoAccountType.DEFAULT_UNSPECIFIED) {
+    private fun checkBalance(
+        cardData: CardData,
+        accountType: IsoAccountType = IsoAccountType.DEFAULT_UNSPECIFIED
+    ) {
         if (NetPosTerminalConfig.getKeyHolder() == null) {
             Toast.makeText(requireContext(), "Terminal not configured", Toast.LENGTH_LONG).show()
             return
@@ -87,7 +92,8 @@ class DashboardFragment : BaseFragment() {
             NetPosTerminalConfig.getKeyHolder()!!,
             NetPosTerminalConfig.getConfigData()!!
         )
-        val requestData = TransactionRequestData(TransactionType.BALANCE, 0L, accountType = accountType)
+        val requestData =
+            TransactionRequestData(TransactionType.BALANCE, 0L, accountType = accountType)
         progressDialog.setMessage("Checking Balance...")
         progressDialog.show()
         val processor = TransactionProcessor(hostConfig)
@@ -132,8 +138,8 @@ class DashboardFragment : BaseFragment() {
             .apply {
                 setTitle(s)
                 setMessage(messageString)
-                setPositiveButton("Ok"){
-                    dialog, _ -> dialog.dismiss()
+                setPositiveButton("Ok") { dialog, _ ->
+                    dialog.dismiss()
                 }
                 create().show()
             }

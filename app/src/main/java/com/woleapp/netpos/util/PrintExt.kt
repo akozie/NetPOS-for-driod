@@ -1,5 +1,6 @@
 package com.woleapp.netpos.util
 
+import android.os.Build
 import com.danbamitale.epmslib.entities.TransactionResponse
 import com.danbamitale.epmslib.entities.responseMessage
 import com.danbamitale.epmslib.extensions.formatCurrencyAmount
@@ -54,7 +55,26 @@ fun TransactionResponse.print(
 
 fun TransactionResponse.print() = buildReceipt().print()
 
-fun TransactionResponse.builder(): StringBuilder = buildReceipt().build().builder
+fun TransactionResponse.builder() = StringBuilder().apply {
+    append("Merchant Name: ").append(Singletons.getCurrentlyLoggedInUser()!!.business_name)
+    append("\nTERMINAL ID: ").append(terminalId).append("\n")
+    append(transactionType).append("\n")
+    append("DATE/TIME: ").append(transmissionDateTime).append("\n")
+    append("AMOUNT: ").append(amount).append("\n")
+    append(cardLabel).append(" Ending with").append(maskedPan.substring(maskedPan.length - 4))
+        .append("\n")
+    append("RESPONSE CODE: ").append(responseCode).append("\n").append(
+        " : ${
+            try {
+                responseMessage
+            } catch (ex: Exception) {
+                "Error"
+            }
+        }"
+    )
+}
+
+fun TransactionResponse.newBuilder(): StringBuilder = buildReceipt().buildString().builder
 
 fun TransactionResponse.buildReceipt(isMerchantCopy: Boolean = false) =
     ReceiptBuilder().also { builder ->

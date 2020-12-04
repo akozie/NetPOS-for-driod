@@ -11,6 +11,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.danbamitale.epmslib.entities.CardData
 import com.danbamitale.epmslib.utils.IsoAccountType
+import com.netpluspay.kozenlib.emv.CardReadResult
 import com.netpluspay.kozenlib.emv.CardReaderEvent
 import com.netpluspay.kozenlib.emv.CardReaderService
 import com.woleapp.netpos.R
@@ -20,6 +21,7 @@ import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 
 data class ICCCardHelper(
+    val cardReadResult:CardReadResult? = null,
     val customerName: String? = null,
     val cardScheme: String? = null,
     var accountType: IsoAccountType? = null,
@@ -60,6 +62,7 @@ fun showCardDialog(
                         pinBlock = cardResult.encryptedPinBlock
                     }
                     iccCardHelper = ICCCardHelper(
+                        cardReadResult = cardResult,
                         customerName = cardResult.cardHolderName,
                         cardScheme = cardResult.cardScheme,
                         cardData = card

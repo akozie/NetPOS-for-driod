@@ -65,7 +65,7 @@ object MqttHelper {
                 .qos(MqttQos.AT_LEAST_ONCE)
                 .payload(gson.toJson(event).toByteArray(Charset.forName("UTF-8")))
                 .build()
-            val c = client.publish(Flowable.just(publish)).subscribe({
+            client.publish(Flowable.just(publish)).subscribe({
                 Timber.e("Published")
             }, { Timber.e(it) }, {}).disposeWith(disposables)
         }

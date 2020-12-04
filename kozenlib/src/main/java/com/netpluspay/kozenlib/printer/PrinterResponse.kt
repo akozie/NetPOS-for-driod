@@ -1,8 +1,6 @@
 package com.netpluspay.kozenlib.printer
 
-import com.pos.sdk.printer.POIPrinterManage
-
 data class PrinterResponse(
-    val code: Int = POIPrinterManage.Printer_Success,
+    val code: Int = 0,
     var message: String = "Success"
 )

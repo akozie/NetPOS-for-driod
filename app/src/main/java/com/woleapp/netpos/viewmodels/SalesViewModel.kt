@@ -1,7 +1,10 @@
 package com.woleapp.netpos.viewmodels
 
 import android.content.Context
-import androidx.lifecycle.*
+import android.os.Build
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import com.danbamitale.epmslib.entities.*
 import com.danbamitale.epmslib.processors.TransactionProcessor
 import com.danbamitale.epmslib.utils.IsoAccountType
@@ -19,6 +22,7 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 
+
 class SalesViewModel : ViewModel() {
     var cardData: CardData? = null
     private val compositeDisposable: CompositeDisposable by lazy { CompositeDisposable() }
@@ -27,15 +31,19 @@ class SalesViewModel : ViewModel() {
     val amount: MutableLiveData<String> = MutableLiveData<String>("")
     private var event: MqttEvent
     var amountLong = 0L
-    var pin: String? = null
+    var pin = MutableLiveData("")
     val customerName = MutableLiveData("")
     var isoAccountType: IsoAccountType? = null
     private var cardScheme: String? = null
+    private val _showPrintDialog = MutableLiveData<Event<String>>()
     private var amountDbl: Double = 0.0
     private val _message: MutableLiveData<Event<String>> by lazy {
         MutableLiveData<Event<String>>()
     }
     private val _getCardData = MutableLiveData<Event<Boolean>>()
+
+    val showPrintDialog: LiveData<Event<String>>
+        get() = _showPrintDialog
 
     val getCardData: LiveData<Event<Boolean>>
         get() = _getCardData
@@ -68,7 +76,6 @@ class SalesViewModel : ViewModel() {
     fun makePayment(context: Context, transactionType: TransactionType = TransactionType.PURCHASE) {
         Timber.e(cardData.toString())
 
-        //Timber.e("Pin to make transaction: ${xorHex(hexStringPin, hexCardNum)}")
         val configData = NetPosTerminalConfig.getConfigData() ?: kotlin.run {
             _message.value =
                 Event("Terminal has not been configured, restart the application to configure")
@@ -146,7 +153,15 @@ class SalesViewModel : ViewModel() {
 
     private fun printReceipt(): Single<PrinterResponse> {
         val transactionResponse = lastTransactionResponse.value!!
-        return transactionResponse.print().subscribeOn(Schedulers.io())
+        if (Build.MODEL != "P3")
+            _showPrintDialog.postValue(
+                Event(
+                    transactionResponse.builder().toString()
+                )
+            )
+
+        return if (Build.MODEL == "P3") transactionResponse.print()
+            .subscribeOn(Schedulers.io()) else Single.just(PrinterResponse())
     }
 
     fun sendCardEvent(status: String, code: String, eventData: CardReaderMqttEvent) {
@@ -171,5 +186,4 @@ class SalesViewModel : ViewModel() {
     fun setCardScheme(cardScheme: String?) {
         this.cardScheme = if (cardScheme.equals("no match", true)) "VERVE" else cardScheme
     }
-
 }

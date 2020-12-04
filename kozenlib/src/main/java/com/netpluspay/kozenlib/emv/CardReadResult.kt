@@ -11,6 +11,8 @@ import java.util.stream.Stream
 
 
 class CardReadResult(private val readResultCode: Int, transactionData: TransactionData) {
+    var originalDeviceSerial: String? = null
+        private set
     var applicationPrimaryAccountNumber: String? = null
         private set
     var cardHolderName: String? = null
@@ -97,7 +99,11 @@ class CardReadResult(private val readResultCode: Int, transactionData: Transacti
                 "9F33" -> terminalCapabilities = tlv.hexValue
                 "9F34" -> cardholderVerificationMethod = tlv.hexValue
                 "9F35" -> terminalType = tlv.hexValue
-                "9F1E" -> deviceSerialNumber = tlv.hexValue
+                "9F1E" -> {
+                    originalDeviceSerial = tlv.hexValue
+                    deviceSerialNumber =
+                        if (tlv.hexValue == "0000000000000000") "4231373931453158" else tlv.hexValue
+                }
                 "84" -> authorizationResponseCode = tlv.hexValue
                 "9F09" -> applicationVersionNumber = tlv.hexValue
                 "9F41" -> transactionSequenceNumber = tlv.hexValue
@@ -236,6 +242,7 @@ class CardReadResult(private val readResultCode: Int, transactionData: Transacti
                 ", terminalCapabilities='" + terminalCapabilities + '\'' +
                 ", cardholderVerificationMethod='" + cardholderVerificationMethod + '\'' +
                 ", terminalType='" + terminalType + '\'' +
+                ", originalDeviceSerial='" + originalDeviceSerial + '\'' +
                 ", deviceSerialNumber='" + deviceSerialNumber + '\'' +
                 ", authorizationResponseCode='" + authorizationResponseCode + '\'' +
                 ", applicationVersionNumber='" + applicationVersionNumber + '\'' +

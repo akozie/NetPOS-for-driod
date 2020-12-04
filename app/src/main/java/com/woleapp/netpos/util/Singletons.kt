@@ -10,7 +10,6 @@ import com.woleapp.netpos.model.ConfigurationData
 import com.woleapp.netpos.model.User
 import com.woleapp.netpos.nibss.DEFAULT_TERMINAL_ID
 import com.woleapp.netpos.nibss.Keys
-import com.woleapp.netpos.nibss.NetPosTerminalConfig
 
 object Singletons {
     val gson = Gson()
