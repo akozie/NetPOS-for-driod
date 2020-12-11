@@ -60,7 +60,7 @@ fun TransactionResponse.builder() = StringBuilder().apply {
     append("\nTERMINAL ID: ").append(terminalId).append("\n")
     append(transactionType).append("\n")
     append("DATE/TIME: ").append(transmissionDateTime).append("\n")
-    append("AMOUNT: ").append(amount).append("\n")
+    append("AMOUNT: ").append(amount.div(100).formatCurrencyAmount("\u20A6")).append("\n")
     append(cardLabel).append(" Ending with").append(maskedPan.substring(maskedPan.length - 4))
         .append("\n")
     append("RESPONSE CODE: ").append(responseCode).append("\n").append(

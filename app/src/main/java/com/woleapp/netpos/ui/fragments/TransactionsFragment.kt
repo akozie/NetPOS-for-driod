@@ -5,19 +5,18 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import com.danbamitale.epmslib.entities.TransactionType
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.woleapp.netpos.R
 import com.woleapp.netpos.adapter.ServiceAdapter
-import com.woleapp.netpos.database.AppDatabase
 import com.woleapp.netpos.databinding.FragmentTransactionsBinding
 import com.woleapp.netpos.databinding.LayoutPreauthDialogBinding
+import com.woleapp.netpos.databinding.QrBottomSheetDialogBinding
 import com.woleapp.netpos.model.Service
 import com.woleapp.netpos.util.HISTORY_ACTION_PREAUTH
 import com.woleapp.netpos.util.HISTORY_ACTION_REFUND
-import timber.log.Timber
 
 class TransactionsFragment : BaseFragment() {
 
@@ -38,11 +37,15 @@ class TransactionsFragment : BaseFragment() {
                     showPreAuthDialog()
                     null
                 }
-                4 -> ReprintFragment()
+                4 -> {
+                    showQRBottomSheetDialog()
+                    null
+                }
+                5 -> ReprintFragment()
                 else -> SalesFragment.newInstance(TransactionType.CASH_ADVANCE)
             }
-            nextFrag?.let {
-                addFragmentWithoutRemove(it)
+            nextFrag?.let { fragment ->
+                addFragmentWithoutRemove(fragment)
             }
         }
         return binding.root
@@ -62,7 +65,8 @@ class TransactionsFragment : BaseFragment() {
                 add(Service(1, "Refund", R.drawable.ic_loop))
                 add(Service(2, "PRE AUTHORIZATION", R.drawable.ic_pre_auth))
                 add(Service(3, "Cash Advance", R.drawable.ic_pay_cash_icon))
-                add(Service(4, "Reprint", R.drawable.ic_print))
+                add(Service(4, "QR", R.drawable.ic_qr_code))
+                add(Service(5, "Reprint", R.drawable.ic_print))
             }
         adapter.submitList(listOfService)
     }
@@ -95,5 +99,17 @@ class TransactionsFragment : BaseFragment() {
                 }
         dialog.setView(preAuthDialogBinding.root)
         dialog.show()
+    }
+
+    private fun showQRBottomSheetDialog() {
+        val qrBottomSheetDialogBinding: QrBottomSheetDialogBinding =
+            QrBottomSheetDialogBinding.inflate(
+                layoutInflater, null, false
+            )
+        val bottomSheetDialog = BottomSheetDialog(requireContext(), R.style.SheetDialog)
+        bottomSheetDialog.setCancelable(false)
+        bottomSheetDialog.setContentView(qrBottomSheetDialogBinding.root)
+        qrBottomSheetDialogBinding.closeBtn.setOnClickListener { bottomSheetDialog.cancel() }
+        bottomSheetDialog.show()
     }
 }

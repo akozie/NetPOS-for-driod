@@ -4,9 +4,12 @@ package com.woleapp.netpos.ui.fragments
 
 import android.app.AlertDialog
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.Toast
 import androidx.fragment.app.viewModels
 import com.danbamitale.epmslib.entities.CardData
@@ -16,6 +19,7 @@ import com.danbamitale.epmslib.utils.IsoAccountType
 import com.danbamitale.epmslib.utils.TripleDES
 import com.google.android.material.snackbar.Snackbar
 import com.woleapp.netpos.R
+import com.woleapp.netpos.databinding.DialogTransactionResultBinding
 import com.woleapp.netpos.databinding.FragmentSalesBinding
 import com.woleapp.netpos.nibss.NetPosTerminalConfig
 import com.woleapp.netpos.util.TRANSACTION_TYPE
@@ -37,6 +41,7 @@ class SalesFragment : BaseFragment() {
     private val viewModel by viewModels<SalesViewModel>()
     private lateinit var transactionType: TransactionType
     private lateinit var alertDialog: AlertDialog
+    private lateinit var receiptDialogBinding: DialogTransactionResultBinding
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -50,6 +55,8 @@ class SalesFragment : BaseFragment() {
                 TransactionType.PURCHASE.name
             )!!
         )
+        receiptDialogBinding = DialogTransactionResultBinding.inflate(inflater, null, false)
+            .apply { executePendingBindings() }
         binding.apply {
             viewmodel = viewModel
             lifecycleOwner = viewLifecycleOwner
@@ -95,13 +102,29 @@ class SalesFragment : BaseFragment() {
                     }
             }
         }
-        alertDialog = AlertDialog.Builder(requireContext()).setCancelable(false)
-            .setPositiveButton("Done") { dialog, _ -> dialog.dismiss() }.create()
+        alertDialog = AlertDialog.Builder(requireContext()).setCancelable(false).apply {
+            setView(receiptDialogBinding.root)
+            receiptDialogBinding.apply {
+                sendButton.setOnClickListener {
+                    progress.visibility = View.VISIBLE
+                    sendButton.isEnabled = false
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        Toast.makeText(requireContext(),"Sent Receipt", Toast.LENGTH_LONG).show()
+                        alertDialog.dismiss()
+                    }, 2000)
+                }
+            }
+        }.create()
+        alertDialog.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
         viewModel.showPrintDialog.observe(viewLifecycleOwner) { event ->
             event.getContentIfNotHandled()?.let {
                 alertDialog.apply {
-                    setMessage(it)
+                    receiptDialogBinding.transactionContent.text = it
                     show()
+                }
+                receiptDialogBinding.apply {
+                    progress.visibility = View.GONE
+                    sendButton.isEnabled = true
                 }
             }
         }

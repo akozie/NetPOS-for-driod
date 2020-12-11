@@ -19,6 +19,9 @@ import java.nio.charset.Charset
 
 
 object MqttHelper {
+    private const val TOPIC = "mqtt.pos.event"
+    private const val SERVER_HOST = "139.162.249.69"
+    private const val PORT = 1883
     private var user: User? = Singletons.getCurrentlyLoggedInUser()
     private var client: Mqtt3RxClient? = null
     private var disposables = CompositeDisposable()
@@ -26,8 +29,8 @@ object MqttHelper {
         user?.let { user ->
             val clientBuilder = MqttClient.builder()
                 .identifier(user.netplus_id!!)
-                .serverHost("139.162.249.69")
-                .serverPort(1883)
+                .serverHost(SERVER_HOST)
+                .serverPort(PORT)
                 .automaticReconnectWithDefaultConfig()
                 .addConnectedListener {
                     Timber.e("Connected Successfully")
@@ -61,7 +64,7 @@ object MqttHelper {
         }
         client?.let { client ->
             val publish = Mqtt3Publish.builder()
-                .topic("netpos_event")
+                .topic(TOPIC)
                 .qos(MqttQos.AT_LEAST_ONCE)
                 .payload(gson.toJson(event).toByteArray(Charset.forName("UTF-8")))
                 .build()

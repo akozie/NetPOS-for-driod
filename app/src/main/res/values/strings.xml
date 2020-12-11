@@ -78,4 +78,9 @@
     <string name="log_out">Log Out</string>
     <string name="completion">Completion</string>
     <string name="new_preauth">New</string>
+    <string name="qr_payment">Qr Payment</string>
+    <string name="close">close</string>
+    <string name="email_address">Email Address</string>
+    <string name="phone_number">Phone Number</string>
+    <string name="send_receipt">Send Receipt</string>
 </resources>
