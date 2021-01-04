@@ -4,19 +4,13 @@ package com.woleapp.netpos.ui.fragments
 
 import android.app.AlertDialog
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.Toast
 import androidx.fragment.app.viewModels
-import com.danbamitale.epmslib.entities.CardData
 import com.danbamitale.epmslib.entities.TransactionType
-import com.danbamitale.epmslib.entities.clearPinKey
-import com.danbamitale.epmslib.utils.IsoAccountType
-import com.danbamitale.epmslib.utils.TripleDES
 import com.google.android.material.snackbar.Snackbar
 import com.woleapp.netpos.R
 import com.woleapp.netpos.databinding.DialogTransactionResultBinding
@@ -78,6 +72,7 @@ class SalesFragment : BaseFragment() {
                 if (shouldGetCardData)
                     showCardDialog(
                         requireActivity(),
+                        viewLifecycleOwner,
                         1000,
                         0L
                     ).observe(viewLifecycleOwner) { event ->
@@ -102,16 +97,67 @@ class SalesFragment : BaseFragment() {
                     }
             }
         }
+        viewModel.smsSent.observe(viewLifecycleOwner) { event ->
+            event.getContentIfNotHandled()?.let {
+                receiptDialogBinding.progress.visibility = View.GONE
+                receiptDialogBinding.sendButton.isEnabled = true
+                if (it) {
+                    Toast.makeText(requireContext(), "Sent Receipt", Toast.LENGTH_LONG).show()
+                    alertDialog.dismiss()
+                    requireActivity().onBackPressed()
+                }
+            }
+        }
+        viewModel.toastMessage.observe(viewLifecycleOwner) { event ->
+            event.getContentIfNotHandled()?.let {
+                Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show()
+            }
+        }
+        viewModel.finish.observe(viewLifecycleOwner) { event ->
+            event.getContentIfNotHandled()?.let {
+                if (it)
+                    requireActivity().onBackPressed()
+            }
+        }
+        viewModel.showPrinterError.observe(viewLifecycleOwner) { event ->
+            event.getContentIfNotHandled()?.let {
+                androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                    .apply {
+                        setTitle("Printer Error")
+                        setIcon(R.drawable.ic_warning)
+                        setMessage(it)
+                        setPositiveButton("Send Receipt") { d, _ ->
+                            d.dismiss()
+                            viewModel.showReceiptDialog()
+                        }
+                        setNegativeButton("Dismiss") { d, _ ->
+                            d.dismiss()
+                            requireActivity().onBackPressed()
+                        }
+                    }.show()
+            }
+        }
         alertDialog = AlertDialog.Builder(requireContext()).setCancelable(false).apply {
             setView(receiptDialogBinding.root)
             receiptDialogBinding.apply {
+                closeBtn.setOnClickListener {
+                    alertDialog.dismiss()
+                    requireActivity().onBackPressed()
+                }
                 sendButton.setOnClickListener {
+                    if (receiptDialogBinding.telephone.text.toString().length != 11) {
+                        Toast.makeText(
+                            requireContext(),
+                            "Please enter a valid phone number",
+                            Toast.LENGTH_LONG
+                        ).show()
+                        return@setOnClickListener
+                    }
+                    viewModel.sendSmS(
+                        receiptDialogBinding.telephone.text.toString()
+                    )
                     progress.visibility = View.VISIBLE
                     sendButton.isEnabled = false
-                    Handler(Looper.getMainLooper()).postDelayed({
-                        Toast.makeText(requireContext(),"Sent Receipt", Toast.LENGTH_LONG).show()
-                        alertDialog.dismiss()
-                    }, 2000)
                 }
             }
         }.create()
@@ -126,6 +172,15 @@ class SalesFragment : BaseFragment() {
                     progress.visibility = View.GONE
                     sendButton.isEnabled = true
                 }
+            }
+        }
+        viewModel.shouldRefreshNibssKeys.observe(viewLifecycleOwner) { event ->
+            event.getContentIfNotHandled()?.let {
+                if (it)
+                    NetPosTerminalConfig.init(
+                        requireContext().applicationContext,
+                        configureSilently = true
+                    )
             }
         }
         binding.process.setOnClickListener {
@@ -150,7 +205,7 @@ class SalesFragment : BaseFragment() {
         viewModel.makePayment(requireContext(), transactionType)
     }*/
 
-    private fun quickPay() {
+    /*private fun quickPay() {
         viewModel.setAccountType(IsoAccountType.SAVINGS)
         viewModel.setCardScheme("Master Card")
         viewModel.setCustomerName("SUBAIR/BABATUNDE")
@@ -166,7 +221,7 @@ class SalesFragment : BaseFragment() {
             )
         }
         viewModel.makePayment(requireContext(), transactionType)
-    }
+    }*/
 
     private fun showSnackBar(message: String) {
         if (message == "Transaction not approved") {
@@ -177,6 +232,7 @@ class SalesFragment : BaseFragment() {
                     show()
                 }
         }
+
         Snackbar.make(
             requireActivity().findViewById(
                 R.id.container_main

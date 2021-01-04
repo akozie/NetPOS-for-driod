@@ -124,7 +124,8 @@ class CardReaderService(activity: Activity) :
                         ) {
                             cardPinBlock = ""
                             pinBlock?.let {
-                                cardPinBlock = HexUtil.toHexString(it).toLowerCase(Locale.getDefault())
+                                cardPinBlock =
+                                    HexUtil.toHexString(it).toLowerCase(Locale.getDefault())
                             }
                             emvCoreManager.onSetConfirmPin(Bundle())
                         }
@@ -159,7 +160,8 @@ class CardReaderService(activity: Activity) :
             )
             when (result) {
                 PosEmvErrCode.EMV_OK -> {
-                    val encryptData = dataBundle.getByteArray(EmvOnlineRequestConstraints.ENCRYPTDATA)
+                    val encryptData =
+                        dataBundle.getByteArray(EmvOnlineRequestConstraints.ENCRYPTDATA)
                     val encryptTlvParser = BerTlvParser()
                     val encryptTlvs: BerTlvs = encryptTlvParser.parse(encryptData)
                     for (tlv in encryptTlvs.list) {
@@ -210,7 +212,8 @@ class CardReaderService(activity: Activity) :
             )
             when (encryptResult) {
                 PosEmvErrCode.EMV_OK -> {
-                    val encryptData = resultData.getByteArray(EmvOnlineRequestConstraints.ENCRYPTDATA)
+                    val encryptData =
+                        resultData.getByteArray(EmvOnlineRequestConstraints.ENCRYPTDATA)
                     val encryptTlvParser = BerTlvParser()
                     val encryptTlvs = encryptTlvParser.parse(encryptData)
                     for (tlv in encryptTlvs.list) {
@@ -273,8 +276,8 @@ class CardReaderService(activity: Activity) :
                 }
             }
             emitter.onNext(CardReaderEvent.CardRead(CardReadResult(result, transactionData).apply {
-                if (::cardPinBlock.isInitialized.not()){
-                    emitter.onError(Throwable("Fatal Error"))
+                if (::cardPinBlock.isInitialized.not()) {
+                    emitter.onError(Throwable("Error"))
                     return
                 }
                 encryptedPinBlock = cardPinBlock
@@ -293,7 +296,7 @@ class CardReaderService(activity: Activity) :
             putInt(EmvTransDataConstraints.TRANSAMT, p0.toInt())
             putInt(EmvTransDataConstraints.CASHBACKAMT, p1.toInt())
             putInt(EmvTransDataConstraints.TRANSMODE, 0 or DEV_ICC or DEV_PICC)
-            putInt(EmvTransDataConstraints.TRANSTIMEOUTMS, 60)
+            putInt(EmvTransDataConstraints.TRANSTIMEOUTMS, 45)
         }
         transactionData.apply {
             transType = EMV_GOODS
@@ -325,8 +328,10 @@ class CardReaderService(activity: Activity) :
         }
     }
 
-    private fun transEnd(errorCode: Int = PosEmvErrCode.EMV_CANCEL, message: String = "POS Error") {
-        emitter.onError(POSException(errorCode, message))
+    fun transEnd(errorCode: Int = PosEmvErrCode.EMV_CANCEL, message: String = "POS Cancel Error") {
+        emvCoreManager.stopTransaction()
+        if (emitter.isDisposed.not())
+            emitter.onError(POSException(errorCode, message))
     }
 
     override fun showPinPad() {

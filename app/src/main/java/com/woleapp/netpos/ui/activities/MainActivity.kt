@@ -19,10 +19,14 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.danbamitale.epmslib.entities.clearPinKey
+import com.netpluspay.kozenlib.KozenLib
+import com.netpluspay.kozenlib.utils.DeviceConfig
 import com.pixplicity.easyprefs.library.Prefs
 import com.woleapp.netpos.R
 import com.woleapp.netpos.databinding.ActivityMainBinding
 import com.woleapp.netpos.model.User
+import com.woleapp.netpos.mqtt.MqttHelper
 import com.woleapp.netpos.nibss.CONFIGURATION_ACTION
 import com.woleapp.netpos.nibss.CONFIGURATION_STATUS
 import com.woleapp.netpos.nibss.NetPosTerminalConfig
@@ -49,7 +53,6 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
                     1 -> {
                         Toast.makeText(context!!, "Terminal Configured", Toast.LENGTH_LONG).show()
                         dismissProgressDialogIfShowing()
-                        //showPinpad("5199110748591994")
                     }
                     -1 -> {
                         dismissProgressDialogIfShowing()
@@ -77,30 +80,39 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
 
     override fun onStop() {
         super.onStop()
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(receiver)
+        //LocalBroadcastManager.getInstance(this).unregisterReceiver(receiver)
         unregisterReceiver(batteryReceiver)
     }
 
     override fun onStart() {
         super.onStart()
         registerReceiver(batteryReceiver, iFilter)
-        LocalBroadcastManager.getInstance(this)
-            .registerReceiver(receiver, IntentFilter(CONFIGURATION_ACTION))
-        when {
-            NetPosTerminalConfig.isConfigurationInProcess -> showProgressDialog()
-            NetPosTerminalConfig.configurationStatus == -1 -> NetPosTerminalConfig.init(applicationContext)
-            NetPosTerminalConfig.configurationStatus == 1 -> dismissProgressDialogIfShowing()
+        //LocalBroadcastManager.getInstance(this).registerReceiver(receiver, IntentFilter(CONFIGURATION_ACTION))
+        when (//NetPosTerminalConfig.isConfigurationInProcess -> showProgressDialog()
+            NetPosTerminalConfig.configurationStatus) {
+            -1 -> NetPosTerminalConfig.init(
+                applicationContext
+            )
+            1 -> {
+                dismissProgressDialogIfShowing()
+                NetPosTerminalConfig.getKeyHolder()?.let {
+                    KozenLib.writeTpkKey(
+                        DeviceConfig.TPKIndex,
+                        it.clearPinKey
+                    )
+                }
+            }
         }
-
         checkTokenExpiry()
     }
 
     private fun logout() {
-        Prefs.remove(PREF_USER)
         Prefs.remove(PREF_USER_TOKEN)
         Prefs.remove(PREF_AUTHENTICATED)
         Prefs.remove(PREF_KEYHOLDER)
         Prefs.remove(PREF_CONFIG_DATA)
+        Prefs.remove(PREF_USER)
+        MqttHelper.disconnect()
         val intent = Intent(this, AuthenticationActivity::class.java)
         intent.flags =
             Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -125,21 +137,25 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
         progressDialog?.show()
     }
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+        //loadCerts()
         if (!EasyPermissions.hasPermissions(
                 applicationContext,
                 Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.READ_EXTERNAL_STORAGE
             )
         ) {
             EasyPermissions.requestPermissions(
                 this,
-                "Accept Location Permissions",
+                "Accept Location and Storage Permissions",
                 1,
                 Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.ACCESS_FINE_LOCATION
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.READ_EXTERNAL_STORAGE
             )
         }
         progressDialog = ProgressDialog(this).apply {
@@ -193,7 +209,7 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
                 // Called when a new location is found by the network location provider.
                 location?.let {
                     Prefs.putString(PREF_LAST_LOCATION, "lat:${it.latitude} long:${it.longitude}")
-                    Timber.e("lat:${it.latitude} long:${it.longitude}")
+                    //Timber.e("lat:${it.latitude} long:${it.longitude}")
                 }
             }
 

@@ -19,6 +19,7 @@ import com.woleapp.netpos.util.*
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import retrofit2.HttpException
 import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.*
@@ -117,6 +118,10 @@ class NipNotificationListFragment : BaseFragment() {
                     adapter.submitList(it)
                 }
                 throwable?.let {
+                    val httpException = it as? HttpException
+                    httpException?.let { httpError ->
+                        Timber.e(httpError.response()?.errorBody()?.string())
+                    }
                     Timber.e(it.localizedMessage)
                     Toast.makeText(
                         requireContext(),

@@ -23,6 +23,7 @@ public abstract class AndroidTerminalReceiptBuilderFactory<T, K> {
     protected String appName;
     protected String appVersion;
     protected String receiptCopy;
+    protected String remark;
     private StringBuilder builder = new StringBuilder();
 
     abstract protected T getThis();
@@ -33,6 +34,11 @@ public abstract class AndroidTerminalReceiptBuilderFactory<T, K> {
 
     public T appendTitle(String title) {
         this.title = title;
+        return getThis();
+    }
+
+    public T appendRemark(String remark) {
+        this.remark = remark;
         return getThis();
     }
 
@@ -179,6 +185,10 @@ public abstract class AndroidTerminalReceiptBuilderFactory<T, K> {
         if (amount != null) {
             appendTextEntityBold("AMOUNT: " + amount);
             //appendTextEntity("\n");
+        }
+
+        if (remark != null) {
+            appendTextEntity("REMARK: " + remark);
         }
 
         if (rrn != null) {

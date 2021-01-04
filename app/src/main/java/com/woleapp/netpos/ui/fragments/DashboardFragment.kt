@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package com.woleapp.netpos.ui.fragments
 
 import android.app.AlertDialog
@@ -8,8 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.GridLayoutManager
 import com.danbamitale.epmslib.entities.*
 import com.danbamitale.epmslib.extensions.formatCurrencyAmount
@@ -17,6 +18,7 @@ import com.danbamitale.epmslib.processors.TransactionProcessor
 import com.danbamitale.epmslib.utils.IsoAccountType
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.netpluspay.kozenlib.KozenLib
+import com.netpluspay.kozenlib.utils.DeviceConfig
 import com.pixplicity.easyprefs.library.Prefs
 import com.woleapp.netpos.R
 import com.woleapp.netpos.adapter.ServiceAdapter
@@ -27,7 +29,7 @@ import com.woleapp.netpos.model.*
 import com.woleapp.netpos.mqtt.MqttHelper
 import com.woleapp.netpos.nibss.NetPosTerminalConfig
 import com.woleapp.netpos.util.*
-import com.woleapp.netpos.viewmodels.SalesViewModel
+import com.woleapp.netpos.viewmodels.TransactionsViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
@@ -40,6 +42,7 @@ class DashboardFragment : BaseFragment() {
     private lateinit var progressDialog: ProgressDialog
     private lateinit var binding: FragmentDashboardBinding
     private lateinit var adapter: ServiceAdapter
+    private val transactionViewModel by activityViewModels<TransactionsViewModel>()
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -63,7 +66,12 @@ class DashboardFragment : BaseFragment() {
     }
 
     private fun getBalance() {
-        showCardDialog(requireActivity(), 1000, 0L).observe(viewLifecycleOwner) { event ->
+        showCardDialog(
+            requireActivity(),
+            viewLifecycleOwner,
+            1000,
+            0L
+        ).observe(viewLifecycleOwner) { event ->
             event.getContentIfNotHandled()?.let {
                 it.error?.let { error ->
                     Timber.e(error)
@@ -114,7 +122,10 @@ class DashboardFragment : BaseFragment() {
                 }
 
                 response?.let {
-                    println(it)
+                    if (it.responseCode == "A3") NetPosTerminalConfig.init(
+                        requireContext().applicationContext,
+                        configureSilently = true
+                    )
 
                     val messageString = if (it.isApproved) {
                         "Account Balance:\n " + it.accountBalances.joinToString("\n") { accountBalance ->
@@ -188,6 +199,11 @@ class DashboardFragment : BaseFragment() {
                 setContentView(endOfDay.root)
                 show()
             }
+        endOfDay.view.setOnClickListener {
+            transactionViewModel.setEndOfDayList(transactions)
+            bottomSheet.dismiss()
+            addFragmentWithoutRemove(TransactionHistoryFragment.newInstance(HISTORY_ACTION_EOD))
+        }
         endOfDay.closeButton.setOnClickListener {
             bottomSheet.dismiss()
         }
@@ -239,7 +255,7 @@ class DashboardFragment : BaseFragment() {
             this.geo = "lat:51.507351-long:-0.127758"
             this.data = authEventData
         }
-        MqttHelper.sendPayload(event)
+        MqttHelper.sendPayload(MqttTopics.AUTHENTICATION, event)
         //Timber.e(Singletons.gson.toJson(event))
     }
 
@@ -256,7 +272,7 @@ class DashboardFragment : BaseFragment() {
                 add(Service(0, "Transaction", R.drawable.ic_trans))
                 add(Service(1, "Balance Inquiry", R.drawable.ic_write))
                 add(Service(2, "Bank Transfer", R.drawable.ic_lending))
-                add(Service(3, "Print End Of Day Transactions", R.drawable.ic_print))
+                add(Service(3, "View End Of Day Transactions", R.drawable.ic_print))
             }
         adapter.submitList(listOfServices)
     }

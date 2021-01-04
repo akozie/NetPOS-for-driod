@@ -117,7 +117,7 @@ class NipNotificationFragment : BaseFragment() {
                         this.data = NipEvent(session_code = it.sessionCode)
                         this.status = MqttStatus.SUCCESS.name
                     }
-                    MqttHelper.sendPayload(event)
+                    MqttHelper.sendPayload(MqttTopics.NIP_NEW, event)
                     showDialogForAccountTransfer(it.sessionCode)
                 }
                 throwable?.let {
@@ -127,7 +127,7 @@ class NipNotificationFragment : BaseFragment() {
                         this.timestamp = System.currentTimeMillis()
                         this.status = MqttStatus.ERROR.name
                     }
-                    MqttHelper.sendPayload(event)
+                    MqttHelper.sendPayload(MqttTopics.NIP_NEW, event)
                     Timber.e("Nip Error: ${it.localizedMessage}")
                     Toast.makeText(
                         requireContext(),

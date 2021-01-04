@@ -83,4 +83,8 @@
     <string name="email_address">Email Address</string>
     <string name="phone_number">Phone Number</string>
     <string name="send_receipt">Send Receipt</string>
+    <string name="use_terminal_id_from_logged_in_account">Use Terminal ID from logged in account</string>
+    <string name="remark">Remark</string>
+    <string name="remark_optional">Remark (Optional)</string>
+    <string name="view">view</string>
 </resources>

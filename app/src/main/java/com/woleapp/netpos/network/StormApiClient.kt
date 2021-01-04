@@ -55,6 +55,18 @@ class StormApiClient {
                     NIPINSTANCE = it
                 }
         }
+
+        private var smsServiceInstance: SmsService? = null
+        fun getSmsServiceInstance(): SmsService = smsServiceInstance ?: synchronized(this) {
+            smsServiceInstance ?: Retrofit.Builder()
+                .baseUrl("https://sms.netpluspay.com")
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create())
+                .build().create(SmsService::class.java)
+                .also {
+                    smsServiceInstance = it
+                }
+        }
     }
 }
 
@@ -80,11 +92,13 @@ class NipInterceptor : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request()
         val builder = request.newBuilder()
-        val userId =
-            Singletons.gson.fromJson(Prefs.getString(PREF_USER, ""), User::class.java).netplus_id
-        val userToken = Prefs.getString(PREF_USER_TOKEN, "")
-        builder.addHeader("X-CLIENT-ID", "d84d4cba-2d14-4ceb-944f-a0a48344b768")
-        builder.addHeader("X-ACCESSCODE", "78b4311d3e83a85c924edcc60dddc99d76fde9a21459e879fcd88878a31de8c5")
+        Singletons.gson.fromJson(Prefs.getString(PREF_USER, ""), User::class.java).netplus_id
+        Prefs.getString(PREF_USER_TOKEN, "")
+        builder.addHeader("X-CLIENT-ID", "85522f45-e459-4548-8b20-3a922196c515")
+        builder.addHeader("X-ACCESSCODE",
+            "a14014e18e2cffc4d74e150ed68a472bd94189db82d374306d5b307dc7620f20"
+
+        )
         return chain.proceed(builder.build())
     }
 }

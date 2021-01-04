@@ -29,6 +29,7 @@ class ExampleUnitTest {
         //println("78b4311d3e83a85c924edcc60dddc99d76fde9a21459e879fcd88878a31de8c5" == "78b4311d3e83a85c924edcc60dddc99d76fde9a21459e879fcd88878a31de8c5")
         println(SimpleDateFormat("y-MM-dd HH:mm:ss").format(getBeginningOfDay(1606290839000)))
         println(SimpleDateFormat("y-MM-dd HH:mm:ss").format(getEndOfDayTimeStamp(1606290839000)))
+        val s = "{\"business_name\":\"CamelCase\",\"code\":\"00\",\"data\":{\"AID\":\"\",\"RRN\":\"201216183858\",\"STAN\":\"183858\",\"TSI\":\"\",\"TVR\":\"\",\"accountType\":\"SAVINGS\",\"acquiringInstCode\":\"539941\",\"additionalAmount\":0,\"amount\":200,\"appCryptogram\":\"\",\"authCode\":\"iN2fgd\",\"cardExpiry\":\"2409\",\"cardHolder\":\"\",\"cardLabel\":\"\",\"id\":0,\"localDate\":\"1216\",\"localTime\":\"183858\",\"maskedPan\":\"539941xxxxxx4402\",\"merchantId\":\"2057LA100007032\",\"originalForwardingInstCode\":\"627629\",\"otherAmount\":0,\"otherId\":\"\",\"responseCode\":\"00\",\"responseDE55\":\"910ABCB033ACEA86509A0010\",\"responseMessage\":\"Approved\",\"terminalId\":\"2057H63U\",\"transactionTimeInMillis\":1608140338299,\"transactionType\":\"PURCHASE\",\"transmissionDateTime\":\"1216183858\"},\"deviceSerial\":\"B1791E1XL8080026\",\"event\":\"TRANSACTION\",\"geo\":\"lat:7.390478333333334 long:3.8802483333333337\",\"status\":\"Approved\",\"storm_id\":\"66f05f15-a3f6-4654-9aa9-3eea3a3360e1\",\"terminalId\":\"2057H63U\",\"timestamp\":1608140339954,\"transactionType\":\"PURCHASE\"}"
         assertEquals(4, 2 + 2)
     }
 

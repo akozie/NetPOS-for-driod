@@ -16,7 +16,7 @@ import timber.log.Timber
 import java.lang.Exception
 
 class AuthViewModel : ViewModel() {
-    val disposables = CompositeDisposable()
+    private val disposables = CompositeDisposable()
     var stormApiService: StormApiService? = null
     var appCredentials: JsonObject? = null
     val authInProgress = MutableLiveData(false)

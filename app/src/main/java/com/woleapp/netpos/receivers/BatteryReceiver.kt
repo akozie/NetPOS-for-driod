@@ -7,12 +7,10 @@ import android.content.Intent
 import android.os.BatteryManager
 import android.widget.Toast
 import com.netpluspay.kozenlib.KozenLib
-import com.woleapp.netpos.model.BatteryEvents
-import com.woleapp.netpos.model.MqttEvent
-import com.woleapp.netpos.model.MqttEvents
-import com.woleapp.netpos.model.User
+import com.woleapp.netpos.model.*
 import com.woleapp.netpos.mqtt.MqttHelper
 import com.woleapp.netpos.util.Singletons
+import com.woleapp.netpos.util.useStormTerminalId
 import timber.log.Timber
 
 
@@ -24,7 +22,8 @@ class BatteryReceiver : BroadcastReceiver() {
             var event: MqttEvent? = MqttEvent(
                 it.netplus_id!!,
                 it.business_name!!,
-                savedConfigurationData.terminalId,
+                if (useStormTerminalId()) it.terminal_id
+                    ?: "" else savedConfigurationData.terminalId,
                 KozenLib.getDeviceSerial()
             ).apply {
                 status = "SUCCESS"
@@ -35,12 +34,12 @@ class BatteryReceiver : BroadcastReceiver() {
             val batteryData: BatteryEvents? = when (batteryStatus?.action) {
                 Intent.ACTION_POWER_CONNECTED -> {
                     Timber.e("Power Connected")
-                    Toast.makeText(context, "Power Connected", Toast.LENGTH_SHORT).show()
+                    //Toast.makeText(context, "Power Connected", Toast.LENGTH_SHORT).show()
                     BatteryEvents(batteryPercentage(context!!), "Charging")
                 }
                 Intent.ACTION_POWER_DISCONNECTED -> {
                     Timber.e("Power disconnected")
-                    Toast.makeText(context, "Power disconnected", Toast.LENGTH_SHORT).show()
+                    //Toast.makeText(context, "Power disconnected", Toast.LENGTH_SHORT).show()
                     BatteryEvents(batteryPercentage(context!!), "Discharging")
                 }
                 Intent.ACTION_BATTERY_LOW -> {
@@ -56,7 +55,7 @@ class BatteryReceiver : BroadcastReceiver() {
             }
             event?.apply {
                 data = batteryData
-                MqttHelper.sendPayload(this)
+                MqttHelper.sendPayload(MqttTopics.BATTERY_EVENTS, this)
             }
         }
     }

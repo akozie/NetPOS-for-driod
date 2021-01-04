@@ -7,12 +7,14 @@ import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.DividerItemDecoration
+import com.danbamitale.epmslib.entities.TransactionResponse
 import com.woleapp.netpos.R
 import com.woleapp.netpos.adapter.TransactionsAdapter
 import com.woleapp.netpos.database.AppDatabase
 import com.woleapp.netpos.databinding.FragmentTransactionHistoryBinding
 import com.woleapp.netpos.util.HISTORY_ACTION
 import com.woleapp.netpos.util.HISTORY_ACTION_DEFAULT
+import com.woleapp.netpos.util.HISTORY_ACTION_EOD
 import com.woleapp.netpos.util.HISTORY_ACTION_PREAUTH
 import com.woleapp.netpos.viewmodels.TransactionsViewModel
 
@@ -25,6 +27,7 @@ class TransactionHistoryFragment : BaseFragment() {
                     putString(HISTORY_ACTION, action)
                 }
             }
+
     }
 
 
@@ -48,8 +51,14 @@ class TransactionHistoryFragment : BaseFragment() {
             binding.historyHeader.text = getString(R.string.history_header_template, action)
         }
         viewModel.setAction(action)
-        if (action == HISTORY_ACTION_PREAUTH){
+        if (action == HISTORY_ACTION_PREAUTH) {
             val header = "Select PREAUTH Transaction"
+            binding.historyHeader.text = header
+            binding.historyButton.visibility = View.GONE
+            binding.searchButton.visibility = View.GONE
+        }
+        if (action == HISTORY_ACTION_EOD) {
+            val header = "End Of Day"
             binding.historyHeader.text = header
             binding.historyButton.visibility = View.GONE
             binding.searchButton.visibility = View.GONE
@@ -74,8 +83,14 @@ class TransactionHistoryFragment : BaseFragment() {
                 DividerItemDecoration.VERTICAL
             )
         )
-        viewModel.getTransactions().observe(viewLifecycleOwner) {
-            adapter.submitList(it)
+        if (action != HISTORY_ACTION_EOD)
+            viewModel.getTransactions().observe(viewLifecycleOwner) {
+                adapter.submitList(it)
+                adapter.notifyDataSetChanged()
+            }
+        else{
+            val eodList = viewModel.getEodList()
+            adapter.submitList(eodList)
         }
         setSelectedTab()
     }

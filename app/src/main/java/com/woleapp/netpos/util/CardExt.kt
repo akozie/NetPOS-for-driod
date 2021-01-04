@@ -5,23 +5,34 @@ package com.woleapp.netpos.util
 import android.app.Activity
 import android.app.AlertDialog
 import android.app.ProgressDialog
-import android.os.Handler
+import android.content.*
 import android.view.LayoutInflater
+import android.widget.Toast
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import com.danbamitale.epmslib.entities.CardData
 import com.danbamitale.epmslib.utils.IsoAccountType
+import com.netpluspay.kozenlib.KozenLib
 import com.netpluspay.kozenlib.emv.CardReadResult
 import com.netpluspay.kozenlib.emv.CardReaderEvent
 import com.netpluspay.kozenlib.emv.CardReaderService
 import com.woleapp.netpos.R
 import com.woleapp.netpos.databinding.DialogSelectAccountTypeBinding
+import com.woleapp.netpos.model.CardReaderMqttEvent
+import com.woleapp.netpos.model.MqttEvent
+import com.woleapp.netpos.model.MqttEvents
+import com.woleapp.netpos.model.MqttTopics
+import com.woleapp.netpos.mqtt.MqttHelper
+import com.woleapp.netpos.nibss.NetPosTerminalConfig
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import org.apache.commons.lang.StringUtils
 import timber.log.Timber
 
 data class ICCCardHelper(
-    val cardReadResult:CardReadResult? = null,
+    val cardReadResult: CardReadResult? = null,
     val customerName: String? = null,
     val cardScheme: String? = null,
     var accountType: IsoAccountType? = null,
@@ -29,20 +40,72 @@ data class ICCCardHelper(
     val error: Throwable? = null
 )
 
+
 fun showCardDialog(
     context: Activity,
+    lifecycleOwner: LifecycleOwner,
     amount: Long,
     cashBackAmount: Long
 ): LiveData<Event<ICCCardHelper>> {
-    val liveData = MutableLiveData<Event<ICCCardHelper>>()
-    var hasCardBeenRead = false
+    var configurationFinished = false
+    val liveData: MutableLiveData<Event<ICCCardHelper>> = MutableLiveData()
+    if (NetPosTerminalConfig.liveData.hasActiveObservers())
+        NetPosTerminalConfig.liveData.removeObservers(lifecycleOwner)
+    val progressDialog = ProgressDialog(context)
+    progressDialog.setMessage("connecting, please wait...")
+    var observer: Observer<Event<Int>>? = null
+    observer = Observer<Event<Int>>{
+        it.getContentIfNotHandled()?.let { int ->
+            Timber.e("picked up: $int")
+            when (int) {
+                0 -> progressDialog.show()
+                1 -> {
+                    configurationFinished = true
+                    if (progressDialog.isShowing)
+                        progressDialog.dismiss()
+                    getCardLiveData(context, amount, cashBackAmount, liveData)
+                    NetPosTerminalConfig.liveData.removeObserver(observer!!)
+                }
+                -1 -> {
+                    configurationFinished = true
+                    if (progressDialog.isShowing)
+                        progressDialog.dismiss()
+                    if (NetPosTerminalConfig.getTerminalId().isEmpty()) {
+                        Toast.makeText(context, "No TID found on account", Toast.LENGTH_SHORT)
+                            .show()
+                    } else
+                        Toast.makeText(context, "Connection Failed", Toast.LENGTH_SHORT).show()
+                }
+                else -> {
+                }
+            }
+        }
+    }
+    NetPosTerminalConfig.liveData.observe(lifecycleOwner, observer)
+    when {
+        NetPosTerminalConfig.configurationStatus != 1 && NetPosTerminalConfig.isConfigurationInProcess.not() -> NetPosTerminalConfig.init(
+            context.applicationContext
+        )
+        NetPosTerminalConfig.isConfigurationInProcess -> if (configurationFinished.not()) progressDialog.show()
+        NetPosTerminalConfig.configurationStatus == 1 -> getCardLiveData(context, amount, cashBackAmount, liveData)
+    }
+    return liveData
+}
+
+fun getCardLiveData(
+    context: Activity,
+    amount: Long,
+    cashBackAmount: Long,
+    liveData: MutableLiveData<Event<ICCCardHelper>>
+) {
     val dialog = ProgressDialog(context)
         .apply {
             setMessage("Waiting for card")
             setCancelable(false)
         }
     var iccCardHelper: ICCCardHelper? = null
-    val c = CardReaderService(context).initiateICCCardPayment(
+    val cardService = CardReaderService(context)
+    val c = cardService.initiateICCCardPayment(
         amount,
         cashBackAmount
     )
@@ -51,7 +114,6 @@ fun showCardDialog(
         .subscribe({
             when (it) {
                 is CardReaderEvent.CardRead -> {
-                    hasCardBeenRead = true
                     val cardResult = it.getData()
                     val card = CardData(
                         track2Data = cardResult.track2Data!!,
@@ -67,29 +129,27 @@ fun showCardDialog(
                         cardScheme = cardResult.cardScheme,
                         cardData = card
                     )
-//                        val cardReaderMqttEvent = CardReaderMqttEvent(
-//                            cardExpiry = cardResult.expirationDate,
-//                            cardHolder = cardResult.cardHolderName,
-//                            maskedPan = StringUtils.overlay(
-//                                cardResult.applicationPANSequenceNumber,
-//                                "xxxxxx",
-//                                6,
-//                                12
-//                            )
-//                        )
-//                        viewModel.sendCardEvent("SUCCESS", "00", cardReaderMqttEvent)
+                    val cardReaderMqttEvent = CardReaderMqttEvent(
+                        cardExpiry = cardResult.expirationDate,
+                        cardHolder = cardResult.cardHolderName,
+                        maskedPan = StringUtils.overlay(
+                            cardResult.applicationPANSequenceNumber,
+                            "xxxxxx",
+                            6,
+                            12
+                        )
+                    )
+                    sendCardEvent("SUCCESS", "00", cardReaderMqttEvent)
                 }
                 is CardReaderEvent.CardDetected -> {
-                    hasCardBeenRead = true
                     dialog.setMessage("Reading Card Please Wait")
                     Timber.e("Card Detected")
                 }
             }
         }, {
             it?.let {
-//                    val cardReaderMqttEvent = CardReaderMqttEvent(readerError = it.localizedMessage)
-//                    viewModel.sendCardEvent("ERROR", "99", cardReaderMqttEvent)
                 dialog.dismiss()
+                sendCardEvent("ERROR", "99", CardReaderMqttEvent(readerError = it.localizedMessage))
                 Timber.e("error: ${it.localizedMessage}")
                 liveData.value = Event(ICCCardHelper(error = it))
             }
@@ -99,16 +159,29 @@ fun showCardDialog(
             showSelectAccountTypeDialog(context, iccCardHelper!!, liveData)
         })
 
-    Handler().postDelayed({
-        if (!hasCardBeenRead) {
-            liveData.value =
-                Event(ICCCardHelper(error = Throwable("Timed out while waiting for card")))
-            c.dispose()
-            dialog.dismiss()
-        }
-    }, 45000)
+    dialog.setButton(DialogInterface.BUTTON_POSITIVE, "Stop") { d, _ ->
+        cardService.transEnd(message = "Stopped")
+        d.dismiss()
+    }
     dialog.show()
-    return liveData
+}
+
+fun sendCardEvent(s: String, s1: String, cardReaderMqttEvent: CardReaderMqttEvent) {
+    val user = Singletons.getCurrentlyLoggedInUser()
+    val event = MqttEvent(
+        user!!.netplus_id!!,
+        user.business_name!!,
+        NetPosTerminalConfig.getTerminalId(),
+        KozenLib.getDeviceSerial()
+    )
+    event.apply {
+        this.event = MqttEvents.CARD_READER_EVENTS.event
+        data = cardReaderMqttEvent
+        this.status = s
+        timestamp = System.currentTimeMillis()
+        this.code = s1
+    }
+    MqttHelper.sendPayload(MqttTopics.CARD_READER_EVENTS, event)
 }
 
 private fun showSelectAccountTypeDialog(

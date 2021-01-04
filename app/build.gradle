@@ -4,6 +4,10 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'com.github.sgtsilvio.gradle.android-retrofix'
 
+def appPropertiesFile = rootProject.file("app-settings.properties")
+def appProperties = new Properties()
+appProperties.load(new FileInputStream(appPropertiesFile))
+def appModeProd = appProperties["env.use.mode.production"]
 
 android {
     compileSdkVersion 29
@@ -15,9 +19,21 @@ android {
         applicationId "com.woleapp.netpos"
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 8
-        versionName "1.0.5"
+        versionCode 16
+        versionName "1.0.13"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        def environmentPath
+        if (appModeProd == "true")
+            environmentPath = appProperties["env.path.production"]
+        else
+            environmentPath = appProperties["env.path.staging"]
+        buildConfigField "Boolean", "APPMODE_PROD", appModeProd
+        def envPropertiesFile = rootProject.file(environmentPath)
+        def envProperties = new Properties()
+        envProperties.load(new FileInputStream(envPropertiesFile))
+        for (String key : envProperties.keySet()) {
+            buildConfigField "String", key.replaceAll("\\.", "_").toUpperCase(), envProperties[key]
+        }
     }
 
     buildTypes {
@@ -48,7 +64,7 @@ android {
 
 dependencies {
 
-    //implementation fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.1'
     implementation project(':terminalcore')
     implementation("commons-codec:commons-codec:1.14")
@@ -84,6 +100,7 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-viewmodel-savedstate:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-common-java8:$lifecycle_version"
+    implementation 'androidx.lifecycle:lifecycle-process:2.2.0'
 
     //room
     implementation "androidx.room:room-runtime:$room_version"
@@ -107,10 +124,15 @@ dependencies {
 
     //MQTT
     implementation 'com.hivemq:hivemq-mqtt-client:1.2.1'
+    implementation "com.hivemq:hivemq-mqtt-client-websocket:1.2.1"
     implementation 'net.sourceforge.streamsupport:android-retrostreams:1.7.2'
     implementation 'net.sourceforge.streamsupport:android-retrofuture:1.7.2'
 
     implementation 'pub.devrel:easypermissions:3.0.0'
+
+//    //Eclipse MQTT
+//    implementation 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.1.0'
+//    implementation 'org.eclipse.paho:org.eclipse.paho.android.service:1.1.1'
 
     testImplementation 'junit:junit:4.13.1'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'

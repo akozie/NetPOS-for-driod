@@ -8,18 +8,25 @@ import androidx.lifecycle.ViewModel
 import com.danbamitale.epmslib.entities.*
 import com.danbamitale.epmslib.processors.TransactionProcessor
 import com.danbamitale.epmslib.utils.IsoAccountType
+import com.google.gson.JsonObject
 import com.netpluspay.kozenlib.KozenLib
 import com.netpluspay.kozenlib.printer.PrinterResponse
+import com.pixplicity.easyprefs.library.Prefs
 import com.woleapp.netpos.database.AppDatabase
 import com.woleapp.netpos.model.*
 import com.woleapp.netpos.mqtt.MqttHelper
+import com.woleapp.netpos.network.StormApiClient
 import com.woleapp.netpos.nibss.NetPosTerminalConfig
 import com.woleapp.netpos.util.*
 import com.woleapp.netpos.util.Singletons.getCurrentlyLoggedInUser
+import com.woleapp.netpos.util.Singletons.gson
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import okhttp3.MediaType
+import okhttp3.RequestBody
+import retrofit2.HttpException
 import timber.log.Timber
 
 
@@ -30,16 +37,35 @@ class SalesViewModel : ViewModel() {
     private val lastTransactionResponse = MutableLiveData<TransactionResponse>()
     val amount: MutableLiveData<String> = MutableLiveData<String>("")
     private var event: MqttEvent
-    var amountLong = 0L
+    private var amountLong = 0L
     var pin = MutableLiveData("")
     val customerName = MutableLiveData("")
-    var isoAccountType: IsoAccountType? = null
+    val remark = MutableLiveData("")
+    private var isoAccountType: IsoAccountType? = null
     private var cardScheme: String? = null
     private val _showPrintDialog = MutableLiveData<Event<String>>()
     private var amountDbl: Double = 0.0
+    private val _shouldRefreshNibssKeys = MutableLiveData<Event<Boolean>>()
+    val shouldRefreshNibssKeys: LiveData<Event<Boolean>>
+        get() = _shouldRefreshNibssKeys
+    private val _finish = MutableLiveData<Event<Boolean>>()
+    private val _showPrinterError = MutableLiveData<Event<String>>()
+
+    val showPrinterError: LiveData<Event<String>>
+        get() = _showPrinterError
+
+    val finish: LiveData<Event<Boolean>>
+        get() = _finish
     private val _message: MutableLiveData<Event<String>> by lazy {
         MutableLiveData<Event<String>>()
     }
+    private val _smsSent = MutableLiveData<Event<Boolean>>()
+    val smsSent: LiveData<Event<Boolean>>
+        get() = _smsSent
+
+    private val _toastMessage = MutableLiveData<Event<String>>()
+    val toastMessage: LiveData<Event<String>>
+        get() = _toastMessage
     private val _getCardData = MutableLiveData<Event<Boolean>>()
 
     val showPrintDialog: LiveData<Event<String>>
@@ -95,13 +121,15 @@ class SalesViewModel : ViewModel() {
             TransactionRequestData(transactionType, amountLong, 0L, accountType = isoAccountType!!)
         val processor = TransactionProcessor(hostConfig)
         transactionState.value = STATE_PAYMENT_STARTED
-        val disposable = processor.processTransaction(context, requestData, cardData!!)
+        processor.processTransaction(context, requestData, cardData!!)
             .flatMap {
+                if (it.responseCode == "A3")
+                    _shouldRefreshNibssKeys.postValue(Event(true))
                 event.apply {
                     this.event = MqttEvents.TRANSACTIONS.event
                     this.code = it.responseCode
                     this.timestamp = System.currentTimeMillis()
-                    this.data = it
+                    this.data = it.toNibssResponse(remark = remark.value)
                     this.transactionType = transactionType.name
                     this.status = try {
                         it.responseMessage
@@ -109,7 +137,8 @@ class SalesViewModel : ViewModel() {
                         "Error"
                     }
                 }
-                MqttHelper.sendPayload(event)
+                Timber.e(gson.toJson(event))
+                MqttHelper.sendPayload(MqttTopics.TRANSACTIONS, event)
                 it.cardHolder = customerName.value!!
                 it.cardLabel = cardScheme!!
                 lastTransactionResponse.postValue(it)
@@ -139,40 +168,18 @@ class SalesViewModel : ViewModel() {
                         )
                         this.status = it.message
                     }
-                    MqttHelper.sendPayload(event)
-                    _message.value = Event("${transactionType.name} Completed")
+                    MqttHelper.sendPayload(MqttTopics.PRINTING_RECEIPT, event)
+                    //_message.value = Event("")
+                    _finish.value = Event(true)
                 }
                 throwable?.let {
+                    _showPrinterError.value = Event(it.localizedMessage)
                     _message.value = Event("Error: ${it.localizedMessage}")
                     Timber.e(it)
                 }
-            }
-
-        compositeDisposable.add(disposable)
+            }.disposeWith(compositeDisposable)
     }
 
-    private fun printReceipt(): Single<PrinterResponse> {
-        val transactionResponse = lastTransactionResponse.value!!
-        if (Build.MODEL != "P3")
-            _showPrintDialog.postValue(
-                Event(
-                    transactionResponse.builder().toString()
-                )
-            )
-
-        return if (Build.MODEL == "P3") transactionResponse.print()
-            .subscribeOn(Schedulers.io()) else Single.just(PrinterResponse())
-    }
-
-    fun sendCardEvent(status: String, code: String, eventData: CardReaderMqttEvent) {
-        event.apply {
-            data = eventData
-            this.status = status
-            timestamp = System.currentTimeMillis()
-            this.code = code
-        }
-        MqttHelper.sendPayload(event)
-    }
 
     override fun onCleared() {
         super.onCleared()
@@ -185,5 +192,79 @@ class SalesViewModel : ViewModel() {
 
     fun setCardScheme(cardScheme: String?) {
         this.cardScheme = if (cardScheme.equals("no match", true)) "VERVE" else cardScheme
+    }
+
+    fun showReceiptDialog() {
+        _showPrintDialog.value = Event(lastTransactionResponse.value!!.buildSMSText(remark.value ?: "")
+            .toString())
+    }
+
+    private fun printReceipt(): Single<PrinterResponse> {
+        val transactionResponse = lastTransactionResponse.value!!
+        return if (Build.MODEL == "P3") transactionResponse.print(remark.value ?: "")
+            .subscribeOn(Schedulers.io()) else {
+            _showPrintDialog.postValue(
+                Event(
+                    transactionResponse.buildSMSText(remark.value ?: "").toString()
+                )
+            )
+            Single.just(PrinterResponse())
+        }
+    }
+
+    fun sendSmS(number: String) {
+        val map = JsonObject().apply {
+            addProperty("from", "NetPlus")
+            addProperty("to", "+234${number.substring(1)}")
+            addProperty("message", lastTransactionResponse.value!!.buildSMSText(remark.value ?: "").toString())
+        }
+        Timber.e("payload: $map")
+        val auth = "Bearer ${Prefs.getString(PREF_APP_TOKEN, "")}"
+        val body: RequestBody = RequestBody.create(
+            MediaType.parse("application/json; charset=utf-8"),
+            map.toString()
+        )
+        val smsEvent = event
+
+        StormApiClient.getSmsServiceInstance().sendSms(auth, body)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe { t1, t2 ->
+                t1?.let {
+                    _smsSent.value = Event(true)
+                    smsEvent.apply {
+                        event = MqttEvents.SMS_EVENTS.event
+                        status = "SUCCESS"
+                        code = "200"
+                        data = SMSEvent("+234${number.substring(1)}", "Success", it.toString())
+                    }
+                    MqttHelper.sendPayload(MqttTopics.SMS_EVENTS, smsEvent)
+                    Timber.e("Data $it")
+                }
+                t2?.let {
+                    smsEvent.apply {
+                        event = MqttEvents.SMS_EVENTS.event
+                        status = "ERROR"
+                        code = "-99"
+                        data = SMSEvent(
+                            "+234${number.substring(1)}",
+                            "Failed",
+                            it.localizedMessage ?: "Error"
+                        )
+                    }
+                    val httpException = it as? HttpException
+                    httpException?.let { e ->
+                        smsEvent.code = e.code().toString()
+                        smsEvent.data.let { data ->
+                            e.response()?.errorBody()?.string()?.let { serverError ->
+                                (data as SMSEvent).serverResponse = serverError
+                            }
+                        }
+                    }
+                    MqttHelper.sendPayload(MqttTopics.SMS_EVENTS, smsEvent)
+                    _smsSent.value = Event(false)
+                    _toastMessage.value = Event("Error: ${it.localizedMessage}")
+                }
+            }.disposeWith(compositeDisposable)
     }
 }

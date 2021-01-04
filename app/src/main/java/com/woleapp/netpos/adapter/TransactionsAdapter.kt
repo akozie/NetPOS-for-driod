@@ -30,8 +30,10 @@ class TransactionsAdapter(val listener: TransactionClickListener) :
         TransactionsViewHolder.from(parent)
 
     override fun onBindViewHolder(holder: TransactionsViewHolder, position: Int) {
-        holder.binding.root.setOnClickListener { listener.invoke(getItem(position)) }
-        holder.bind(getItem(position))
+        getItem(position)?.let { transactionResponse ->
+            holder.binding.root.setOnClickListener { listener.invoke(transactionResponse) }
+            holder.bind(getItem(position))
+        }
     }
 }
 
@@ -45,8 +47,11 @@ class TransactionsViewHolder private constructor(val binding: LayoutTransactionI
 
     fun bind(transactionResponse: TransactionResponse) {
         binding.executePendingBindings()
-        val cardDetails = "${transactionResponse.cardLabel} ending with ${transactionResponse.maskedPan.takeLast(4)}"
+        val cardDetails =
+            "${transactionResponse.cardLabel} ending with ${transactionResponse.maskedPan.takeLast(4)}"
         binding.cardDetails.text = cardDetails
+        binding.transactionStatus.text =
+            if (transactionResponse.responseCode == "00") "Approved" else "Declined"
         binding.holderName.text = transactionResponse.cardHolder
         binding.transactionRef.text = transactionResponse.RRN
         binding.transactionAmount.text =

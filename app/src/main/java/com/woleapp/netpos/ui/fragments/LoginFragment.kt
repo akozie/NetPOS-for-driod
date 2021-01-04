@@ -10,23 +10,19 @@ import android.widget.Toast
 import androidx.fragment.app.viewModels
 import com.google.gson.JsonObject
 import com.netpluspay.kozenlib.KozenLib
-import com.netpluspay.kozenlib.emv.CardReaderEvent
-import com.netpluspay.kozenlib.emv.CardReaderService
 import com.woleapp.netpos.R
 import com.woleapp.netpos.databinding.DialogPasswordResetBinding
 import com.woleapp.netpos.databinding.FragmentLoginBinding
 import com.woleapp.netpos.model.AuthenticationEventData
 import com.woleapp.netpos.model.MqttEvent
 import com.woleapp.netpos.model.MqttEvents
+import com.woleapp.netpos.model.MqttTopics
 import com.woleapp.netpos.mqtt.MqttHelper
 import com.woleapp.netpos.network.StormApiClient
 import com.woleapp.netpos.nibss.NetPosTerminalConfig
 import com.woleapp.netpos.ui.activities.MainActivity
 import com.woleapp.netpos.util.Singletons
 import com.woleapp.netpos.viewmodels.AuthViewModel
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
-import timber.log.Timber
 
 class LoginFragment : BaseFragment() {
 
@@ -99,7 +95,7 @@ class LoginFragment : BaseFragment() {
                             this.data = AuthenticationEventData(this.business_name, this.storm_id, this.deviceSerial)
                             this.status = "SUCCESS"
                         }
-                        MqttHelper.init(event)
+                        MqttHelper.init(applicationContext, event, MqttTopics.AUTHENTICATION)
                         finish()
                     }
                 }

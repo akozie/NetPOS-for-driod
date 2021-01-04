@@ -58,7 +58,7 @@ class AdministratorFragment : Fragment() {
                 viewmodel = viewModel
             }
         progressDialog = ProgressDialog(requireContext()).apply {
-            setMessage("Configuring Terminal, Please wait")
+            setMessage("Validating Configuration Parameters")
             setCancelable(false)
         }
         alertDialog = AlertDialog.Builder(requireContext()).run {
@@ -69,7 +69,7 @@ class AdministratorFragment : Fragment() {
                 dialog.dismiss()
             }
             setNegativeButton("Cancel") { dialog, _ ->
-                Toast.makeText(requireContext(), "Configuration cancelled", Toast.LENGTH_LONG)
+                Toast.makeText(requireContext(), "Configuration validation cancelled", Toast.LENGTH_LONG)
                     .show()
                 dialog.dismiss()
             }
@@ -87,13 +87,16 @@ class AdministratorFragment : Fragment() {
         }
         viewModel.saveConfigurationData.observe(viewLifecycleOwner) {
             viewModel.saveConfigurationToPreference()
-            NetPosTerminalConfig.init(requireContext(), viewModel.configurationData.value)
+            if ((viewModel.useStormTid.value != false).not())
+                NetPosTerminalConfig.init(requireContext(), viewModel.configurationData.value)
+            else
+                Toast.makeText(requireContext(), "Configuration Saved", Toast.LENGTH_SHORT).show()
         }
     }
 
     private fun showAlertDialog() {
         alertDialog.apply {
-            setMessage("Terminal Configuration Failed")
+            setMessage("Configuration Validation Failed")
             show()
         }
     }

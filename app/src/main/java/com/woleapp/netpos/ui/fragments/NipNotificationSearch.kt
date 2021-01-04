@@ -11,6 +11,7 @@ import com.woleapp.netpos.databinding.FragmentNipNotificationSearchBinding
 import com.woleapp.netpos.model.MqttEvent
 import com.woleapp.netpos.model.MqttEvents
 import com.woleapp.netpos.model.MqttStatus
+import com.woleapp.netpos.model.MqttTopics
 import com.woleapp.netpos.mqtt.MqttHelper
 import com.woleapp.netpos.network.StormApiClient
 import com.woleapp.netpos.nibss.NetPosTerminalConfig
@@ -66,7 +67,7 @@ class NipNotificationSearch : BaseFragment() {
                             this.timestamp = System.currentTimeMillis()
                             this.status = MqttStatus.SUCCESS.name
                         }
-                        MqttHelper.sendPayload(event)
+                        MqttHelper.sendPayload(MqttTopics.NIP_SEARCH, event)
                         binding.nip.nip = it
                         binding.nip.root.visibility = View.VISIBLE
                     }
@@ -77,7 +78,7 @@ class NipNotificationSearch : BaseFragment() {
                             this.timestamp = System.currentTimeMillis()
                             this.status = MqttStatus.ERROR.name
                         }
-                        MqttHelper.sendPayload(event)
+                        MqttHelper.sendPayload(MqttTopics.NIP_SEARCH, event)
                         Timber.e("Nip Error: ${it.localizedMessage}")
                         Toast.makeText(requireContext(), "Error: ${it.localizedMessage}", Toast.LENGTH_SHORT).show()
                     }

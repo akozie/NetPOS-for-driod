@@ -5,8 +5,6 @@ package com.woleapp.netpos.ui.fragments
 import android.app.AlertDialog
 import android.app.ProgressDialog
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,6 +15,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.woleapp.netpos.R
 import com.woleapp.netpos.databinding.DialogTransactionResultBinding
 import com.woleapp.netpos.databinding.FragmentTransactionDetailsBinding
+import com.woleapp.netpos.nibss.NetPosTerminalConfig
 import com.woleapp.netpos.util.HISTORY_ACTION_DEFAULT
 import com.woleapp.netpos.util.HISTORY_ACTION_PREAUTH
 import com.woleapp.netpos.util.builder
@@ -61,7 +60,7 @@ class TransactionDetailsFragment : BaseFragment() {
                 binding.actionButton.text = it
             if (it == HISTORY_ACTION_PREAUTH) {
                 binding.actionButton.visibility = View.GONE
-                if (viewModel.selectedTransaction.value!!.responseCode == "00") {
+                if (viewModel.lastTransactionResponse.value!!.responseCode == "00") {
                     binding.preAuthComplete.visibility = View.VISIBLE
                     binding.preAuthRefund.visibility = View.VISIBLE
                 } else {
@@ -80,10 +79,10 @@ class TransactionDetailsFragment : BaseFragment() {
         binding.actionButton.setOnClickListener {
             viewModel.performAction()
         }
-        binding.details.text = viewModel.selectedTransaction.value!!.builder().toString()
+        binding.details.text = viewModel.lastTransactionResponse.value!!.builder().toString()
         viewModel.done.observe(viewLifecycleOwner) {
             if (it) {
-                Toast.makeText(requireContext(), "Done", Toast.LENGTH_SHORT).show()
+                //Toast.makeText(requireContext(), "Done", Toast.LENGTH_SHORT).show()
                 viewModel.reset()
             }
         }
@@ -104,16 +103,39 @@ class TransactionDetailsFragment : BaseFragment() {
                 showSnackBar(s)
             }
         }
+        viewModel.smsSent.observe(viewLifecycleOwner) { event ->
+            event.getContentIfNotHandled()?.let {
+                receiptDialogBinding.progress.visibility = View.GONE
+                receiptDialogBinding.sendButton.isEnabled = true
+                if (it) {
+                    Toast.makeText(requireContext(), "Sent Receipt", Toast.LENGTH_LONG).show()
+                    alertDialog.dismiss()
+                }
+            }
+        }
+        viewModel.toastMessage.observe(viewLifecycleOwner) { event ->
+            event.getContentIfNotHandled()?.let {
+                Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show()
+            }
+        }
         alertDialog = AlertDialog.Builder(requireContext()).setCancelable(false).apply {
             setView(receiptDialogBinding.root)
             receiptDialogBinding.apply {
+                closeBtn.setOnClickListener {
+                    alertDialog.dismiss()
+                }
                 sendButton.setOnClickListener {
+                    if (receiptDialogBinding.telephone.text.toString().length != 11) {
+                        Toast.makeText(
+                            requireContext(),
+                            "Please enter a valid phone number",
+                            Toast.LENGTH_LONG
+                        ).show()
+                        return@setOnClickListener
+                    }
+                    viewModel.sendSmS(receiptDialogBinding.telephone.text.toString())
                     progress.visibility = View.VISIBLE
                     sendButton.isEnabled = false
-                    Handler(Looper.getMainLooper()).postDelayed({
-                        Toast.makeText(requireContext(),"Sent Receipt", Toast.LENGTH_LONG).show()
-                        alertDialog.dismiss()
-                    }, 2000)
                 }
             }
         }.create()
@@ -130,11 +152,37 @@ class TransactionDetailsFragment : BaseFragment() {
                 }
             }
         }
+        viewModel.shouldRefreshNibssKeys.observe(viewLifecycleOwner){event ->
+            event.getContentIfNotHandled()?.let {
+                if (it)
+                    NetPosTerminalConfig.init(requireContext().applicationContext, configureSilently = true)
+            }
+        }
+
+        viewModel.showPrinterError.observe(viewLifecycleOwner) { event ->
+            event.getContentIfNotHandled()?.let {
+                androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                    .apply {
+                        setTitle("Printer Error")
+                        setIcon(R.drawable.ic_warning)
+                        setMessage(it)
+                        setPositiveButton("Send Receipt") { d, _ ->
+                            d.dismiss()
+                            viewModel.showReceiptDialog()
+                        }
+                        setNegativeButton("Dismiss") { d, _ ->
+                            d.dismiss()
+                            requireActivity().onBackPressed()
+                        }
+                    }.show()
+            }
+        }
     }
 
     private fun gotoAction(action: () -> Unit) {
         showCardDialog(
             requireActivity(),
+            viewLifecycleOwner,
             1000,
             0L
         ).observe(viewLifecycleOwner) { event ->

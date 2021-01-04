@@ -11,7 +11,9 @@ import com.woleapp.netpos.databinding.ActivityAuthenticationBinding
 import com.woleapp.netpos.mqtt.MqttHelper
 import com.woleapp.netpos.nibss.NetPosTerminalConfig
 import com.woleapp.netpos.ui.fragments.LoginFragment
+import com.woleapp.netpos.util.JWTHelper
 import com.woleapp.netpos.util.PREF_AUTHENTICATED
+import com.woleapp.netpos.util.PREF_USER_TOKEN
 
 
 class AuthenticationActivity : AppCompatActivity() {
@@ -20,17 +22,23 @@ class AuthenticationActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setTheme(R.style.AppTheme)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_authentication)
-        if (Prefs.getBoolean(PREF_AUTHENTICATED, false)) {
+        if (Prefs.getBoolean(PREF_AUTHENTICATED, false) && tokenValid()) {
             startActivity(Intent(this, MainActivity::class.java).apply {
                 flags =
                     Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             })
-            MqttHelper.init()
+            MqttHelper.init(applicationContext)
             NetPosTerminalConfig.init(applicationContext)
             finish()
         }
         showFragment(LoginFragment())
     }
+
+    private fun tokenValid(): Boolean{
+        val token = Prefs.getString(PREF_USER_TOKEN, null)
+        return !(token.isNullOrEmpty() || JWTHelper.isExpired(token))
+    }
+
 
     private fun showFragment(targetFragment: Fragment) {
         try {

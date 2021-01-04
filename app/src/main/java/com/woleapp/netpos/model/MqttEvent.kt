@@ -3,15 +3,29 @@ package com.woleapp.netpos.model
 enum class MqttEvents(val event: String?) {
     AUTHENTICATION("AUTHENTICATION"),
     TERMINAL_CONFIGURATION("TERMINAL_CONFIGURATION"),
-    TRANSACTIONS("TRANSACTIONS"),
+    TRANSACTIONS("TRANSACTION"),
     PRINTING_RECEIPT("PRINTING_RECEIPT"),
     NIP_PULL("BANK_TRANSFER"),
     NIP_NEW("GENERATE_SESSION_CODE"),
     NIP_SEARCH("VERIFY_SESSION_CODE"),
     CARD_READER_EVENTS("CARD_READER_EVENTS"),
     POWER_EVENTS("POWER_EVENTS"),
-    BATTERY_EVENTS("BATTERY_EVENTS")
+    BATTERY_EVENTS("BATTERY_EVENTS"),
+    SMS_EVENTS("SMS_EVENTS")
+}
 
+enum class MqttTopics(val topic: String) {
+    AUTHENTICATION("mqtt.pos.authentication.event"),
+    TERMINAL_CONFIGURATION("mqtt.pos.terminal_config.event"),
+    TRANSACTIONS("mqtt.pos.transaction.event"),
+    PRINTING_RECEIPT("mqtt.pos.printing.event"),
+    NIP_PULL("mqtt.pos.bank_transfer.event"),
+    NIP_NEW("mqtt.pos.generate_session_code.event"),
+    NIP_SEARCH("mqtt.pos.verify_session_code.event"),
+    CARD_READER_EVENTS("mqtt.pos.card.event"),
+    POWER_EVENTS("mqtt.pos.power.event"),
+    BATTERY_EVENTS("mqtt.pos.battery.event"),
+    SMS_EVENTS("mqtt.pos.sms.event")
 }
 
 enum class MqttStatus(val code: String) {
@@ -56,3 +70,5 @@ data class CardReaderMqttEvent(
     val maskedPan: String? = null,
     val readerError: String? = null
 )
+
+data class SMSEvent(val to: String, val status: String, var serverResponse: String)
