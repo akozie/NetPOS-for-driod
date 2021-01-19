@@ -2,12 +2,11 @@ package com.woleapp.netpos.app
 
 import android.app.Application
 import android.content.ContextWrapper
-import android.widget.Toast
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
-import androidx.lifecycle.ProcessLifecycleOwner
-import com.netpluspay.kozenlib.KozenLib
+import com.netpluspay.netpossdk.NetPosSdk
+import com.netpluspay.netpossdk.printer.ReceiptBuilder
 import com.pixplicity.easyprefs.library.Prefs
 import com.woleapp.netpos.mqtt.MqttHelper
 import io.reactivex.plugins.RxJavaPlugins
@@ -52,11 +51,6 @@ class NetPosApp : Application() {
         }*/
 //        ProcessLifecycleOwner.get().lifecycle
 //            .addObserver(AppLifeCycleObserver())
-        KozenLib.init(applicationContext)
-        //NetPosTerminalConfig.init(applicationContext)
-        //DashboardFragment.printSampleReceipt()
-        //SunyardLib.init(this)
-//        AppDatabase.getDatabaseInstance(applicationContext)
-//            .transactionResponseDao().getTransactions()
+        NetPosSdk.init(applicationContext)
     }
 }

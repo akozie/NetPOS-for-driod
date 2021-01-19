@@ -1,22 +1,33 @@
 package com.woleapp.netpos.ui.fragments
 
 import android.app.AlertDialog
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import com.danbamitale.epmslib.entities.TransactionType
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.gson.JsonObject
 import com.woleapp.netpos.R
 import com.woleapp.netpos.adapter.ServiceAdapter
 import com.woleapp.netpos.databinding.FragmentTransactionsBinding
 import com.woleapp.netpos.databinding.LayoutPreauthDialogBinding
 import com.woleapp.netpos.databinding.QrBottomSheetDialogBinding
 import com.woleapp.netpos.model.Service
+import com.woleapp.netpos.network.StormApiClient
 import com.woleapp.netpos.util.HISTORY_ACTION_PREAUTH
 import com.woleapp.netpos.util.HISTORY_ACTION_REFUND
+import com.woleapp.netpos.util.Singletons
+import com.woleapp.netpos.util.disposeWith
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
+import kotlinx.android.synthetic.main.qr_bottom_sheet_dialog.*
+import timber.log.Timber
 
 class TransactionsFragment : BaseFragment() {
 
@@ -62,7 +73,7 @@ class TransactionsFragment : BaseFragment() {
         val listOfService = ArrayList<Service>()
             .apply {
                 add(Service(0, "Sales", R.drawable.ic_purchase))
-                //add(Service(1, "Refund", R.drawable.ic_loop))
+                add(Service(1, "Refund", R.drawable.ic_loop))
                 add(Service(2, "PRE AUTHORIZATION", R.drawable.ic_pre_auth))
                 add(Service(3, "Cash Advance", R.drawable.ic_pay_cash_icon))
                 add(Service(4, "QR", R.drawable.ic_qr_code))
@@ -111,5 +122,33 @@ class TransactionsFragment : BaseFragment() {
         bottomSheetDialog.setContentView(qrBottomSheetDialogBinding.root)
         qrBottomSheetDialogBinding.closeBtn.setOnClickListener { bottomSheetDialog.cancel() }
         bottomSheetDialog.show()
+        val service = StormApiClient.getMasterPassQrServiceInstance()
+        val qrRequestBody = JsonObject()
+        val user = Singletons.getCurrentlyLoggedInUser()!!
+        qrRequestBody.apply {
+            addProperty("merchant_id", user.netplus_id)
+            addProperty("currency_code", "NGN")
+            addProperty("country_code", "NG")
+            addProperty("business_name", user.business_name)
+            addProperty("merchant_city", "Lagos")
+        }
+        service.getStaticQr(qrRequestBody)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .doFinally { qrBottomSheetDialogBinding.progress.visibility = View.GONE }
+            .subscribe { t1, t2 ->
+                t1?.let {
+                    val bmp = BitmapFactory.decodeStream(it.byteStream())
+                    bmp?.let { bitmap ->
+                        qrBottomSheetDialogBinding.qr.setImageBitmap(bitmap)
+                    }
+                    Timber.e(it.string())
+                }
+                t2?.let {
+                    Toast.makeText(requireContext(), "An error occurred while fetching QR", Toast.LENGTH_SHORT).show()
+                    Timber.e(it)
+                }
+            }.disposeWith(CompositeDisposable())
+
     }
 }

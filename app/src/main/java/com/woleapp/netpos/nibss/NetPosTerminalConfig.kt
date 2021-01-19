@@ -2,14 +2,13 @@ package com.woleapp.netpos.nibss
 
 import android.content.Context
 import android.content.Intent
-import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.danbamitale.epmslib.entities.*
 import com.danbamitale.epmslib.processors.TerminalConfigurator
-import com.netpluspay.kozenlib.KozenLib.writeTpkKey
-import com.netpluspay.kozenlib.utils.DeviceConfig
+import com.netpluspay.netpossdk.NetPosSdk.writeTpkKey
+import com.netpluspay.netpossdk.utils.DeviceConfig
 import com.pixplicity.easyprefs.library.Prefs
 import com.woleapp.netpos.model.ConfigurationData
 import com.woleapp.netpos.util.*

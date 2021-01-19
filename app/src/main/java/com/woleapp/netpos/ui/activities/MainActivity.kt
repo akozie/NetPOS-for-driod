@@ -18,16 +18,14 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.danbamitale.epmslib.entities.clearPinKey
-import com.netpluspay.kozenlib.KozenLib
-import com.netpluspay.kozenlib.utils.DeviceConfig
+import com.netpluspay.netpossdk.NetPosSdk
+import com.netpluspay.netpossdk.utils.DeviceConfig
 import com.pixplicity.easyprefs.library.Prefs
 import com.woleapp.netpos.R
 import com.woleapp.netpos.databinding.ActivityMainBinding
 import com.woleapp.netpos.model.User
 import com.woleapp.netpos.mqtt.MqttHelper
-import com.woleapp.netpos.nibss.CONFIGURATION_ACTION
 import com.woleapp.netpos.nibss.CONFIGURATION_STATUS
 import com.woleapp.netpos.nibss.NetPosTerminalConfig
 import com.woleapp.netpos.receivers.BatteryReceiver
@@ -96,7 +94,7 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
             1 -> {
                 dismissProgressDialogIfShowing()
                 NetPosTerminalConfig.getKeyHolder()?.let {
-                    KozenLib.writeTpkKey(
+                    NetPosSdk.writeTpkKey(
                         DeviceConfig.TPKIndex,
                         it.clearPinKey
                     )

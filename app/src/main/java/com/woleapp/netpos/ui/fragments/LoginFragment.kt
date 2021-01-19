@@ -9,7 +9,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.viewModels
 import com.google.gson.JsonObject
-import com.netpluspay.kozenlib.KozenLib
+import com.netpluspay.netpossdk.NetPosSdk
 import com.woleapp.netpos.R
 import com.woleapp.netpos.databinding.DialogPasswordResetBinding
 import com.woleapp.netpos.databinding.FragmentLoginBinding
@@ -87,7 +87,7 @@ class LoginFragment : BaseFragment() {
                             user!!.netplus_id!!,
                             user.business_name!!,
                             NetPosTerminalConfig.getTerminalId(),
-                            KozenLib.getDeviceSerial()
+                            NetPosSdk.getDeviceSerial()
                         ).apply {
                             this.event = MqttEvents.AUTHENTICATION.event
                             this.code = "00"

@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.recyclerview.widget.GridLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.netpluspay.kozenlib.KozenLib
+import com.netpluspay.netpossdk.NetPosSdk
 import com.pixplicity.easyprefs.library.Prefs
 import com.woleapp.netpos.R
 import com.woleapp.netpos.adapter.ServiceAdapter
@@ -78,7 +78,7 @@ class NipNotificationFragment : BaseFragment() {
             user!!.netplus_id!!,
             user.business_name!!,
             NetPosTerminalConfig.getTerminalId(),
-            KozenLib.getDeviceSerial()
+            NetPosSdk.getDeviceSerial()
         )
             .apply {
                 this.geo = "lat:51.507351-long:-0.127758"

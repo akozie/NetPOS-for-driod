@@ -9,8 +9,8 @@ import com.danbamitale.epmslib.entities.*
 import com.danbamitale.epmslib.processors.TransactionProcessor
 import com.danbamitale.epmslib.utils.IsoAccountType
 import com.google.gson.JsonObject
-import com.netpluspay.kozenlib.KozenLib
-import com.netpluspay.kozenlib.printer.PrinterResponse
+import com.netpluspay.netpossdk.NetPosSdk
+import com.netpluspay.netpossdk.printer.PrinterResponse
 import com.pixplicity.easyprefs.library.Prefs
 import com.woleapp.netpos.database.AppDatabase
 import com.woleapp.netpos.model.*
@@ -80,7 +80,7 @@ class SalesViewModel : ViewModel() {
             user!!.netplus_id!!,
             user.business_name!!,
             NetPosTerminalConfig.getTerminalId(),
-            KozenLib.getDeviceSerial()
+            NetPosSdk.getDeviceSerial()
         )
     }
 

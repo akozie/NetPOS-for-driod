@@ -1,5 +1,4 @@
 <resources>
-    <string name="app_name">NetPOS</string>
     <string name="_app_name">storm_app</string>
     <string name="_password">C0R3MELTDOWN!</string>
     <string name="netpos_logo">Netpos Logo</string>

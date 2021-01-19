@@ -5,8 +5,7 @@ import android.content.Context
 import android.content.Context.BATTERY_SERVICE
 import android.content.Intent
 import android.os.BatteryManager
-import android.widget.Toast
-import com.netpluspay.kozenlib.KozenLib
+import com.netpluspay.netpossdk.NetPosSdk
 import com.woleapp.netpos.model.*
 import com.woleapp.netpos.mqtt.MqttHelper
 import com.woleapp.netpos.util.Singletons
@@ -24,7 +23,7 @@ class BatteryReceiver : BroadcastReceiver() {
                 it.business_name!!,
                 if (useStormTerminalId()) it.terminal_id
                     ?: "" else savedConfigurationData.terminalId,
-                KozenLib.getDeviceSerial()
+                NetPosSdk.getDeviceSerial()
             ).apply {
                 status = "SUCCESS"
                 code = "00"

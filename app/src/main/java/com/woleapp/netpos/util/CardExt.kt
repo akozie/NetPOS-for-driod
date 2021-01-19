@@ -14,10 +14,10 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import com.danbamitale.epmslib.entities.CardData
 import com.danbamitale.epmslib.utils.IsoAccountType
-import com.netpluspay.kozenlib.KozenLib
-import com.netpluspay.kozenlib.emv.CardReadResult
-import com.netpluspay.kozenlib.emv.CardReaderEvent
-import com.netpluspay.kozenlib.emv.CardReaderService
+import com.netpluspay.netpossdk.NetPosSdk
+import com.netpluspay.netpossdk.emv.CardReadResult
+import com.netpluspay.netpossdk.emv.CardReaderEvent
+import com.netpluspay.netpossdk.emv.CardReaderService
 import com.woleapp.netpos.R
 import com.woleapp.netpos.databinding.DialogSelectAccountTypeBinding
 import com.woleapp.netpos.model.CardReaderMqttEvent
@@ -115,9 +115,11 @@ fun getCardLiveData(
             when (it) {
                 is CardReaderEvent.CardRead -> {
                     val cardResult = it.getData()
+                    Timber.e(cardResult.iccDataString)
+                    Timber.e(cardResult.nibssIccSubset)
                     val card = CardData(
                         track2Data = cardResult.track2Data!!,
-                        nibssIccSubset = cardResult.nibssIccSubset,
+                        nibssIccSubset = CardData.getNibssTags(cardResult.iccDataString),
                         panSequenceNumber = cardResult.applicationPANSequenceNumber!!,
                         posEntryMode = "051"
                     ).apply {
@@ -172,7 +174,7 @@ fun sendCardEvent(s: String, s1: String, cardReaderMqttEvent: CardReaderMqttEven
         user!!.netplus_id!!,
         user.business_name!!,
         NetPosTerminalConfig.getTerminalId(),
-        KozenLib.getDeviceSerial()
+        NetPosSdk.getDeviceSerial()
     )
     event.apply {
         this.event = MqttEvents.CARD_READER_EVENTS.event

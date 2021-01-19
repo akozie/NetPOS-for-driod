@@ -17,8 +17,7 @@ import com.danbamitale.epmslib.extensions.formatCurrencyAmount
 import com.danbamitale.epmslib.processors.TransactionProcessor
 import com.danbamitale.epmslib.utils.IsoAccountType
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.netpluspay.kozenlib.KozenLib
-import com.netpluspay.kozenlib.utils.DeviceConfig
+import com.netpluspay.netpossdk.NetPosSdk
 import com.pixplicity.easyprefs.library.Prefs
 import com.woleapp.netpos.R
 import com.woleapp.netpos.adapter.ServiceAdapter
@@ -243,7 +242,7 @@ class DashboardFragment : BaseFragment() {
             user.netplus_id!!,
             user.business_name!!,
             NetPosTerminalConfig.getTerminalId(),
-            KozenLib.getDeviceSerial()
+            NetPosSdk.getDeviceSerial()
         )
         val authEventData =
             AuthenticationEventData(event.business_name, event.storm_id, event.deviceSerial)

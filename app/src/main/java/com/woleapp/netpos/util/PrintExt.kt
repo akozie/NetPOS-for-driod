@@ -3,8 +3,8 @@ package com.woleapp.netpos.util
 import com.danbamitale.epmslib.entities.TransactionResponse
 import com.danbamitale.epmslib.entities.responseMessage
 import com.danbamitale.epmslib.extensions.formatCurrencyAmount
-import com.netpluspay.kozenlib.printer.PrinterResponse
-import com.netpluspay.kozenlib.printer.ReceiptBuilder
+import com.netpluspay.netpossdk.printer.PrinterResponse
+import com.netpluspay.netpossdk.printer.ReceiptBuilder
 import com.pos.sdk.printer.POIPrinterManage
 import com.woleapp.netpos.BuildConfig
 import com.woleapp.netpos.model.NipNotification

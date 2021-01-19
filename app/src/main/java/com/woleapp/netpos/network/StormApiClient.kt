@@ -67,6 +67,19 @@ class StormApiClient {
                     smsServiceInstance = it
                 }
         }
+
+        private var masterPassQRServiceInstance: MasterPassQRService? = null
+        fun getMasterPassQrServiceInstance(): MasterPassQRService = masterPassQRServiceInstance ?: synchronized(this){
+             masterPassQRServiceInstance ?: Retrofit.Builder()
+                 .baseUrl("https://masterpassqr.netpluspay.com/api/v1/")
+                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                 .addConverterFactory(GsonConverterFactory.create())
+                 .build()
+                 .create(MasterPassQRService::class.java)
+                 .also {
+                     masterPassQRServiceInstance = it
+                 }
+        }
     }
 }
 

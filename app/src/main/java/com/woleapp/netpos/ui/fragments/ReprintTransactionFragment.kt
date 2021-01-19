@@ -4,7 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.netpluspay.kozenlib.printer.ReceiptBuilder
+import com.netpluspay.netpossdk.printer.ReceiptBuilder
 import com.woleapp.netpos.databinding.FragmentReprintTransactionsBinding
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
