@@ -17,7 +17,7 @@ class ReprintTransactionFragment : BaseFragment() {
         savedInstanceState: Bundle?
     ): View? {
         val binding = FragmentReprintTransactionsBinding.inflate(inflater, container, false)
-        val p = ReceiptBuilder()
+        val p = ReceiptBuilder(requireContext())
             .apply {
                 appendAID("sample aid")
                 appendAddress("Oluwatayo Adegboye")

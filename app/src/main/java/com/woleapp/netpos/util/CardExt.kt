@@ -18,6 +18,8 @@ import com.netpluspay.netpossdk.NetPosSdk
 import com.netpluspay.netpossdk.emv.CardReadResult
 import com.netpluspay.netpossdk.emv.CardReaderEvent
 import com.netpluspay.netpossdk.emv.CardReaderService
+import com.pos.sdk.emvcore.POIEmvCoreManager.DEV_ICC
+import com.pos.sdk.emvcore.POIEmvCoreManager.DEV_PICC
 import com.woleapp.netpos.R
 import com.woleapp.netpos.databinding.DialogSelectAccountTypeBinding
 import com.woleapp.netpos.model.CardReaderMqttEvent
@@ -27,6 +29,7 @@ import com.woleapp.netpos.model.MqttTopics
 import com.woleapp.netpos.mqtt.MqttHelper
 import com.woleapp.netpos.nibss.NetPosTerminalConfig
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import org.apache.commons.lang.StringUtils
 import timber.log.Timber
@@ -45,7 +48,8 @@ fun showCardDialog(
     context: Activity,
     lifecycleOwner: LifecycleOwner,
     amount: Long,
-    cashBackAmount: Long
+    cashBackAmount: Long,
+    compositeDisposable: CompositeDisposable? = null
 ): LiveData<Event<ICCCardHelper>> {
     var configurationFinished = false
     val liveData: MutableLiveData<Event<ICCCardHelper>> = MutableLiveData()
@@ -54,7 +58,7 @@ fun showCardDialog(
     val progressDialog = ProgressDialog(context)
     progressDialog.setMessage("connecting, please wait...")
     var observer: Observer<Event<Int>>? = null
-    observer = Observer<Event<Int>>{
+    observer = Observer<Event<Int>> {
         it.getContentIfNotHandled()?.let { int ->
             Timber.e("picked up: $int")
             when (int) {
@@ -63,7 +67,7 @@ fun showCardDialog(
                     configurationFinished = true
                     if (progressDialog.isShowing)
                         progressDialog.dismiss()
-                    getCardLiveData(context, amount, cashBackAmount, liveData)
+                    getCardLiveData(context, amount, cashBackAmount, liveData, compositeDisposable)
                     NetPosTerminalConfig.liveData.removeObserver(observer!!)
                 }
                 -1 -> {
@@ -87,7 +91,12 @@ fun showCardDialog(
             context.applicationContext
         )
         NetPosTerminalConfig.isConfigurationInProcess -> if (configurationFinished.not()) progressDialog.show()
-        NetPosTerminalConfig.configurationStatus == 1 -> getCardLiveData(context, amount, cashBackAmount, liveData)
+        NetPosTerminalConfig.configurationStatus == 1 -> getCardLiveData(
+            context,
+            amount,
+            cashBackAmount,
+            liveData
+        )
     }
     return liveData
 }
@@ -96,15 +105,16 @@ fun getCardLiveData(
     context: Activity,
     amount: Long,
     cashBackAmount: Long,
-    liveData: MutableLiveData<Event<ICCCardHelper>>
+    liveData: MutableLiveData<Event<ICCCardHelper>>,
+    compositeDisposable: CompositeDisposable? = null
 ) {
     val dialog = ProgressDialog(context)
         .apply {
             setMessage("Waiting for card")
-            setCancelable(false)
+            //setCancelable(false)
         }
     var iccCardHelper: ICCCardHelper? = null
-    val cardService = CardReaderService(context)
+    val cardService = CardReaderService(context, listOf(DEV_ICC, DEV_PICC))
     val c = cardService.initiateICCCardPayment(
         amount,
         cashBackAmount
@@ -114,17 +124,25 @@ fun getCardLiveData(
         .subscribe({
             when (it) {
                 is CardReaderEvent.CardRead -> {
-                    val cardResult = it.getData()
-                    Timber.e(cardResult.iccDataString)
-                    Timber.e(cardResult.nibssIccSubset)
+                    val cardResult: CardReadResult = it.data
+
+//                    Timber.e(cardResult.iccDataString)
+//                    Timber.e(cardResult.nibssIccSubset)
                     val card = CardData(
                         track2Data = cardResult.track2Data!!,
-                        nibssIccSubset = CardData.getNibssTags(cardResult.iccDataString),
+                        nibssIccSubset = cardResult.nibssIccSubset,
                         panSequenceNumber = cardResult.applicationPANSequenceNumber!!,
                         posEntryMode = "051"
-                    ).apply {
-                        pinBlock = cardResult.encryptedPinBlock
+                    )
+                    cardResult.cardScheme
+                    if (cardResult.encryptedPinBlock.isNullOrEmpty().not()) {
+                        card.apply {
+                            pinBlock = cardResult.encryptedPinBlock
+                        }
                     }
+                    Timber.e("icc string")
+                    Timber.e(cardResult.iccDataString)
+                    Timber.e(card.toString())
                     iccCardHelper = ICCCardHelper(
                         cardReadResult = cardResult,
                         customerName = cardResult.cardHolderName,
@@ -144,8 +162,16 @@ fun getCardLiveData(
                     sendCardEvent("SUCCESS", "00", cardReaderMqttEvent)
                 }
                 is CardReaderEvent.CardDetected -> {
-                    dialog.setMessage("Reading Card Please Wait")
+                    val mode = when (it.mode) {
+                        DEV_ICC -> "EMV"
+                        DEV_PICC -> "EMV Contactless"
+                        else -> "MAGNETIC STRIPE"
+                    }
+                    dialog.setMessage("Reading Card with $mode Please Wait")
                     Timber.e("Card Detected")
+                }
+                else -> {
+
                 }
             }
         }, {
@@ -166,6 +192,7 @@ fun getCardLiveData(
         d.dismiss()
     }
     dialog.show()
+    compositeDisposable?.add(c)
 }
 
 fun sendCardEvent(s: String, s1: String, cardReaderMqttEvent: CardReaderMqttEvent) {

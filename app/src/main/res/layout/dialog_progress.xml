@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center"
+    android:gravity="center"
+    android:orientation="horizontal"
+    >
+<!--    android:background="@color/white"-->
+
+<!--    android:background="@android:color/transparent"-->
+
+<!--    <ProgressBar-->
+<!--        style="?android:attr/progressBarStyleLarge"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:indeterminate="true"-->
+<!--        android:indeterminateDrawable="@drawable/progress"-->
+<!--        android:id="@+id/progressBar"-->
+<!--        android:layout_gravity="center" />-->
+
+    <RelativeLayout android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        >
+<!--        "#70ffffff"-->
+<!--        android:background="@android:color/transparent"-->
+<!--        <com.wang.avi.AVLoadingIndicatorView-->
+<!--            android:id="@+id/avloadingIndicatorView"-->
+<!--            android:layout_width="50dp"-->
+<!--            android:layout_height="50dp"-->
+<!--            android:layout_centerInParent="true"-->
+<!--            android:visibility="visible"-->
+<!--            app:indicatorName="BallSpinFadeLoader"-->
+<!--            app:indicatorColor="@color/colorPrimary" />-->
+    </RelativeLayout>
+
+</LinearLayout>

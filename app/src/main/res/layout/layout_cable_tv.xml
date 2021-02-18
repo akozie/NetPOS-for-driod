@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="viewmodel"
+            type="com.woleapp.netpos.viewmodels.UtilitiesViewModel" />
+    </data>
+
+    <ScrollView
+        android:background="@android:color/white"
+        android:focusable="true"
+        android:clickable="true"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="36dp"
+            android:paddingBottom="16dp">
+
+            <TextView
+                android:id="@+id/header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Pay cable tv"
+                android:textAllCaps="true"
+                android:textColor="@android:color/black"
+                android:textSize="@dimen/text_size_12sp"
+                android:textStyle="bold"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <Spinner
+                android:id="@+id/select_cable_tv_category"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:background="@color/gray"
+                app:layout_constraintTop_toBottomOf="@id/header" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                app:layout_constraintBottom_toBottomOf="@id/select_cable_tv_category"
+                app:layout_constraintEnd_toEndOf="@id/select_cable_tv_category"
+                app:layout_constraintTop_toTopOf="@id/select_cable_tv_category"
+                app:srcCompat="@drawable/ic_arrow_drop_down" />
+
+            <Spinner
+                android:id="@+id/select_cable_tv_package"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:background="@color/gray"
+                app:layout_constraintTop_toBottomOf="@id/select_cable_tv_category" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                app:layout_constraintBottom_toBottomOf="@id/select_cable_tv_package"
+                app:layout_constraintEnd_toEndOf="@id/select_cable_tv_package"
+                app:layout_constraintTop_toTopOf="@id/select_cable_tv_package"
+                app:srcCompat="@drawable/ic_arrow_drop_down" />
+
+            <RadioGroup
+                android:id="@+id/planValidityOptions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="horizontal"
+                android:visibility="gone"
+                app:layout_constraintTop_toBottomOf="@id/select_cable_tv_package">
+
+                <RadioButton
+                    android:id="@+id/daily"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/daily" />
+
+                <RadioButton
+                    android:id="@+id/weekly"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/weekely" />
+
+                <RadioButton
+                    android:id="@+id/monthly"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/monthly" />
+
+            </RadioGroup>
+
+            <LinearLayout
+                android:id="@+id/price_input_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintTop_toBottomOf="@id/planValidityOptions">
+
+                <TextView
+                    style="@style/ServicesInputLayout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/services_edittext_background_disabled"
+                    android:text="\u20a6" />
+
+                <EditText
+                    android:id="@+id/price_textbox"
+                    style="@style/ServicesInputLayout"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:enabled="false"
+                    android:background="@drawable/services_edittext_background_disabled"
+                    android:text="@={viewmodel.payloadMutableLiveData.stringAmount}" />
+            </LinearLayout>
+
+            <EditText
+                android:id="@+id/enter_smart_card_number"
+                style="@style/ServicesInputLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/enter_smart_card_number"
+                android:inputType="numberDecimal"
+                android:text="@={viewmodel.payloadMutableLiveData.destinationAccount}"
+                app:layout_constraintTop_toBottomOf="@id/price_input_layout" />
+
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:onClick="@{() -> viewmodel.validateUtilityBill()}"
+                android:text="@string/lbl_continue"
+                android:textColor="@android:color/white"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/enter_smart_card_number" />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </ScrollView>
+</layout>

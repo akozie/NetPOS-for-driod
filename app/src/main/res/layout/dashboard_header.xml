@@ -19,7 +19,7 @@
             android:background="?attr/selectableItemBackground"
             android:contentDescription="@string/log_out"
             android:padding="8dp"
-            android:src="@drawable/ic_power"
+            android:src="@drawable/ic_logout"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 

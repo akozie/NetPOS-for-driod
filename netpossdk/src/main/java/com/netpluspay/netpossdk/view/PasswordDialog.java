@@ -70,6 +70,8 @@ public class PasswordDialog {
     private TextView btnEsc, btn0, btn1, btn2, btn3, btn4, btn5, btn6, btn7, btn8, btn9;
     private Group groupKeyboard;
 
+
+
     public PasswordDialog(Activity context, boolean isIcSlot, Bundle mBundle, int tpkIndex) {
         this.hsmManage = POIHsmManage.getDefault();
         this.pinEventListener = new PinEventListener();
@@ -126,11 +128,13 @@ public class PasswordDialog {
 
         switch (pinType) {
             case OnlineEncryptPin:
-                title = "Enter Online PIN";
+                //online pin
+                title = "Enter PIN";
                 break;
             case OfflinePin:
             case OfflineEncryptPin:
-                title = "Enter Offline PIN";
+                //offline pin
+                title = "Enter PIN";
                 if (pinTryCnt > 1) {
                     message = "PIN " + pinTryCnt + " ";
                 } else if (pinTryCnt == 1) {
@@ -180,6 +184,8 @@ public class PasswordDialog {
         window.setGravity(Gravity.BOTTOM);
         dialog.show();
     }
+
+
 
     public void showDialog() {
         handler = new Handler(Looper.getMainLooper()) {

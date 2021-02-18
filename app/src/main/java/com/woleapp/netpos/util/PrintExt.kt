@@ -1,5 +1,6 @@
 package com.woleapp.netpos.util
 
+import android.content.Context
 import com.danbamitale.epmslib.entities.TransactionResponse
 import com.danbamitale.epmslib.entities.responseMessage
 import com.danbamitale.epmslib.extensions.formatCurrencyAmount
@@ -14,7 +15,10 @@ import io.reactivex.Single
 import timber.log.Timber
 import java.lang.StringBuilder
 
-fun List<TransactionResponse>.printAll(isMerchantCopy: Boolean): Observable<PrinterResponse> {
+fun List<TransactionResponse>.printAll(
+    context: Context,
+    isMerchantCopy: Boolean
+): Observable<PrinterResponse> {
     var emitter: ObservableEmitter<PrinterResponse>? = null
     val printerListener = object : POIPrinterManage.IPrinterListener {
         override fun onError(p0: Int, p1: String?) {
@@ -39,7 +43,7 @@ fun List<TransactionResponse>.printAll(isMerchantCopy: Boolean): Observable<Prin
         emitter = it
         forEach { transactionResponse ->
             if (it.isDisposed.not())
-                transactionResponse.print(printerListener, isMerchantCopy)
+                transactionResponse.print(printerListener, context, isMerchantCopy)
         }
         it.onComplete()
     }
@@ -47,12 +51,14 @@ fun List<TransactionResponse>.printAll(isMerchantCopy: Boolean): Observable<Prin
 
 fun TransactionResponse.print(
     printerListener: POIPrinterManage.IPrinterListener,
+    context: Context,
     isMerchantCopy: Boolean = true
 ) {
-    buildReceipt(isMerchantCopy).print(printerListener)
+    buildReceipt(context, isMerchantCopy).print(printerListener)
 }
 
-fun TransactionResponse.print(remark: String? = null) = buildReceipt(remark = remark).print()
+fun TransactionResponse.print(context: Context, remark: String? = null) =
+    buildReceipt(remark = remark, context = context).print()
 
 fun TransactionResponse.builder() = StringBuilder().apply {
     append("Merchant Name: ").append(Singletons.getCurrentlyLoggedInUser()!!.business_name)
@@ -99,8 +105,12 @@ fun TransactionResponse.buildSMSText(s: String? = null): StringBuilder = StringB
     append("Terminal ID: $terminalId\n")
 }
 
-fun TransactionResponse.buildReceipt(isMerchantCopy: Boolean = false, remark: String? = null) =
-    ReceiptBuilder().also { builder ->
+fun TransactionResponse.buildReceipt(
+    context: Context,
+    isMerchantCopy: Boolean = false,
+    remark: String? = null
+) =
+    ReceiptBuilder(context).also { builder ->
         builder.appendLogo()
         builder.appendAID(AID)
         builder.appendAddress(Singletons.getCurrentlyLoggedInUser()!!.business_name)
@@ -136,16 +146,16 @@ fun TransactionResponse.buildReceipt(isMerchantCopy: Boolean = false, remark: St
         else builder.isCustomerCopy
     }
 
-fun NipNotification.print(printerListener: POIPrinterManage.IPrinterListener) {
-    buildNipReceipt.print(printerListener)
+fun NipNotification.print(context: Context, printerListener: POIPrinterManage.IPrinterListener) {
+    buildNipReceipt(context).print(printerListener)
 }
 
-fun NipNotification.print(): Single<PrinterResponse> {
-    return buildNipReceipt.print()
+fun NipNotification.print(context: Context): Single<PrinterResponse> {
+    return buildNipReceipt(context).print()
 }
 
-val NipNotification.buildNipReceipt: ReceiptBuilder
-    get() = ReceiptBuilder().apply {
+fun NipNotification.buildNipReceipt(context: Context): ReceiptBuilder =
+    ReceiptBuilder(context).apply {
         appendLogo()
         appendTextEntityFontSixteenCenter("BANK TRANSFER")
         appendTextEntity("\nBeneficiary Account Number: $beneficiaryAccountNumber")
@@ -158,7 +168,7 @@ val NipNotification.buildNipReceipt: ReceiptBuilder
     }
 
 
-fun List<NipNotification>.printAllNotifications(): Observable<PrinterResponse> {
+fun List<NipNotification>.printAllNotifications(context: Context): Observable<PrinterResponse> {
     var emitter: ObservableEmitter<PrinterResponse>? = null
     val printerListener = object : POIPrinterManage.IPrinterListener {
         override fun onError(p0: Int, p1: String?) {
@@ -183,7 +193,7 @@ fun List<NipNotification>.printAllNotifications(): Observable<PrinterResponse> {
         emitter = it
         forEach { nipNotification ->
             if (it.isDisposed.not())
-                nipNotification.print(printerListener)
+                nipNotification.print(context, printerListener)
         }
         it.onComplete()
     }

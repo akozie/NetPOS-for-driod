@@ -33,7 +33,7 @@ class TransactionDetailsFragment : BaseFragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentTransactionDetailsBinding.inflate(inflater, container, false)
             .apply {
                 lifecycleOwner = viewLifecycleOwner
@@ -43,6 +43,7 @@ class TransactionDetailsFragment : BaseFragment() {
         receiptDialogBinding = DialogTransactionResultBinding.inflate(inflater, null, false).apply {
             executePendingBindings()
         }
+        viewModel.setContext(requireContext())
         progressDialog = ProgressDialog(requireContext())
             .apply {
                 setCancelable(false)

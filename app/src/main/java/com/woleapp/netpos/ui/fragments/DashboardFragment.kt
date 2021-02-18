@@ -53,7 +53,8 @@ class DashboardFragment : BaseFragment() {
                 0 -> addFragmentWithoutRemove(TransactionsFragment())
                 1 -> getBalance()
                 2 -> addFragmentWithoutRemove(NipNotificationFragment.newInstance())
-                3 -> showCalendarDialog()
+                3 -> addFragmentWithoutRemove(BillsFragment())
+                4 -> showCalendarDialog()
                 else -> {
                     sendPayload()
                 }
@@ -121,10 +122,14 @@ class DashboardFragment : BaseFragment() {
                 }
 
                 response?.let {
-                    if (it.responseCode == "A3") NetPosTerminalConfig.init(
-                        requireContext().applicationContext,
-                        configureSilently = true
-                    )
+                    if (it.responseCode == "A3"){
+                        Prefs.remove(PREF_CONFIG_DATA)
+                        Prefs.remove(PREF_KEYHOLDER)
+                        NetPosTerminalConfig.init(
+                            requireContext().applicationContext,
+                            configureSilently = true
+                        )
+                    }
 
                     val messageString = if (it.isApproved) {
                         "Account Balance:\n " + it.accountBalances.joinToString("\n") { accountBalance ->
@@ -177,7 +182,7 @@ class DashboardFragment : BaseFragment() {
                             "No transactions to print",
                             Toast.LENGTH_SHORT
                         ).show()
-                }.printAll(true)
+                }.printAll(requireContext(), true)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe({ printResp ->
@@ -271,7 +276,8 @@ class DashboardFragment : BaseFragment() {
                 add(Service(0, "Transaction", R.drawable.ic_trans))
                 add(Service(1, "Balance Inquiry", R.drawable.ic_write))
                 add(Service(2, "Bank Transfer", R.drawable.ic_lending))
-                add(Service(3, "View End Of Day Transactions", R.drawable.ic_print))
+                add(Service(3, "Pay Bills", R.drawable.ic_bill))
+                add(Service(4, "View End Of Day Transactions", R.drawable.ic_print))
             }
         adapter.submitList(listOfServices)
     }

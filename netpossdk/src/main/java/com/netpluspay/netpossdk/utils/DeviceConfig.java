@@ -1,8 +1,8 @@
 package com.netpluspay.netpossdk.utils;
 
 public class DeviceConfig {
-    public static final int DEVICE_P3 = 1;
-    public static final int DEVICE_P4 = 2;
+    public static final int DEVICE_PRO = 1;
+    public static final int DEVICE_MINI = 2;
 
     public static int Device;
     public static boolean isHardwareKeyboard;
@@ -20,10 +20,10 @@ public class DeviceConfig {
 
     public static void InitDevice(int device) {
         Device = device;
-        if (device == DEVICE_P3) {
+        if (device == DEVICE_PRO) {
             isHardwareKeyboard = true;
             isHardwarePrinter = true;
-        } else if (device == DEVICE_P4) {
+        } else if (device == DEVICE_MINI) {
             isHardwareKeyboard = false;
             isHardwarePrinter = false;
         }

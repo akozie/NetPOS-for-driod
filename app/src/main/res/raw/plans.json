@@ -1,0 +1,524 @@
+﻿{
+  "SPECTRANET DATA PLANS": [
+    {
+      "Plan Name": "Unified Value 8GB",
+      "Benefit Details": "4GB Anytime Data + 4GB Night Data",
+      "Customer Price (New)": "3,070"
+    },
+    {
+      "Plan Name": "Unified Value 4GB",
+      "Benefit Details": "4GB",
+      "Customer Price (New)": "3,070"
+    },
+    {
+      "Plan Name": "Unified Value 10GB",
+      "Benefit Details": "5GB Anytime Data + 5GB Night Data",
+      "Customer Price (New)": "3,580"
+    },
+    {
+      "Plan Name": "Unified Value 6GB",
+      "Benefit Details": "5GB Anytime Data + 1GB Night Data",
+      "Customer Price (New)": "3,580"
+    },
+    {
+      "Plan Name": "Unified Value 7GB",
+      "Benefit Details": "7GB",
+      "Customer Price (New)": "5,115"
+    },
+    {
+      "Plan Name": "Unified Value 14GB",
+      "Benefit Details": "7GB Anytime Data + 7GB Night Data",
+      "Customer Price (New)": "5,115"
+    },
+    {
+      "Plan Name": "Magic Value 6K",
+      "Benefit Details": "10GB assured Data + Upto 10GB Magic Data",
+      "Customer Price (New)": "6,140"
+    },
+    {
+      "Plan Name": "Unified Value 24GB",
+      "Benefit Details": "12GB Anytime Data + 12GB Night Data",
+      "Customer Price (New)": "6,140"
+    },
+    {
+      "Plan Name": "Weekly Unlimited",
+      "Benefit Details": "Weekly Unlimited (Speed capped at 512kbps fost 20GB consumption)",
+      "Customer Price (New)": "6,650"
+    },
+    {
+      "Plan Name": "Unified Value 15GB",
+      "Benefit Details": "15GB",
+      "Customer Price (New)": "7,165"
+    },
+    {
+      "Plan Name": "Unified Value 30GB",
+      "Benefit Details": "15GB Anytime Data + 15GB Night Data",
+      "Customer Price (New)": "7,165"
+    },
+    {
+      "Plan Name": "Night Value 20GB",
+      "Benefit Details": "20GB Night (7PM to 7AM)",
+      "Customer Price (New)": "7,675"
+    },
+    {
+      "Plan Name": "Good Morning 15GB",
+      "Benefit Details": "15GB + Unlimited Morning Browsing",
+      "Customer Price (New)": "8,190"
+    },
+    {
+      "Plan Name": "Mega Value 15GB",
+      "Benefit Details": "15GB + Unlimited Night Browsing",
+      "Customer Price (New)": "8,190"
+    },
+    {
+      "Plan Name": "Unified Value 25GB",
+      "Benefit Details": "25GB + Unlimited Night Browsing",
+      "Customer Price (New)": "10,235"
+    },
+    {
+      "Plan Name": "Night Value 40GB",
+      "Benefit Details": "40GB Night (7PM to 7AM)",
+      "Customer Price (New)": "11,260"
+    },
+    {
+      "Plan Name": "Unified Value 40GB",
+      "Benefit Details": "40GB + Unlimited Night Browsing",
+      "Customer Price (New)": "12,795"
+    },
+    {
+      "Plan Name": "Unified Value 50GB - Abuja Only",
+      "Benefit Details": "Unlimited Data (50GB FUP - speed capped at 512kbps post 50GB consumption)",
+      "Customer Price (New)": "13,305"
+    },
+    {
+      "Plan Name": "Unified Value 60GB",
+      "Benefit Details": "60GB + Unlimited Night Browsing",
+      "Customer Price (New)": "15,355"
+    },
+    {
+      "Plan Name": "AbjUnltdLteGold - Abuja Only",
+      "Benefit Details": "Unlimited Data (100GB FUP - speed capped at 1mbps post 100GB consumption)",
+      "Customer Price (New)": "16,380"
+    },
+    {
+      "Plan Name": "Unlimited Gold",
+      "Benefit Details": "Unlimited Data (100GB FUP - speed capped at 512kbps post 100GB consumption)",
+      "Customer Price (New)": "18,425"
+    },
+    {
+      "Plan Name": "Unlimited Diamond",
+      "Benefit Details": "Unlimited Data - 4Mbps",
+      "Customer Price (New)": "19,450"
+    },
+    {
+      "Plan Name": "Freedom Prime",
+      "Benefit Details": "100GB + Unlimited Night Browsing",
+      "Customer Price (New)": "19,960"
+    },
+    {
+      "Plan Name": "Unified Value 55GB",
+      "Benefit Details": "55GB",
+      "Customer Price (New)": "20,475"
+    },
+    {
+      "Plan Name": "Galaxy Vpn Unlimited",
+      "Benefit Details": "Unlimited Data",
+      "Customer Price (New)": "30,710"
+    },
+    {
+      "Plan Name": "Freedom Prime Plus",
+      "Benefit Details": "200GB + Unlimited Night Browsing",
+      "Customer Price (New)": "38,390"
+    },
+    {
+      "Plan Name": "Freedom Elite",
+      "Benefit Details": "300GB + Unlimited Night Browsing",
+      "Customer Price (New)": "56,820"
+    }
+  ],
+  "MULTICHOICE SUBSCRIPTION PLANS": [
+    {
+      "Products": "Premium",
+      "Product Code": "PRWE36",
+      "Current Price": "16200",
+      "New Price": "18400"
+    },
+    {
+      "Products": "Compact Plus",
+      "Product Code": "COMPLE36",
+      "Current Price": "10925",
+      "New Price": "12400"
+    },
+    {
+      "Products": "Compact ",
+      "Product Code": "COMPE36",
+      "Current Price": "6975",
+      "New Price": "7900"
+    },
+    {
+      "Products": "Confam",
+      "Product Code": "NNJ2E36",
+      "Current Price": "4615",
+      "New Price": "4615"
+    },
+    {
+      "Products": "Yanga",
+      "Product Code": "NNJ1E36",
+      "Current Price": "2565",
+      "New Price": "2565"
+    },
+    {
+      "Products": "Padi",
+      "Product Code": "NLTESE36",
+      "Current Price": "1850",
+      "New Price": "1850"
+    },
+    {
+      "Products": "Asian",
+      "Product Code": "ASIAE36",
+      "Current Price": "5540",
+      "New Price": "6200"
+    },
+    {
+      "Products": "Premium +Xtraview",
+      "Product Code": "PRWE36 + Xtraview Access",
+      "Current Price": "18455",
+      "New Price": "20900"
+    },
+    {
+      "Products": "PremiumAsia ",
+      "Product Code": "PRWASIE36",
+      "Current Price": "18150",
+      "New Price": "20500"
+    },
+    {
+      "Products": "Premiumasia +Xtraview",
+      "Product Code": "PRWASIE36 + HDPVRE36",
+      "Current Price": "20405",
+      "New Price": "23000"
+    },
+    {
+      "Products": "Premium + French",
+      "Product Code": "PRWFRNSE36 ",
+      "Current Price": "22750",
+      "New Price": "25550"
+    },
+    {
+      "Products": "Premium + French + Xtraview",
+      "Product Code": "PRWFRNSE36 + HDPVRE36",
+      "Current Price": "25005",
+      "New Price": "28050"
+    },
+    {
+      "Products": "CompactPlus + Asia ",
+      "Product Code": "COMPLE36 + ASIADDE36",
+      "Current Price": "16465",
+      "New Price": "18600"
+    },
+    {
+      "Products": "CompactPlus + Asia +Xtraview",
+      "Product Code": " COMPLE36 + ASIADDE36 + HDPVRE36",
+      "Current Price": "18720",
+      "New Price": "21100"
+    },
+    {
+      "Products": "CompactPlus + French Touch",
+      "Product Code": "COMPLE36 + FRN7E36",
+      "Current Price": "12435",
+      "New Price": "14700"
+    },
+    {
+      "Products": "CompactPlus + French Plus",
+      "Product Code": "COMPLE36 + FRN15E36",
+      "Current Price": "17445",
+      "New Price": "20500"
+    },
+    {
+      "Products": "CompactPlus + French Plus +Xtraview",
+      "Product Code": "COMPLE36 + FRN15E36 + HDPVRE36",
+      "Current Price": "19700",
+      "New Price": "23000"
+    },
+    {
+      "Products": "CompactPlus + Xtraview",
+      "Product Code": "COMPLE36",
+      "Current Price": "13180",
+      "New Price": "14900"
+    },
+    {
+      "Products": "Compact + Asia",
+      "Product Code": "COMPE36 + ASIADDE36",
+      "Current Price": "12515",
+      "New Price": "14100"
+    },
+    {
+      "Products": "Compact + French Touch",
+      "Product Code": "COMPE36 +FRN7E36",
+      "Current Price": "8485",
+      "New Price": "10200"
+    },
+    {
+      "Products": "Compact +Xtraview",
+      "Product Code": "COMPE36 + HDPVRE36",
+      "Current Price": "9230",
+      "New Price": "10400"
+    },
+    {
+      "Products": "Compact + French Touch +Xtraview",
+      "Product Code": "COMPE36 + FRN7E36 + HDPVRE36",
+      "Current Price": "10740",
+      "New Price": "12700"
+    },
+    {
+      "Products": "Compact + Asia +Xtraview",
+      "Product Code": "COMPE36+ ASIADDE36 + HDPVRE36",
+      "Current Price": "14770",
+      "New Price": "16600"
+    },
+    {
+      "Products": "Compact + French Plus ",
+      "Product Code": "COMPE36 + FRN15E36",
+      "Current Price": "13495",
+      "New Price": "16000"
+    },
+    {
+      "Products": "Confam + Xtraview",
+      "Product Code": "NNJ2E36 + HDPVRE36",
+      "Current Price": "6870",
+      "New Price": "7115"
+    },
+    {
+      "Products": "Yanga + Xtraview",
+      "Product Code": "NNJ1E36 + HDPVRE36",
+      "Current Price": "4820",
+      "New Price": "5065"
+    },
+    {
+      "Products": "Padi + Xtraview",
+      "Product Code": "NLTESE36 + HDPVRE36",
+      "Current Price": "4105",
+      "New Price": "4350"
+    },
+    {
+      "Products": "DStv HDPVR Access Service E36",
+      "Product Code": "HDPVRE36",
+      "Current Price": "2255",
+      "New Price": "2500"
+    },
+    {
+      "Products": "DStv French Plus Add-on Bouquet E36",
+      "Product Code": "FRN15E36",
+      "Current Price": "6520",
+      "New Price": "8100"
+    },
+    {
+      "Products": "DStv Asian Add-on Bouquet E36",
+      "Product Code": "ASIADDE36",
+      "Current Price": "5540",
+      "New Price": "6200"
+    },
+    {
+      "Products": "DStv French Touch Add-on Bouquet E36",
+      "Product Code": "FRN7E36",
+      "Current Price": "1510",
+      "New Price": "2300"
+    },
+    {
+      "Products": "Xtraview Access",
+      "Product Code": "Xtraview Access",
+      "Current Price": "2255",
+      "New Price": "2500"
+    },
+    {
+      "Products": "French 11 Bouquet E36",
+      "Product Code": "FRN11E36 ",
+      "Current Price": "3260",
+      "New Price": "3260"
+    },
+    {
+      "Products": "Box Office",
+      "Product Code": "Box Office",
+      "Current Price": "400",
+      "New Price": "500"
+    },
+    {
+      "Products": "Max",
+      "Product Code": "GOTVMAX",
+      "Current Price": "3280",
+      "New Price": "3600"
+    },
+    {
+      "Products": "Jolli",
+      "Product Code": "GOTVNJ2",
+      "Current Price": "2460",
+      "New Price": "2460"
+    },
+    {
+      "Products": "Jinja",
+      "Product Code": "GOTVNJ1",
+      "Current Price": "1640",
+      "New Price": "1640"
+    },
+    {
+      "Products": "Lite",
+      "Product Code": "GOLITE",
+      "Current Price": "410",
+      "New Price": "410"
+    },
+    {
+      "Products": "Lite (Quarterly)",
+      "Product Code": "GOLITE",
+      "Current Price": "1080",
+      "New Price": "1080"
+    },
+    {
+      "Products": "Lite (Annual)",
+      "Product Code": "GOLITE",
+      "Current Price": "3180",
+      "New Price": "3180"
+    }
+  ],
+  "SMILE DATA PLANS": [
+    {
+      "Unit Credit ID": "545",
+      "Bundle Name": "FlexiDaily",
+      "Validity": "1 Day",
+      "Price": "N350",
+      "Volume": "1GB"
+    },
+    {
+      "Unit Credit ID": "546",
+      "Bundle Name": "FlexiWeekly",
+      "Validity": "7 Days",
+      "Price": "N1,000",
+      "Volume": "2GB"
+    },
+    {
+      "Unit Credit ID": "522",
+      "Bundle Name": "1.5GB ValuePlus",
+      "Validity": "30 Days",
+      "Price": "N1,000",
+      "Volume": "1.5GB"
+    },
+    {
+      "Unit Credit ID": "525",
+      "Bundle Name": "5GB ValuePlus",
+      "Validity": "30 Days",
+      "Price": "N3,000",
+      "Volume": "5GB"
+    },
+    {
+      "Unit Credit ID": "528",
+      "Bundle Name": "7GB ValuePlus",
+      "Validity": "30 Days",
+      "Price": "N4,000",
+      "Volume": "7GB"
+    },
+    {
+      "Unit Credit ID": "531",
+      "Bundle Name": "11GB ValuePlus",
+      "Validity": "30 Days",
+      "Price": "N5,000",
+      "Volume": "11GB"
+    },
+    {
+      "Unit Credit ID": "534",
+      "Bundle Name": "15GB ValuePlus",
+      "Validity": "30 Days",
+      "Price": "N6,000",
+      "Volume": "15GB"
+    },
+    {
+      "Unit Credit ID": "537",
+      "Bundle Name": "21GB ValuePlus",
+      "Validity": "30 Days",
+      "Price": "N8,000",
+      "Volume": "21GB"
+    },
+    {
+      "Unit Credit ID": "540",
+      "Bundle Name": "31GB ValuePlus",
+      "Validity": "30 Days",
+      "Price": "N11,000",
+      "Volume": "31GB"
+    },
+    {
+      "Unit Credit ID": "547",
+      "Bundle Name": "80GB Bumpavalue",
+      "Validity": "120 Days",
+      "Price": "N40,000",
+      "Volume": "80GB"
+    },
+    {
+      "Unit Credit ID": "543",
+      "Bundle Name": "10GB Anytime",
+      "Validity": "1 Year",
+      "Price": "N8,000",
+      "Volume": "10GB"
+    },
+    {
+      "Unit Credit ID": "544",
+      "Bundle Name": "20GB Anytime",
+      "Validity": "1 Year",
+      "Price": "N16,000",
+      "Volume": "20GB"
+    },
+    {
+      "Unit Credit ID": "548",
+      "Bundle Name": "UnlimitedEssential",
+      "Validity": "30 Days",
+      "Price": "N15,000",
+      "Volume": "Unlimited"
+    }
+  ],
+  "STARTIMES SUBSCRIPTION PLANS": [
+    {
+      "PLANS": "DTT Nova",
+      "Daily": "90",
+      "Weekly": "300",
+      "Monthly": "900"
+    },
+    {
+      "PLANS": "DTT Basic",
+      "Daily": "160",
+      "Weekly": "600",
+      "Monthly": "1700"
+    },
+    {
+      "PLANS": "DTT Classic",
+      "Daily": "320",
+      "Weekly": "1200",
+      "Monthly": "2500"
+    },
+    {
+      "PLANS": "DTH Nova",
+      "Daily": "90",
+      "Weekly": "300",
+      "Monthly": "900"
+    },
+    {
+      "PLANS": "DTH Smart",
+      "Daily": "200",
+      "Weekly": "700",
+      "Monthly": "2200"
+    },
+    {
+      "PLANS": "DTH Super",
+      "Daily": "400",
+      "Weekly": "1500",
+      "Monthly": "4200"
+    },
+    {
+      "PLANS": "Combo_Smart_Basic",
+      "Daily": "180",
+      "Weekly": "600",
+      "Monthly": "1900"
+    },
+    {
+      "PLANS": "Combo_Super_Classic",
+      "Daily": "360",
+      "Weekly": "1300",
+      "Monthly": "3800"
+    }
+  ]
+}

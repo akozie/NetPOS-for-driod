@@ -4,22 +4,33 @@ package com.woleapp.netpos.ui.fragments
 
 import android.app.AlertDialog
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.Toast
 import androidx.fragment.app.viewModels
+import com.danbamitale.epmslib.entities.CardData
 import com.danbamitale.epmslib.entities.TransactionType
 import com.google.android.material.snackbar.Snackbar
+import com.netpluspay.netpossdk.emv.CardReaderEvent
+import com.netpluspay.netpossdk.emv.CardReaderService
+import com.pos.sdk.emvcore.POIEmvCoreManager
 import com.woleapp.netpos.R
 import com.woleapp.netpos.databinding.DialogTransactionResultBinding
 import com.woleapp.netpos.databinding.FragmentSalesBinding
 import com.woleapp.netpos.nibss.NetPosTerminalConfig
 import com.woleapp.netpos.util.TRANSACTION_TYPE
+import com.woleapp.netpos.util.disposeWith
 import com.woleapp.netpos.util.showCardDialog
 import com.woleapp.netpos.viewmodels.SalesViewModel
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
+import com.pos.sdk.emvcore.POIEmvCoreManager.DEV_ICC
+import com.pos.sdk.emvcore.POIEmvCoreManager.DEV_PICC
 
 
 class SalesFragment : BaseFragment() {
@@ -36,12 +47,13 @@ class SalesFragment : BaseFragment() {
     private lateinit var transactionType: TransactionType
     private lateinit var alertDialog: AlertDialog
     private lateinit var receiptDialogBinding: DialogTransactionResultBinding
+    private val compositeDisposable = CompositeDisposable()
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         val binding = FragmentSalesBinding.inflate(inflater, container, false)
         transactionType = TransactionType.valueOf(
             arguments?.getString(
@@ -49,6 +61,7 @@ class SalesFragment : BaseFragment() {
                 TransactionType.PURCHASE.name
             )!!
         )
+        viewModel.setContext(requireContext())
         receiptDialogBinding = DialogTransactionResultBinding.inflate(inflater, null, false)
             .apply { executePendingBindings() }
         binding.apply {
@@ -74,7 +87,8 @@ class SalesFragment : BaseFragment() {
                         requireActivity(),
                         viewLifecycleOwner,
                         1000,
-                        0L
+                        0L,
+                        compositeDisposable
                     ).observe(viewLifecycleOwner) { event ->
                         event.getContentIfNotHandled()?.let {
                             it.error?.let { error ->
@@ -90,7 +104,7 @@ class SalesFragment : BaseFragment() {
                                 viewModel.setCardScheme(it.cardScheme!!)
                                 viewModel.setCustomerName(it.customerName ?: "Customer")
                                 viewModel.setAccountType(it.accountType!!)
-                                viewModel.cardData = cardData
+                                viewModel.cardData = it.cardData
                                 viewModel.makePayment(requireContext(), transactionType)
                             }
                         }
@@ -186,6 +200,7 @@ class SalesFragment : BaseFragment() {
         binding.process.setOnClickListener {
             viewModel.validateField()
         }
+
         return binding.root
     }
 
@@ -238,5 +253,10 @@ class SalesFragment : BaseFragment() {
                 R.id.container_main
             ), message, Snackbar.LENGTH_LONG
         ).show()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        compositeDisposable.clear()
     }
 }

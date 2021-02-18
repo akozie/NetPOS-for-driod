@@ -19,6 +19,6 @@ class NipViewModel : ViewModel() {
         nipService.getNotificationByReference(reference)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { t1, t2 -> }.disposeWith(disposable)
+            .subscribe { _, _ -> }.disposeWith(disposable)
     }
 }

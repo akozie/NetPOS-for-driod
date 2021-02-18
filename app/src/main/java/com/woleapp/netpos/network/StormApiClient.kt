@@ -8,7 +8,7 @@ import com.woleapp.netpos.util.Singletons
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Response
-import okhttp3.ResponseBody
+import okhttp3.ResponseBody.Companion.toResponseBody
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
@@ -80,23 +80,36 @@ class StormApiClient {
                      masterPassQRServiceInstance = it
                  }
         }
+
+        private var nibssQRServiceInstance: NibssQRService? = null
+        fun getNibssQRServiceInstance():NibssQRService = nibssQRServiceInstance ?: synchronized(this){
+            nibssQRServiceInstance ?: Retrofit.Builder()
+                .baseUrl("https://masterpassqr.netpluspay.com/api/v1/")
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create())
+                .build()
+                .create(NibssQRService::class.java)
+                .also {
+                    nibssQRServiceInstance = it
+                }
+        }
     }
 }
 
 class TokenInterceptor : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         var request = chain.request()
-        val headersInReq = request.headers()
-        if (headersInReq.get("Authorization").isNullOrEmpty()) {
+        val headersInReq = request.headers
+        if (headersInReq["Authorization"].isNullOrEmpty()) {
             Prefs.getString(PREF_USER_TOKEN, null)?.let {
                 request = request.newBuilder().addHeader("Authorization", "Bearer $it").build()
             }
         }
         val response = chain.proceed(request)
-        val body = response.body()
+        val body = response.body
         val bodyString = body?.string()
         Timber.e("resp: $bodyString")
-        return response.newBuilder().body(ResponseBody.create(body!!.contentType(), bodyString!!))
+        return response.newBuilder().body(bodyString!!.toResponseBody(body.contentType()))
             .build()
     }
 }

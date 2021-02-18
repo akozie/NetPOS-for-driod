@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="viewmodel"
+            type="com.woleapp.netpos.viewmodels.UtilitiesViewModel" />
+    </data>
+
+    <ScrollView
+        android:clickable="true"
+        android:focusable="true"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/white">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingHorizontal="36dp"
+            android:paddingBottom="16dp">
+
+            <TextView
+                android:id="@+id/header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Buy power/electricity"
+                android:textAllCaps="true"
+                android:textColor="@android:color/black"
+                android:textSize="@dimen/text_size_12sp"
+                android:textStyle="bold"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <Spinner
+                android:id="@+id/select_a_category"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:background="@color/gray"
+                app:layout_constraintTop_toBottomOf="@id/header" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                app:layout_constraintBottom_toBottomOf="@id/select_a_category"
+                app:layout_constraintEnd_toEndOf="@id/select_a_category"
+                app:layout_constraintTop_toTopOf="@id/select_a_category"
+                app:srcCompat="@drawable/ic_arrow_drop_down" />
+
+
+            <Spinner
+                android:id="@+id/products_spinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:background="@color/gray"
+                app:layout_constraintTop_toBottomOf="@id/select_a_category" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                app:layout_constraintBottom_toBottomOf="@id/products_spinner"
+                app:layout_constraintEnd_toEndOf="@id/products_spinner"
+                app:layout_constraintTop_toTopOf="@id/products_spinner"
+                app:srcCompat="@drawable/ic_arrow_drop_down" />
+
+            <Spinner
+                android:id="@+id/meter_type"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:background="@color/gray"
+                app:layout_constraintTop_toBottomOf="@id/products_spinner" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                app:layout_constraintBottom_toBottomOf="@id/meter_type"
+                app:layout_constraintEnd_toEndOf="@id/meter_type"
+                app:layout_constraintTop_toTopOf="@id/meter_type"
+                app:srcCompat="@drawable/ic_arrow_drop_down" />
+
+            <EditText
+                android:id="@+id/enter_meter_number"
+                style="@style/ServicesInputLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="numberDecimal"
+                android:hint="@string/enter_meter_number"
+                android:text="@={viewmodel.payloadMutableLiveData.destinationAccount}"
+                app:layout_constraintTop_toBottomOf="@id/meter_type" />
+
+            <LinearLayout
+                android:id="@+id/price_input_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintTop_toBottomOf="@id/enter_meter_number">
+
+                <TextView
+                    style="@style/ServicesInputLayout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/services_edittext_background"
+                    android:text="\u20a6" />
+
+                <EditText
+                    style="@style/ServicesInputLayout"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/services_edittext_background"
+                    android:hint="@string/hint_amount"
+                    android:inputType="numberDecimal"
+                    android:text="@={viewmodel.payloadMutableLiveData.stringAmount}" />
+            </LinearLayout>
+
+
+            <EditText
+                android:id="@+id/enter_mobile_number"
+                style="@style/ServicesInputLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/enter_mobile_number"
+                android:inputType="phone"
+                app:layout_constraintTop_toBottomOf="@id/price_input_layout" />
+
+            <EditText
+                android:id="@+id/enter_email_address"
+                style="@style/ServicesInputLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/enter_email_address"
+                android:inputType="textEmailAddress"
+                app:layout_constraintTop_toBottomOf="@id/enter_mobile_number" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:onClick="@{() -> viewmodel.validateUtilityBill()}"
+                android:text="@string/lbl_pay"
+                android:textColor="@android:color/white"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/enter_email_address" />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+
+
+</layout>

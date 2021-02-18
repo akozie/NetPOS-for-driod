@@ -72,7 +72,6 @@ class CardReadResult(private val readResultCode: Int, transactionData: Transacti
         val mTlvParser = BerTlvParser()
         val data = transactionData.transData
         val mTlvs = mTlvParser.parse(data)
-        val sp = StringBuffer()
         for (tlv in mTlvs.list) {
             //Log.e("TAG", "Emv tag: ${tlv.tag.berTagHex}  -  value ${tlv.hexValue}")
             when (tlv.tag.berTagHex) {
@@ -122,98 +121,98 @@ class CardReadResult(private val readResultCode: Int, transactionData: Transacti
         get() {
             val builder = java.lang.StringBuilder()
             builder.append("9F26")
-                .append(HexDump.toHexString(("" + authorizationRequest!!.length / 2).toByte()))
+                .append(HexDump.toHexString(("${authorizationRequest!!.length / 2}").toByte()))
                 .append(
                     authorizationRequest
                 )
-                .append("9F27").append(HexDump.toHexString(("" + cryptogram!!.length / 2).toByte()))
+                .append("9F27").append(HexDump.toHexString(("${cryptogram!!.length / 2}").toByte()))
                 .append(
                     cryptogram
                 )
                 .append("9F10")
-                .append(HexDump.toHexString(("" + issuerApplicationDiscretionaryData!!.length / 2).toByte()))
+                .append(HexDump.toHexString(("${issuerApplicationDiscretionaryData!!.length / 2}").toByte()))
                 .append(
                     issuerApplicationDiscretionaryData
                 )
                 .append("9F37")
-                .append(HexDump.toHexString(("" + unpredictableNumber!!.length / 2).toByte()))
+                .append(HexDump.toHexString(("${unpredictableNumber!!.length / 2}").toByte()))
                 .append(
                     unpredictableNumber
                 )
                 .append("9F36")
-                .append(HexDump.toHexString(("" + applicationTransactionCounter!!.length / 2).toByte()))
+                .append(HexDump.toHexString(("${applicationTransactionCounter!!.length / 2}").toByte()))
                 .append(
                     applicationTransactionCounter
                 )
                 .append("95")
-                .append(HexDump.toHexString(("" + terminalVerificationResults!!.length / 2).toByte()))
+                .append(HexDump.toHexString(("${terminalVerificationResults!!.length / 2}").toByte()))
                 .append(
                     terminalVerificationResults
                 )
                 .append("9A")
-                .append(HexDump.toHexString(("" + transactionDate!!.length / 2).toByte()))
+                .append(HexDump.toHexString(("${transactionDate!!.length / 2}").toByte()))
                 .append(
                     transactionDate
                 )
                 .append("9C")
-                .append(HexDump.toHexString(("" + transactionType!!.length / 2).toByte()))
+                .append(HexDump.toHexString(("${transactionType!!.length / 2}").toByte()))
                 .append(
                     transactionType
                 )
-                .append("9F02").append(HexDump.toHexString(("" + amount!!.length / 2).toByte()))
+                .append("9F02").append(HexDump.toHexString(("${amount!!.length / 2}").toByte()))
                 .append(amount)
                 .append("5F2A")
-                .append(HexDump.toHexString(("" + transactionCurrencyCode!!.length / 2).toByte()))
+                .append(HexDump.toHexString(("${transactionCurrencyCode!!.length / 2}").toByte()))
                 .append(
                     transactionCurrencyCode
                 )
                 .append("82")
-                .append(HexDump.toHexString(("" + applicationInterchangeProfile!!.length / 2).toByte()))
+                .append(HexDump.toHexString(("${applicationInterchangeProfile!!.length / 2}").toByte()))
                 .append(
                     applicationInterchangeProfile
                 )
                 .append("9F1A")
-                .append(HexDump.toHexString(("" + terminalCountryCode!!.length / 2).toByte()))
+                .append(HexDump.toHexString(("${terminalCountryCode!!.length / 2}").toByte()))
                 .append(
                     terminalCountryCode
                 )
                 .append("9F34")
-                .append(HexDump.toHexString(("" + cardholderVerificationMethod!!.length / 2).toByte()))
+                .append(HexDump.toHexString(("${cardholderVerificationMethod!!.length / 2}").toByte()))
                 .append(
                     cardholderVerificationMethod
                 )
                 .append("9F33")
-                .append(HexDump.toHexString(("" + terminalCapabilities!!.length / 2).toByte()))
+                .append(HexDump.toHexString(("${terminalCapabilities!!.length / 2}").toByte()))
                 .append(
                     terminalCapabilities
                 )
                 .append("9F35")
-                .append(HexDump.toHexString(("" + terminalType!!.length / 2).toByte()))
+                .append(HexDump.toHexString(("${terminalType!!.length / 2}").toByte()))
                 .append(
                     terminalType
                 )
                 .append("9F1E")
-                .append(HexDump.toHexString(("" + deviceSerialNumber!!.length / 2).toByte()))
+                .append(HexDump.toHexString(("${deviceSerialNumber!!.length / 2}").toByte()))
                 .append(
                     deviceSerialNumber
                 )
                 .append("84")
-                .append(HexDump.toHexString(("" + authorizationResponseCode!!.length / 2).toByte()))
+                .append(HexDump.toHexString(("${authorizationResponseCode!!.length / 2}").toByte()))
                 .append(
                     authorizationResponseCode
                 )
                 .append("9F09")
-                .append(HexDump.toHexString(("" + applicationVersionNumber!!.length / 2).toByte()))
+                .append(HexDump.toHexString(("${applicationVersionNumber!!.length / 2}").toByte()))
                 .append(
                     applicationVersionNumber
                 )
                 .append("9F03")
-                .append(HexDump.toHexString(("" + cashBackAmount!!.length / 2).toByte()))
+                .append(HexDump.toHexString(("${cashBackAmount!!.length / 2}").toByte()))
                 .append(
                     cashBackAmount
                 )
                 .append("5F34")
-                .append(HexDump.toHexString(("" + originalPan!!.length / 2).toByte()))
+                .append(HexDump.toHexString(("${originalPan!!.length / 2}").toByte()))
                 .append(
                     originalPan
                 )

@@ -24,8 +24,10 @@ import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import okhttp3.MediaType
+
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.HttpException
 import timber.log.Timber
 
@@ -34,6 +36,7 @@ class SalesViewModel : ViewModel() {
     var cardData: CardData? = null
     private val compositeDisposable: CompositeDisposable by lazy { CompositeDisposable() }
     val transactionState = MutableLiveData(STATE_PAYMENT_STAND_BY)
+    private lateinit var context: Context
     private val lastTransactionResponse = MutableLiveData<TransactionResponse>()
     val amount: MutableLiveData<String> = MutableLiveData<String>("")
     private var event: MqttEvent
@@ -101,7 +104,6 @@ class SalesViewModel : ViewModel() {
 
     fun makePayment(context: Context, transactionType: TransactionType = TransactionType.PURCHASE) {
         Timber.e(cardData.toString())
-
         val configData = NetPosTerminalConfig.getConfigData() ?: kotlin.run {
             _message.value =
                 Event("Terminal has not been configured, restart the application to configure")
@@ -123,8 +125,11 @@ class SalesViewModel : ViewModel() {
         transactionState.value = STATE_PAYMENT_STARTED
         processor.processTransaction(context, requestData, cardData!!)
             .flatMap {
-                if (it.responseCode == "A3")
+                if (it.responseCode == "A3"){
+                    Prefs.remove(PREF_CONFIG_DATA)
+                    Prefs.remove(PREF_KEYHOLDER)
                     _shouldRefreshNibssKeys.postValue(Event(true))
+                }
                 event.apply {
                     this.event = MqttEvents.TRANSACTIONS.event
                     this.code = it.responseCode
@@ -173,7 +178,7 @@ class SalesViewModel : ViewModel() {
                     _finish.value = Event(true)
                 }
                 throwable?.let {
-                    _showPrinterError.value = Event(it.localizedMessage)
+                    _showPrinterError.value = Event(it.localizedMessage ?: "")
                     _message.value = Event("Error: ${it.localizedMessage}")
                     Timber.e(it)
                 }
@@ -201,7 +206,7 @@ class SalesViewModel : ViewModel() {
 
     private fun printReceipt(): Single<PrinterResponse> {
         val transactionResponse = lastTransactionResponse.value!!
-        return if (Build.MODEL == "P3") transactionResponse.print(remark.value ?: "")
+        return if (Build.MODEL == "P3") transactionResponse.print(context, remark.value ?: "")
             .subscribeOn(Schedulers.io()) else {
             _showPrintDialog.postValue(
                 Event(
@@ -220,10 +225,8 @@ class SalesViewModel : ViewModel() {
         }
         Timber.e("payload: $map")
         val auth = "Bearer ${Prefs.getString(PREF_APP_TOKEN, "")}"
-        val body: RequestBody = RequestBody.create(
-            MediaType.parse("application/json; charset=utf-8"),
-            map.toString()
-        )
+        val body: RequestBody = map.toString()
+            .toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
         val smsEvent = event
 
         StormApiClient.getSmsServiceInstance().sendSms(auth, body)
@@ -266,5 +269,9 @@ class SalesViewModel : ViewModel() {
                     _toastMessage.value = Event("Error: ${it.localizedMessage}")
                 }
             }.disposeWith(compositeDisposable)
+    }
+
+    fun setContext(context: Context){
+        this.context = context
     }
 }

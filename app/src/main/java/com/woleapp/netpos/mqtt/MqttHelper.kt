@@ -23,18 +23,20 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import java.nio.charset.Charset
+import java.nio.charset.StandardCharsets
 
 object MqttHelper {
     private const val SERVER_HOST = BuildConfig.BASE_URL_NETPOS_MQTT
     private const val PORT = 8883
     private var client: Mqtt3RxClient? = null
     private var disposables = CompositeDisposable()
+    private var eventList = arrayListOf<String>()
     fun init(context: Context, event: MqttEvent? = null, topic: MqttTopics? = null) {
         val user: User? = Singletons.getCurrentlyLoggedInUser()
         if (client != null && client!!.state.isConnected)
             return
         user?.let { u ->
-            if (u.terminal_id.isNullOrEmpty()){
+            if (u.terminal_id.isNullOrEmpty()) {
                 Timber.e("Terminal ID Null")
                 return@let
             }
@@ -69,50 +71,79 @@ object MqttHelper {
 
     fun disconnect() {
         Timber.e("disconnecting")
-        if (client == null){
+        if (client == null) {
             Timber.e("Client is null or not connected")
             return
         }
 
         client?.disconnect()?.subscribeOn(Schedulers.io())!!
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({Timber.e("Disconnected")}, {
+            .subscribe({ Timber.e("Disconnected") }, {
                 Timber.e(it)
             }).disposeWith(disposables)
         client = null
+        disposables.clear()
     }
 
     private fun getMqttClientSSLConfigImpl(context: Context): MqttClientSslConfigImpl {
         return MqttClientSslConfigImplBuilder.Default()
             .apply {
                 //handshakeTimeout(60, TimeUnit.SECONDS)
-                hostnameVerifier { _, _ ->  true}
+                hostnameVerifier { _, _ -> true }
                 trustManagerFactory(SSLUtil.getTrustManagerFactory(context))
                 keyManagerFactory(SSLUtil.getKeyMangerFactory(context))
             }.build()
     }
 
-    fun sendPayload(mqttTopic: MqttTopics, event: MqttEvent) {
-        event.apply {
-            geo = Prefs.getString(PREF_LAST_LOCATION, "lat:6.5244 long:3.3792")
+    fun sendPayload(mqttTopic: MqttTopics, event: MqttEvent? = null, events: List<String>? = null) {
+        if (event == null && events.isNullOrEmpty()) {
+            Timber.e("Nothing to publish")
+            return
         }
-        Timber.e("Sending to topic: ${mqttTopic.topic}")
-        Timber.e(gson.toJson(event).toString())
+        event?.apply {
+            geo = Prefs.getString(PREF_LAST_LOCATION, "lat:6.5244 long:3.3792")
+            Timber.e("Sending to topic: ${mqttTopic.topic}")
+            //Timber.e(gson.toJson(event).toString())
+        }
         client?.let { client ->
             Timber.e("client state isConnected ${client.state.isConnected}")
             Timber.e("client state isCorD ${client.state.isConnectedOrReconnect}")
-            val publish = Mqtt3Publish.builder()
-                .topic(mqttTopic.topic)
-                .qos(MqttQos.AT_LEAST_ONCE)
-                .payload(gson.toJson(event).toByteArray(Charset.forName("UTF-8")))
-                .build()
-            client.publish(Flowable.just(publish)).subscribe({
-                if (it.error.isPresent){
-                    Timber.e("Error: ${it.error.get().localizedMessage}")
-                    Timber.e("Error Present")
-                }
-                Timber.e("Published")
-            }, { Timber.e(it) }, {Timber.e("Completed")}).disposeWith(disposables)
+            var flowable: Flowable<Mqtt3Publish>? = null
+            event?.let {
+                flowable = Flowable.just(
+                    Mqtt3Publish.builder()
+                        .topic(mqttTopic.topic)
+                        .qos(MqttQos.AT_LEAST_ONCE)
+                        .payload(gson.toJson(event).toByteArray(Charset.forName("UTF-8")))
+                        .build()
+                )
+            }
+            events?.let { listOfEvents ->
+                flowable = Flowable.fromIterable(listOfEvents.map {
+                    Mqtt3Publish.builder()
+                        .topic(mqttTopic.topic)
+                        .qos(MqttQos.AT_LEAST_ONCE)
+                        .payload(it.toByteArray(Charset.forName("UTF-8")))
+                        .build()
+                })
+            }
+            client.publish(flowable!!).subscribe(
+                {
+                    if (it.error.isPresent) {
+                        Timber.e("Error: ${it.error.get().localizedMessage}")
+                        Timber.e("There was an error while publishing")
+                    }
+                    Timber.e("Published")
+                    Timber.e(String(it.publish.payloadAsBytes, StandardCharsets.UTF_8))
+                },
+                {
+                    Timber.e(it)
+                },
+                { Timber.e("Completed") }).disposeWith(disposables)
         }
+    }
+
+    fun savePayloadToLocalDatabase() {
+
     }
 }

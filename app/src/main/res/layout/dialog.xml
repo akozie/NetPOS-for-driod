@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:custom="http://schemas.android.com/tools">
+
+    <!--<LinearLayout-->
+    <!--android:id="@+id/linearParent"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:background="@color/black_trans">-->
+    <!--android:background="@color/black_trans"-->
+    <!--android:layout_marginTop="?attr/actionBarSize"-->
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/margin_20"
+        android:layout_marginEnd="@dimen/margin_20"
+        android:elevation="8dp"
+        app:cardBackgroundColor="@android:color/white"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="8dp"
+        custom:cardCornerRadius="20dp">
+
+        <!--android:layout_marginBottom="5dp"-->
+        <!--android:layout_marginRight="16dp"-->
+        <!--android:layout_marginLeft="16dp"-->
+        <!--android:layout_marginTop="5dp"-->
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_white_background_rounded"
+            android:orientation="vertical">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <!--android:layout_margin="@dimen/layout_margin_padding_15"-->
+
+                <!--<ImageView-->
+                <!--android:id="@+id/ivClose"-->
+                <!--android:layout_alignParentRight="true"-->
+                <!--android:layout_width="32dp"-->
+                <!--android:layout_height="32dp"-->
+                <!--android:src="@drawable/cross_icon"/>-->
+                <!--android:tint="@color/black_dark"-->
+
+                <!--<RelativeLayout-->
+                <!--android:id="@+id/relativeCancel"-->
+                <!--android:layout_alignParentRight="true"-->
+                <!--android:layout_marginLeft="@dimen/text_margin_small"-->
+                <!--android:layout_width="20dp"-->
+                <!--android:layout_height="20dp"-->
+                <!--&gt;-->
+                <!--&lt;!&ndash;android:layout_marginTop="3dp"&ndash;&gt;-->
+                <!--&lt;!&ndash;android:layout_alignTop="@id/tv_link_name"&ndash;&gt;-->
+
+                <!--<Button-->
+                <!--android:id="@+id/btnCancel"-->
+                <!--android:background="@drawable/ripple_theme_for_img"-->
+                <!--android:elevation="6dp"-->
+                <!--android:layout_width="20dp"-->
+                <!--android:layout_height="20dp"-->
+                <!--android:textColor="@color/white"-->
+
+                <!--/>-->
+
+                <!--<ImageView-->
+                <!--android:id="@+id/iv_cancel"-->
+                <!--android:elevation="6dp"-->
+                <!--android:layout_width="14dp"-->
+                <!--android:layout_height="14dp"-->
+                <!--android:scaleType="centerInside"-->
+                <!--android:src="@drawable/cancel_white"-->
+                <!--android:layout_centerVertical="true"-->
+                <!--android:layout_marginLeft="3dp"-->
+                <!--android:layout_marginStart="3dp"-->
+                <!--android:layout_alignLeft="@+id/btnCancel" android:layout_alignStart="@+id/btnCancel"/>-->
+
+
+                <!--</RelativeLayout>-->
+
+
+                <!--<RelativeLayout
+                        android:id="@+id/relativeHeading"
+                        android:layout_width="match_parent"
+                                android:layout_height="?android:attr/actionBarSize"
+                                android:background="@color/base_color">
+                    <TextView
+
+                            android:fontFamily="@font/roboto_light_0"
+                            android:textStyle="bold"
+                            android:id="@+id/tvHeading"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_margin="@dimen/activity_horizontal_margin"
+                            android:layout_centerInParent="true"
+                            android:text="Choose your option"
+                            android:textColor="@color/white"
+                            android:textSize="@dimen/text_size_18" />
+
+                </RelativeLayout>-->
+
+                <!--<TextView-->
+                <!--android:id="@+id/tvHeading"-->
+                <!--android:layout_below="@+id/ivClose"-->
+                <!--android:layout_marginTop="1dp"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:text="Choose your option"-->
+                <!--android:layout_centerHorizontal="true"-->
+                <!--android:textColor="@color/gray"-->
+                <!--android:textSize="@dimen/text_size_normal"-->
+                <!--android:fontFamily="@font/roboto_medium_2"/>-->
+
+                <!--<TextView-->
+                <!--android:id="@+id/tv_header"-->
+                <!--android:layout_below="@+id/ivClose"-->
+                <!--android:layout_marginTop="1dp"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:text="Add Link"-->
+                <!--android:layout_centerHorizontal="true"-->
+                <!--android:textColor="@color/gray"-->
+                <!--android:textSize="@dimen/text_size_normal"-->
+                <!--android:fontFamily="@font/roboto_medium_2"-->
+                <!--/>-->
+
+
+                <LinearLayout
+                    android:id="@+id/linearOptions"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="@dimen/margin_15"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:weightSum="1">
+                    <!--                    android:layout_below="@id/relativeHeading"-->
+
+                    <TextView
+                        android:id="@+id/tvTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="Confirmation"
+                        android:textColor="@android:color/black"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <ImageView
+                        android:id="@+id/response_icon"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:visibility="gone"
+                        app:srcCompat="@drawable/animated_check" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/linearOptions2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/linearOptions"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginLeft="@dimen/margin_10"
+                    android:layout_marginTop="@dimen/margin_20"
+                    android:layout_marginRight="@dimen/margin_10"
+                    android:layout_marginBottom="@dimen/margin_20"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:weightSum="1">
+
+                    <TextView
+                        android:id="@+id/tvMessage"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:gravity="center_horizontal"
+                        android:text="Are you sure you want to logout ? dasdasdasd"
+                        android:textColor="@android:color/black"
+                        android:textSize="16sp" />
+                    <ImageButton
+                        android:id="@+id/copy"
+                        android:visibility="gone"
+                        android:padding="8dp"
+                        android:layout_marginTop="8dp"
+                        android:background="?attr/selectableItemBackground"
+                        app:srcCompat="@drawable/ic_content_copy"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+                </LinearLayout>
+
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/linearOptions2"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="10dp">
+
+                    <TextView
+                        android:id="@+id/tvNo"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toLeftOf="@+id/tvYes"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:clickable="true"
+                        android:text="No"
+                        android:textColor="@android:color/black"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvYes"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:layout_marginLeft="@dimen/margin_15"
+                        android:layout_marginRight="@dimen/margin_15"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:clickable="true"
+                        android:text="Yes"
+                        android:textColor="@android:color/black"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+
+                </RelativeLayout>
+
+
+            </RelativeLayout>
+
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+</layout>

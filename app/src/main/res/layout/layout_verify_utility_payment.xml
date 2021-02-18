@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="billResponse"
+            type="com.woleapp.netpos.model.ValidateBillResponse" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:background="@drawable/sheet_background">
+
+        <TextView
+            android:id="@+id/summary"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/summary"
+            android:textAllCaps="true"
+            android:textColor="@color/colorPrimary"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/provider"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="16dp"
+            android:text="@string/provider"
+            android:textAllCaps="true"
+            android:textColor="@color/colorPrimary"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/summary" />
+
+        <TextView
+            android:id="@+id/provider_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:text="@{billResponse.provider}"
+            android:textAllCaps="true"
+            app:layout_constraintStart_toEndOf="@id/provider"
+            app:layout_constraintTop_toTopOf="@id/provider"
+            tools:text="DSTV" />
+
+        <TextView
+            android:id="@+id/bill_package"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/bill_package"
+            android:textAllCaps="true"
+            android:textColor="@color/colorPrimary"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="@id/provider"
+            app:layout_constraintTop_toBottomOf="@id/provider" />
+
+        <TextView
+            android:id="@+id/package_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:text="@{billResponse.billPackage}"
+            android:textAllCaps="true"
+            app:layout_constraintStart_toEndOf="@id/bill_package"
+            app:layout_constraintTop_toTopOf="@id/bill_package"
+            tools:text="DSTV" />
+
+        <TextView
+            android:id="@+id/account_id"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/account_id"
+            android:textAllCaps="true"
+            android:textColor="@color/colorPrimary"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="@id/provider"
+            app:layout_constraintTop_toBottomOf="@id/package_value" />
+
+        <TextView
+            android:id="@+id/account_id_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:text="@{billResponse.billAccountId}"
+            android:textAllCaps="true"
+            app:layout_constraintStart_toEndOf="@id/account_id"
+            app:layout_constraintTop_toTopOf="@id/account_id"
+            tools:text="DSTV" />
+
+        <TextView
+            android:id="@+id/account_id_details"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/account_name"
+            android:textAllCaps="true"
+            android:textColor="@color/colorPrimary"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="@id/provider"
+            app:layout_constraintTop_toBottomOf="@id/account_id" />
+
+        <TextView
+            android:id="@+id/account_id__details_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:text="@{billResponse.billAccountIdDetails}"
+            android:textAllCaps="true"
+            app:layout_constraintStart_toEndOf="@id/account_id_details"
+            app:layout_constraintTop_toTopOf="@id/account_id_details"
+            tools:text="DSTV" />
+
+        <TextView
+            android:id="@+id/amount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/hint_amount"
+            android:textAllCaps="true"
+            android:textColor="@color/colorPrimary"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="@id/provider"
+            app:layout_constraintTop_toBottomOf="@id/account_id_details" />
+
+        <TextView
+            android:id="@+id/amount_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:text="@{billResponse.amount}"
+            android:textAllCaps="true"
+            app:layout_constraintStart_toEndOf="@id/amount"
+            app:layout_constraintTop_toTopOf="@id/amount"
+            tools:text="DSTV" />
+
+        <TextView
+            android:id="@+id/fee"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/lbl_convinience_fee"
+            android:textAllCaps="true"
+            android:textColor="@color/colorPrimary"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="@id/provider"
+            app:layout_constraintTop_toBottomOf="@id/amount" />
+
+        <TextView
+            android:id="@+id/fee_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:text="@{billResponse.fees}"
+            android:textAllCaps="true"
+            app:layout_constraintStart_toEndOf="@id/fee"
+            app:layout_constraintTop_toTopOf="@id/fee"
+            tools:text="DSTV" />
+
+        <Button
+            android:id="@+id/proceed"
+            android:layout_width="match_parent"
+            android:layout_height="36dp"
+            android:layout_marginTop="16dp"
+            android:background="@color/colorPrimary"
+            android:text="@string/proceed"
+            app:layout_constraintTop_toBottomOf="@id/fee" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

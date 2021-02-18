@@ -13,7 +13,6 @@
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/epmslib-release" />
             <option value="$PROJECT_DIR$/netpossdk" />
-            <option value="$PROJECT_DIR$/terminalcore" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />

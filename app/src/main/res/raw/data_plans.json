@@ -1,0 +1,330 @@
+{
+  "9Mobile": [
+    {
+      "Price(n)": "110000",
+      "Duration": "365 days",
+      "Data": "120GB"
+    },
+    {
+      "Price(n)": "84,992",
+      "Duration": "100 days",
+      "Data": "100GB"
+    },
+    {
+      "Price(n)": "55,000",
+      "Duration": "180 days",
+      "Data": "60GB"
+    },
+    {
+      "Price(n)": "27,500",
+      "Duration": "90 days",
+      "Data": "30GB"
+    },
+    {
+      "Price(n)": "15,000",
+      "Duration": "30 days",
+      "Data": "75GB"
+    },
+    {
+      "Price(n)": "10,000",
+      "Duration": "30 days",
+      "Data": "40GB"
+    },
+    {
+      "Price(n)": "5,000",
+      "Duration": "30 days",
+      "Data": "15GB"
+    },
+    {
+      "Price(n)": "4,000",
+      "Duration": "30 days",
+      "Data": "11GB"
+    },
+    {
+      "Price(n)": "2,000",
+      "Duration": "30 days",
+      "Data": "4.5GB"
+    },
+    {
+      "Price(n)": "1,500",
+      "Duration": "7 days",
+      "Data": "7GB"
+    },
+    {
+      "Price(n)": "1,000",
+      "Duration": "30 days",
+      "Data": "1.5GB"
+    },
+    {
+      "Price(n)": "500",
+      "Duration": "30 days",
+      "Data": "500MB"
+    },
+    {
+      "Price(n)": "200",
+      "Duration": "24 hrs",
+      "Data": "650MB"
+    },
+    {
+      "Price(n)": "100",
+      "Duration": "24 hrs",
+      "Data": "100MB"
+    },
+    {
+      "Price(n)": "50",
+      "Duration": "24 hrs",
+      "Data": "25MB"
+    }
+  ],
+  "AIRTEL": [
+    {
+      "Price(n)": "19,999.02",
+      "Duration": "30 days",
+      "Data": "110GB"
+    },
+    {
+      "Price(n)": "14,999.00",
+      "Duration": "30 days",
+      "Data": "75GB"
+    },
+    {
+      "Price(n)": "9,999.00",
+      "Duration": "30 days",
+      "Data": "40GB"
+    },
+    {
+      "Price(n)": "4,999.00",
+      "Duration": "30 days",
+      "Data": "15GB"
+    },
+    {
+      "Price(n)": "3,999.01",
+      "Duration": "30 days",
+      "Data": "11GB"
+    },
+    {
+      "Price(n)": "2,999.02",
+      "Duration": "30 days",
+      "Data": "8GB"
+    },
+    {
+      "Price(n)": "2,499.01",
+      "Duration": "30 days",
+      "Data": "6GB"
+    },
+    {
+      "Price(n)": "1,999.01",
+      "Duration": "30 days",
+      "Data": "4.5GB"
+    },
+    {
+      "Price(n)": "1,499.01",
+      "Duration": "30 days",
+      "Data": "3GB"
+    },
+    {
+      "Price(n)": "1,199.00",
+      "Duration": "30 days",
+      "Data": "2GB"
+    },
+    {
+      "Price(n)": "999.00",
+      "Duration": "30 days",
+      "Data": "1.5GB"
+    },
+    {
+      "Price(n)": "499.00",
+      "Duration": "14 days",
+      "Data": "750MB"
+    },
+    {
+      "Price(n)": "299.02",
+      "Duration": "7 days",
+      "Data": "350MB"
+    },
+    {
+      "Price(n)": "299.03",
+      "Duration": "1 day",
+      "Data": "1GB"
+    },
+    {
+      "Price(n)": "199.03",
+      "Duration": "3 days",
+      "Data": "200MB"
+    },
+    {
+      "Price(n)": "99.00",
+      "Duration": "1 day",
+      "Data": "100MB"
+    }
+  ],
+  "GLO": [
+    {
+      "Price(n)": "18,000",
+      "Duration": "30 days",
+      "Data": "119GB"
+    },
+    {
+      "Price(n)": "15,000",
+      "Duration": "30 days",
+      "Data": "93GB"
+    },
+    {
+      "Price(n)": "10,000",
+      "Duration": "30 days",
+      "Data": "50GB"
+    },
+    {
+      "Price(n)": "8,000",
+      "Duration": "30 days",
+      "Data": "29.5GB"
+    },
+    {
+      "Price(n)": "5,000",
+      "Duration": "30 days",
+      "Data": "18.25GB"
+    },
+    {
+      "Price(n)": "4,000",
+      "Duration": "30 days",
+      "Data": "13.35GB"
+    },
+    {
+      "Price(n)": "3,000",
+      "Duration": "30 days",
+      "Data": "10GB"
+    },
+    {
+      "Price(n)": "2,500",
+      "Duration": "30 days",
+      "Data": "7.7GB"
+    },
+    {
+      "Price(n)": "2,000",
+      "Duration": "30 days",
+      "Data": "5.8GB"
+    },
+    {
+      "Price(n)": "1,000",
+      "Duration": "30 days",
+      "Data": "2.5GB"
+    },
+    {
+      "Price(n)": "1,500",
+      "Duration": "30 days",
+      "Data": "1GB"
+    },
+    {
+      "Price(n)": "500",
+      "Duration": "14 days",
+      "Data": "1.05GB"
+    },
+    {
+      "Price(n)": "200",
+      "Duration": "4 days",
+      "Data": "350MB"
+    },
+    {
+      "Price(n)": "100",
+      "Duration": "2 days",
+      "Data": "105MB"
+    },
+    {
+      "Price(n)": "50",
+      "Duration": "1 day",
+      "Data": "32MB"
+    }
+  ],
+  "MTN": [
+    {
+      "Price(n)": "450,000",
+      "Duration": "365 days",
+      "Data": "1500GB"
+    },
+    {
+      "Price(n)": "300,000",
+      "Duration": "365 days",
+      "Data": "1000GB"
+    },
+    {
+      "Price(n)": "120,000",
+      "Duration": "365 days",
+      "Data": "400GB"
+    },
+    {
+      "Price(n)": "100,000",
+      "Duration": "180 days",
+      "Data": "325GB"
+    },
+    {
+      "Price(n)": "75,000",
+      "Duration": "90 days",
+      "Data": "250GB"
+    },
+    {
+      "Price(n)": "50,000",
+      "Duration": "90 days",
+      "Data": "150GB"
+    },
+    {
+      "Price(n)": "30,000",
+      "Duration": "60 days",
+      "Data": "120GB"
+    },
+    {
+      "Price(n)": "20,000",
+      "Duration": "60 days",
+      "Data": "75GB"
+    },
+    {
+      "Price(n)": "15,000",
+      "Duration": "30 days",
+      "Data": "75GB"
+    },
+    {
+      "Price(n)": "6,000",
+      "Duration": "30 days",
+      "Data": "20GB"
+    },
+    {
+      "Price(n)": "5,000",
+      "Duration": "30 days",
+      "Data": "15GB"
+    },
+    {
+      "Price(n)": "3,500",
+      "Duration": "30 days",
+      "Data": "10GB"
+    },
+    {
+      "Price(n)": "2,500",
+      "Duration": "30 days",
+      "Data": "6GB"
+    },
+    {
+      "Price(n)": "2,000",
+      "Duration": "30 days",
+      "Data": "4.5GB"
+    },
+    {
+      "Price(n)": "1,000",
+      "Duration": "30 days",
+      "Data": "1.5GB"
+    },
+    {
+      "Price(n)": "150",
+      "Duration": "30 days",
+      "Data": "160MB"
+    },
+    {
+      "Price(n)": "50",
+      "Duration": "7 days",
+      "Data": "50MB"
+    },
+    {
+      "Price(n)": "25",
+      "Duration": "1 day",
+      "Data": "20MB"
+    }
+  ]
+}

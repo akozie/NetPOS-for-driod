@@ -23,13 +23,16 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.HttpException
 import timber.log.Timber
 
 class TransactionsViewModel : ViewModel() {
     private lateinit var endOfDayList: List<TransactionResponse>
     var cardData: CardData? = null
+    private lateinit var context: Context
     private val compositeDisposable = CompositeDisposable()
     private var appDatabase: AppDatabase? = null
     val lastTransactionResponse = MutableLiveData<TransactionResponse>()
@@ -354,7 +357,7 @@ class TransactionsViewModel : ViewModel() {
     }
 
     private fun printReceipt(transactionResponse: TransactionResponse): Single<PrinterResponse> {
-        return if (Build.MODEL == "P3") transactionResponse.print()
+        return if (Build.MODEL == "P3") transactionResponse.print(context)
         else {
             _showPrintDialog.postValue(Event(transactionResponse.buildSMSText().toString()))
             Single.just(PrinterResponse())
@@ -369,10 +372,8 @@ class TransactionsViewModel : ViewModel() {
         }
         Timber.e("payload: $map")
         val auth = "Bearer ${Prefs.getString(PREF_APP_TOKEN, "")}"
-        val body: RequestBody = RequestBody.create(
-            MediaType.parse("application/json; charset=utf-8"),
-            map.toString()
-        )
+        val body: RequestBody = map.toString()
+            .toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
         val smsEvent = event
 
         StormApiClient.getSmsServiceInstance().sendSms(auth, body)
@@ -422,4 +423,8 @@ class TransactionsViewModel : ViewModel() {
     }
 
     fun getEodList() = endOfDayList
+
+    fun setContext(context: Context){
+        this.context = context
+    }
 }

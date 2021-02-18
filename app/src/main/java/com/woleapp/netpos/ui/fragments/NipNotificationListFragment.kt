@@ -48,10 +48,10 @@ class NipNotificationListFragment : BaseFragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentNipNotificationListBinding.inflate(inflater, container, false)
         adapter = NipAdapter {
-            it.print().subscribeOn(Schedulers.io())
+            it.print(requireContext()).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { _, _ -> }
         }
@@ -73,7 +73,7 @@ class NipNotificationListFragment : BaseFragment() {
         binding.printAll.setOnClickListener {
             adapter.currentList.let {
                 if (it.isEmpty().not()) {
-                    it.printAllNotifications()
+                    it.printAllNotifications(requireContext())
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe({

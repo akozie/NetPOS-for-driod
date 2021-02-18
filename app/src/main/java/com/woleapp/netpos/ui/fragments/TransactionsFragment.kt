@@ -38,7 +38,7 @@ class TransactionsFragment : BaseFragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentTransactionsBinding.inflate(inflater, container, false)
         adapter = ServiceAdapter {
             val nextFrag: Fragment? = when (it.id) {
@@ -49,8 +49,8 @@ class TransactionsFragment : BaseFragment() {
                     null
                 }
                 4 -> {
-                    showQRBottomSheetDialog()
-                    null
+                    //showQRBottomSheetDialog()
+                    QRFragment()
                 }
                 5 -> ReprintFragment()
                 else -> SalesFragment.newInstance(TransactionType.CASH_ADVANCE)
@@ -110,45 +110,5 @@ class TransactionsFragment : BaseFragment() {
                 }
         dialog.setView(preAuthDialogBinding.root)
         dialog.show()
-    }
-
-    private fun showQRBottomSheetDialog() {
-        val qrBottomSheetDialogBinding: QrBottomSheetDialogBinding =
-            QrBottomSheetDialogBinding.inflate(
-                layoutInflater, null, false
-            )
-        val bottomSheetDialog = BottomSheetDialog(requireContext(), R.style.SheetDialog)
-        bottomSheetDialog.setCancelable(false)
-        bottomSheetDialog.setContentView(qrBottomSheetDialogBinding.root)
-        qrBottomSheetDialogBinding.closeBtn.setOnClickListener { bottomSheetDialog.cancel() }
-        bottomSheetDialog.show()
-        val service = StormApiClient.getMasterPassQrServiceInstance()
-        val qrRequestBody = JsonObject()
-        val user = Singletons.getCurrentlyLoggedInUser()!!
-        qrRequestBody.apply {
-            addProperty("merchant_id", user.netplus_id)
-            addProperty("currency_code", "NGN")
-            addProperty("country_code", "NG")
-            addProperty("business_name", user.business_name)
-            addProperty("merchant_city", "Lagos")
-        }
-        service.getStaticQr(qrRequestBody)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .doFinally { qrBottomSheetDialogBinding.progress.visibility = View.GONE }
-            .subscribe { t1, t2 ->
-                t1?.let {
-                    val bmp = BitmapFactory.decodeStream(it.byteStream())
-                    bmp?.let { bitmap ->
-                        qrBottomSheetDialogBinding.qr.setImageBitmap(bitmap)
-                    }
-                    Timber.e(it.string())
-                }
-                t2?.let {
-                    Toast.makeText(requireContext(), "An error occurred while fetching QR", Toast.LENGTH_SHORT).show()
-                    Timber.e(it)
-                }
-            }.disposeWith(CompositeDisposable())
-
     }
 }

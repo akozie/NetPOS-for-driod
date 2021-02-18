@@ -1,6 +1,7 @@
 package com.netpluspay.netpossdk.emv.param;
 
 import android.os.Bundle;
+import android.util.Log;
 
 import com.netpluspay.netpossdk.utils.TerminalParameters;
 import com.netpluspay.netpossdk.utils.tlv.BerTag;
@@ -30,7 +31,7 @@ public class EmvParam {
         // EMV TAG 9F16 Len 15
         bundle.putByteArray(EmvTermCfgConstraints.MERCHID, terminalParameters.getMerchantId().getBytes());
         // EMV TAG 9F15 Len 4
-        bundle.putByteArray(EmvTermCfgConstraints.MERCHCATECODE, "3900".getBytes());
+        bundle.putByteArray(EmvTermCfgConstraints.MERCHCATECODE, terminalParameters.getMerchantCode().getBytes());
         // EMV TAG 9F4E Len V
         bundle.putByteArray(EmvTermCfgConstraints.MERCHNAME, terminalParameters.getMerchantName().getBytes());
         // EMV TAG 9F1C Len 8
@@ -40,24 +41,24 @@ public class EmvParam {
         // EMV TAG 5F2A Len 4
         bundle.putByteArray(EmvTermCfgConstraints.TRANSCURRCODE, terminalParameters.getTerminalCurrencyCode().getBytes());
         // EMV TAG 5F36 Len 2
-        bundle.putByteArray(EmvTermCfgConstraints.TRANSCURREXP, "02".getBytes());
+        bundle.putByteArray(EmvTermCfgConstraints.TRANSCURREXP, terminalParameters.getTransCurrExp().getBytes());
         // EMV TAG 9F3C Len 4
-        bundle.putByteArray(EmvTermCfgConstraints.REFERCURRCODE, "0566".getBytes());
+        bundle.putByteArray(EmvTermCfgConstraints.REFERCURRCODE, terminalParameters.getReferCurrCode().getBytes());
         // EMV TAG 9F3D Len 2
-        bundle.putByteArray(EmvTermCfgConstraints.REFERCURREXP, "02".getBytes());
+        bundle.putByteArray(EmvTermCfgConstraints.REFERCURREXP, terminalParameters.getReferCurrExp().getBytes());
 
         // EMV TAG 9F35 Len 2
-        bundle.putByteArray(EmvTermCfgConstraints.TERMINALTYPE, "22".getBytes());
+        bundle.putByteArray(EmvTermCfgConstraints.TERMINALTYPE, terminalParameters.getTerminalType().getBytes());
         // EMV TAG 9F33 Len 6
         //bundle.putByteArray(EmvTermCfgConstraints.TERMINALCAPABILITY, "E0F8C8".getBytes());
-        bundle.putByteArray(EmvTermCfgConstraints.TERMINALCAPABILITY, "E068C8".getBytes());
+        bundle.putByteArray(EmvTermCfgConstraints.TERMINALCAPABILITY, terminalParameters.getTerminalCapability().getBytes());
         // EMV TAG 9F40 Len 10
-        bundle.putByteArray(EmvTermCfgConstraints.TERMINALEXCAPABILITY, "F000F0F001".getBytes());
+        bundle.putByteArray(EmvTermCfgConstraints.TERMINALEXCAPABILITY, terminalParameters.getTerminalExCapability().getBytes());
         // EMV TAG 9F1E Len 8
         bundle.putByteArray(EmvTermCfgConstraints.IFDSERIALNUMBER,
                 POIGeneralAPI.getDefault().getVersion(POIGeneralAPI.VERSION_TYPE_DSN).getBytes());
         // EMV TAG 9F39 Len 2
-        bundle.putByteArray(EmvTermCfgConstraints.TERMINALENTRYMODE, "051".getBytes());
+        bundle.putByteArray(EmvTermCfgConstraints.TERMINALENTRYMODE, terminalParameters.getTerminalEntryMode().getBytes());
 
         // EMV default configuration.
         bundle.putBoolean(EmvTermCfgConstraints.PSE, true);

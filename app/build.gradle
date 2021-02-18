@@ -15,13 +15,13 @@ android {
     buildFeatures.dataBinding = true
     ndkVersion "21.3.6528147"
     defaultConfig {
-        resValue "string", "app_name", "MarketHub Agent"
+        resValue "string", "app_name", "NetPOS"
         vectorDrawables.useSupportLibrary = true
         applicationId "com.woleapp.netpos"
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 17
-        versionName "1.0.14"
+        versionCode 20
+        versionName "1.0.17"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         def environmentPath
         if (appModeProd == "true")
@@ -43,9 +43,11 @@ android {
                 abiFilters "armeabi-v7a", "x86"
             }
             applicationIdSuffix ".debug"
-            resValue "string", "app_name", "NetPOS Debugt"
+            resValue "string", "app_name", "NetPOS Debug"
         }
         release {
+            resValue "string", "app_name", "NetPOS Test"
+            applicationIdSuffix ".release"
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
@@ -69,8 +71,7 @@ dependencies {
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.1'
-    implementation project(':terminalcore')
-    implementation("commons-codec:commons-codec:1.14")
+    implementation("commons-codec:commons-codec:1.15")
     implementation("commons-lang:commons-lang:2.6")
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'androidx.appcompat:appcompat:1.2.0'
@@ -114,6 +115,7 @@ dependencies {
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
     implementation 'com.squareup.retrofit2:adapter-rxjava2:2.9.0'
+    implementation("com.squareup.okhttp3:logging-interceptor:4.9.0")
 
     //easyprefs
     implementation 'com.pixplicity.easyprefs:library:1.9.0'
@@ -136,6 +138,10 @@ dependencies {
 //    //Eclipse MQTT
 //    implementation 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.1.0'
 //    implementation 'org.eclipse.paho:org.eclipse.paho.android.service:1.1.1'
+
+    //glide
+    implementation 'com.github.bumptech.glide:glide:4.11.0'
+    kapt 'com.github.bumptech.glide:compiler:4.11.0'
 
     testImplementation 'junit:junit:4.13.1'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'

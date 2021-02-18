@@ -2,7 +2,7 @@ package com.netpluspay.netpossdk
 
 import android.content.Context
 import android.os.Build
-import androidx.preference.PreferenceManager
+import android.util.Log
 import com.netpluspay.netpossdk.emv.param.EmvParam
 import com.netpluspay.netpossdk.utils.DeviceConfig
 import com.netpluspay.netpossdk.utils.TerminalParameters
@@ -18,106 +18,78 @@ import com.pos.sdk.security.PedKcvInfo
 import com.pos.sdk.security.PedKeyInfo
 
 object NetPosSdk {
-    private const val HAS_LOADED_PARAMS = "has_loaded_params"
-    private lateinit var printerManager: POIPrinterManage
-    private lateinit var context: Context
 
     @JvmStatic
-    fun init(context: Context) {
-        this.context = context
+    fun init() {
         initTerminalConfiguration()
-        val poiGeneralAPI = POIGeneralAPI.getDefault()
-        poiGeneralAPI.apply {
-//            Log.e("TAG", "HW: ${getVersion(POIGeneralAPI.VERSION_TYPE_HW)}")
-//            Log.e("TAG", "AP: ${getVersion(POIGeneralAPI.VERSION_TYPE_AP)}")
-//            Log.e("TAG", "DSN: ${getVersion(POIGeneralAPI.VERSION_TYPE_DSN)}")
-//            Log.e("TAG", "SP: ${getVersion(POIGeneralAPI.VERSION_TYPE_SP)}")
-
-        }
-        printerManager = POIPrinterManage.getDefault(context)
-        if (!PreferenceManager.getDefaultSharedPreferences(context)
-                .getBoolean(HAS_LOADED_PARAMS, false)
-        )
-            loadEmvParams(context)
     }
-    
+
     @JvmStatic
-    fun getDeviceSerial(): String = POIGeneralAPI.getDefault().getVersion(POIGeneralAPI.VERSION_TYPE_DSN)
+    fun getDeviceSerial(): String = try{
+        POIGeneralAPI.getDefault().getVersion(POIGeneralAPI.VERSION_TYPE_DSN)
+    }catch (e: Exception){
+        e.printStackTrace()
+        "B1791E1XL8U80026"
+    }
 
     @JvmStatic
     private fun initTerminalConfiguration() {
-//        Log.e("TAG", "Model ${Build.MODEL}")
-//        Log.e("TAG", "Manufacturer ${Build.MANUFACTURER}")
-//        Log.e("TAG", "Brand ${Build.BRAND}")
-        if (Build.MODEL == "P3")
-            DeviceConfig.InitDevice(DeviceConfig.DEVICE_P3)
+        if (Build.MODEL == "PRO" || Build.MODEL == "P3")
+            DeviceConfig.InitDevice(DeviceConfig.DEVICE_PRO)
         else
-            DeviceConfig.InitDevice(DeviceConfig.DEVICE_P4)
-//        if (Build.MODEL.endsWith("Z-600")) {
-//            DeviceConfig.InitDevice(DeviceConfig.DEVICE_P4)
-//        } else {
-//            DeviceConfig.InitDevice(DeviceConfig.DEVICE_P3)
-//        }
+            DeviceConfig.InitDevice(DeviceConfig.DEVICE_MINI)
     }
 
-    @JvmStatic
-    internal fun getContext() = context
 
     @JvmStatic
-    fun getPrinterManager(): POIPrinterManage {
-        if (::printerManager.isInitialized.not())
-            throw NullPointerException(
-                "NetposSdk has not been initialized, you must call " +
-                        "NetposSdk.init(context) first, this call needs to be made just once."
-            )
-        return printerManager
-    }
+    fun getPrinterManager(context: Context): POIPrinterManage = POIPrinterManage.getDefault(context)
 
     @JvmStatic
-    private fun loadEmvParams(context: Context) {
-        EmvParam.loadTerminalParam(TerminalParameters())
+    fun loadEmvParams(terminalParameters: TerminalParameters = TerminalParameters()) {
+        EmvParam.loadTerminalParam(terminalParameters)
         EmvParam.loadVisaParam()
         EmvParam.loadMasterCardParam()
-        //EmvParam.loadAmexParam()
-        //EmvParam.loadDiscoverParam()
-        //EmvParam.loadQuicsParam()
         EmvParam.loadVisaDrl()
-        //EmvParam.loadAemxDrl()
-        // EmvParam.loadRuPayService()
-        EmvParam.loadAddAids()
-        EmvParam.loadAddCapks()
-        PreferenceManager.getDefaultSharedPreferences(context)
-            .edit().putBoolean(HAS_LOADED_PARAMS, true).apply()
     }
 
     @JvmStatic
-    fun loadProvidedCapksAndAids(){
+    fun loadProvidedCapksAndAids() {
         EmvParam.loadAddAids()
         EmvParam.loadAddCapks()
     }
 
     @JvmStatic
-    fun loadAids(aidList: List<PosEmvAid>){
+    fun loadAids(aidList: List<PosEmvAid>) {
         val mEmvCoreManage = POIEmvCoreManager.getDefault()
         aidList.forEach {
-            mEmvCoreManage.EmvAddAid(it)
+            Log.e("TAG", mEmvCoreManage.EmvAddAid(it).toString())
         }
     }
 
     @JvmStatic
-    fun clearAids(){
+    fun getAids(): MutableList<PosEmvAid>? {
+        return POIEmvCoreManager.getDefault().EmvGetAllAid()
+    }
+
+    @JvmStatic
+    fun getCapks(): MutableList<PosEmvCapk>? {
+        return POIEmvCoreManager.getDefault().EmvGetAllCapk()
+    }
+
+    @JvmStatic
+    fun clearAids() {
         val mEmvCoreManage = POIEmvCoreManager.getDefault()
         mEmvCoreManage.EmvDelAllAid()
     }
 
     @JvmStatic
-    fun clearCapks(){
+    fun clearCapks() {
         val mEmvCoreManage = POIEmvCoreManager.getDefault()
         mEmvCoreManage.EmvDelAllCapk()
     }
 
     @JvmStatic
-    fun loadCapks(capkLisk: List<PosEmvCapk>){
+    fun loadCapks(capkLisk: List<PosEmvCapk>) {
         val mEmvCoreManager = POIEmvCoreManager.getDefault()
         capkLisk.forEach {
             mEmvCoreManager.EmvAddCapk(it)
@@ -125,16 +97,20 @@ object NetPosSdk {
     }
 
     @JvmStatic
-    fun writeTpkKey(keyIndex: Int, keyData: String): Int {
+    fun writeTpkKey(keyIndex: Int, keyData: String): Int = try {
         val pedKeyInfo = PedKeyInfo(
             0, 0, POIHsmManage.PED_TPK, keyIndex, 0, 16,
             HexUtil.parseHex(keyData)
         )
-        return POIHsmManage.getDefault().PedWriteKey(pedKeyInfo, PedKcvInfo(0, ByteArray(5)))
+        POIHsmManage.getDefault().PedWriteKey(pedKeyInfo, PedKcvInfo(0, ByteArray(5)))
+    } catch (exception: Exception) {
+        exception.printStackTrace()
+        -1
     }
 
+
     @JvmStatic
-    fun writeTpkKey(keyIndex: Int, encryptedKeyData: String, masterKey: String){
+    fun writeTpkKey(keyIndex: Int, encryptedKeyData: String, masterKey: String) =
         writeTpkKey(keyIndex, keyData = TripleDES.decrypt(encryptedKeyData, masterKey))
-    }
+
 }

@@ -1,5 +1,7 @@
 package com.woleapp.netpos.model
 
+import com.google.gson.annotations.SerializedName
+
 enum class MqttEvents(val event: String?) {
     AUTHENTICATION("AUTHENTICATION"),
     TERMINAL_CONFIGURATION("TERMINAL_CONFIGURATION"),
@@ -18,13 +20,13 @@ enum class MqttTopics(val topic: String) {
     AUTHENTICATION("mqtt.pos.authentication.event"),
     TERMINAL_CONFIGURATION("mqtt.pos.terminal_config.event"),
     TRANSACTIONS("mqtt.pos.transaction.event"),
-    PRINTING_RECEIPT("mqtt.pos.printing.event"),
+    PRINTING_RECEIPT("mqtt.pos.device.event"),
     NIP_PULL("mqtt.pos.bank_transfer.event"),
     NIP_NEW("mqtt.pos.generate_session_code.event"),
     NIP_SEARCH("mqtt.pos.verify_session_code.event"),
-    CARD_READER_EVENTS("mqtt.pos.card.event"),
-    POWER_EVENTS("mqtt.pos.power.event"),
-    BATTERY_EVENTS("mqtt.pos.battery.event"),
+    CARD_READER_EVENTS("mqtt.pos.device.event"),
+    POWER_EVENTS("mqtt.pos.device.event"),
+    BATTERY_EVENTS("mqtt.pos.device.event"),
     SMS_EVENTS("mqtt.pos.sms.event")
 }
 
@@ -33,11 +35,12 @@ enum class MqttStatus(val code: String) {
     ERROR("01")
 }
 
+
 data class MqttEvent(
     val storm_id: String,
     val business_name: String,
     var terminalId: String,
-    val deviceSerial: String,
+    @SerializedName("serial_number") val deviceSerial: String,
     var data: Any? = null,
     var event: String? = null,
     var status: String? = null,
@@ -50,7 +53,7 @@ data class MqttEvent(
 data class AuthenticationEventData(
     val business_name: String,
     val storm_id: String,
-    val deviceSerial: String
+    @SerializedName("serial_number")val deviceSerial: String
 )
 
 data class PrinterEventData(val transactionRef: String, val printerCode: String)

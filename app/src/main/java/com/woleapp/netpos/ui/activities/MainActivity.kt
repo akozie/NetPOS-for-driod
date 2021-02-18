@@ -26,6 +26,7 @@ import com.woleapp.netpos.R
 import com.woleapp.netpos.databinding.ActivityMainBinding
 import com.woleapp.netpos.model.User
 import com.woleapp.netpos.mqtt.MqttHelper
+import com.woleapp.netpos.network.StormApiClient
 import com.woleapp.netpos.nibss.CONFIGURATION_STATUS
 import com.woleapp.netpos.nibss.NetPosTerminalConfig
 import com.woleapp.netpos.receivers.BatteryReceiver
@@ -93,12 +94,12 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
             )
             1 -> {
                 dismissProgressDialogIfShowing()
-                NetPosTerminalConfig.getKeyHolder()?.let {
-                    NetPosSdk.writeTpkKey(
-                        DeviceConfig.TPKIndex,
-                        it.clearPinKey
-                    )
-                }
+//                NetPosTerminalConfig.getKeyHolder()?.let {
+//                    NetPosSdk.writeTpkKey(
+//                        DeviceConfig.TPKIndex,
+//                        it.clearPinKey
+//                    )
+//                }
             }
         }
         checkTokenExpiry()
@@ -179,6 +180,8 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
         binding.dashboardHeader.logout.setOnClickListener {
             logout()
         }
+        if (checkBillsPaymentToken().not())
+            getBillsToken(StormApiClient.getInstance())
         showFragment(DashboardFragment(), DashboardFragment::class.java.simpleName)
     }
 

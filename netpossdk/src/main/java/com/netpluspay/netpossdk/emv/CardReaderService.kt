@@ -5,7 +5,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import com.netpluspay.netpossdk.NetPosSdk
+import com.netpluspay.netpossdk.core.AndroidTerminalCardReaderFactory
 import com.netpluspay.netpossdk.emv.data.TransactionData
 import com.netpluspay.netpossdk.utils.DeviceConfig
 import com.netpluspay.netpossdk.utils.GlobalData
@@ -16,7 +16,6 @@ import com.netpluspay.netpossdk.utils.tlv.BerTlvs
 import com.netpluspay.netpossdk.utils.tlv.HexUtil
 import com.netpluspay.netpossdk.view.MaterialDialog
 import com.netpluspay.netpossdk.view.PasswordDialog
-import com.netpluspay.terminalcore.AndroidTerminalCardReaderFactory
 import com.pos.sdk.emvcore.IPosEmvCoreListener
 import com.pos.sdk.emvcore.POIEmvCoreManager
 import com.pos.sdk.emvcore.POIEmvCoreManager.*
@@ -26,7 +25,14 @@ import io.reactivex.Observable
 import io.reactivex.ObservableEmitter
 import java.util.*
 
-class CardReaderService(activity: Activity) :
+class CardReaderService @JvmOverloads constructor(
+    activity: Activity,
+    private val modes: List<Int> = listOf(
+        DEV_ICC,
+        DEV_PICC
+    ),
+    private val timeout: Int = 45
+) :
     AndroidTerminalCardReaderFactory<Observable<CardReaderEvent>>() {
     private val logTag = CardReaderService::class.java.simpleName
     private var transactionData = TransactionData()
@@ -48,8 +54,10 @@ class CardReaderService(activity: Activity) :
                 when (cardMode) {
                     DEV_ICC -> {
                         //tvMessage1.setText("Icc Card Trans")
+                        Log.e("TAG", "ICC Card trans")
                     }
                     DEV_MAG -> {
+                        Log.e("TAG", "Mag Card trans")
                         //tvMessage1.setText("Mag Card Trans")
                     }
                     DEV_PICC -> {
@@ -57,7 +65,8 @@ class CardReaderService(activity: Activity) :
                         //tvMessage1.setText("Picc Card Trans")
                     }
                 }
-                emitter.onNext(CardReaderEvent.CardDetected())
+                if (emitter.isDisposed.not())
+                    emitter.onNext(CardReaderEvent.CardDetected(cardMode))
                 //tvMessage2.setText("Processing")
                 transactionData.cardType = cardType
             } else {
@@ -90,7 +99,7 @@ class CardReaderService(activity: Activity) :
 
         override fun onSelectApplication(appNameList: MutableList<String>, isFirstSelect: Boolean) {
             val appNames: Array<String> = appNameList.toTypedArray()
-            val mDialog = MaterialDialog(NetPosSdk.getContext())
+            val mDialog = MaterialDialog(activity)
             mDialog.showListConfirmChoseDialog(
                 "Select Application", appNames
             ) { position -> emvCoreManager.onSetSelAppResponse(position) }
@@ -130,7 +139,7 @@ class CardReaderService(activity: Activity) :
                         }
 
                         override fun onError(verifyResult: Int, pinTryCntOut: Int) {
-                            emitter.onError(Throwable("Pinpad Error $verifyResult $pinTryCntOut"))
+                            transEnd(verifyResult, "Pinpad Error $verifyResult $pinTryCntOut")
                         }
                     })
                     showDialog()
@@ -216,7 +225,7 @@ class CardReaderService(activity: Activity) :
                     val encryptTlvParser = BerTlvParser()
                     val encryptTlvs = encryptTlvParser.parse(encryptData)
                     for (tlv in encryptTlvs.list) {
-                        Log.e(
+                        Log.d(
                             logTag,
                             "Emv Encrypt Tag :" + tlv.tag.toString() + "    Emv Value :" + tlv.hexValue
                         )
@@ -234,7 +243,7 @@ class CardReaderService(activity: Activity) :
 
                 }
                 else -> {
-                    Log.e(logTag, "EncryptResult :$encryptResult")
+                    Log.d(logTag, "EncryptResult :$encryptResult")
                 }
             }
 
@@ -251,13 +260,13 @@ class CardReaderService(activity: Activity) :
                 )
                 EmvProcessResultConstraints.CVM_NO_CVM -> Log.d(logTag, "Cvm :CVM_NO_CVM")
                 EmvProcessResultConstraints.CVM_SEE_PHONE -> {
-                    emitter.onError(POSException(cvm, "CVM: CVM_NO_CVM"))
+                    transEnd(cvm, "CVM: CVM_NO_CVM")
                     return
                 }
             }
 
             if (result == PosEmvErrCode.EMV_APP_EMPTY) {
-                emitter.onError(POSException(result, "AID Empty"))
+                transEnd(result, "AID Empty")
                 return
             }
 
@@ -274,17 +283,28 @@ class CardReaderService(activity: Activity) :
                     transactionData.transState = PosEmvErrCode.EMV_APPROVED
                 }
             }
-            emitter.onNext(CardReaderEvent.CardRead(CardReadResult(result, transactionData).apply {
-                if (::cardPinBlock.isInitialized.not()) {
-                    emitter.onError(Throwable("Error"))
-                    return
-                }
-                encryptedPinBlock = cardPinBlock
-            }))
-            emitter.onComplete()
+            if (emitter.isDisposed.not()) {
+                emitter.onNext(
+                    CardReaderEvent.CardRead(
+                        CardReadResult(
+                            result,
+                            transactionData
+                        ).apply {
+                            if (::cardPinBlock.isInitialized.not()) {
+                                transEnd(-1, "Did not request pinblock")
+                                return
+                            }
+                            encryptedPinBlock = cardPinBlock
+                        })
+                )
+                emitter.onComplete()
+                emvCoreManager.stopTransaction()
+            }
         }
 
     }
+
+    fun initiateICCCardPayment() = initiateICCCardPayment(0, 0)
 
     override fun initiateICCCardPayment(
         p0: Long,
@@ -294,8 +314,16 @@ class CardReaderService(activity: Activity) :
             putInt(EmvTransDataConstraints.TRANSTYPE, EMV_GOODS)
             putInt(EmvTransDataConstraints.TRANSAMT, p0.toInt())
             putInt(EmvTransDataConstraints.CASHBACKAMT, p1.toInt())
-            putInt(EmvTransDataConstraints.TRANSMODE, 0 or DEV_ICC or DEV_PICC)
-            putInt(EmvTransDataConstraints.TRANSTIMEOUTMS, 45)
+            putInt(EmvTransDataConstraints.TRANSTIMEOUTMS, timeout)
+            var transMode = 0
+            if (modes.isEmpty()) {
+                Log.e("initiateICCCardPayment", "No mode selected")
+                throw POSException(0, "No CardMode selected")
+            }
+            modes.forEach {
+                transMode = transMode or it
+            }
+            putInt(EmvTransDataConstraints.TRANSMODE, transMode)
         }
         transactionData.apply {
             transType = EMV_GOODS
@@ -305,6 +333,9 @@ class CardReaderService(activity: Activity) :
         }
         return Observable.create {
             emitter = it
+            emitter.setCancellable {
+                emvCoreManager.stopTransaction()
+            }
             scanForCard()
         }
     }

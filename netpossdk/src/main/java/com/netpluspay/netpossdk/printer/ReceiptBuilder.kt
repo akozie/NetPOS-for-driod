@@ -1,12 +1,12 @@
 package com.netpluspay.netpossdk.printer
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.os.Build
 import android.util.Log
-import com.netpluspay.netpossdk.NetPosSdk
 import com.netpluspay.netpossdk.R
-import com.netpluspay.terminalcore.AndroidTerminalReceiptBuilderFactory
+import com.netpluspay.netpossdk.core.AndroidTerminalReceiptBuilderFactory
+import com.netpluspay.netpossdk.utils.DeviceConfig
 import com.pos.sdk.printer.POIPrinterManage
 import com.pos.sdk.printer.models.BitmapPrintLine
 import com.pos.sdk.printer.models.PrintLine
@@ -15,14 +15,14 @@ import io.reactivex.Single
 import java.lang.Exception
 
 
-class ReceiptBuilder :
+class ReceiptBuilder(val context: Context) :
     AndroidTerminalReceiptBuilderFactory<ReceiptBuilder, Single<PrinterResponse>>() {
 
     private val textPrintLine = TextPrintLine().apply {
         type = PrintLine.TEXT
     }
-    private val printerManager = NetPosSdk.getPrinterManager().apply {
-        if (Build.MODEL == "P3") {
+    private val printerManager = POIPrinterManage.getDefault(context).apply {
+        if (DeviceConfig.Device ==  DeviceConfig.DEVICE_PRO) {
             try {
                 setPrintGray(Integer.valueOf("4000"))
                 setLineSpace(Integer.valueOf("1"))
@@ -125,7 +125,7 @@ class ReceiptBuilder :
         bitmapPrintLine.type = PrintLine.BITMAP
         bitmapPrintLine.position = PrintLine.CENTER
         val bitmap: Bitmap =
-            BitmapFactory.decodeResource(NetPosSdk.getContext().resources, R.drawable.ic_netpos_new)
+            BitmapFactory.decodeResource(context.resources, R.drawable.ic_netpos_new)
         bitmapPrintLine.bitmap = Bitmap.createScaledBitmap(bitmap, 180, 120, false)
         printerManager.addPrintLine(bitmapPrintLine)
     }

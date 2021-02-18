@@ -9,4 +9,5 @@
     <color name="colorError">#ffff4b55</color>
     <color name="colorSuccess">#ff00c673</color>
     <color name="colorPartition">#51e6ebf3</color>
+    <color name="gray">#a4a4a4</color>
 </resources>

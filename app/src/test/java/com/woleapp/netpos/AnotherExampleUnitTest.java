@@ -1,5 +1,6 @@
 package com.woleapp.netpos;
 
+import com.danbamitale.epmslib.entities.CardData;
 import com.danbamitale.epmslib.utils.TripleDES;
 import com.woleapp.netpos.util.ExtensionFunctionsKt;
 
@@ -37,9 +38,21 @@ public class AnotherExampleUnitTest {
         long panLong = Long.parseLong(pan, 16);
         long res = pinLong ^ panLong;
         String pinblock = ExtensionFunctionsKt.xorHex(pin, cardNum);
-        System.out.println(ExtensionFunctionsKt.xorHex(pin, cardNum));
+        //System.out.println(ExtensionFunctionsKt.xorHex(pin, cardNum));
         System.out.println(pinblock);
-        System.out.println(TripleDES.encrypt(pinblock, pinKey));
+        //System.out.println(TripleDES.encrypt(pinblock, pinKey));
         assertEquals(4, 2 + 2);
     }
+
+    @Test
+    public void testDecrypt(){
+        String dec = TripleDES.decrypt("B7C60530D82A361516E938B5343D2F774C82B0AF", "B7C60530D82A361516E938B5343D2F774C82B0AF");
+        System.out.println(dec);
+        String pin = TripleDES.decrypt("CB603BBF8DE1EA47", "3005996b41e3ff64e1d9efc42faca953");
+        String pin1 = TripleDES.decrypt("CB603BBF8DE1EA47", "FFFF9876543210000000");
+        System.out.println(pin);
+        System.out.println(pin1);
+        assertEquals(4, 2+2);
+    }
+
 }

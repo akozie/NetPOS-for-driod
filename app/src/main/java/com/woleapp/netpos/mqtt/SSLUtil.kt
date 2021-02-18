@@ -5,6 +5,7 @@ import android.util.Base64
 import com.woleapp.netpos.BuildConfig
 import timber.log.Timber
 import java.io.InputStream
+import java.nio.charset.StandardCharsets
 import java.security.KeyFactory
 import java.security.KeyStore
 import java.security.PrivateKey
@@ -60,6 +61,7 @@ object SSLUtil {
         reader = reader.replace("-----BEGIN RSA PRIVATE KEY-----\n", "")
         reader = reader.replace("-----END RSA PRIVATE KEY-----", "")
         // Base64 decode the data
+        //Timber.e("\n$reader")
         val encoded: ByteArray = Base64.decode(reader, Base64.DEFAULT)
         val keySpec = PKCS8EncodedKeySpec(encoded)
         val kf: KeyFactory = KeyFactory.getInstance("RSA")
