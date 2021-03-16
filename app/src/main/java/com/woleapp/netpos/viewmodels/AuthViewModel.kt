@@ -52,6 +52,7 @@ class AuthViewModel : ViewModel() {
                     }
                 }
                 error?.let {
+                    Timber.e(it)
                     authInProgress.value = false
                     _message.value = Event(it.localizedMessage)
                 }
@@ -110,6 +111,7 @@ class AuthViewModel : ViewModel() {
                     _authDone.value = Event(true)
                 }
                 error?.let {
+                    Timber.e(it)
                     if (it.message.equals("admin", true) || username == "dapo@webmallng.com") {
                         _gotoAdminPage.value = Event(true)
                         return@let

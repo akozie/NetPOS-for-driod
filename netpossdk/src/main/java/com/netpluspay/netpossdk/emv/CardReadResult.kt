@@ -4,12 +4,14 @@ import android.util.Log
 import com.netpluspay.netpossdk.emv.data.EmvCard
 import com.netpluspay.netpossdk.emv.data.TransactionData
 import com.netpluspay.netpossdk.utils.HexDump
+import com.netpluspay.netpossdk.utils.tlv.BerTag
 import com.netpluspay.netpossdk.utils.tlv.BerTlvParser
 import com.netpluspay.netpossdk.utils.tlv.HexUtil
 import org.apache.commons.lang.StringUtils
+import kotlin.Exception
 
 
-class CardReadResult(private val readResultCode: Int, transactionData: TransactionData) {
+class CardReadResult(private val readResultCode: Int, private val transactionData: TransactionData) {
     var originalDeviceSerial: String? = null
         private set
     var applicationPrimaryAccountNumber: String? = null
@@ -22,7 +24,8 @@ class CardReadResult(private val readResultCode: Int, transactionData: Transacti
         private set
     var cryptogram: String? = null
         private set
-    val issuerApplicationData: String? = null
+    var issuerApplicationData: String? = null
+        private set
     var unpredictableNumber: String? = null
         private set
     var applicationTransactionCounter: String? = null
@@ -61,13 +64,27 @@ class CardReadResult(private val readResultCode: Int, transactionData: Transacti
         private set
     var cardScheme: String? = null
         private set
-    val iCCRelateData: String? = null
-    private var authorizationRequest: String? = null
-    private var issuerApplicationDiscretionaryData: String? = null
+    var cryptogramInformationData: String? = null
+        private set
+    var dedicatedFileName: String? = null
+        private set
+    var applicationDiscretionaryData: String? = null
+        private set
     private var formFactorIndicator: String? = null
     private var originalPan: String? = null
     var encryptedPinBlock: String? = null
-    private fun extractValues(transactionData: TransactionData) {
+
+    fun getWithTag(tag: String): String?{
+        return try{
+            val tlvList = BerTlvParser().parse(transactionData.transData)
+            tlvList.find(BerTag(tag)).hexValue
+        }catch (e: Exception){
+            e.printStackTrace()
+            null
+        }
+    }
+
+    private fun extractValues() {
         this.cardScheme = EmvCard(transactionData.transData).type.getName()
         val mTlvParser = BerTlvParser()
         val data = transactionData.transData
@@ -82,7 +99,7 @@ class CardReadResult(private val readResultCode: Int, transactionData: Transacti
                     originalPan = tlv.hexValue
                     applicationPANSequenceNumber = StringUtils.leftPad(tlv.hexValue, 3, '0')
                 }
-                "9F27" -> cryptogram = tlv.hexValue
+                "9F27" -> cryptogramInformationData = tlv.hexValue
                 "9F37" -> unpredictableNumber = tlv.hexValue
                 "9F36" -> applicationTransactionCounter = tlv.hexValue
                 "95" -> terminalVerificationResults = tlv.hexValue
@@ -102,12 +119,14 @@ class CardReadResult(private val readResultCode: Int, transactionData: Transacti
                     deviceSerialNumber =
                         if (tlv.hexValue == "0000000000000000") "4231373931453158" else tlv.hexValue
                 }
-                "84" -> authorizationResponseCode = tlv.hexValue
+                "8A" -> authorizationResponseCode = tlv.hexValue
+                "84" -> dedicatedFileName = tlv.hexValue
                 "9F09" -> applicationVersionNumber = tlv.hexValue
                 "9F41" -> transactionSequenceNumber = tlv.hexValue
-                "9F26" -> authorizationRequest = tlv.hexValue
-                "9F10" -> issuerApplicationDiscretionaryData = tlv.hexValue
+                "9F26" -> cryptogram = tlv.hexValue
+                "9F10" -> issuerApplicationData = tlv.hexValue
                 "9F6E" -> formFactorIndicator = tlv.hexValue
+                "9F05" -> applicationDiscretionaryData = tlv.hexValue
             }
         }
         Log.e("TAG", "Extract values")
@@ -121,18 +140,19 @@ class CardReadResult(private val readResultCode: Int, transactionData: Transacti
         get() {
             val builder = java.lang.StringBuilder()
             builder.append("9F26")
-                .append(HexDump.toHexString(("${authorizationRequest!!.length / 2}").toByte()))
-                .append(
-                    authorizationRequest
-                )
-                .append("9F27").append(HexDump.toHexString(("${cryptogram!!.length / 2}").toByte()))
+                .append(HexDump.toHexString(("${cryptogram!!.length / 2}").toByte()))
                 .append(
                     cryptogram
                 )
-                .append("9F10")
-                .append(HexDump.toHexString(("${issuerApplicationDiscretionaryData!!.length / 2}").toByte()))
+                .append("9F27")
+                .append(HexDump.toHexString(("${cryptogramInformationData!!.length / 2}").toByte()))
                 .append(
-                    issuerApplicationDiscretionaryData
+                    cryptogramInformationData
+                )
+                .append("9F10")
+                .append(HexDump.toHexString(("${issuerApplicationData!!.length / 2}").toByte()))
+                .append(
+                    issuerApplicationData
                 )
                 .append("9F37")
                 .append(HexDump.toHexString(("${unpredictableNumber!!.length / 2}").toByte()))
@@ -197,9 +217,9 @@ class CardReadResult(private val readResultCode: Int, transactionData: Transacti
                     deviceSerialNumber
                 )
                 .append("84")
-                .append(HexDump.toHexString(("${authorizationResponseCode!!.length / 2}").toByte()))
+                .append(HexDump.toHexString(("${dedicatedFileName!!.length / 2}").toByte()))
                 .append(
-                    authorizationResponseCode
+                    dedicatedFileName
                 )
                 .append("9F09")
                 .append(HexDump.toHexString(("${applicationVersionNumber!!.length / 2}").toByte()))
@@ -249,8 +269,8 @@ class CardReadResult(private val readResultCode: Int, transactionData: Transacti
                 ", authorizationResponseCode='" + authorizationResponseCode + '\'' +
                 ", applicationVersionNumber='" + applicationVersionNumber + '\'' +
                 ", transactionSequenceNumber='" + transactionSequenceNumber + '\'' +
-                ", authorizationRequest='" + authorizationRequest + '\'' +
-                ", issuerApplicationDiscretionaryData='" + issuerApplicationDiscretionaryData + '\'' +
+                ", dedicatedFileName='" + dedicatedFileName + '\'' +
+                ", issuerApplicationDiscretionaryData='" + applicationDiscretionaryData + '\'' +
                 ", expirationDate='" + expirationDate + '\'' +
                 '}'
     }
@@ -261,6 +281,6 @@ class CardReadResult(private val readResultCode: Int, transactionData: Transacti
 
     //return cardResultCode == EmvApi.EMV_TRANS_ACCEPT || cardResultCode == EmvApi.EMV_TRANS_QPBOC_ACCEPT;
     init {
-        extractValues(transactionData)
+        extractValues()
     }
 }

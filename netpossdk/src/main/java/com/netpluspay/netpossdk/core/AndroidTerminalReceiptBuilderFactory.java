@@ -1,5 +1,7 @@
 package com.netpluspay.netpossdk.core;
 
+import android.graphics.Bitmap;
+
 /**
  * @param <T> The ReceiptBuilder class which extends this class
  * @param <K> The return value of the final print function
@@ -20,6 +22,7 @@ public abstract class AndroidTerminalReceiptBuilderFactory<T, K> {
     protected String responseCode;
     protected String aid;
     protected String rrn;
+    protected String description;
     protected String appName;
     protected String appVersion;
     protected String receiptCopy;
@@ -30,6 +33,11 @@ public abstract class AndroidTerminalReceiptBuilderFactory<T, K> {
 
     public StringBuilder getBuilder() {
         return builder;
+    }
+
+    public T appendDescription(String description){
+        this.description = description;
+        return getThis();
     }
 
     public T appendTitle(String title) {
@@ -132,7 +140,7 @@ public abstract class AndroidTerminalReceiptBuilderFactory<T, K> {
         return getThis();
     }
 
-    public abstract void appendLogo();
+    public abstract void appendLogo(Bitmap bitmap);
 
     protected void printLine() {
         appendTextEntity("\n");
@@ -157,7 +165,94 @@ public abstract class AndroidTerminalReceiptBuilderFactory<T, K> {
         return getThis();
     }
 
+
     public T build() {
+        if (title != null)
+            appendTextEntity(title);
+
+        if (merchantName != null)
+            appendTextEntity(merchantName);
+
+        if (terminalId != null) {
+            appendTextEntity("TERMINAL ID: " + terminalId);
+            appendTextEntity("\n");
+        }
+
+        if (transactionType != null) {
+            appendTextEntityFontSixteenCenter(transactionType);
+            appendTextEntity("\n");
+        }
+
+        if (stan != null)
+            appendTextEntityBold("STAN: " + stan);
+
+        if (dateTime != null) {
+            appendTextEntity("DATE/TIME: " + dateTime);
+            //appendTextEntity("\n");
+        }
+
+        if (amount != null) {
+            appendTextEntityBold("AMOUNT: " + amount);
+            //appendTextEntity("\n");
+        }
+
+        if (rrn != null) {
+            appendTextEntity("TRANS REF: " + rrn);
+        }
+
+        if (description != null){
+            appendTextEntity("Description:");
+            appendTextEntity(description);
+            appendTextEntity("\n");
+        }
+
+        if (cardScheme != null)
+            appendTextEntity(cardScheme);
+
+        if (cardNumber != null) {
+            appendTextEntity(cardNumber);
+            //appendTextEntity("\n");
+        }
+
+        if (cardHolderName != null) {
+            appendTextEntity(cardHolderName);
+            appendTextEntity("EXPIRY DATE: **/**");
+        }
+
+        if (authorizationCode != null) {
+            appendTextEntity("AUTHORIZATION CODE: " + authorizationCode);
+            appendTextEntity("\n");
+        }
+
+        if (transactionStatus != null) {
+            appendTextEntityFontSixteenCenter(transactionStatus);
+            appendTextEntity("\n");
+        }
+
+        if (responseCode != null)
+            appendTextEntity("RESPONSE CODE: " + responseCode);
+
+        if (aid != null)
+            appendTextEntity("AID: " + aid);
+
+        if (rrn != null)
+            appendTextEntity("RRN: " + rrn);
+
+        if (appName != null && appVersion != null) {
+            appendTextEntity(appName + " " + appVersion);
+            appendTextEntity("\n");
+        }
+
+        if (receiptCopy != null) {
+            appendTextEntity("Powered by NetPlus");
+            appendTextEntityCenter(receiptCopy);
+        }
+        printLine();
+        return getThis();
+    }
+
+
+    public T buildOld() {
         if (title != null)
             appendTextEntity(title);
 
@@ -253,7 +348,7 @@ public abstract class AndroidTerminalReceiptBuilderFactory<T, K> {
 
     public abstract void appendTextEntityCenter(String str);
 
-    public abstract void appendImageCenter();
+    public abstract void appendImageCenter(Bitmap bitmap);
 
     public abstract K print();
 }

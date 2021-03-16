@@ -73,7 +73,7 @@ class TransactionsFragment : BaseFragment() {
         val listOfService = ArrayList<Service>()
             .apply {
                 add(Service(0, "Sales", R.drawable.ic_purchase))
-                add(Service(1, "Refund", R.drawable.ic_loop))
+                //add(Service(1, "Refund", R.drawable.ic_loop))
                 add(Service(2, "PRE AUTHORIZATION", R.drawable.ic_pre_auth))
                 add(Service(3, "Cash Advance", R.drawable.ic_pay_cash_icon))
                 add(Service(4, "QR", R.drawable.ic_qr_code))

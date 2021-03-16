@@ -120,17 +120,17 @@ class ReceiptBuilder(val context: Context) :
             })
         }
 
-    override fun appendImageCenter() {
+    override fun appendImageCenter(bitmap: Bitmap) {
         val bitmapPrintLine = BitmapPrintLine()
         bitmapPrintLine.type = PrintLine.BITMAP
         bitmapPrintLine.position = PrintLine.CENTER
-        val bitmap: Bitmap =
-            BitmapFactory.decodeResource(context.resources, R.drawable.ic_netpos_new)
+//        val bitmap: Bitmap =
+//            BitmapFactory.decodeResource(context.resources, R.drawable.ic_netpos_new)
         bitmapPrintLine.bitmap = Bitmap.createScaledBitmap(bitmap, 180, 120, false)
         printerManager.addPrintLine(bitmapPrintLine)
     }
 
-    override fun appendLogo() {
-        appendImageCenter()
+    override fun appendLogo(bitmap: Bitmap) {
+        appendImageCenter(bitmap)
     }
 }

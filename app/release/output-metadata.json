@@ -4,14 +4,14 @@
     "type": "APK",
     "kind": "Directory"
   },
-  "applicationId": "com.woleapp.netpos.release",
+  "applicationId": "com.woleapp.netpos",
   "variantName": "processReleaseResources",
   "elements": [
     {
       "type": "SINGLE",
       "filters": [],
       "versionCode": 20,
-      "versionName": "1.0.17",
+      "versionName": "1.0.18",
       "outputFile": "app-release.apk"
     }
   ]

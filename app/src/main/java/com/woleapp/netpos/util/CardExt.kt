@@ -1,4 +1,4 @@
-@file:Suppress("DEPRECATION")
+ @file:Suppress("DEPRECATION")
 
 package com.woleapp.netpos.util
 
@@ -125,6 +125,8 @@ fun getCardLiveData(
             when (it) {
                 is CardReaderEvent.CardRead -> {
                     val cardResult: CardReadResult = it.data
+                    Timber.e(cardResult.issuerApplicationData)
+                    Timber.e(cardResult.applicationDiscretionaryData)
 
 //                    Timber.e(cardResult.iccDataString)
 //                    Timber.e(cardResult.nibssIccSubset)
@@ -141,8 +143,8 @@ fun getCardLiveData(
                         }
                     }
                     Timber.e("icc string")
-                    Timber.e(cardResult.iccDataString)
-                    Timber.e(card.toString())
+                    //Timber.e(cardResult.iccDataString)
+                    //Timber.e(card.toString())
                     iccCardHelper = ICCCardHelper(
                         cardReadResult = cardResult,
                         customerName = cardResult.cardHolderName,

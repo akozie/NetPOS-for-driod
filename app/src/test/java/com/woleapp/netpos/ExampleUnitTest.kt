@@ -1,15 +1,14 @@
 package com.woleapp.netpos
 
+import com.danbamitale.epmslib.entities.AccountBalance
+import com.danbamitale.epmslib.entities.CardData
 import com.danbamitale.epmslib.entities.TransactionType
+import com.danbamitale.epmslib.utils.IsoAccountType
 import com.danbamitale.epmslib.utils.TripleDES
-import com.netpluspay.netpossdk.utils.HexDump
 import com.woleapp.netpos.util.getBeginningOfDay
 import com.woleapp.netpos.util.getEndOfDayTimeStamp
-import com.woleapp.netpos.util.playAround
-import org.apache.commons.lang.StringUtils
-import org.junit.Test
-
 import org.junit.Assert.*
+import org.junit.Test
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -30,7 +29,8 @@ class ExampleUnitTest {
         //println("78b4311d3e83a85c924edcc60dddc99d76fde9a21459e879fcd88878a31de8c5" == "78b4311d3e83a85c924edcc60dddc99d76fde9a21459e879fcd88878a31de8c5")
         println(SimpleDateFormat("y-MM-dd HH:mm:ss").format(getBeginningOfDay(1606290839000)))
         println(SimpleDateFormat("y-MM-dd HH:mm:ss").format(getEndOfDayTimeStamp(1606290839000)))
-        val s = "{\"business_name\":\"CamelCase\",\"code\":\"00\",\"data\":{\"AID\":\"\",\"RRN\":\"201216183858\",\"STAN\":\"183858\",\"TSI\":\"\",\"TVR\":\"\",\"accountType\":\"SAVINGS\",\"acquiringInstCode\":\"539941\",\"additionalAmount\":0,\"amount\":200,\"appCryptogram\":\"\",\"authCode\":\"iN2fgd\",\"cardExpiry\":\"2409\",\"cardHolder\":\"\",\"cardLabel\":\"\",\"id\":0,\"localDate\":\"1216\",\"localTime\":\"183858\",\"maskedPan\":\"539941xxxxxx4402\",\"merchantId\":\"2057LA100007032\",\"originalForwardingInstCode\":\"627629\",\"otherAmount\":0,\"otherId\":\"\",\"responseCode\":\"00\",\"responseDE55\":\"910ABCB033ACEA86509A0010\",\"responseMessage\":\"Approved\",\"terminalId\":\"2057H63U\",\"transactionTimeInMillis\":1608140338299,\"transactionType\":\"PURCHASE\",\"transmissionDateTime\":\"1216183858\"},\"deviceSerial\":\"B1791E1XL8080026\",\"event\":\"TRANSACTION\",\"geo\":\"lat:7.390478333333334 long:3.8802483333333337\",\"status\":\"Approved\",\"storm_id\":\"66f05f15-a3f6-4654-9aa9-3eea3a3360e1\",\"terminalId\":\"2057H63U\",\"timestamp\":1608140339954,\"transactionType\":\"PURCHASE\"}"
+        val s =
+            "{\"business_name\":\"CamelCase\",\"code\":\"00\",\"data\":{\"AID\":\"\",\"RRN\":\"201216183858\",\"STAN\":\"183858\",\"TSI\":\"\",\"TVR\":\"\",\"accountType\":\"SAVINGS\",\"acquiringInstCode\":\"539941\",\"additionalAmount\":0,\"amount\":200,\"appCryptogram\":\"\",\"authCode\":\"iN2fgd\",\"cardExpiry\":\"2409\",\"cardHolder\":\"\",\"cardLabel\":\"\",\"id\":0,\"localDate\":\"1216\",\"localTime\":\"183858\",\"maskedPan\":\"539941xxxxxx4402\",\"merchantId\":\"2057LA100007032\",\"originalForwardingInstCode\":\"627629\",\"otherAmount\":0,\"otherId\":\"\",\"responseCode\":\"00\",\"responseDE55\":\"910ABCB033ACEA86509A0010\",\"responseMessage\":\"Approved\",\"terminalId\":\"2057H63U\",\"transactionTimeInMillis\":1608140338299,\"transactionType\":\"PURCHASE\",\"transmissionDateTime\":\"1216183858\"},\"deviceSerial\":\"B1791E1XL8080026\",\"event\":\"TRANSACTION\",\"geo\":\"lat:7.390478333333334 long:3.8802483333333337\",\"status\":\"Approved\",\"storm_id\":\"66f05f15-a3f6-4654-9aa9-3eea3a3360e1\",\"terminalId\":\"2057H63U\",\"timestamp\":1608140339954,\"transactionType\":\"PURCHASE\"}"
         assertEquals(4, 2 + 2)
     }
 
@@ -51,107 +51,50 @@ class ExampleUnitTest {
     }
 
     @Test
-    fun getSampleNibssSubset(){
-        val builder = java.lang.StringBuilder()
-        builder.append("9F26")
-            .append(HexDump.toHexString(("${"B6857B911357BE14".length / 2}").toByte()))
-            .append(
-                "B6857B911357BE14"
+    fun getSampleNibssSubset() {
+        val balance = "0001566C0000001138000002566C000000113800"
+        println(balance.length)
+        parseField54AdditionalAmount(balance).forEach { accountBalance ->
+            println(
+                "account: " + accountBalance.accountType.name + " balance: " + accountBalance.amount / 100 + " amountSign: ${accountBalance.amountSign} currencyCode: ${accountBalance.currencyCode} amountType: ${accountBalance.amountType}"
             )
-            .append("9F27").append(HexDump.toHexString(("${"80".length / 2}").toByte()))
-            .append(
-                "80"
-            )
-            .append("9F10")
-            .append(HexDump.toHexString(("${"0FA501A039F80400000000000000000000000000000000000000000000000000".length / 2}").toByte()))
-            .append(
-                "0FA501A039F80400000000000000000000000000000000000000000000000000"
-            )
-            .append("9F37")
-            .append(HexDump.toHexString(("${"A7CACA48".length / 2}").toByte()))
-            .append(
-                "A7CACA48"
-            )
-            .append("9F36")
-            .append(HexDump.toHexString(("${"0030".length / 2}").toByte()))
-            .append(
-                "0030"
-            )
-            .append("95")
-            .append(HexDump.toHexString(("${"0000008000".length / 2}").toByte()))
-            .append(
-                "0000008000"
-            )
-            .append("9A")
-            .append(HexDump.toHexString(("${"210126".length / 2}").toByte()))
-            .append(
-                "210126"
-            )
-            .append("9C")
-            .append(HexDump.toHexString(("${"00".length / 2}").toByte()))
-            .append(
-                "00"
-            )
-            .append("9F02").append(HexDump.toHexString(("${"000000000200".length / 2}").toByte()))
-            .append("000000000200")
-            .append("5F2A")
-            .append(HexDump.toHexString(("${"0566".length / 2}").toByte()))
-            .append(
-                "0566"
-            )
-            .append("82")
-            .append(HexDump.toHexString(("${"3800".length / 2}").toByte()))
-            .append(
-                "3800"
-            )
-            .append("9F1A")
-            .append(HexDump.toHexString(("${"0566".length / 2}").toByte()))
-            .append(
-                "0566"
-            )
-            .append("9F34")
-            .append(HexDump.toHexString(("${"440302".length / 2}").toByte()))
-            .append(
-                "440302"
-            )
-            .append("9F33")
-            .append(HexDump.toHexString(("${"E0F8C8".length / 2}").toByte()))
-            .append(
-                "E0F8C8"
-            )
-            .append("9F35")
-            .append(HexDump.toHexString(("${"22".length / 2}").toByte()))
-            .append(
-                "22"
-            )
-            .append("9F1E")
-            .append(HexDump.toHexString(("${"B 1 7 9 1 E 1 X".length / 2}").toByte()))
-            .append(
-                "B 1 7 9 1 E 1 X"
-            )
-            .append("84")
-            .append(HexDump.toHexString(("${"A0000000041010".length / 2}").toByte()))
-            .append(
-                "A0000000041010"
-            )
-            .append("9F09")
-            .append(HexDump.toHexString(("${"0002".length / 2}").toByte()))
-            .append(
-                "0002"
-            )
-            .append("9F03")
-            .append(HexDump.toHexString(("${"000000000000".length / 2}").toByte()))
-            .append(
-                "000000000000"
-            )
-            .append("5F34")
-            .append(HexDump.toHexString(("${"01".length / 2}").toByte()))
-            .append(
-                "01"
-            )
-        //.append("91").append(this.issueAuthenticationData);
-        //.append("9F6E").append(this.formFactorIndicator);
-        println(builder.toString())
+        }
+        assertEquals(4, 2 + 2)
+    }
+
+    private fun parseAdditionalAmountString(inputString: String): AccountBalance {
+        if (inputString.length < 20) error("Invalid string")
+
+        val accountType = IsoAccountType.parseIntAccountType(inputString.substring(0, 2).toInt())
+        val amountType = inputString.substring(2, 4);
+        val currencyCode = inputString.substring(4, 7)
+        val amountSign = inputString[7]
+        val amount = inputString.substring(8, 20).toLong()
+
+        return AccountBalance(accountType, amountType, currencyCode, amountSign, amount)
+    }
+
+    fun parseField54AdditionalAmount(inputString: String): List<AccountBalance> {
+        if (inputString.length < 20) return listOf()
+
+        val list = ArrayList<AccountBalance>()
+        var count = 0;
+        do {
+            list.add(parseAdditionalAmountString(inputString.substring(count, count + 20)))
+            count += 20;
+        } while (count + 20 <= inputString.length)
+
+        return list
+    }
+
+    @Test
+    fun check_if_icc_correct() {
+        val cardData =
+            CardData.initCardDataFromTrack("820238009F360200939F2701809F34034103029F1E086D6F726566756E319F100706011203A4B0109F3303E0F8C89F3501229F37045FD9345A9F01063132333435369F03060000000000008104000000C89F02060000000002005F24032311305F25032010205A0848484211638175015F3401019F150230319F160F3030303030303030303030303030309F1A0205669F1C08313233313233313257104848421163817501D2311226180133195F2A0205669F21031541179C01008E1800000000000000004105440502054103440342035E031F029F0D0598409C98009F0E0500100000009F4005FF80F000019F2608A924F203659E06759F0702FF809A032102225F280205669F090200009F4104000000009F0F0598409C98005F201A434F534D494320494E54454C4C4947454E542F504F5320544541950508800000009B02E8009F0607A0000000031010500C5669736120507265706169648407A0000000031010")
+        println(cardData.toString())
+        println(cardData.pan)
+        println()
         assertEquals(4, 2 + 2)
     }
 }
+

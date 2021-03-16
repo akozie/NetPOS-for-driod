@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import com.danbamitale.epmslib.entities.*
 import com.danbamitale.epmslib.processors.TransactionProcessor
 import com.danbamitale.epmslib.utils.IsoAccountType
+import com.danbamitale.epmslib.utils.MessageReasonCode
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.netpluspay.netpossdk.printer.PrinterResponse
@@ -309,16 +310,7 @@ class UtilitiesViewModel : ViewModel() {
     }
 
     private fun reverseTransaction() {
-        val transactionResponse = lastTransactionResponse.value
-        transactionResponse?.let {
-            val originalDataElements = it.toOriginalDataElements()
-            val transactionRequestData = TransactionRequestData(
-                transactionType = TransactionType.REVERSAL,
-                amount = originalDataElements.originalAmount,
-                accountType = isoAccountType ?: IsoAccountType.DEFAULT_UNSPECIFIED,
-                originalDataElements = originalDataElements
-            )
-            processor.processTransaction(context, transactionRequestData, cardData!!)
+        processor.rollback(context, reversalReasonCode = MessageReasonCode.CompletedPartially)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doFinally {
@@ -328,8 +320,9 @@ class UtilitiesViewModel : ViewModel() {
                 }
                 .subscribe { t1, t2 ->
                     t1?.let { response ->
+                        Timber.e(response.toString())
                         lastTransactionResponse.value = response
-                        if (response.responseCode == "00"){
+                        if (response.responseCode == "06"){
                             errorResponse?.message = "Could not process ${payloadMutableLiveData.value?.billType} payment, Transaction Reversed"
                         }else{
                             errorResponse?.message = "Could not process ${payloadMutableLiveData.value?.billType} payment, Transaction could not be auto reversed, contact administrator"
@@ -339,13 +332,13 @@ class UtilitiesViewModel : ViewModel() {
                         errorResponse?.message = "Could not process ${payloadMutableLiveData.value?.billType} payment, Transaction could not be auto reversed, contact administrator"
                     }
                 }.disposeWith(compositeDisposable)
-        }
+
     }
 
     fun makePayment(context: Context, transactionType: TransactionType = TransactionType.PURCHASE) {
         _showProgressMutableLiveData.value = Event(true)
         val requestData =
-            TransactionRequestData(transactionType, 200, 0L, accountType = isoAccountType!!)
+            TransactionRequestData(transactionType, amountLong, 0L, accountType = isoAccountType!!)
         processor.processTransaction(context, requestData, cardData!!)
             .flatMap {
                 if (it.responseCode == "A3") {
@@ -360,8 +353,7 @@ class UtilitiesViewModel : ViewModel() {
                 if (it.responseCode == "00") {
                     payBill()
                 } else {
-                    _message.value
-                    _showProgressMutableLiveData.value = Event(false)
+                    _showProgressMutableLiveData.postValue(Event(false))
                     _result.postValue(Event(ErrorNetworkResponse("Transaction Declined")))
                     printReceipt()
                 }
@@ -390,7 +382,7 @@ class UtilitiesViewModel : ViewModel() {
     }
 
     private fun printReceipt() {
-        _message.value = Event("Printing Receipt")
+        _message.postValue(Event("Printing Receipt"))
         val transactionResponse = lastTransactionResponse.value!!
         val single = if (Build.MODEL == "P3") transactionResponse.print(context, remark) else {
             _showPrintDialog.postValue(

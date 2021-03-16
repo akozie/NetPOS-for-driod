@@ -16,10 +16,13 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.pixplicity.easyprefs.library.Prefs
 import com.woleapp.netpos.databinding.FragmentAdministratorBinding
 import com.woleapp.netpos.nibss.CONFIGURATION_ACTION
 import com.woleapp.netpos.nibss.CONFIGURATION_STATUS
 import com.woleapp.netpos.nibss.NetPosTerminalConfig
+import com.woleapp.netpos.util.PREF_CONFIG_DATA
+import com.woleapp.netpos.util.PREF_KEYHOLDER
 import com.woleapp.netpos.viewmodels.AdministratorViewModel
 
 class AdministratorFragment : Fragment() {
@@ -69,7 +72,11 @@ class AdministratorFragment : Fragment() {
                 dialog.dismiss()
             }
             setNegativeButton("Cancel") { dialog, _ ->
-                Toast.makeText(requireContext(), "Configuration validation cancelled", Toast.LENGTH_LONG)
+                Toast.makeText(
+                    requireContext(),
+                    "Configuration validation cancelled",
+                    Toast.LENGTH_LONG
+                )
                     .show()
                 dialog.dismiss()
             }
@@ -87,9 +94,11 @@ class AdministratorFragment : Fragment() {
         }
         viewModel.saveConfigurationData.observe(viewLifecycleOwner) {
             viewModel.saveConfigurationToPreference()
-            if ((viewModel.useStormTid.value != false).not())
+            if ((viewModel.useStormTid.value != false).not()) {
+                Prefs.remove(PREF_CONFIG_DATA)
+                Prefs.remove(PREF_KEYHOLDER)
                 NetPosTerminalConfig.init(requireContext(), viewModel.configurationData.value)
-            else
+            } else
                 Toast.makeText(requireContext(), "Configuration Saved", Toast.LENGTH_SHORT).show()
         }
     }

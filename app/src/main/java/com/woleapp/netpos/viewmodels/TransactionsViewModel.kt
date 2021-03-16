@@ -114,7 +114,7 @@ class TransactionsViewModel : ViewModel() {
 
 
     fun setAction(action: String?) {
-        _selectedAction.value = action
+        _selectedAction.value = action!!
     }
 
     fun performAction() {

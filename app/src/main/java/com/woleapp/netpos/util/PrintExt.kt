@@ -1,6 +1,7 @@
 package com.woleapp.netpos.util
 
 import android.content.Context
+import android.graphics.BitmapFactory
 import com.danbamitale.epmslib.entities.TransactionResponse
 import com.danbamitale.epmslib.entities.responseMessage
 import com.danbamitale.epmslib.extensions.formatCurrencyAmount
@@ -8,6 +9,7 @@ import com.netpluspay.netpossdk.printer.PrinterResponse
 import com.netpluspay.netpossdk.printer.ReceiptBuilder
 import com.pos.sdk.printer.POIPrinterManage
 import com.woleapp.netpos.BuildConfig
+import com.woleapp.netpos.R
 import com.woleapp.netpos.model.NipNotification
 import io.reactivex.Observable
 import io.reactivex.ObservableEmitter
@@ -111,7 +113,7 @@ fun TransactionResponse.buildReceipt(
     remark: String? = null
 ) =
     ReceiptBuilder(context).also { builder ->
-        builder.appendLogo()
+        builder.appendLogo(BitmapFactory.decodeResource(context.resources, R.drawable.ic_netpos_logo))
         builder.appendAID(AID)
         builder.appendAddress(Singletons.getCurrentlyLoggedInUser()!!.business_name)
         builder.appendAmount(
@@ -156,7 +158,7 @@ fun NipNotification.print(context: Context): Single<PrinterResponse> {
 
 fun NipNotification.buildNipReceipt(context: Context): ReceiptBuilder =
     ReceiptBuilder(context).apply {
-        appendLogo()
+        appendLogo(BitmapFactory.decodeResource(context.resources, R.drawable.ic_netpos_logo))
         appendTextEntityFontSixteenCenter("BANK TRANSFER")
         appendTextEntity("\nBeneficiary Account Number: $beneficiaryAccountNumber")
         appendTextEntity("Source Name: $sourceName")
