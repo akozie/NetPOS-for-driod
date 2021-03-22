@@ -61,3 +61,5 @@ sealed class NetworkResponse
 data class ErrorNetworkResponse(var message: String) : NetworkResponse()
 data class SuccessNetworkResponse(var message: String, var data: PayBillResponse?) :
     NetworkResponse()
+
+data class Vend(val amount: Double)

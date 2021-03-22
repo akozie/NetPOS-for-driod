@@ -3,17 +3,21 @@
 package com.woleapp.netpos.ui.fragments
 
 import android.app.AlertDialog
+import android.app.ProgressDialog
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.fragment.app.viewModels
 import com.danbamitale.epmslib.entities.CardData
 import com.danbamitale.epmslib.entities.TransactionType
 import com.google.android.material.snackbar.Snackbar
+import com.google.gson.JsonObject
+import com.netpluspay.netpossdk.NetPosSdk
 import com.netpluspay.netpossdk.emv.CardReaderEvent
 import com.netpluspay.netpossdk.emv.CardReaderService
 import com.pos.sdk.emvcore.POIEmvCoreManager
@@ -31,14 +35,27 @@ import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import com.pos.sdk.emvcore.POIEmvCoreManager.DEV_ICC
 import com.pos.sdk.emvcore.POIEmvCoreManager.DEV_PICC
+import com.woleapp.netpos.model.Vend
+import com.woleapp.netpos.util.Singletons
+import io.reactivex.Single
+import org.json.JSONObject
+import java.io.BufferedReader
+import java.io.InputStreamReader
+import java.io.PrintWriter
+import java.net.InetSocketAddress
+import java.net.Socket
 
 
 class SalesFragment : BaseFragment() {
     companion object {
-        fun newInstance(transactionType: TransactionType = TransactionType.PURCHASE): SalesFragment =
+        fun newInstance(
+            transactionType: TransactionType = TransactionType.PURCHASE,
+            isVend: Boolean = false
+        ): SalesFragment =
             SalesFragment().apply {
                 arguments = Bundle().apply {
                     putString(TRANSACTION_TYPE, transactionType.name)
+                    putBoolean("IS_VEND", isVend)
                 }
             }
     }
@@ -48,19 +65,23 @@ class SalesFragment : BaseFragment() {
     private lateinit var alertDialog: AlertDialog
     private lateinit var receiptDialogBinding: DialogTransactionResultBinding
     private val compositeDisposable = CompositeDisposable()
+    private var isVend: Boolean = false
+    private lateinit var binding: FragmentSalesBinding
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val binding = FragmentSalesBinding.inflate(inflater, container, false)
+        binding = FragmentSalesBinding.inflate(inflater, container, false)
         transactionType = TransactionType.valueOf(
             arguments?.getString(
                 TRANSACTION_TYPE,
                 TransactionType.PURCHASE.name
             )!!
         )
+        isVend = arguments?.getBoolean("IS_VEND", false) ?: false
+        viewModel.isVend(isVend)
         viewModel.setContext(requireContext())
         receiptDialogBinding = DialogTransactionResultBinding.inflate(inflater, null, false)
             .apply { executePendingBindings() }
@@ -253,6 +274,53 @@ class SalesFragment : BaseFragment() {
                 R.id.container_main
             ), message, Snackbar.LENGTH_LONG
         ).show()
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        if (isVend) {
+            val progressBar = ProgressDialog(context).apply {
+                this.setMessage("Waiting for amount.")
+                show()
+            }
+
+            Single.fromCallable {
+                Socket().run {
+                    connect(InetSocketAddress("192.168.8.101", 4_000), 30_000)
+                    soTimeout = 30_000
+                    val reader = BufferedReader(InputStreamReader(getInputStream()))
+                    val firstData = reader.readLine()
+                    Timber.e(firstData)
+                    val printWriter = PrintWriter(getOutputStream(), true)
+                    val out = JsonObject().apply {
+                        addProperty("serial_number", NetPosSdk.getDeviceSerial())
+                        addProperty("status", "")
+                    }.toString()
+                    printWriter.println(out)
+                    reader.readLine()
+                }
+            }.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doFinally {
+                    progressBar.dismiss()
+                }.flatMap {
+                    Timber.e(it)
+                    Single.just(Singletons.gson.fromJson(it, Vend::class.java))
+                }
+                .subscribe { t1, t2 ->
+                    t1?.let {
+                        Timber.e(it.toString())
+                        Toast.makeText(context, "received", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, it.amount.toString(), Toast.LENGTH_LONG).show()
+                        binding.priceTextbox.setText(it.amount.toLong().toString())
+
+                    }
+                    t2?.let {
+                        Toast.makeText(context, it.localizedMessage, Toast.LENGTH_SHORT).show()
+                        Timber.e(it)
+                    }
+                }.disposeWith(compositeDisposable)
+        }
     }
 
     override fun onDestroy() {

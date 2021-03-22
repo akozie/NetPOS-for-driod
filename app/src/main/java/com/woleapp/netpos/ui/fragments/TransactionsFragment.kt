@@ -53,6 +53,7 @@ class TransactionsFragment : BaseFragment() {
                     QRFragment()
                 }
                 5 -> ReprintFragment()
+                6 -> SalesFragment.newInstance(isVend = true)
                 else -> SalesFragment.newInstance(TransactionType.CASH_ADVANCE)
             }
             nextFrag?.let { fragment ->
@@ -78,6 +79,7 @@ class TransactionsFragment : BaseFragment() {
                 add(Service(3, "Cash Advance", R.drawable.ic_pay_cash_icon))
                 add(Service(4, "QR", R.drawable.ic_qr_code))
                 add(Service(5, "Reprint", R.drawable.ic_print))
+                add(Service(6, "VEND", R.drawable.ic_vend))
             }
         adapter.submitList(listOfService)
     }

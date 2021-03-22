@@ -125,8 +125,6 @@ fun getCardLiveData(
             when (it) {
                 is CardReaderEvent.CardRead -> {
                     val cardResult: CardReadResult = it.data
-                    Timber.e(cardResult.issuerApplicationData)
-                    Timber.e(cardResult.applicationDiscretionaryData)
 
 //                    Timber.e(cardResult.iccDataString)
 //                    Timber.e(cardResult.nibssIccSubset)
@@ -142,7 +140,7 @@ fun getCardLiveData(
                             pinBlock = cardResult.encryptedPinBlock
                         }
                     }
-                    Timber.e("icc string")
+                    Timber.e(card.toString())
                     //Timber.e(cardResult.iccDataString)
                     //Timber.e(card.toString())
                     iccCardHelper = ICCCardHelper(

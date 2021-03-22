@@ -2,6 +2,7 @@ package com.woleapp.netpos.viewmodels
 
 import android.content.Context
 import android.os.Build
+import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -30,9 +31,15 @@ import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.HttpException
 import timber.log.Timber
+import java.io.BufferedReader
+import java.io.InputStreamReader
+import java.io.PrintWriter
+import java.net.InetSocketAddress
+import java.net.Socket
 
 
 class SalesViewModel : ViewModel() {
+    private var isVend: Boolean = false
     var cardData: CardData? = null
     private val compositeDisposable: CompositeDisposable by lazy { CompositeDisposable() }
     val transactionState = MutableLiveData(STATE_PAYMENT_STAND_BY)
@@ -129,6 +136,14 @@ class SalesViewModel : ViewModel() {
                     Prefs.remove(PREF_CONFIG_DATA)
                     Prefs.remove(PREF_KEYHOLDER)
                     _shouldRefreshNibssKeys.postValue(Event(true))
+                }
+                if (isVend){
+                    val j = JsonObject().apply {
+                        addProperty("amount", it.amount)
+                        addProperty("responseCode", it.responseCode)
+                        addProperty("serial_number", NetPosSdk.getDeviceSerial())
+                    }
+                    sendVendResponse(j.toString())
                 }
                 event.apply {
                     this.event = MqttEvents.TRANSACTIONS.event
@@ -273,5 +288,36 @@ class SalesViewModel : ViewModel() {
 
     fun setContext(context: Context){
         this.context = context
+    }
+
+    fun isVend(vend: Boolean) {
+        isVend = vend
+    }
+
+    private fun sendVendResponse(out: String){
+        Single.fromCallable {
+            Socket().run {
+                connect(InetSocketAddress("192.168.8.101", 4000))
+                val reader = BufferedReader(InputStreamReader(getInputStream()))
+                Timber.e(reader.readLine())
+                val printWriter = PrintWriter(getOutputStream(), true)
+                printWriter.println(out)
+                reader.readLine()
+            }
+        }.subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .doFinally {
+
+            }
+            .subscribe { t1, t2 ->
+                t1?.let {
+                    Timber.e(it)
+                    //Toast.makeText(context, "received", Toast.LENGTH_SHORT).show()
+                }
+                t2?.let {
+                    Toast.makeText(context, it.localizedMessage, Toast.LENGTH_SHORT).show()
+                    Timber.e(it)
+                }
+            }.disposeWith(compositeDisposable)
     }
 }

@@ -5,6 +5,7 @@ import com.danbamitale.epmslib.entities.CardData
 import com.danbamitale.epmslib.entities.TransactionType
 import com.danbamitale.epmslib.utils.IsoAccountType
 import com.danbamitale.epmslib.utils.TripleDES
+import com.google.gson.Gson
 import com.woleapp.netpos.util.getBeginningOfDay
 import com.woleapp.netpos.util.getEndOfDayTimeStamp
 import org.junit.Assert.*
@@ -38,8 +39,17 @@ class ExampleUnitTest {
     fun testTypeConverterFunction() {
         val sampleType = TransactionType.PURCHASE
         val sampleName = sampleType.name
-        println(sampleName)
-        println(TransactionType.valueOf(sampleName).name)
+//        println(sampleName)
+//        println(TransactionType.valueOf(sampleName).name)
+
+        println("" +
+                "{\"keyHolder\":{\"id\":1,\"masterKey\":\"5EA6CD6D32ADCF489D7FFF865F6CA6B3\",\"baseKey\":\"5EA6CD6D32ADCF489D7FFF865F6CA6B3\",\"posMode\":\"POSVAS\",\"sessionKey\":\"1F47BA2243D5B43A3A7F32B0CCF6B4C1\",\"pinKey\":\"FC29C6B601E597C1D6B071903AAF6066\",\"track2Key\":\"\",\"bdk\":\"\"},\"configData\":{\"id\":1,\"epmsDateTime\":\"20210228141827\",\"cardAcceptorIdCode\":\"2044LA310921764\",\"hostTimeOut\":\"60\",\"currencyCode\":\"566\",\"countryCode\":\"566\",\"callHomeTime\":\"01\",\"merchantNameLocation\":\"COSMIC INTELLIGENT L   OG           OGNG\",\"merchantCategoryCode\":\"6010\"}}".length)
+
+        println(
+            Gson().toJson(CardData("5061840800158084537D2111601016422918", "subset", "000", "051").apply {
+                pinBlock = "a2abcdef93901"
+            })
+        )
         assertEquals(4, 2 + 2)
     }
 
