@@ -71,3 +71,9 @@ object Singletons {
 
 
 }
+
+var TransactionResponse.additionalAmount: Long?
+    get() = 0
+    set(value) {
+
+    }

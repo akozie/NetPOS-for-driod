@@ -286,7 +286,7 @@ class SalesFragment : BaseFragment() {
 
             Single.fromCallable {
                 Socket().run {
-                    connect(InetSocketAddress("192.168.8.101", 4_000), 30_000)
+                    connect(InetSocketAddress("192.168.8.104", 4_000), 30_000)
                     soTimeout = 30_000
                     val reader = BufferedReader(InputStreamReader(getInputStream()))
                     val firstData = reader.readLine()

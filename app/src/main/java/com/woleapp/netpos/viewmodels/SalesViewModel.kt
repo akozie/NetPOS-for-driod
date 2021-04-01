@@ -297,7 +297,7 @@ class SalesViewModel : ViewModel() {
     private fun sendVendResponse(out: String){
         Single.fromCallable {
             Socket().run {
-                connect(InetSocketAddress("192.168.8.101", 4000))
+                connect(InetSocketAddress("192.168.8.104", 4000))
                 val reader = BufferedReader(InputStreamReader(getInputStream()))
                 Timber.e(reader.readLine())
                 val printWriter = PrintWriter(getOutputStream(), true)
