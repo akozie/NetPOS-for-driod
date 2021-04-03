@@ -1,8 +1,8 @@
 package com.woleapp.netpos.util
 
 import androidx.room.TypeConverter
-import com.danbamitale.epmslib.entities.TransactionType
-import com.danbamitale.epmslib.utils.IsoAccountType
+import com.netpluspay.nibssclient.models.IsoAccountType
+import com.netpluspay.nibssclient.models.TransactionType
 
 class RoomTypeConverters {
     companion object {

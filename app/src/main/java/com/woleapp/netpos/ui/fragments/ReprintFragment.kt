@@ -6,8 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.recyclerview.widget.GridLayoutManager
-import com.danbamitale.epmslib.entities.clearSessionKey
-import com.danbamitale.epmslib.processors.TerminalConfigurator
+
 import com.netpluspay.netpossdk.NetPosSdk
 import com.pos.sdk.emvcore.PosEmvCapk
 import com.woleapp.netpos.R
@@ -16,9 +15,6 @@ import com.woleapp.netpos.databinding.FragmentReprintBinding
 import com.woleapp.netpos.model.Service
 import com.woleapp.netpos.nibss.NetPosTerminalConfig
 import com.woleapp.netpos.util.HISTORY_ACTION_REPRINT
-import com.woleapp.netpos.util.disposeWith
-import com.woleapp.netpos.util.toPosEmvAid
-import com.woleapp.netpos.util.toPosEmvCa
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -53,43 +49,6 @@ class ReprintFragment : BaseFragment() {
     private fun getThem() {
         Timber.e(NetPosSdk.getAids()?.size.toString())
         Timber.e(NetPosSdk.getCapks()?.size.toString())
-    }
-
-    private fun loadCapk(){
-        val configurator = TerminalConfigurator(NetPosTerminalConfig.getConnectionData())
-        configurator.downloadNibssCAPK(requireContext(), NetPosTerminalConfig.getTerminalId(), NetPosTerminalConfig.getKeyHolder()!!.clearSessionKey,"1234567890")
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { t1, t2 ->
-                t2?.let {
-                    Toast.makeText(requireContext(), it.localizedMessage, Toast.LENGTH_SHORT).show()
-                }
-                t1?.let {
-                    val newList: List<PosEmvCapk> = it.map { nibssCa ->
-                        nibssCa.toPosEmvCa()
-                    }
-                    Toast.makeText(requireContext(), "Loading ${newList.size} capks", Toast.LENGTH_SHORT).show()
-                    NetPosSdk.loadCapks(newList)
-                }
-            }.disposeWith(CompositeDisposable())
-    }
-
-
-    private fun printAllDialog() {
-        val configurator = TerminalConfigurator(NetPosTerminalConfig.getConnectionData())
-        configurator.nibssEOD(requireContext(), NetPosTerminalConfig.getTerminalId(), NetPosTerminalConfig.getKeyHolder()!!.clearSessionKey, "1234567890")
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { t1, t2 ->
-                t2?.let {
-                    Timber.e(it)
-                    Toast.makeText(requireContext(), "Error ${it.localizedMessage}",Toast.LENGTH_SHORT).show()
-                }
-                t1?.let {
-                    Timber.e(it)
-                    Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show()
-                }
-            }.disposeWith(CompositeDisposable())
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

@@ -4,14 +4,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
-import com.danbamitale.epmslib.entities.TransactionType
 import com.woleapp.netpos.R
 import com.woleapp.netpos.adapter.ServiceAdapter
 import com.woleapp.netpos.databinding.FragmentTransactionsBinding
 import com.woleapp.netpos.model.Service
-import com.woleapp.netpos.util.HISTORY_ACTION_REFUND
 
 class BillsFragment : BaseFragment() {
 

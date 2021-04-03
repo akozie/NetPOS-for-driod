@@ -3,26 +3,22 @@ package com.woleapp.netpos.viewmodels
 import android.content.Context
 import android.os.Build
 import androidx.lifecycle.*
-import com.danbamitale.epmslib.entities.*
-import com.danbamitale.epmslib.processors.TransactionProcessor
-import com.danbamitale.epmslib.utils.IsoAccountType
 import com.google.gson.JsonObject
 import com.netpluspay.netpossdk.NetPosSdk
 import com.netpluspay.netpossdk.printer.PrinterResponse
+import com.netpluspay.nibssclient.models.*
+import com.netpluspay.nibssclient.service.NibssApiWrapper
 import com.pixplicity.easyprefs.library.Prefs
 import com.woleapp.netpos.database.AppDatabase
 import com.woleapp.netpos.model.*
 import com.woleapp.netpos.mqtt.MqttHelper
 import com.woleapp.netpos.network.StormApiClient
-import com.woleapp.netpos.nibss.NetPosTerminalConfig
-import com.woleapp.netpos.nibss.NetPosTerminalConfig.Companion.getConnectionData
 import com.woleapp.netpos.nibss.NetPosTerminalConfig.Companion.getTerminalId
 import com.woleapp.netpos.util.*
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -135,27 +131,9 @@ class TransactionsViewModel : ViewModel() {
     }
 
     private fun refundTransaction(transactionResponse: TransactionResponse, context: Context) {
-        val originalDataElements = transactionResponse.toOriginalDataElements()
-
-        val hostConfig = HostConfig(
-            getTerminalId(),
-            getConnectionData(),
-            NetPosTerminalConfig.getKeyHolder()!!,
-            NetPosTerminalConfig.getConfigData()!!
-        )
-
-        val requestData = TransactionRequestData(
-            transactionType = TransactionType.REVERSAL,
-            amount = originalDataElements.originalAmount,
-            originalDataElements = originalDataElements,
-            accountType = accountType
-        )
+        val refundTransactionParams = RefundTransactionParams(cardData!!, transactionResponse, accountType, MessageReasonCode.CompletedPartially)
         inProgress.value = true
-        TransactionProcessor(hostConfig).processTransaction(
-            context,
-            requestData,
-            cardData!!
-        ).flatMap {
+        NibssApiWrapper.refundTransaction(context, refundTransactionParams).flatMap {
             if (it.responseCode == "A3")
                 _shouldRefreshNibssKeys.postValue(Event(true))
             _message.postValue(Event("Transaction: ${it.responseMessage}"))
@@ -183,7 +161,7 @@ class TransactionsViewModel : ViewModel() {
             .subscribe { response, error ->
                 error?.let {
                     inProgress.value = false
-                    _message.value = Event(it.localizedMessage)
+                    _message.value = Event(it.localizedMessage ?: "Error")
                     Timber.e(it)
                     it.printStackTrace()
                 }
@@ -216,9 +194,9 @@ class TransactionsViewModel : ViewModel() {
                 inProgress.value = false
 
                 t2?.let {
-                    _showPrinterError.value = Event(it.localizedMessage)
+                    _showPrinterError.value = Event(it.localizedMessage ?: "Error")
                     Timber.e(it)
-                    _message.value = Event(it.localizedMessage)
+                    _message.value = Event(it.localizedMessage ?: "Error")
                 }
             }.disposeWith(compositeDisposable)
     }
@@ -245,24 +223,13 @@ class TransactionsViewModel : ViewModel() {
     fun doSaleCompletion(context: Context) {
         val transactionResponse = lastTransactionResponse.value!!
         val originalDataElements = transactionResponse.toOriginalDataElements()
-        val hostConfig = HostConfig(
-            getTerminalId(),
-            getConnectionData(),
-            NetPosTerminalConfig.getKeyHolder()!!,
-            NetPosTerminalConfig.getConfigData()!!
-        )
 
-        val requestData = TransactionRequestData(
-            transactionType = TransactionType.PRE_AUTHORIZATION_COMPLETION,
-            amount = originalDataElements.originalAmount,
-            originalDataElements = originalDataElements
-        )
+        val makePaymentParams = MakePaymentParams(amount = originalDataElements.originalAmount, transactionType = TransactionType.PRE_AUTHORIZATION_COMPLETION).apply {
+            this.originalDataElements = originalDataElements
+        }
 
         _showProgressDialog.value = Event(true)
-        TransactionProcessor(hostConfig).processTransaction(
-            context, requestData,
-            cardData!!
-        ).flatMap {
+        NibssApiWrapper.completion(context, makePaymentParams).flatMap {
             if (it.responseCode == "A3")
                 _shouldRefreshNibssKeys.postValue(Event(true))
             _showProgressDialog.postValue(Event(false))
@@ -289,7 +256,7 @@ class TransactionsViewModel : ViewModel() {
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe { response, error ->
                 error?.let {
-                    _message.value = Event(it.localizedMessage)
+                    _message.value = Event(it.localizedMessage ?: "Error")
                     Timber.e(it)
                     it.printStackTrace()
                 }
@@ -302,22 +269,9 @@ class TransactionsViewModel : ViewModel() {
 
     fun preAuthRefund(context: Context) {
         val transactionResponse = lastTransactionResponse.value!!
-        val originalDataElements = transactionResponse.toOriginalDataElements()
-
-        val hostConfig = HostConfig(
-            getTerminalId(),
-            getConnectionData(),
-            NetPosTerminalConfig.getKeyHolder()!!,
-            NetPosTerminalConfig.getConfigData()!!
-        )
-
-        val requestData = TransactionRequestData(
-            transactionType = TransactionType.REFUND,
-            amount = originalDataElements.originalAmount,
-            originalDataElements = originalDataElements
-        )
+        val refundTransactionParams = RefundTransactionParams(cardData!!, transactionResponse, accountType)
         _showProgressDialog.value = Event(true)
-        TransactionProcessor(hostConfig).processTransaction(context, requestData, cardData!!)
+        NibssApiWrapper.refundTransaction(context, refundTransactionParams)
             .flatMap {
                 if (it.responseCode == "A3")
                     _shouldRefreshNibssKeys.postValue(Event(true))
@@ -345,7 +299,7 @@ class TransactionsViewModel : ViewModel() {
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe { response, error ->
                 error?.let {
-                    _message.value = Event(it.localizedMessage)
+                    _message.value = Event(it.localizedMessage ?: "Error")
                     Timber.e(it)
                     it.printStackTrace()
                 }

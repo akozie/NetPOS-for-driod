@@ -1,33 +1,20 @@
 package com.woleapp.netpos.ui.fragments
 
 import android.app.AlertDialog
-import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
-import com.danbamitale.epmslib.entities.TransactionType
-import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.google.gson.JsonObject
+import com.netpluspay.nibssclient.models.TransactionType
 import com.woleapp.netpos.R
 import com.woleapp.netpos.adapter.ServiceAdapter
 import com.woleapp.netpos.databinding.FragmentTransactionsBinding
 import com.woleapp.netpos.databinding.LayoutPreauthDialogBinding
-import com.woleapp.netpos.databinding.QrBottomSheetDialogBinding
 import com.woleapp.netpos.model.Service
-import com.woleapp.netpos.network.StormApiClient
 import com.woleapp.netpos.util.HISTORY_ACTION_PREAUTH
 import com.woleapp.netpos.util.HISTORY_ACTION_REFUND
-import com.woleapp.netpos.util.Singletons
-import com.woleapp.netpos.util.disposeWith
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
-import kotlinx.android.synthetic.main.qr_bottom_sheet_dialog.*
-import timber.log.Timber
 
 class TransactionsFragment : BaseFragment() {
 

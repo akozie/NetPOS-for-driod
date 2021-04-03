@@ -12,12 +12,11 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.GridLayoutManager
-import com.danbamitale.epmslib.entities.*
-import com.danbamitale.epmslib.extensions.formatCurrencyAmount
-import com.danbamitale.epmslib.processors.TransactionProcessor
-import com.danbamitale.epmslib.utils.IsoAccountType
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.netpluspay.netpossdk.NetPosSdk
+import com.netpluspay.nibssclient.models.*
+import com.netpluspay.nibssclient.service.NibssApiWrapper
+import com.netpluspay.nibssclient.util.formatCurrencyAmount
 import com.pixplicity.easyprefs.library.Prefs
 import com.woleapp.netpos.R
 import com.woleapp.netpos.adapter.ServiceAdapter
@@ -89,24 +88,10 @@ class DashboardFragment : BaseFragment() {
         cardData: CardData,
         accountType: IsoAccountType = IsoAccountType.DEFAULT_UNSPECIFIED
     ) {
-        if (NetPosTerminalConfig.getKeyHolder() == null) {
-            Toast.makeText(requireContext(), "Terminal not configured", Toast.LENGTH_LONG).show()
-            return
-        }
-
-        val hostConfig = HostConfig(
-            NetPosTerminalConfig.getTerminalId(),
-            NetPosTerminalConfig.getConnectionData(),
-            NetPosTerminalConfig.getKeyHolder()!!,
-            NetPosTerminalConfig.getConfigData()!!
-        )
-        val requestData =
-            TransactionRequestData(TransactionType.BALANCE, 0L, accountType = accountType)
+        val checkBalanceParam = CheckBalanceParams(cardData, accountType)
         progressDialog.setMessage("Checking Balance...")
         progressDialog.show()
-        val processor = TransactionProcessor(hostConfig)
-        //processor.
-        val disposable = processor.processTransaction(requireContext(), requestData, cardData)
+        val disposable = NibssApiWrapper.checkBalance(requireContext(), checkBalanceParam)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe { response, error ->

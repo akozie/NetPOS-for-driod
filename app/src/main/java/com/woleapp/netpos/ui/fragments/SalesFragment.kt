@@ -13,13 +13,12 @@ import android.view.WindowManager
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.fragment.app.viewModels
-import com.danbamitale.epmslib.entities.CardData
-import com.danbamitale.epmslib.entities.TransactionType
 import com.google.android.material.snackbar.Snackbar
 import com.google.gson.JsonObject
 import com.netpluspay.netpossdk.NetPosSdk
 import com.netpluspay.netpossdk.emv.CardReaderEvent
 import com.netpluspay.netpossdk.emv.CardReaderService
+import com.netpluspay.nibssclient.models.TransactionType
 import com.pos.sdk.emvcore.POIEmvCoreManager
 import com.woleapp.netpos.R
 import com.woleapp.netpos.databinding.DialogTransactionResultBinding

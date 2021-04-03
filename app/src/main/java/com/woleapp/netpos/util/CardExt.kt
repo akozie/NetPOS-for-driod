@@ -12,12 +12,12 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
-import com.danbamitale.epmslib.entities.CardData
-import com.danbamitale.epmslib.utils.IsoAccountType
 import com.netpluspay.netpossdk.NetPosSdk
 import com.netpluspay.netpossdk.emv.CardReadResult
 import com.netpluspay.netpossdk.emv.CardReaderEvent
 import com.netpluspay.netpossdk.emv.CardReaderService
+import com.netpluspay.nibssclient.models.CardData
+import com.netpluspay.nibssclient.models.IsoAccountType
 import com.pos.sdk.emvcore.POIEmvCoreManager.DEV_ICC
 import com.pos.sdk.emvcore.POIEmvCoreManager.DEV_PICC
 import com.woleapp.netpos.R

@@ -6,12 +6,11 @@ import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.danbamitale.epmslib.entities.*
-import com.danbamitale.epmslib.processors.TransactionProcessor
-import com.danbamitale.epmslib.utils.IsoAccountType
 import com.google.gson.JsonObject
 import com.netpluspay.netpossdk.NetPosSdk
 import com.netpluspay.netpossdk.printer.PrinterResponse
+import com.netpluspay.nibssclient.models.*
+import com.netpluspay.nibssclient.service.NibssApiWrapper
 import com.pixplicity.easyprefs.library.Prefs
 import com.woleapp.netpos.database.AppDatabase
 import com.woleapp.netpos.model.*
@@ -111,33 +110,26 @@ class SalesViewModel : ViewModel() {
 
     fun makePayment(context: Context, transactionType: TransactionType = TransactionType.PURCHASE) {
         Timber.e(cardData.toString())
-        val configData = NetPosTerminalConfig.getConfigData() ?: kotlin.run {
-            _message.value =
-                Event("Terminal has not been configured, restart the application to configure")
-            return
-        }
-        val keyHolder = NetPosTerminalConfig.getKeyHolder()!!
         Timber.e("terminal id for transaction ${NetPosTerminalConfig.getTerminalId()}")
-        val hostConfig = HostConfig(
-            NetPosTerminalConfig.getTerminalId(),
-            NetPosTerminalConfig.getConnectionData(),
-            keyHolder,
-            configData
-        )
         //IsoAccountType.
         this.amountLong = amountDbl.toLong()
-        val requestData =
-            TransactionRequestData(transactionType, amountLong, 0L, accountType = isoAccountType!!)
-        val processor = TransactionProcessor(hostConfig)
+        Timber.e(transactionType.toString())
+        val requestData = MakePaymentParams(
+            amountLong,
+            0L,
+            cardData!!,
+            transactionType,
+            isoAccountType ?: IsoAccountType.DEFAULT_UNSPECIFIED
+        )
         transactionState.value = STATE_PAYMENT_STARTED
-        processor.processTransaction(context, requestData, cardData!!)
+        NibssApiWrapper.makePayment(context, requestData)
             .flatMap {
-                if (it.responseCode == "A3"){
+                if (it.responseCode == "A3") {
                     Prefs.remove(PREF_CONFIG_DATA)
                     Prefs.remove(PREF_KEYHOLDER)
                     _shouldRefreshNibssKeys.postValue(Event(true))
                 }
-                if (isVend){
+                if (isVend) {
                     val j = JsonObject().apply {
                         addProperty("amount", it.amount)
                         addProperty("responseCode", it.responseCode)
@@ -158,7 +150,7 @@ class SalesViewModel : ViewModel() {
                     }
                 }
                 Timber.e(gson.toJson(event))
-                MqttHelper.sendPayload(MqttTopics.TRANSACTIONS, event)
+                //MqttHelper.sendPayload(MqttTopics.TRANSACTIONS, event)
                 it.cardHolder = customerName.value!!
                 it.cardLabel = cardScheme!!
                 lastTransactionResponse.postValue(it)
@@ -215,8 +207,10 @@ class SalesViewModel : ViewModel() {
     }
 
     fun showReceiptDialog() {
-        _showPrintDialog.value = Event(lastTransactionResponse.value!!.buildSMSText(remark.value ?: "")
-            .toString())
+        _showPrintDialog.value = Event(
+            lastTransactionResponse.value!!.buildSMSText(remark.value ?: "")
+                .toString()
+        )
     }
 
     private fun printReceipt(): Single<PrinterResponse> {
@@ -236,7 +230,10 @@ class SalesViewModel : ViewModel() {
         val map = JsonObject().apply {
             addProperty("from", "NetPlus")
             addProperty("to", "+234${number.substring(1)}")
-            addProperty("message", lastTransactionResponse.value!!.buildSMSText(remark.value ?: "").toString())
+            addProperty(
+                "message",
+                lastTransactionResponse.value!!.buildSMSText(remark.value ?: "").toString()
+            )
         }
         Timber.e("payload: $map")
         val auth = "Bearer ${Prefs.getString(PREF_APP_TOKEN, "")}"
@@ -286,7 +283,7 @@ class SalesViewModel : ViewModel() {
             }.disposeWith(compositeDisposable)
     }
 
-    fun setContext(context: Context){
+    fun setContext(context: Context) {
         this.context = context
     }
 
@@ -294,7 +291,7 @@ class SalesViewModel : ViewModel() {
         isVend = vend
     }
 
-    private fun sendVendResponse(out: String){
+    private fun sendVendResponse(out: String) {
         Single.fromCallable {
             Socket().run {
                 connect(InetSocketAddress("192.168.8.104", 4000))

@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.DividerItemDecoration
-import com.danbamitale.epmslib.entities.TransactionResponse
 import com.woleapp.netpos.R
 import com.woleapp.netpos.adapter.TransactionsAdapter
 import com.woleapp.netpos.database.AppDatabase

@@ -2,11 +2,11 @@ package com.woleapp.netpos.util
 
 import android.content.Context
 import android.graphics.BitmapFactory
-import com.danbamitale.epmslib.entities.TransactionResponse
-import com.danbamitale.epmslib.entities.responseMessage
-import com.danbamitale.epmslib.extensions.formatCurrencyAmount
 import com.netpluspay.netpossdk.printer.PrinterResponse
 import com.netpluspay.netpossdk.printer.ReceiptBuilder
+import com.netpluspay.nibssclient.models.TransactionResponse
+import com.netpluspay.nibssclient.models.responseMessage
+import com.netpluspay.nibssclient.util.formatCurrencyAmount
 import com.pos.sdk.printer.POIPrinterManage
 import com.woleapp.netpos.BuildConfig
 import com.woleapp.netpos.R

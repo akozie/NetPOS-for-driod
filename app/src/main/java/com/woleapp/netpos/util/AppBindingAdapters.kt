@@ -5,8 +5,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ProgressBar
 import androidx.databinding.BindingAdapter
-import com.danbamitale.epmslib.entities.TransactionResponse
-import com.danbamitale.epmslib.extensions.formatCurrencyAmount
+import com.netpluspay.nibssclient.util.formatCurrencyAmount
 import com.woleapp.netpos.R
 
 @BindingAdapter("processButtonState")

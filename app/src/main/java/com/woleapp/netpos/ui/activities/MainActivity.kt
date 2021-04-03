@@ -18,9 +18,6 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import com.danbamitale.epmslib.entities.clearPinKey
-import com.netpluspay.netpossdk.NetPosSdk
-import com.netpluspay.netpossdk.utils.DeviceConfig
 import com.pixplicity.easyprefs.library.Prefs
 import com.woleapp.netpos.R
 import com.woleapp.netpos.databinding.ActivityMainBinding
@@ -206,9 +203,9 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
     private fun getLocationUpdates() {
         val locationManager = this.getSystemService(LOCATION_SERVICE) as LocationManager
         val locationListener: LocationListener = object : LocationListener {
-            override fun onLocationChanged(location: Location?) {
+            override fun onLocationChanged(location: Location) {
                 // Called when a new location is found by the network location provider.
-                location?.let {
+                location.let {
                     Prefs.putString(PREF_LAST_LOCATION, "lat:${it.latitude} long:${it.longitude}")
                     //Timber.e("lat:${it.latitude} long:${it.longitude}")
                 }
@@ -218,11 +215,11 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
                 Timber.e("On status changed")
             }
 
-            override fun onProviderEnabled(provider: String?) {
+            override fun onProviderEnabled(provider: String) {
                 Timber.e("On Provider enabled: $provider")
             }
 
-            override fun onProviderDisabled(provider: String?) {
+            override fun onProviderDisabled(provider: String) {
                 Timber.e("On Provider disabled $provider")
             }
         }

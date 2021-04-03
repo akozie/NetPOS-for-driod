@@ -5,19 +5,16 @@ import android.os.Build
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.danbamitale.epmslib.entities.*
-import com.danbamitale.epmslib.processors.TransactionProcessor
-import com.danbamitale.epmslib.utils.IsoAccountType
-import com.danbamitale.epmslib.utils.MessageReasonCode
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.netpluspay.netpossdk.printer.PrinterResponse
+import com.netpluspay.nibssclient.models.*
+import com.netpluspay.nibssclient.service.NibssApiWrapper
 import com.pixplicity.easyprefs.library.Prefs
 import com.woleapp.netpos.database.AppDatabase
 import com.woleapp.netpos.model.*
 import com.woleapp.netpos.network.StormApiClient
 import com.woleapp.netpos.network.StormUtilitiesApiService
-import com.woleapp.netpos.nibss.NetPosTerminalConfig
 import com.woleapp.netpos.util.*
 import io.reactivex.Single
 
@@ -59,14 +56,6 @@ class UtilitiesViewModel : ViewModel() {
         }
     }
 
-    private val hostConfig = HostConfig(
-        NetPosTerminalConfig.getTerminalId(),
-        NetPosTerminalConfig.getConnectionData(),
-        NetPosTerminalConfig.getKeyHolder()!!,
-        NetPosTerminalConfig.getConfigData()!!
-    )
-
-    private val processor = TransactionProcessor(hostConfig)
     private val _shouldRefreshNibssKeys = MutableLiveData<Event<Boolean>>()
     val shouldRefreshNibssKeys: LiveData<Event<Boolean>>
         get() = _shouldRefreshNibssKeys
@@ -310,36 +299,49 @@ class UtilitiesViewModel : ViewModel() {
     }
 
     private fun reverseTransaction() {
-        processor.rollback(context, reversalReasonCode = MessageReasonCode.CompletedPartially)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .doFinally {
-                    _showProgressMutableLiveData.value = Event(false)
-                    _result.value = Event(errorResponse ?: ErrorNetworkResponse("An unresolvable error occurred, contact administrator"))
-                    printReceipt()
+        NibssApiWrapper.refundTransaction(
+            context,
+            RefundTransactionParams(
+                cardData!!,
+                lastTransactionResponse.value!!,
+                messageReasonCode = MessageReasonCode.CompletedPartially,
+                accountType = isoAccountType!!
+            )
+        ).subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .doFinally {
+                _showProgressMutableLiveData.value = Event(false)
+                _result.value = Event(
+                    errorResponse
+                        ?: ErrorNetworkResponse("An unresolvable error occurred, contact administrator")
+                )
+                printReceipt()
+            }
+            .subscribe { t1, t2 ->
+                t1?.let { response ->
+                    Timber.e(response.toString())
+                    lastTransactionResponse.value = response
+                    if (response.responseCode == "06") {
+                        errorResponse?.message =
+                            "Could not process ${payloadMutableLiveData.value?.billType} payment, Transaction Reversed"
+                    } else {
+                        errorResponse?.message =
+                            "Could not process ${payloadMutableLiveData.value?.billType} payment, Transaction could not be auto reversed, contact administrator"
+                    }
                 }
-                .subscribe { t1, t2 ->
-                    t1?.let { response ->
-                        Timber.e(response.toString())
-                        lastTransactionResponse.value = response
-                        if (response.responseCode == "06"){
-                            errorResponse?.message = "Could not process ${payloadMutableLiveData.value?.billType} payment, Transaction Reversed"
-                        }else{
-                            errorResponse?.message = "Could not process ${payloadMutableLiveData.value?.billType} payment, Transaction could not be auto reversed, contact administrator"
-                        }
-                    }
-                    t2?.let {
-                        errorResponse?.message = "Could not process ${payloadMutableLiveData.value?.billType} payment, Transaction could not be auto reversed, contact administrator"
-                    }
-                }.disposeWith(compositeDisposable)
+                t2?.let {
+                    errorResponse?.message =
+                        "Could not process ${payloadMutableLiveData.value?.billType} payment, Transaction could not be auto reversed, contact administrator"
+                }
+            }.disposeWith(compositeDisposable)
 
     }
 
     fun makePayment(context: Context, transactionType: TransactionType = TransactionType.PURCHASE) {
         _showProgressMutableLiveData.value = Event(true)
-        val requestData =
-            TransactionRequestData(transactionType, amountLong, 0L, accountType = isoAccountType!!)
-        processor.processTransaction(context, requestData, cardData!!)
+        val makePaymentParams =
+            MakePaymentParams(amountLong, 0L, cardData, transactionType, isoAccountType!!)
+        NibssApiWrapper.makePayment(context, makePaymentParams)
             .flatMap {
                 if (it.responseCode == "A3") {
                     Prefs.remove(PREF_CONFIG_DATA)
