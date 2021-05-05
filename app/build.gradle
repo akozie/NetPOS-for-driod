@@ -20,8 +20,8 @@ android {
         applicationId "com.woleapp.netpos"
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 20
-        versionName "1.0.18"
+        versionCode 34
+        versionName "1.1.29"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         def environmentPath
         if (appModeProd == "true")
@@ -46,8 +46,9 @@ android {
             resValue "string", "app_name", "NetPOS Debug"
         }
         release {
-            //resValue "string", "app_name", "NetPOS Test"
-            //applicationIdSuffix ".release"
+            resValue "string", "app_name", "NetPOS"
+            debuggable false
+            //applicationIdSuffix ".releaseserver"
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
@@ -92,10 +93,11 @@ dependencies {
     implementation "io.reactivex.rxjava2:rxkotlin:2.4.0"
 
     //nibss-client
-    implementation "com.netpluspay.android.nibssclient:nibss-client:1.0.3"
+    implementation "com.netpluspay.android.nibssclient:nibss-client:1.0.5"
 
     //netpos sdk
-    implementation project(path: ':netpossdk')
+    implementation "com.netpluspay.netpossdk:netpossdk:1.0.10"
+    //implementation project(path: ':netpossdk')
 
     //Timber
     implementation 'com.jakewharton.timber:timber:4.7.1'

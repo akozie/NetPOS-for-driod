@@ -107,7 +107,7 @@ class DashboardFragment : BaseFragment() {
                 }
 
                 response?.let {
-                    if (it.responseCode == "A3"){
+                    if (it.responseCode == "A3") {
                         Prefs.remove(PREF_CONFIG_DATA)
                         Prefs.remove(PREF_KEYHOLDER)
                         NetPosTerminalConfig.init(
@@ -167,7 +167,7 @@ class DashboardFragment : BaseFragment() {
                             "No transactions to print",
                             Toast.LENGTH_SHORT
                         ).show()
-                }.printAll(requireContext(), true)
+                }.printEndOfDay(requireContext())
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe({ printResp ->
@@ -176,8 +176,6 @@ class DashboardFragment : BaseFragment() {
                         Toast.makeText(requireContext(), err.localizedMessage, Toast.LENGTH_LONG)
                             .show()
                         //Timber.e(err.localizedMessage)
-                    }, {
-                        Timber.e("On Complete")
                     })
             }
         }
@@ -227,15 +225,10 @@ class DashboardFragment : BaseFragment() {
     }
 
     private fun sendPayload() {
-        val user = Singletons.gson.fromJson(Prefs.getString(PREF_USER, ""), User::class.java)
-        val event = MqttEvent(
-            user.netplus_id!!,
-            user.business_name!!,
-            NetPosTerminalConfig.getTerminalId(),
-            NetPosSdk.getDeviceSerial()
-        )
+        //val user = Singletons.gson.fromJson(Prefs.getString(PREF_USER, ""), User::class.java)
+        val event = MqttEvent<AuthenticationEventData>()
         val authEventData =
-            AuthenticationEventData(event.business_name, event.storm_id, event.deviceSerial)
+            AuthenticationEventData(event.business_name!!, event.storm_id!!, event.deviceSerial!!)
         event.apply {
             this.event = MqttEvents.AUTHENTICATION.event
             this.status = MqttStatus.SUCCESS.name

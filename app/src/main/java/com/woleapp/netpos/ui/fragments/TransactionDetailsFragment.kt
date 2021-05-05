@@ -43,7 +43,6 @@ class TransactionDetailsFragment : BaseFragment() {
         receiptDialogBinding = DialogTransactionResultBinding.inflate(inflater, null, false).apply {
             executePendingBindings()
         }
-        viewModel.setContext(requireContext())
         progressDialog = ProgressDialog(requireContext())
             .apply {
                 setCancelable(false)
@@ -78,7 +77,7 @@ class TransactionDetailsFragment : BaseFragment() {
             gotoAction { viewModel.doSaleCompletion(requireContext()) }
         }
         binding.actionButton.setOnClickListener {
-            viewModel.performAction()
+            viewModel.performAction(requireContext())
         }
         binding.details.text = viewModel.lastTransactionResponse.value!!.builder().toString()
         viewModel.done.observe(viewLifecycleOwner) {

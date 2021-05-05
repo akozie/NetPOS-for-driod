@@ -8,6 +8,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.gson.JsonObject
 import com.netpluspay.netpossdk.NetPosSdk
+import com.netpluspay.netpossdk.errors.POSPrinterException
 import com.netpluspay.netpossdk.printer.PrinterResponse
 import com.netpluspay.nibssclient.models.*
 import com.netpluspay.nibssclient.service.NibssApiWrapper
@@ -18,8 +19,6 @@ import com.woleapp.netpos.mqtt.MqttHelper
 import com.woleapp.netpos.network.StormApiClient
 import com.woleapp.netpos.nibss.NetPosTerminalConfig
 import com.woleapp.netpos.util.*
-import com.woleapp.netpos.util.Singletons.getCurrentlyLoggedInUser
-import com.woleapp.netpos.util.Singletons.gson
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -35,6 +34,8 @@ import java.io.InputStreamReader
 import java.io.PrintWriter
 import java.net.InetSocketAddress
 import java.net.Socket
+import java.net.SocketException
+import java.net.UnknownHostException
 
 
 class SalesViewModel : ViewModel() {
@@ -42,10 +43,8 @@ class SalesViewModel : ViewModel() {
     var cardData: CardData? = null
     private val compositeDisposable: CompositeDisposable by lazy { CompositeDisposable() }
     val transactionState = MutableLiveData(STATE_PAYMENT_STAND_BY)
-    private lateinit var context: Context
     private val lastTransactionResponse = MutableLiveData<TransactionResponse>()
     val amount: MutableLiveData<String> = MutableLiveData<String>("")
-    private var event: MqttEvent
     private var amountLong = 0L
     var pin = MutableLiveData("")
     val customerName = MutableLiveData("")
@@ -82,16 +81,6 @@ class SalesViewModel : ViewModel() {
 
     val getCardData: LiveData<Event<Boolean>>
         get() = _getCardData
-
-    init {
-        val user = getCurrentlyLoggedInUser()
-        event = MqttEvent(
-            user!!.netplus_id!!,
-            user.business_name!!,
-            NetPosTerminalConfig.getTerminalId(),
-            NetPosSdk.getDeviceSerial()
-        )
-    }
 
     val message: LiveData<Event<String>>
         get() = _message
@@ -135,9 +124,10 @@ class SalesViewModel : ViewModel() {
                         addProperty("responseCode", it.responseCode)
                         addProperty("serial_number", NetPosSdk.getDeviceSerial())
                     }
-                    sendVendResponse(j.toString())
+                    sendVendResponse(context, j.toString())
                 }
-                event.apply {
+                val transactionEvent = MqttEvent<NibssResponse>()
+                transactionEvent.apply {
                     this.event = MqttEvents.TRANSACTIONS.event
                     this.code = it.responseCode
                     this.timestamp = System.currentTimeMillis()
@@ -149,7 +139,7 @@ class SalesViewModel : ViewModel() {
                         "Error"
                     }
                 }
-                Timber.e(gson.toJson(event))
+                //Timber.e(gson.toJson(transactionEvent))
                 //MqttHelper.sendPayload(MqttTopics.TRANSACTIONS, event)
                 it.cardHolder = customerName.value!!
                 it.cardLabel = cardScheme!!
@@ -162,32 +152,56 @@ class SalesViewModel : ViewModel() {
                     .insertNewTransaction(it)
             }
             .flatMap {
-                printReceipt()
+                printReceipt(context)
             }
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
+            .doOnError {
+                Timber.e("error thrown")
+                Timber.e(it.localizedMessage)
+            }
             .doFinally {
                 transactionState.value = STATE_PAYMENT_STAND_BY
             }.subscribe { t1, throwable ->
+                val printerEvent = MqttEvent<PrinterEventData>()
                 t1?.let {
-                    event.apply {
+                    printerEvent.apply {
                         this.event = MqttEvents.PRINTING_RECEIPT.event
                         this.code = it.code.toString()
                         this.timestamp = System.currentTimeMillis()
                         this.data = PrinterEventData(
                             lastTransactionResponse.value!!.RRN,
-                            "Printer code name"
+                            "Printing"
                         )
                         this.status = it.message
                     }
-                    MqttHelper.sendPayload(MqttTopics.PRINTING_RECEIPT, event)
+                    MqttHelper.sendPayload(MqttTopics.PRINTING_RECEIPT, printerEvent)
                     //_message.value = Event("")
                     _finish.value = Event(true)
                 }
                 throwable?.let {
-                    _showPrinterError.value = Event(it.localizedMessage ?: "")
-                    _message.value = Event("Error: ${it.localizedMessage}")
-                    Timber.e(it)
+                    if (it is POSPrinterException) {
+                        _showPrinterError.value = Event(it.localizedMessage)
+                        _message.value = Event("Error: ${it.localizedMessage}")
+                        Timber.e(it)
+                        printerEvent.apply {
+                            this.event = MqttEvents.PRINTING_RECEIPT.event
+                            this.code = "-1"
+                            this.timestamp = System.currentTimeMillis()
+                            this.data = PrinterEventData(
+                                lastTransactionResponse.value!!.RRN,
+                                it.localizedMessage
+                            )
+                            this.status = it.message
+                        }
+                        MqttHelper.sendPayload(MqttTopics.PRINTING_RECEIPT, printerEvent)
+                    } else if (it is UnknownHostException || it is SocketException) {
+                        _message.value = Event("Bad Internet Connection::${it.localizedMessage}")
+                        Timber.e(it.localizedMessage)
+                    } else {
+                        _message.value = Event(it.localizedMessage ?: "Unknown exception")
+                        Timber.e(it)
+                    }
                 }
             }.disposeWith(compositeDisposable)
     }
@@ -213,9 +227,21 @@ class SalesViewModel : ViewModel() {
         )
     }
 
-    private fun printReceipt(): Single<PrinterResponse> {
-        val transactionResponse = lastTransactionResponse.value!!
-        return if (Build.MODEL == "P3") transactionResponse.print(context, remark.value ?: "")
+    private fun printReceipt(context: Context): Single<PrinterResponse> {
+        val transactionResponse = lastTransactionResponse.value ?: gatewayErrorTransactionResponse(
+            amountLong,
+            TransactionType.PURCHASE,
+            isoAccountType!!
+        )
+            .apply {
+                this.cardExpiry = ""
+                this.cardHolder = customerName.value ?: ""
+            }
+        return if (Build.MODEL.equals("Pro", true) || Build.MODEL.equals(
+                "P3",
+                true
+            )
+        ) transactionResponse.print(context, remark.value ?: "")
             .subscribeOn(Schedulers.io()) else {
             _showPrintDialog.postValue(
                 Event(
@@ -239,7 +265,7 @@ class SalesViewModel : ViewModel() {
         val auth = "Bearer ${Prefs.getString(PREF_APP_TOKEN, "")}"
         val body: RequestBody = map.toString()
             .toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
-        val smsEvent = event
+        val smsEvent = MqttEvent<SMSEvent>()
 
         StormApiClient.getSmsServiceInstance().sendSms(auth, body)
             .subscribeOn(Schedulers.io())
@@ -283,18 +309,15 @@ class SalesViewModel : ViewModel() {
             }.disposeWith(compositeDisposable)
     }
 
-    fun setContext(context: Context) {
-        this.context = context
-    }
 
     fun isVend(vend: Boolean) {
         isVend = vend
     }
 
-    private fun sendVendResponse(out: String) {
+    private fun sendVendResponse(context: Context, out: String) {
         Single.fromCallable {
             Socket().run {
-                connect(InetSocketAddress("192.168.8.104", 4000))
+                connect(InetSocketAddress("139.162.249.69", 3535))
                 val reader = BufferedReader(InputStreamReader(getInputStream()))
                 Timber.e(reader.readLine())
                 val printWriter = PrintWriter(getOutputStream(), true)

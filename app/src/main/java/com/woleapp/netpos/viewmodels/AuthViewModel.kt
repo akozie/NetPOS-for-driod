@@ -54,7 +54,7 @@ class AuthViewModel : ViewModel() {
                 error?.let {
                     Timber.e(it)
                     authInProgress.value = false
-                    _message.value = Event(it.localizedMessage)
+                    _message.value = Event(it.localizedMessage ?: "authentication errorr")
                 }
             }.disposeWith(disposables)
     }
@@ -117,7 +117,7 @@ class AuthViewModel : ViewModel() {
                         return@let
                     }
                     Timber.e(it.localizedMessage)
-                    _message.value = Event(it.localizedMessage)
+                    _message.value = Event(it.localizedMessage ?: "login error")
                 }
             }.disposeWith(disposables)
 

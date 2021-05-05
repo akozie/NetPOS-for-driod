@@ -72,7 +72,6 @@ class UtilitiesPaymentFragment : BaseFragment() {
                 setView(dialogUtilitiesBinding.root)
                 setCancelable(false)
             }
-        viewModel.setContext(requireContext())
         progressDialog = ProgressDialog(requireContext()).apply {
             setCancelable(false)
             this.setMessage("Please Wait")

@@ -1,3 +1,3 @@
-include ':netpossdk'
-rootProject.name='NetPOS'
+//include ':netpossdk'
+rootProject.name='NetPOS Server'
 include ':app'

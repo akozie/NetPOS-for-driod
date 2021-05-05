@@ -13,6 +13,7 @@ import com.netpluspay.nibssclient.service.NibssApiWrapper
 import com.pixplicity.easyprefs.library.Prefs
 import com.woleapp.netpos.database.AppDatabase
 import com.woleapp.netpos.model.*
+import com.woleapp.netpos.mqtt.MqttHelper
 import com.woleapp.netpos.network.StormApiClient
 import com.woleapp.netpos.network.StormUtilitiesApiService
 import com.woleapp.netpos.util.*
@@ -32,7 +33,6 @@ import timber.log.Timber
 
 class UtilitiesViewModel : ViewModel() {
     var cardData: CardData? = null
-    private lateinit var context: Context
     private val customerName = MutableLiveData("")
     private var amountLong = 0L
     private var cardScheme: String? = null
@@ -256,7 +256,7 @@ class UtilitiesViewModel : ViewModel() {
         //payBill()
     }
 
-    private fun payBill() {
+    private fun payBill(context: Context) {
         _showProgressMutableLiveData.postValue(Event(true))
         val utilitiesPayload = payloadMutableLiveData.value
         _message.postValue(Event("Processing ${utilitiesPayload?.billType} request"))
@@ -279,7 +279,7 @@ class UtilitiesViewModel : ViewModel() {
                     }
                     _result.value = Event(it)
                     _showProgressMutableLiveData.value = Event(false)
-                    printReceipt()
+                    printReceipt(context)
                 }
                 t2?.let {
                     errorResponse =
@@ -293,12 +293,12 @@ class UtilitiesViewModel : ViewModel() {
 
                     remark.plus("\n${utilitiesPayload.billType} Payment Failed")
                     Timber.e(it.toString())
-                    reverseTransaction()
+                    reverseTransaction(context)
                 }
             }.disposeWith(compositeDisposable)
     }
 
-    private fun reverseTransaction() {
+    private fun reverseTransaction(context: Context) {
         NibssApiWrapper.refundTransaction(
             context,
             RefundTransactionParams(
@@ -315,7 +315,7 @@ class UtilitiesViewModel : ViewModel() {
                     errorResponse
                         ?: ErrorNetworkResponse("An unresolvable error occurred, contact administrator")
                 )
-                printReceipt()
+                printReceipt(context)
             }
             .subscribe { t1, t2 ->
                 t1?.let { response ->
@@ -353,11 +353,11 @@ class UtilitiesViewModel : ViewModel() {
                 lastTransactionResponse.postValue(it)
                 //_message.postValue(Event(if (it.responseCode == "00") "Transaction Approved" else "Transaction Not approved"))
                 if (it.responseCode == "00") {
-                    payBill()
+                    payBill(context)
                 } else {
                     _showProgressMutableLiveData.postValue(Event(false))
                     _result.postValue(Event(ErrorNetworkResponse("Transaction Declined")))
-                    printReceipt()
+                    printReceipt(context)
                 }
                 AppDatabase.getDatabaseInstance(context).transactionResponseDao()
                     .insertNewTransaction(it)
@@ -383,10 +383,14 @@ class UtilitiesViewModel : ViewModel() {
         )
     }
 
-    private fun printReceipt() {
+    private fun printReceipt(context: Context) {
         _message.postValue(Event("Printing Receipt"))
         val transactionResponse = lastTransactionResponse.value!!
-        val single = if (Build.MODEL == "P3") transactionResponse.print(context, remark) else {
+        val single = if (Build.MODEL.equals("Pro", true) || Build.MODEL.equals(
+                "P3",
+                true
+            )
+        ) transactionResponse.print(context, remark) else {
             _showPrintDialog.postValue(
                 Event(
                     transactionResponse.buildSMSText(remark).toString()
@@ -397,13 +401,29 @@ class UtilitiesViewModel : ViewModel() {
         single.subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe { t1, t2 ->
+                val printerEvent = MqttEvent<PrinterEventData>()
                 t1?.let {
                     _message.value = Event(it.message)
+                    printerEvent.apply {
+                        this.event = MqttEvents.PRINTING_RECEIPT.event
+                        this.code = it.code.toString()
+                        this.timestamp = System.currentTimeMillis()
+                        this.data = PrinterEventData(transactionResponse.RRN, it.message)
+                        this.status = it.message
+                    }
                 }
                 t2?.let {
                     _message.value = Event(it.localizedMessage!!)
                     _showPrinterError.value = Event(it.localizedMessage!!)
+                    printerEvent.apply {
+                        this.event = MqttEvents.PRINTING_RECEIPT.event
+                        this.code = "-1"
+                        this.timestamp = System.currentTimeMillis()
+                        this.data = PrinterEventData(transactionResponse.RRN, it.localizedMessage ?: "Printer Error")
+                        this.status = it.message
+                    }
                 }
+                MqttHelper.sendPayload(MqttTopics.PRINTING_RECEIPT, printerEvent)
             }.disposeWith(compositeDisposable)
     }
 
@@ -445,10 +465,6 @@ class UtilitiesViewModel : ViewModel() {
                     _smsSent.value = Event(false)
                 }
             }.disposeWith(compositeDisposable)
-    }
-
-    fun setContext(context: Context) {
-        this.context = context
     }
 
     override fun onCleared() {

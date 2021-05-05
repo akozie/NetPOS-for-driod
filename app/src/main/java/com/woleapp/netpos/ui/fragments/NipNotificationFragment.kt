@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.recyclerview.widget.GridLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.netpluspay.netpossdk.NetPosSdk
 import com.pixplicity.easyprefs.library.Prefs
 import com.woleapp.netpos.R
 import com.woleapp.netpos.adapter.ServiceAdapter
@@ -17,7 +16,6 @@ import com.woleapp.netpos.databinding.LayoutBankDetailsBinding
 import com.woleapp.netpos.model.*
 import com.woleapp.netpos.mqtt.MqttHelper
 import com.woleapp.netpos.network.StormApiClient
-import com.woleapp.netpos.nibss.NetPosTerminalConfig
 import com.woleapp.netpos.util.PREF_USER
 import com.woleapp.netpos.util.Singletons
 import com.woleapp.netpos.util.copyTextToClipboard
@@ -33,8 +31,7 @@ class NipNotificationFragment : BaseFragment() {
     private lateinit var binding: FragmentNipNotificationsBinding
     private lateinit var adapter: ServiceAdapter
     private val compositeDisposable = CompositeDisposable()
-    private lateinit var event: MqttEvent
-    private val user = Singletons.getCurrentlyLoggedInUser()
+    private lateinit var event: MqttEvent<NipEvent>
 
     companion object {
         fun newInstance(): NipNotificationFragment {
@@ -51,7 +48,7 @@ class NipNotificationFragment : BaseFragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentNipNotificationsBinding.inflate(inflater, container, false)
         adapter = ServiceAdapter {
             when (it.id) {
@@ -74,12 +71,7 @@ class NipNotificationFragment : BaseFragment() {
         binding.rvTransactions.layoutManager = GridLayoutManager(context, 2)
         binding.rvTransactions.adapter = adapter
         setService()
-        event = MqttEvent(
-            user!!.netplus_id!!,
-            user.business_name!!,
-            NetPosTerminalConfig.getTerminalId(),
-            NetPosSdk.getDeviceSerial()
-        )
+        event = MqttEvent<NipEvent>()
             .apply {
                 this.geo = "lat:51.507351-long:-0.127758"
             }

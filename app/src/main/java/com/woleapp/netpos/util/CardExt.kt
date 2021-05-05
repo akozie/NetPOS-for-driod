@@ -1,4 +1,4 @@
- @file:Suppress("DEPRECATION")
+@file:Suppress("DEPRECATION")
 
 package com.woleapp.netpos.util
 
@@ -12,7 +12,6 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
-import com.netpluspay.netpossdk.NetPosSdk
 import com.netpluspay.netpossdk.emv.CardReadResult
 import com.netpluspay.netpossdk.emv.CardReaderEvent
 import com.netpluspay.netpossdk.emv.CardReaderService
@@ -177,7 +176,7 @@ fun getCardLiveData(
         }, {
             it?.let {
                 dialog.dismiss()
-                sendCardEvent("ERROR", "99", CardReaderMqttEvent(readerError = it.localizedMessage))
+                //sendCardEvent("ERROR", "99", CardReaderMqttEvent(readerError = it.localizedMessage))
                 Timber.e("error: ${it.localizedMessage}")
                 liveData.value = Event(ICCCardHelper(error = it))
             }
@@ -196,13 +195,7 @@ fun getCardLiveData(
 }
 
 fun sendCardEvent(s: String, s1: String, cardReaderMqttEvent: CardReaderMqttEvent) {
-    val user = Singletons.getCurrentlyLoggedInUser()
-    val event = MqttEvent(
-        user!!.netplus_id!!,
-        user.business_name!!,
-        NetPosTerminalConfig.getTerminalId(),
-        NetPosSdk.getDeviceSerial()
-    )
+    val event = MqttEvent<CardReaderMqttEvent>()
     event.apply {
         this.event = MqttEvents.CARD_READER_EVENTS.event
         data = cardReaderMqttEvent
@@ -212,12 +205,12 @@ fun sendCardEvent(s: String, s1: String, cardReaderMqttEvent: CardReaderMqttEven
     }
     MqttHelper.sendPayload(MqttTopics.CARD_READER_EVENTS, event)
 }
-
 private fun showSelectAccountTypeDialog(
     context: Activity,
     iccCardHelper: ICCCardHelper,
     liveData: MutableLiveData<Event<ICCCardHelper>>
 ) {
+    Timber.e("show select account dialog")
     var dialogSelectAccountTypeBinding: DialogSelectAccountTypeBinding
     val dialog = AlertDialog.Builder(context)
         .apply {

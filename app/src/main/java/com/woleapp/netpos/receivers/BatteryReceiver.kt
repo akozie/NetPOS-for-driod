@@ -5,26 +5,18 @@ import android.content.Context
 import android.content.Context.BATTERY_SERVICE
 import android.content.Intent
 import android.os.BatteryManager
-import com.netpluspay.netpossdk.NetPosSdk
 import com.woleapp.netpos.model.*
 import com.woleapp.netpos.mqtt.MqttHelper
 import com.woleapp.netpos.util.Singletons
-import com.woleapp.netpos.util.useStormTerminalId
 import timber.log.Timber
 
 
 class BatteryReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, batteryStatus: Intent?) {
         val user: User? = Singletons.getCurrentlyLoggedInUser()
-        val savedConfigurationData = Singletons.getSavedConfigurationData()
+        //val savedConfigurationData = Singletons.getSavedConfigurationData()
         user?.let {
-            var event: MqttEvent? = MqttEvent(
-                it.netplus_id!!,
-                it.business_name!!,
-                if (useStormTerminalId()) it.terminal_id
-                    ?: "" else savedConfigurationData.terminalId,
-                NetPosSdk.getDeviceSerial()
-            ).apply {
+            var event: MqttEvent<BatteryEvents>? = MqttEvent<BatteryEvents>().apply {
                 status = "SUCCESS"
                 code = "00"
                 timestamp = System.currentTimeMillis()

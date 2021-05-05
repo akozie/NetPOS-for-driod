@@ -1,6 +1,12 @@
 package com.woleapp.netpos.model
 
+import androidx.room.Entity
+import androidx.room.Ignore
+import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
+import com.netpluspay.netpossdk.NetPosSdk
+import com.woleapp.netpos.nibss.NetPosTerminalConfig
+import com.woleapp.netpos.util.Singletons
 
 enum class MqttEvents(val event: String?) {
     AUTHENTICATION("AUTHENTICATION"),
@@ -35,20 +41,36 @@ enum class MqttStatus(val code: String) {
     ERROR("01")
 }
 
+@Entity(tableName = "mqttEvents")
+data class MqttEventsLocal(
+    val topic: String,
+    val data: String,
+    val cause: String? = null
+){
+    @PrimaryKey(autoGenerate = true) var id: Int = 0
+}
 
-data class MqttEvent(
-    val storm_id: String,
-    val business_name: String,
-    var terminalId: String,
-    @SerializedName("serial_number") val deviceSerial: String,
-    var data: Any? = null,
+data class MqttEvent<T>(
+    var storm_id: String? = null,
+    var business_name: String? = null,
+    var terminalId: String? = null,
+    @SerializedName("serial_number") var deviceSerial: String? = null,
+    @Ignore var data: T? = null,
     var event: String? = null,
     var status: String? = null,
     var code: String? = null,
     var timestamp: Long? = null,
     var geo: String? = null,
     var transactionType: String? = null
-)
+) {
+    init {
+        val user = Singletons.getCurrentlyLoggedInUser()
+        storm_id = user!!.netplus_id!!
+        business_name = user.business_name!!
+        terminalId = NetPosTerminalConfig.getTerminalId()
+        deviceSerial = NetPosSdk.getDeviceSerial()
+    }
+}
 
 data class AuthenticationEventData(
     val business_name: String,
@@ -75,3 +97,5 @@ data class CardReaderMqttEvent(
 )
 
 data class SMSEvent(val to: String, val status: String, var serverResponse: String)
+
+fun <T> MqttEvent<T>.toLocal(topic: String, cause: String? = null) = MqttEventsLocal(topic, Singletons.gson.toJson(this), cause)

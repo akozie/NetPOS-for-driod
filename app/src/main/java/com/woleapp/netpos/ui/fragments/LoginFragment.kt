@@ -9,7 +9,6 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.viewModels
 import com.google.gson.JsonObject
-import com.netpluspay.netpossdk.NetPosSdk
 import com.woleapp.netpos.R
 import com.woleapp.netpos.databinding.DialogPasswordResetBinding
 import com.woleapp.netpos.databinding.FragmentLoginBinding
@@ -21,7 +20,6 @@ import com.woleapp.netpos.mqtt.MqttHelper
 import com.woleapp.netpos.network.StormApiClient
 import com.woleapp.netpos.nibss.NetPosTerminalConfig
 import com.woleapp.netpos.ui.activities.MainActivity
-import com.woleapp.netpos.util.Singletons
 import com.woleapp.netpos.viewmodels.AuthViewModel
 
 class LoginFragment : BaseFragment() {
@@ -33,7 +31,7 @@ class LoginFragment : BaseFragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentLoginBinding.inflate(inflater, container, false).apply {
             lifecycleOwner = viewLifecycleOwner
             executePendingBindings()
@@ -82,17 +80,11 @@ class LoginFragment : BaseFragment() {
                                 Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                         })
                         NetPosTerminalConfig.init(applicationContext)
-                        val user = Singletons.getCurrentlyLoggedInUser()
-                        val event = MqttEvent(
-                            user!!.netplus_id!!,
-                            user.business_name!!,
-                            NetPosTerminalConfig.getTerminalId(),
-                            NetPosSdk.getDeviceSerial()
-                        ).apply {
+                        val event = MqttEvent<AuthenticationEventData>().apply {
                             this.event = MqttEvents.AUTHENTICATION.event
                             this.code = "00"
                             this.timestamp = System.currentTimeMillis()
-                            this.data = AuthenticationEventData(this.business_name, this.storm_id, this.deviceSerial)
+                            this.data = AuthenticationEventData(this.business_name!!, this.storm_id!!, this.deviceSerial!!)
                             this.status = "SUCCESS"
                         }
                         MqttHelper.init(applicationContext, event, MqttTopics.AUTHENTICATION)

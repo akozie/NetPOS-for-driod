@@ -3,8 +3,10 @@ package com.woleapp.netpos.app
 import android.app.Application
 import android.content.ContextWrapper
 import com.netpluspay.netpossdk.NetPosSdk
+import com.netpluspay.netpossdk.utils.TerminalParameters
 import com.pixplicity.easyprefs.library.Prefs
 import timber.log.Timber
+import java.util.*
 
 class NetPosApp : Application() {
 
@@ -18,6 +20,7 @@ class NetPosApp : Application() {
             .setPrefsName(packageName)
             .setUseDefaultSharedPreference(true)
             .build()
+        //TimeZone.setDefault(TimeZone.getTimeZone("GMT+8"));
 //        RxJavaPlugins.setErrorHandler {
 //            Timber.e("Error: ${it.localizedMessage}")
 //        }
@@ -33,18 +36,16 @@ class NetPosApp : Application() {
         NetPosSdk.init()
         if (Prefs.contains("load_provided").not()) {
             NetPosSdk.loadProvidedCapksAndAids()
+            NetPosSdk.loadEmvParams(
+                TerminalParameters()
+                    .apply {
+                        terminalCapability = "E0F8C8"
+                    }
+            )
             Prefs.putBoolean("load_provided", true)
         }
 
+        Timber.e(NetPosSdk.getDeviceSerial())
 
-//        if (Prefs.contains("has_setup_device").not()){
-//            NetPosSdk.loadEmvParams(
-//                TerminalParameters()
-//                    .apply {
-//                        terminalCapability = "E0F8C8"
-//                    }
-//            )
-//            NetPosSdk.loadProvidedCapksAndAids()
-//        }
     }
 }

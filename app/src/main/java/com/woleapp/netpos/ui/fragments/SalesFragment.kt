@@ -5,21 +5,16 @@ package com.woleapp.netpos.ui.fragments
 import android.app.AlertDialog
 import android.app.ProgressDialog
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
-import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.fragment.app.viewModels
 import com.google.android.material.snackbar.Snackbar
 import com.google.gson.JsonObject
 import com.netpluspay.netpossdk.NetPosSdk
-import com.netpluspay.netpossdk.emv.CardReaderEvent
-import com.netpluspay.netpossdk.emv.CardReaderService
 import com.netpluspay.nibssclient.models.TransactionType
-import com.pos.sdk.emvcore.POIEmvCoreManager
 import com.woleapp.netpos.R
 import com.woleapp.netpos.databinding.DialogTransactionResultBinding
 import com.woleapp.netpos.databinding.FragmentSalesBinding
@@ -32,17 +27,16 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
-import com.pos.sdk.emvcore.POIEmvCoreManager.DEV_ICC
-import com.pos.sdk.emvcore.POIEmvCoreManager.DEV_PICC
 import com.woleapp.netpos.model.Vend
 import com.woleapp.netpos.util.Singletons
-import io.reactivex.Single
-import org.json.JSONObject
+import io.reactivex.Observable
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.io.PrintWriter
+import java.lang.Exception
 import java.net.InetSocketAddress
 import java.net.Socket
+import java.util.concurrent.TimeUnit
 
 
 class SalesFragment : BaseFragment() {
@@ -81,7 +75,6 @@ class SalesFragment : BaseFragment() {
         )
         isVend = arguments?.getBoolean("IS_VEND", false) ?: false
         viewModel.isVend(isVend)
-        viewModel.setContext(requireContext())
         receiptDialogBinding = DialogTransactionResultBinding.inflate(inflater, null, false)
             .apply { executePendingBindings() }
         binding.apply {
@@ -115,12 +108,12 @@ class SalesFragment : BaseFragment() {
                                 Timber.e(error)
                                 Toast.makeText(
                                     requireContext(),
-                                    error.localizedMessage,
-                                    Toast.LENGTH_SHORT
+                                    error.message,
+                                    Toast.LENGTH_LONG
                                 )
                                     .show()
                             }
-                            it.cardData?.let { cardData ->
+                            it.cardData?.let { _ ->
                                 viewModel.setCardScheme(it.cardScheme!!)
                                 viewModel.setCustomerName(it.customerName ?: "Customer")
                                 viewModel.setAccountType(it.accountType!!)
@@ -176,7 +169,7 @@ class SalesFragment : BaseFragment() {
             receiptDialogBinding.apply {
                 closeBtn.setOnClickListener {
                     alertDialog.dismiss()
-                    requireActivity().onBackPressed()
+                    //requireActivity().onBackPressed()
                 }
                 sendButton.setOnClickListener {
                     if (receiptDialogBinding.telephone.text.toString().length != 11) {
@@ -277,15 +270,63 @@ class SalesFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        vend()
+    }
+
+    private fun vend() {
         if (isVend) {
             val progressBar = ProgressDialog(context).apply {
                 this.setMessage("Waiting for amount.")
                 show()
             }
+            val socket = Socket()
+            var printWriter: PrintWriter? = null
+            var reader: BufferedReader? = null
+            Observable.fromCallable {
+                socket.connect(InetSocketAddress("139.162.249.69", 3535))
+                printWriter = PrintWriter(socket.getOutputStream(), true)
+                reader = BufferedReader(InputStreamReader(socket.getInputStream()))
+                val firstData = reader?.readLine()
+                Timber.e(firstData)
+            }.flatMap {
+                Observable.interval(0, 5, TimeUnit.SECONDS)
+            }.flatMap {
+                val out = JsonObject().apply {
+                    addProperty("serial_number", NetPosSdk.getDeviceSerial())
+                    addProperty("status", "")
+                }.toString()
+                printWriter?.println(out)
+                try {
+                    val vend = Singletons.gson.fromJson(reader?.readLine(), Vend::class.java)
+                    //socket.close()
+                    Observable.just(vend)
+                } catch (e: Exception) {
+                    Observable.just(Vend(0.0))
+                }
+            }.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({
+                    Timber.e("vend: $it")
+                    if (it.amount > 0.0) {
+                        progressBar.dismiss()
+                        Toast.makeText(context, "received", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, it.amount.toString(), Toast.LENGTH_LONG).show()
+                        binding.priceTextbox.setText(it.amount.toLong().toString())
+                        compositeDisposable.dispose()
+                    }
+                }, {
+                    progressBar.dismiss()
+                    Toast.makeText(
+                        requireContext(),
+                        "Error ${it.localizedMessage}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    Timber.e("Error: ${it.localizedMessage}")
+                }).disposeWith(compositeDisposable)
 
-            Single.fromCallable {
+            /*Single.fromCallable {
                 Socket().run {
-                    connect(InetSocketAddress("192.168.8.104", 4_000), 30_000)
+                    connect(InetSocketAddress("139.162.249.69", 3535), 30_000)
                     soTimeout = 30_000
                     val reader = BufferedReader(InputStreamReader(getInputStream()))
                     val firstData = reader.readLine()
@@ -318,7 +359,7 @@ class SalesFragment : BaseFragment() {
                         Toast.makeText(context, it.localizedMessage, Toast.LENGTH_SHORT).show()
                         Timber.e(it)
                     }
-                }.disposeWith(compositeDisposable)
+                }.disposeWith(compositeDisposable)*/
         }
     }
 

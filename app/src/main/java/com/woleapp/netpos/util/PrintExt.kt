@@ -1,21 +1,148 @@
 package com.woleapp.netpos.util
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.os.Build
+
+import com.netpluspay.netpossdk.NetPosSdk
 import com.netpluspay.netpossdk.printer.PrinterResponse
 import com.netpluspay.netpossdk.printer.ReceiptBuilder
+import com.netpluspay.netpossdk.utils.DeviceConfig
 import com.netpluspay.nibssclient.models.TransactionResponse
 import com.netpluspay.nibssclient.models.responseMessage
 import com.netpluspay.nibssclient.util.formatCurrencyAmount
 import com.pos.sdk.printer.POIPrinterManage
+import com.pos.sdk.printer.models.BitmapPrintLine
+import com.pos.sdk.printer.models.PrintLine
+import com.pos.sdk.printer.models.TextPrintLine
 import com.woleapp.netpos.BuildConfig
 import com.woleapp.netpos.R
 import com.woleapp.netpos.model.NipNotification
 import io.reactivex.Observable
 import io.reactivex.ObservableEmitter
 import io.reactivex.Single
+import io.reactivex.SingleEmitter
 import timber.log.Timber
 import java.lang.StringBuilder
+
+
+fun List<TransactionResponse>.printEndOfDay(
+    context: Context,
+): Single<PrinterResponse> {
+    if (Build.MODEL.equals("mini", true) || Build.MODEL.equals("p5", true))
+        return Single.error(Throwable("Device cannot print"))
+
+    val printerManager = NetPosSdk.getPrinterManager(context).apply {
+        if (DeviceConfig.Device ==  DeviceConfig.DEVICE_PRO) {
+            try {
+                setPrintGray(Integer.valueOf("5000"))
+                setLineSpace(Integer.valueOf("1"))
+                cleanCache()
+            } catch (e: java.lang.Exception) {
+                e.printStackTrace()
+                Timber.e("Error: ${e.localizedMessage}")
+            }
+        }
+    }
+    val textPrintLine = TextPrintLine().apply {
+        type = TextPrintLine.TEXT
+    }
+    var amountApproved:Long = 0
+    var amountDeclined: Long = 0
+
+    val bitmapPrintLine = BitmapPrintLine()
+    bitmapPrintLine.type = PrintLine.BITMAP
+    bitmapPrintLine.position = PrintLine.CENTER
+        val bitmap: Bitmap =
+            BitmapFactory.decodeResource(context.resources, R.drawable.ic_netpos_new)
+    bitmapPrintLine.bitmap = Bitmap.createScaledBitmap(bitmap, 180, 120, false)
+    printerManager.addPrintLine(bitmapPrintLine)
+
+    var emitter: SingleEmitter<PrinterResponse>? = null
+    forEach {
+        if (it.responseCode == "00"){
+            amountApproved = amountApproved.plus(it.amount)
+        }
+        else
+            amountDeclined = amountDeclined.plus(it.amount)
+
+        textPrintLine.apply {
+            isBold = true
+            content = if (it.responseCode == "00") "Approved" else "Declined"
+        }
+        printerManager.appendTextEntity(textPrintLine)
+        textPrintLine.apply {
+            isBold = false
+            content = "Amount: ${it.amount.div(100).formatCurrencyAmount("\u20A6")}"
+        }
+        printerManager.appendTextEntity(textPrintLine)
+        textPrintLine.apply {
+            content = "RRN: ${it.RRN}"
+        }
+        printerManager.appendTextEntity(textPrintLine)
+        textPrintLine.apply {
+            content = "-----------------------------------------------"
+        }
+        printerManager.appendTextEntity(textPrintLine)
+    }
+    textPrintLine.apply {
+        position = PrintLine.CENTER
+        content = "SUMMARY"
+    }
+    printerManager.appendTextEntity(textPrintLine)
+    textPrintLine.apply {
+        position = PrintLine.LEFT
+        content = "-----------------------------------------------"
+    }
+    printerManager.appendTextEntity(textPrintLine)
+
+    textPrintLine.apply {
+        content = "Approved: ${amountApproved.div(100).formatCurrencyAmount("\u20A6")}"
+    }
+    printerManager.appendTextEntity(textPrintLine)
+    textPrintLine.apply {
+        content = "Declined: ${amountDeclined.div(100).formatCurrencyAmount("\u20A6")}"
+    }
+    printerManager.appendTextEntity(textPrintLine)
+
+    textPrintLine.apply {
+        content = "\n\n"
+    }
+    printerManager.appendTextEntity(textPrintLine)
+
+    Timber.e("Approved: ${amountApproved.div(100).formatCurrencyAmount("\u20A6")}")
+    Timber.e("Declined: ${amountDeclined.div(100).formatCurrencyAmount("\u20A6")}")
+
+    val printerListener = object : POIPrinterManage.IPrinterListener {
+        override fun onError(p0: Int, p1: String?) {
+            emitter?.let {
+                if (it.isDisposed.not())
+                    it.onError(Throwable("message: $p1 - code: $p0"))
+            }
+        }
+
+        override fun onFinish() {
+            emitter?.let {
+                if (it.isDisposed.not())
+                    it.onSuccess(PrinterResponse())
+            }
+        }
+
+        override fun onStart() {
+            Timber.e("Printing started")
+        }
+    }
+    //printerManager.addPrintLine(listOfTextPrintLine)
+    return Single.create {
+        emitter = it
+        printerManager.beginPrint(printerListener)
+    }
+}
+
+fun POIPrinterManage.appendTextEntity(printLine: TextPrintLine){
+    addPrintLine(printLine)
+}
 
 fun List<TransactionResponse>.printAll(
     context: Context,
@@ -113,7 +240,12 @@ fun TransactionResponse.buildReceipt(
     remark: String? = null
 ) =
     ReceiptBuilder(context).also { builder ->
-        builder.appendLogo(BitmapFactory.decodeResource(context.resources, R.drawable.ic_netpos_logo))
+        builder.appendLogo(
+            BitmapFactory.decodeResource(
+                context.resources,
+                R.drawable.ic_netpos_new
+            )
+        )
         builder.appendAID(AID)
         builder.appendAddress(Singletons.getCurrentlyLoggedInUser()!!.business_name)
         builder.appendAmount(
@@ -158,7 +290,7 @@ fun NipNotification.print(context: Context): Single<PrinterResponse> {
 
 fun NipNotification.buildNipReceipt(context: Context): ReceiptBuilder =
     ReceiptBuilder(context).apply {
-        appendLogo(BitmapFactory.decodeResource(context.resources, R.drawable.ic_netpos_logo))
+        appendLogo(BitmapFactory.decodeResource(context.resources, R.drawable.ic_netpos_new))
         appendTextEntityFontSixteenCenter("BANK TRANSFER")
         appendTextEntity("\nBeneficiary Account Number: $beneficiaryAccountNumber")
         appendTextEntity("Source Name: $sourceName")
