@@ -10,6 +10,7 @@ import com.google.gson.JsonObject
 import com.netpluspay.netpossdk.NetPosSdk
 import com.netpluspay.netpossdk.errors.POSPrinterException
 import com.netpluspay.netpossdk.printer.PrinterResponse
+import com.netpluspay.nibssclient.exception.NibssClientException
 import com.netpluspay.nibssclient.models.*
 import com.netpluspay.nibssclient.service.NibssApiWrapper
 import com.pixplicity.easyprefs.library.Prefs
@@ -180,27 +181,43 @@ class SalesViewModel : ViewModel() {
                     _finish.value = Event(true)
                 }
                 throwable?.let {
-                    if (it is POSPrinterException) {
-                        _showPrinterError.value = Event(it.localizedMessage)
-                        _message.value = Event("Error: ${it.localizedMessage}")
-                        Timber.e(it)
-                        printerEvent.apply {
-                            this.event = MqttEvents.PRINTING_RECEIPT.event
-                            this.code = "-1"
-                            this.timestamp = System.currentTimeMillis()
-                            this.data = PrinterEventData(
-                                lastTransactionResponse.value!!.RRN,
-                                it.localizedMessage
-                            )
-                            this.status = it.message
+                    when (it) {
+                        is POSPrinterException -> {
+                            _showPrinterError.value = Event(it.localizedMessage)
+                            _message.value = Event("Error: ${it.localizedMessage}")
+                            Timber.e(it)
+                            printerEvent.apply {
+                                this.event = MqttEvents.PRINTING_RECEIPT.event
+                                this.code = "-1"
+                                this.timestamp = System.currentTimeMillis()
+                                this.data = PrinterEventData(
+                                    lastTransactionResponse.value!!.RRN,
+                                    it.localizedMessage
+                                )
+                                this.status = it.message
+                            }
+                            MqttHelper.sendPayload(MqttTopics.PRINTING_RECEIPT, printerEvent)
                         }
-                        MqttHelper.sendPayload(MqttTopics.PRINTING_RECEIPT, printerEvent)
-                    } else if (it is UnknownHostException || it is SocketException) {
-                        _message.value = Event("Bad Internet Connection::${it.localizedMessage}")
-                        Timber.e(it.localizedMessage)
-                    } else {
-                        _message.value = Event(it.localizedMessage ?: "Unknown exception")
-                        Timber.e(it)
+                        is UnknownHostException, is SocketException -> {
+                            _message.value =
+                                Event("Bad Internet Connection::${it.localizedMessage}")
+                            Timber.e(it.localizedMessage)
+                        }
+                        is NibssClientException -> {
+                            it.nibssError?.let { nibssError ->
+                                Timber.e(nibssError.toString())
+                                if (nibssError.possibleSolution!! == "Attempt configure terminal") {
+                                    Prefs.remove(PREF_CONFIG_DATA)
+                                    Prefs.remove(PREF_KEYHOLDER)
+                                    _shouldRefreshNibssKeys.value = Event(true)
+                                }
+                                _message.value = Event(nibssError.error ?: "Error")
+                            }
+                        }
+                        else -> {
+                            _message.value = Event(it.localizedMessage ?: "Unknown exception")
+                            Timber.e(it)
+                        }
                     }
                 }
             }.disposeWith(compositeDisposable)

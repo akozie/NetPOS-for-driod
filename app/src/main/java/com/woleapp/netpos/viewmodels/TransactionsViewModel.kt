@@ -12,6 +12,7 @@ import com.woleapp.netpos.database.AppDatabase
 import com.woleapp.netpos.model.*
 import com.woleapp.netpos.mqtt.MqttHelper
 import com.woleapp.netpos.network.StormApiClient
+import com.woleapp.netpos.nibss.NetPosTerminalConfig
 import com.woleapp.netpos.util.*
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -91,7 +92,7 @@ class TransactionsViewModel : ViewModel() {
                 .getTransactionByTransactionType(TransactionType.PRE_AUTHORIZATION)
             HISTORY_ACTION_REFUND -> appDatabase!!.transactionResponseDao()
                 .getRefundableTransactions()
-            else -> appDatabase!!.transactionResponseDao().getTransactions()
+            else -> appDatabase!!.transactionResponseDao().getTransactions(NetPosTerminalConfig.getTerminalId())
         }
 
 

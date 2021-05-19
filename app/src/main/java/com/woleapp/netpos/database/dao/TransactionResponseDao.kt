@@ -17,13 +17,14 @@ interface TransactionResponseDao {
     @Update
     fun updateTransaction(transactionResponse: TransactionResponse): Single<Int>
 
-    @Query("SELECT * FROM transactionresponse ORDER BY id DESC")
-    fun getTransactions(): LiveData<List<TransactionResponse>>
+    @Query("SELECT * FROM transactionresponse WHERE terminalId=:terminalId ORDER BY id DESC")
+    fun getTransactions(terminalId: String): LiveData<List<TransactionResponse>>
 
-    @Query("SELECT * FROM transactionresponse WHERE transactionTimeInMillis >= :beginningOfDay and transactionTimeInMillis <= :endOfDay")
+    @Query("SELECT * FROM transactionresponse WHERE transactionTimeInMillis >= :beginningOfDay and transactionTimeInMillis <= :endOfDay and terminalId=:terminalId")
     fun getEndOfDayTransaction(
         beginningOfDay: Long,
-        endOfDay: Long
+        endOfDay: Long,
+        terminalId: String
     ): LiveData<List<TransactionResponse>>
 
     @Query("SELECT * FROM transactionresponse WHERE transactionType=:transactionType ORDER BY id DESC")

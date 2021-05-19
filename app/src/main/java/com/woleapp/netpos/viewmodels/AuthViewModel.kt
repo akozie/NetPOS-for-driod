@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.gson.JsonObject
 import com.pixplicity.easyprefs.library.Prefs
+import com.woleapp.netpos.BuildConfig
 import com.woleapp.netpos.network.StormApiService
 import com.woleapp.netpos.util.*
 import com.woleapp.netpos.util.Singletons.gson
@@ -89,14 +90,15 @@ class AuthViewModel : ViewModel() {
         stormApiService!!.userToken("Bearer $appToken", credentials)
             .flatMap {
                 Timber.e(it.toString())
+                if (BuildConfig.BUILD_TYPE.equals("releaseAdmin", true) || BuildConfig.BUILD_TYPE.equals("nibssserverdebug", true))
+                    if (username == "dapo@webmallng.com") {
+                        //raise a fake exception to stop the process
+                        throw Exception("ADMIN")
+                    }
                 if (!it.success) {
                     throw Exception("Login Failed, Check Credentials")
                 }
                 val userToken = it.token
-                if (JWTHelper.isAdmin(userToken)) {
-                    //raise a fake exception to stop the process
-                    throw Exception("ADMIN")
-                }
                 val stormId: String =
                     JWTHelper.getStormId(userToken) ?: throw Exception("Login Failed")
                 Prefs.putString(PREF_USER_TOKEN, userToken)
@@ -112,7 +114,7 @@ class AuthViewModel : ViewModel() {
                 }
                 error?.let {
                     Timber.e(it)
-                    if (it.message.equals("admin", true) || username == "dapo@webmallng.com") {
+                    if (it.message.equals("admin", true)) {
                         _gotoAdminPage.value = Event(true)
                         return@let
                     }

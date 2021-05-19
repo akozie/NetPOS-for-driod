@@ -385,6 +385,7 @@ class UtilitiesViewModel : ViewModel() {
 
     private fun printReceipt(context: Context) {
         _message.postValue(Event("Printing Receipt"))
+        Timber.e(remark)
         val transactionResponse = lastTransactionResponse.value!!
         val single = if (Build.MODEL.equals("Pro", true) || Build.MODEL.equals(
                 "P3",
@@ -403,7 +404,7 @@ class UtilitiesViewModel : ViewModel() {
             .subscribe { t1, t2 ->
                 val printerEvent = MqttEvent<PrinterEventData>()
                 t1?.let {
-                    _message.value = Event(it.message)
+                    _message.value = Event("Printer: ${it.message}")
                     printerEvent.apply {
                         this.event = MqttEvents.PRINTING_RECEIPT.event
                         this.code = it.code.toString()

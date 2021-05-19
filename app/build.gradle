@@ -20,8 +20,8 @@ android {
         applicationId "com.woleapp.netpos"
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 34
-        versionName "1.1.29"
+        versionCode 36
+        versionName "1.1.31"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         def environmentPath
         if (appModeProd == "true")
@@ -39,6 +39,7 @@ android {
 
     buildTypes {
         debug {
+            buildConfigField "String", "BUILD_VARIANT", "\"debug\""
             ndk {
                 abiFilters "armeabi-v7a", "x86"
             }
@@ -46,16 +47,23 @@ android {
             resValue "string", "app_name", "NetPOS Debug"
         }
         release {
+            buildConfigField "String", "BUILD_VARIANT", "\"release\""
             resValue "string", "app_name", "NetPOS"
             debuggable false
-            //applicationIdSuffix ".releaseserver"
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         nibssserverdebug {
             initWith debug
-            resValue "string", "app_name", "NetPOS Server"
+            buildConfigField "String", "BUILD_VARIANT", "\"nibssServerDebug\""
+            resValue "string", "app_name", "Admin Debug"
             applicationIdSuffix ".debugserver"
+        }
+        releaseAdmin {
+            initWith release
+            buildConfigField "String", "BUILD_VARIANT", "\"releaseAdmin\""
+            resValue "string", "app_name", "Admin NetPOS"
+            applicationIdSuffix ".releaseAdmin"
         }
     }
     compileOptions {
@@ -93,10 +101,10 @@ dependencies {
     implementation "io.reactivex.rxjava2:rxkotlin:2.4.0"
 
     //nibss-client
-    implementation "com.netpluspay.android.nibssclient:nibss-client:1.0.5"
+    implementation "com.netpluspay.android.nibssclient:nibss-client:1.1.3"
 
     //netpos sdk
-    implementation "com.netpluspay.netpossdk:netpossdk:1.0.10"
+    implementation "com.netpluspay.netpossdk:netpossdk:1.0.11"
     //implementation project(path: ':netpossdk')
 
     //Timber

@@ -296,7 +296,7 @@ fun NipNotification.buildNipReceipt(context: Context): ReceiptBuilder =
         appendTextEntity("Source Name: $sourceName")
         appendTextEntity("Source Account Number: $sourceAccountNumber")
         appendTextEntity(
-            "Amount: \u20A6${amount}"
+            "Amount: \u20A6${this@buildNipReceipt.amount}"
         )
         appendTextEntity("Date: $createdAt")
     }

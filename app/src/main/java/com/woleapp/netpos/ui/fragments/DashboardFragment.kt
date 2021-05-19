@@ -13,7 +13,6 @@ import android.widget.Toast
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.GridLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.netpluspay.netpossdk.NetPosSdk
 import com.netpluspay.nibssclient.models.*
 import com.netpluspay.nibssclient.service.NibssApiWrapper
 import com.netpluspay.nibssclient.util.formatCurrencyAmount
@@ -29,6 +28,7 @@ import com.woleapp.netpos.nibss.NetPosTerminalConfig
 import com.woleapp.netpos.util.*
 import com.woleapp.netpos.viewmodels.TransactionsViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import java.util.*
@@ -40,12 +40,13 @@ class DashboardFragment : BaseFragment() {
     private lateinit var progressDialog: ProgressDialog
     private lateinit var binding: FragmentDashboardBinding
     private lateinit var adapter: ServiceAdapter
+    private var compositeDisposable = CompositeDisposable()
     private val transactionViewModel by activityViewModels<TransactionsViewModel>()
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentDashboardBinding.inflate(inflater, container, false)
         adapter = ServiceAdapter {
             when (it.id) {
@@ -129,8 +130,7 @@ class DashboardFragment : BaseFragment() {
                     showMessage(if (it.isApproved) "Approved" else "Declined", messageString)
                 }
             }
-
-        //compositeDisposable.add(disposable)
+        disposable.disposeWith(compositeDisposable)
     }
 
     private fun showMessage(s: String, messageString: String) {
@@ -198,15 +198,17 @@ class DashboardFragment : BaseFragment() {
 
     private fun getEndOfDayTransactions(timestamp: Long? = null) {
         Toast.makeText(requireContext(), "Please wait", Toast.LENGTH_LONG).show()
-        AppDatabase.getDatabaseInstance(requireContext())
+        val livedata = AppDatabase.getDatabaseInstance(requireContext())
             .transactionResponseDao()
             .getEndOfDayTransaction(
                 getBeginningOfDay(timestamp),
-                getEndOfDayTimeStamp(timestamp)
+                getEndOfDayTimeStamp(timestamp),
+                NetPosTerminalConfig.getTerminalId()
             )
-            .observe(viewLifecycleOwner) {
-                showEndOfDayBottomSheetDialog(it)
-            }
+        livedata.observe(viewLifecycleOwner) {
+            showEndOfDayBottomSheetDialog(it)
+            livedata.removeObservers(viewLifecycleOwner)
+        }
     }
 
     private fun showCalendarDialog() {

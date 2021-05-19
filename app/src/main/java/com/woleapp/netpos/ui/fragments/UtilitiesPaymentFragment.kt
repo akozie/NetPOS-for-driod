@@ -399,6 +399,24 @@ class UtilitiesPaymentFragment : BaseFragment() {
 
         airtimeOrDataBinding.dataOrAirtimeSpinner.adapter = dataOrAirtimeSpinnerAdapter
         airtimeOrDataBinding.selectNetworkSpinner.adapter = selectNetworkSpinnerAdapter
+        var selectedNetwork = 0
+        airtimeOrDataBinding.selectDataBundleSpinner.onItemSelectedListener =
+            object : AdapterView.OnItemSelectedListener {
+                override fun onNothingSelected(parent: AdapterView<*>?) {
+
+                }
+
+                override fun onItemSelected(
+                    parent: AdapterView<*>?,
+                    view: View?,
+                    position: Int,
+                    id: Long
+                ) {
+                    viewModel.setUtilityPackage("${dataPlanList[selectedNetwork][position].data} - ${dataPlanList[selectedNetwork][position].duration}")
+                    airtimeOrDataBinding.priceTextbox.setText(dataPlanList[selectedNetwork][position].price)
+                }
+
+            }
         airtimeOrDataBinding.dataOrAirtimeSpinner.onItemSelectedListener =
             object : AdapterView.OnItemSelectedListener {
                 override fun onNothingSelected(parent: AdapterView<*>?) {
@@ -413,6 +431,8 @@ class UtilitiesPaymentFragment : BaseFragment() {
                 ) {
                     val visibility = when (position) {
                         0 -> {
+                            viewModel.setUtilityPackage("Airtime")
+                            viewModel.setUtilityBillType("Airtime")
                             airtimeOrDataBinding.priceTextbox.isEnabled = true
                             airtimeOrDataBinding.currencyTextbox.setBackgroundResource(R.drawable.services_edittext_background)
                             airtimeOrDataBinding.priceTextbox.setBackgroundResource(R.drawable.services_edittext_background)
@@ -431,7 +451,6 @@ class UtilitiesPaymentFragment : BaseFragment() {
                 }
 
             }
-        var selectedNetwork = 0
         airtimeOrDataBinding.selectNetworkSpinner.onItemSelectedListener =
             object : AdapterView.OnItemSelectedListener {
                 override fun onNothingSelected(parent: AdapterView<*>?) {
@@ -453,23 +472,6 @@ class UtilitiesPaymentFragment : BaseFragment() {
                         dataBundleTypeSpinnerAdapter
                     viewModel.setUtilityProvider(mobileOperatorsBillers[position].biller_code)
 
-                }
-
-            }
-        airtimeOrDataBinding.selectDataBundleSpinner.onItemSelectedListener =
-            object : AdapterView.OnItemSelectedListener {
-                override fun onNothingSelected(parent: AdapterView<*>?) {
-
-                }
-
-                override fun onItemSelected(
-                    parent: AdapterView<*>?,
-                    view: View?,
-                    position: Int,
-                    id: Long
-                ) {
-                    viewModel.setUtilityPackage("${dataPlanList[selectedNetwork][position].data} - ${dataPlanList[selectedNetwork][position].duration}")
-                    airtimeOrDataBinding.priceTextbox.setText(dataPlanList[selectedNetwork][position].price)
                 }
 
             }

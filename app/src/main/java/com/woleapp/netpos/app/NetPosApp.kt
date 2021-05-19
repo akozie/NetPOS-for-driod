@@ -6,7 +6,6 @@ import com.netpluspay.netpossdk.NetPosSdk
 import com.netpluspay.netpossdk.utils.TerminalParameters
 import com.pixplicity.easyprefs.library.Prefs
 import timber.log.Timber
-import java.util.*
 
 class NetPosApp : Application() {
 

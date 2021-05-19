@@ -9,6 +9,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.netpluspay.netpossdk.NetPosSdk
 import com.netpluspay.netpossdk.NetPosSdk.writeTpkKey
 import com.netpluspay.netpossdk.utils.DeviceConfig
+import com.netpluspay.nibssclient.exception.NibssClientException
 import com.netpluspay.nibssclient.models.ConfigurationParams
 import com.netpluspay.nibssclient.models.KeyHolder
 import com.netpluspay.nibssclient.service.NibssApiWrapper
@@ -104,6 +105,9 @@ object NetPosTerminalConfig {
                     disposeDisposables()
                 }
                 t2?.let {
+                    if (it is NibssClientException) {
+                        it.nibssError?.let { nibssError -> Timber.e(nibssError.toString()) }
+                    }
                     Toast.makeText(
                         context,
                         it.localizedMessage ?: "Configuration Error",
