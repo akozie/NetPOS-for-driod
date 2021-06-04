@@ -1,7 +1,7 @@
 package com.woleapp.netpos;
 
-import com.danbamitale.epmslib.entities.CardData;
-import com.danbamitale.epmslib.utils.TripleDES;
+
+import com.netpluspay.nibssclient.util.TripleDES;
 import com.woleapp.netpos.util.ExtensionFunctionsKt;
 
 import org.junit.Test;
@@ -28,6 +28,7 @@ public class AnotherExampleUnitTest {
 
     @Test
     public void hexTest(){
+        String plainPin = "1234";
         String pin = "042539FFFFFFFFFF";
         String pan = "0000911074859199";
         String cardNum = "0000" + "4960091814144423".substring(3, 15);

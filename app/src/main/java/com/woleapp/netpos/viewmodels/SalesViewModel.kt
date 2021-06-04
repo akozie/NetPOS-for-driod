@@ -178,7 +178,8 @@ class SalesViewModel : ViewModel() {
                     }
                     MqttHelper.sendPayload(MqttTopics.PRINTING_RECEIPT, printerEvent)
                     //_message.value = Event("")
-                    _finish.value = Event(true)
+                    if (it.message.equals("sms", true).not())
+                        _finish.value = Event(true)
                 }
                 throwable?.let {
                     when (it) {
@@ -200,7 +201,7 @@ class SalesViewModel : ViewModel() {
                         }
                         is UnknownHostException, is SocketException -> {
                             _message.value =
-                                Event("Bad Internet Connection::${it.localizedMessage}")
+                                Event("Connection Error::${it.localizedMessage}")
                             Timber.e(it.localizedMessage)
                         }
                         is NibssClientException -> {
@@ -265,7 +266,7 @@ class SalesViewModel : ViewModel() {
                     transactionResponse.buildSMSText(remark.value ?: "").toString()
                 )
             )
-            Single.just(PrinterResponse())
+            Single.just(PrinterResponse(0, "SMS"))
         }
     }
 

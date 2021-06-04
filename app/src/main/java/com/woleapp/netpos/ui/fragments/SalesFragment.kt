@@ -169,7 +169,7 @@ class SalesFragment : BaseFragment() {
             receiptDialogBinding.apply {
                 closeBtn.setOnClickListener {
                     alertDialog.dismiss()
-                    //requireActivity().onBackPressed()
+                    requireActivity().onBackPressed()
                 }
                 sendButton.setOnClickListener {
                     if (receiptDialogBinding.telephone.text.toString().length != 11) {

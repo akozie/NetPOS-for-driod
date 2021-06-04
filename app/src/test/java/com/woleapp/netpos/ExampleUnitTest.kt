@@ -1,14 +1,16 @@
 package com.woleapp.netpos
 
-import com.danbamitale.epmslib.entities.AccountBalance
-import com.danbamitale.epmslib.entities.CardData
-import com.danbamitale.epmslib.entities.TransactionType
-import com.danbamitale.epmslib.utils.IsoAccountType
-import com.danbamitale.epmslib.utils.TripleDES
+
 import com.google.gson.Gson
+import com.netpluspay.nibssclient.models.AccountBalance
+import com.netpluspay.nibssclient.models.CardData
+import com.netpluspay.nibssclient.models.IsoAccountType
+import com.netpluspay.nibssclient.models.TransactionType
+import com.netpluspay.nibssclient.util.TripleDES
 import com.woleapp.netpos.util.getBeginningOfDay
 import com.woleapp.netpos.util.getEndOfDayTimeStamp
-import org.junit.Assert.*
+import com.woleapp.netpos.util.xorHex
+import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.text.SimpleDateFormat
 import java.util.*
@@ -42,13 +44,21 @@ class ExampleUnitTest {
 //        println(sampleName)
 //        println(TransactionType.valueOf(sampleName).name)
 
-        println("" +
-                "{\"keyHolder\":{\"id\":1,\"masterKey\":\"5EA6CD6D32ADCF489D7FFF865F6CA6B3\",\"baseKey\":\"5EA6CD6D32ADCF489D7FFF865F6CA6B3\",\"posMode\":\"POSVAS\",\"sessionKey\":\"1F47BA2243D5B43A3A7F32B0CCF6B4C1\",\"pinKey\":\"FC29C6B601E597C1D6B071903AAF6066\",\"track2Key\":\"\",\"bdk\":\"\"},\"configData\":{\"id\":1,\"epmsDateTime\":\"20210228141827\",\"cardAcceptorIdCode\":\"2044LA310921764\",\"hostTimeOut\":\"60\",\"currencyCode\":\"566\",\"countryCode\":\"566\",\"callHomeTime\":\"01\",\"merchantNameLocation\":\"COSMIC INTELLIGENT L   OG           OGNG\",\"merchantCategoryCode\":\"6010\"}}".length)
+        println(
+            "" +
+                    "{\"keyHolder\":{\"id\":1,\"masterKey\":\"5EA6CD6D32ADCF489D7FFF865F6CA6B3\",\"baseKey\":\"5EA6CD6D32ADCF489D7FFF865F6CA6B3\",\"posMode\":\"POSVAS\",\"sessionKey\":\"1F47BA2243D5B43A3A7F32B0CCF6B4C1\",\"pinKey\":\"FC29C6B601E597C1D6B071903AAF6066\",\"track2Key\":\"\",\"bdk\":\"\"},\"configData\":{\"id\":1,\"epmsDateTime\":\"20210228141827\",\"cardAcceptorIdCode\":\"2044LA310921764\",\"hostTimeOut\":\"60\",\"currencyCode\":\"566\",\"countryCode\":\"566\",\"callHomeTime\":\"01\",\"merchantNameLocation\":\"COSMIC INTELLIGENT L   OG           OGNG\",\"merchantCategoryCode\":\"6010\"}}".length
+        )
 
         println(
-            Gson().toJson(CardData("5061840800158084537D2111601016422918", "subset", "000", "051").apply {
-                pinBlock = "a2abcdef93901"
-            })
+            Gson().toJson(
+                CardData(
+                    "5061840800158084537D2111601016422918",
+                    "subset",
+                    "000",
+                    "051"
+                ).apply {
+                    pinBlock = "a2abcdef93901"
+                })
         )
         assertEquals(4, 2 + 2)
     }
@@ -102,9 +112,37 @@ class ExampleUnitTest {
         val cardData =
             CardData.initCardDataFromTrack("820238009F360200939F2701809F34034103029F1E086D6F726566756E319F100706011203A4B0109F3303E0F8C89F3501229F37045FD9345A9F01063132333435369F03060000000000008104000000C89F02060000000002005F24032311305F25032010205A0848484211638175015F3401019F150230319F160F3030303030303030303030303030309F1A0205669F1C08313233313233313257104848421163817501D2311226180133195F2A0205669F21031541179C01008E1800000000000000004105440502054103440342035E031F029F0D0598409C98009F0E0500100000009F4005FF80F000019F2608A924F203659E06759F0702FF809A032102225F280205669F090200009F4104000000009F0F0598409C98005F201A434F534D494320494E54454C4C4947454E542F504F5320544541950508800000009B02E8009F0607A0000000031010500C5669736120507265706169648407A0000000031010")
         println(cardData.toString())
-        println(cardData.pan)
+        println(cardData.panSequenceNumber)
         println()
         assertEquals(4, 2 + 2)
+    }
+
+    @Test
+    fun generateNibssPinblock() {
+        val plainPin = "1234"
+        val pinCipher = "04${plainPin}FFFFFFFFFF"
+        val pan = "4960091814144423"
+        val cardNum = "0000${pan.substring(3, 15)}"
+        val pinblock = xorHex(pinCipher, cardNum)!!
+        println(pinblock)
+        val clearPinKey = "6943DD4434E0B3C0D808D0FE2A590CD9"
+        val pinblockToNibss = TripleDES.encrypt(pinblock, clearPinKey)
+        println(pinblockToNibss)
+        assert(pinblockToNibss.isBlank().not())
+    }
+
+    @Test
+    fun generateNibssPinblock1() {
+        val plainPin = "1234"
+        val pinCipher = "042580FFFFFFFFFF"
+        val pan = "5399831639539028"
+        val cardNum = "0000${pan.substring(3, 15)}"
+        val pinblock = xorHex(pinCipher, cardNum)!!
+        println(pinblock)
+        val clearPinKey = "0dd06dc89df280f4adc7fbb6a8585262"
+        val pinblockToNibss = TripleDES.encrypt(pinblock, clearPinKey)
+        println(pinblockToNibss)
+        assert(pinblockToNibss.isBlank().not())
     }
 }
 

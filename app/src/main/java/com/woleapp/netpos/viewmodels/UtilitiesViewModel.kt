@@ -299,14 +299,17 @@ class UtilitiesViewModel : ViewModel() {
     }
 
     private fun reverseTransaction(context: Context) {
+        val requestData = RefundTransactionParams(
+            cardData!!,
+            lastTransactionResponse.value!!,
+            messageReasonCode = MessageReasonCode.CompletedPartially,
+            accountType = isoAccountType!!
+        ).apply {
+            fundWallet = false
+        }
         NibssApiWrapper.refundTransaction(
             context,
-            RefundTransactionParams(
-                cardData!!,
-                lastTransactionResponse.value!!,
-                messageReasonCode = MessageReasonCode.CompletedPartially,
-                accountType = isoAccountType!!
-            )
+            requestData
         ).subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .doFinally {
@@ -340,7 +343,9 @@ class UtilitiesViewModel : ViewModel() {
     fun makePayment(context: Context, transactionType: TransactionType = TransactionType.PURCHASE) {
         _showProgressMutableLiveData.value = Event(true)
         val makePaymentParams =
-            MakePaymentParams(amountLong, 0L, cardData, transactionType, isoAccountType!!)
+            MakePaymentParams(amountLong, 0L, cardData, transactionType, isoAccountType!!).apply {
+                fundWallet = false
+            }
         NibssApiWrapper.makePayment(context, makePaymentParams)
             .flatMap {
                 if (it.responseCode == "A3") {
