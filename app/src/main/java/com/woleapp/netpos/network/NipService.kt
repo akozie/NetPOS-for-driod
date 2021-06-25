@@ -17,5 +17,5 @@ interface NipService {
     fun getLastTwoTransfers(@Query("terminalId") terminalId: String): Single<List<NipNotification>>
 
     @GET("api/nip-notifications")
-    fun getNotificationByReference(@Query("referenceNo") referenceNo: String): Single<NipNotification>
+    fun getNotificationByReference(@Query("referenceNo") referenceNo: String): Single<List<NipNotification>>
 }

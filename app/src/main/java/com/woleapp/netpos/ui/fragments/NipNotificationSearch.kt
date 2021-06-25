@@ -5,10 +5,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import com.pos.sdk.printer.POIPrinterManage
 import com.woleapp.netpos.databinding.FragmentNipNotificationSearchBinding
 import com.woleapp.netpos.model.*
 import com.woleapp.netpos.mqtt.MqttHelper
 import com.woleapp.netpos.network.StormApiClient
+import com.woleapp.netpos.util.print
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
@@ -55,8 +57,33 @@ class NipNotificationSearch : BaseFragment() {
                             this.status = MqttStatus.SUCCESS.name
                         }
                         MqttHelper.sendPayload(MqttTopics.NIP_SEARCH, event)
-                        binding.nip.nip = it
-                        binding.nip.root.visibility = View.VISIBLE
+                        if (it.isNotEmpty()) {
+                            binding.nip.nip = it.first()
+                            binding.nip.root.visibility = View.VISIBLE
+                            binding.nip.print.setOnClickListener { _ ->
+                                Timber.e("print nip")
+                                it.first().print(requireContext(), object : POIPrinterManage.IPrinterListener{
+                                    override fun onError(p0: Int, p1: String?) {
+                                        Timber.e("printer error")
+                                        Toast.makeText(requireContext(), "Printer Error", Toast.LENGTH_SHORT).show()
+                                    }
+
+                                    override fun onFinish() {
+                                        Timber.e("on finish")
+                                    }
+
+                                    override fun onStart() {
+                                        Timber.e("on start")
+                                    }
+
+                                })
+                            }
+                        } else
+                            Toast.makeText(
+                                requireContext(),
+                                "Bank transfer with ref: ${binding.sessionCode.text.toString()} not found",
+                                Toast.LENGTH_SHORT
+                            ).show()
                     }
                     throwable?.let {
                         event.apply {

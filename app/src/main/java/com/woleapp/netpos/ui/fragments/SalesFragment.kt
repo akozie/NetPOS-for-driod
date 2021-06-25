@@ -283,7 +283,7 @@ class SalesFragment : BaseFragment() {
             var printWriter: PrintWriter? = null
             var reader: BufferedReader? = null
             Observable.fromCallable {
-                socket.connect(InetSocketAddress("139.162.249.69", 3535))
+                socket.connect(InetSocketAddress("vend.netpluspay.com", 3535))
                 printWriter = PrintWriter(socket.getOutputStream(), true)
                 reader = BufferedReader(InputStreamReader(socket.getInputStream()))
                 val firstData = reader?.readLine()
@@ -326,7 +326,7 @@ class SalesFragment : BaseFragment() {
 
             /*Single.fromCallable {
                 Socket().run {
-                    connect(InetSocketAddress("139.162.249.69", 3535), 30_000)
+                    connect(InetSocketAddress("vend.netpluspay.com", 3535), 30_000)
                     soTimeout = 30_000
                     val reader = BufferedReader(InputStreamReader(getInputStream()))
                     val firstData = reader.readLine()

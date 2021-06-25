@@ -335,7 +335,7 @@ class SalesViewModel : ViewModel() {
     private fun sendVendResponse(context: Context, out: String) {
         Single.fromCallable {
             Socket().run {
-                connect(InetSocketAddress("139.162.249.69", 3535))
+                connect(InetSocketAddress("vend.netpluspay.com", 3535))
                 val reader = BufferedReader(InputStreamReader(getInputStream()))
                 Timber.e(reader.readLine())
                 val printWriter = PrintWriter(getOutputStream(), true)
