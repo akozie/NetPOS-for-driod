@@ -9,6 +9,7 @@ import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Response
 import okhttp3.ResponseBody.Companion.toResponseBody
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
@@ -17,12 +18,23 @@ import timber.log.Timber
 class StormApiClient {
 
     companion object {
+
+        private fun getBaseOkhttpClientBuilder(): OkHttpClient.Builder {
+            val okHttpClientBuilder = OkHttpClient.Builder()
+
+            val loggingInterceptor = HttpLoggingInterceptor()
+            loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
+            okHttpClientBuilder.addInterceptor(loggingInterceptor)
+
+            return okHttpClientBuilder
+        }
+
         private fun getOkHttpClient() =
-            OkHttpClient.Builder()
+            getBaseOkhttpClientBuilder()
                 .addInterceptor(TokenInterceptor())
                 .build()
 
-        private fun getNipOkHttpClient() = OkHttpClient.Builder()
+        private fun getNipOkHttpClient() = getBaseOkhttpClientBuilder()
             .addInterceptor(NipInterceptor())
             .build()
 
@@ -69,30 +81,47 @@ class StormApiClient {
         }
 
         private var masterPassQRServiceInstance: MasterPassQRService? = null
-        fun getMasterPassQrServiceInstance(): MasterPassQRService = masterPassQRServiceInstance ?: synchronized(this){
-             masterPassQRServiceInstance ?: Retrofit.Builder()
-                 .baseUrl("https://masterpassqr.netpluspay.com/api/v1/")
-                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                 .addConverterFactory(GsonConverterFactory.create())
-                 .build()
-                 .create(MasterPassQRService::class.java)
-                 .also {
-                     masterPassQRServiceInstance = it
-                 }
-        }
+        fun getMasterPassQrServiceInstance(): MasterPassQRService =
+            masterPassQRServiceInstance ?: synchronized(this) {
+                masterPassQRServiceInstance ?: Retrofit.Builder()
+                    .baseUrl("https://masterpassqr.netpluspay.com/api/v1/")
+                    .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build()
+                    .create(MasterPassQRService::class.java)
+                    .also {
+                        masterPassQRServiceInstance = it
+                    }
+            }
 
         private var nibssQRServiceInstance: NibssQRService? = null
-        fun getNibssQRServiceInstance():NibssQRService = nibssQRServiceInstance ?: synchronized(this){
-            nibssQRServiceInstance ?: Retrofit.Builder()
-                .baseUrl("https://masterpassqr.netpluspay.com/api/v1/")
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                .addConverterFactory(GsonConverterFactory.create())
-                .build()
-                .create(NibssQRService::class.java)
-                .also {
-                    nibssQRServiceInstance = it
-                }
-        }
+        fun getNibssQRServiceInstance(): NibssQRService =
+            nibssQRServiceInstance ?: synchronized(this) {
+                nibssQRServiceInstance ?: Retrofit.Builder()
+                    .baseUrl("https://masterpassqr.netpluspay.com/api/v1/")
+                    .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build()
+                    .create(NibssQRService::class.java)
+                    .also {
+                        nibssQRServiceInstance = it
+                    }
+            }
+
+        private var zenithQrServiceInstance: ZenithQrService? = null
+        fun getZenithQRServiceInstance(): ZenithQrService =
+            zenithQrServiceInstance ?: synchronized(this) {
+                zenithQrServiceInstance ?: Retrofit.Builder()
+                    .baseUrl("http://zenith-qr.test.netpluspay.com/api/")
+                    .client(getOkHttpClient())
+                    .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build()
+                    .create(ZenithQrService::class.java)
+                    .also {
+                        zenithQrServiceInstance = it
+                    }
+            }
     }
 }
 
@@ -121,7 +150,8 @@ class NipInterceptor : Interceptor {
         Singletons.gson.fromJson(Prefs.getString(PREF_USER, ""), User::class.java).netplus_id
         Prefs.getString(PREF_USER_TOKEN, "")
         builder.addHeader("X-CLIENT-ID", "85522f45-e459-4548-8b20-3a922196c515")
-        builder.addHeader("X-ACCESSCODE",
+        builder.addHeader(
+            "X-ACCESSCODE",
             "a14014e18e2cffc4d74e150ed68a472bd94189db82d374306d5b307dc7620f20"
 
         )

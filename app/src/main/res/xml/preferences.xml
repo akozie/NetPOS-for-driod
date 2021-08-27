@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <ListPreference
+        android:defaultValue="print_customer_copy_only"
+        android:entries="@array/printer_settings_title"
+        android:entryValues="@array/printer_settings_value"
+        android:icon="@drawable/ic_print"
+        android:key="pref_printer_settings"
+        android:title="Printer Print Settings"
+        app:useSimpleSummaryProvider="true" />
+
+</PreferenceScreen>

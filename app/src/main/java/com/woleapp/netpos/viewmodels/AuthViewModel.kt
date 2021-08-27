@@ -4,6 +4,7 @@ import android.util.Patterns
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.pixplicity.easyprefs.library.Prefs
 import com.woleapp.netpos.BuildConfig
@@ -13,19 +14,24 @@ import com.woleapp.netpos.util.Singletons.gson
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import org.json.JSONObject
 import timber.log.Timber
-import java.lang.Exception
 
 class AuthViewModel : ViewModel() {
     private val disposables = CompositeDisposable()
     var stormApiService: StormApiService? = null
     var appCredentials: JsonObject? = null
     val authInProgress = MutableLiveData(false)
+    val passwordResetInProgress = MutableLiveData(false)
     val usernameLiveData = MutableLiveData("")
     val passwordLiveData = MutableLiveData("")
     private val _message = MutableLiveData<Event<String>>()
     private val _authDone = MutableLiveData<Event<Boolean>>()
     private val _gotoAdminPage = MutableLiveData<Event<Boolean>>()
+    private val _passwordResetSent = MutableLiveData<Event<Boolean>>()
+
+    val passwordResetSent: LiveData<Event<Boolean>>
+        get() = _passwordResetSent
 
     val gotoAdminPage: LiveData<Event<Boolean>>
         get() = _gotoAdminPage
@@ -90,7 +96,11 @@ class AuthViewModel : ViewModel() {
         stormApiService!!.userToken("Bearer $appToken", credentials)
             .flatMap {
                 Timber.e(it.toString())
-                if (BuildConfig.BUILD_TYPE.equals("releaseAdmin", true) || BuildConfig.BUILD_TYPE.equals("nibssserverdebug", true))
+                if (BuildConfig.BUILD_TYPE.equals(
+                        "releaseAdmin",
+                        true
+                    ) || BuildConfig.BUILD_TYPE.equals("nibssserverdebug", true)
+                )
                     if (username == "dapo@webmallng.com") {
                         //raise a fake exception to stop the process
                         throw Exception("ADMIN")
@@ -140,8 +150,28 @@ class AuthViewModel : ViewModel() {
             addProperty("username", username)
         }
         stormApiService!!.passwordReset(appToken, payload).subscribeOn(Schedulers.io())
+            .doOnSubscribe {
+                passwordResetInProgress.postValue(true)
+            }.doFinally { passwordResetInProgress.postValue(false) }
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { _, _ -> }.disposeWith(disposables)
+            .subscribe { t1, t2 ->
+                t1?.let {
+                    _message.value = if (it.code() != 200) {
+                        Event("Password reset failed")
+                    } else {
+                        val res = JSONObject(Gson().toJson(it.body()))
+                        if (!res.getBoolean("success"))
+                            Event("Password reset failed")
+                        else {
+                            _passwordResetSent.value = Event(true)
+                            Event("A password reset mail has been sent to $username")
+                        }
+                    }
+                }
+                t2?.let {
+                    _message.value = Event("Password reset failed, try again.")
+                }
+            }.disposeWith(disposables)
     }
 
     override fun onCleared() {

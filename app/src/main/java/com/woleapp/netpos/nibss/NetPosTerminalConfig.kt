@@ -94,7 +94,14 @@ object NetPosTerminalConfig {
                     Timber.e(it.toString())
                     Prefs.putString(PREF_KEYHOLDER, gson.toJson(it))
                     configurationStatus = 1
-                    writeTpkKey(DeviceConfig.TPKIndex, it.clearPinKey!!)
+                    val tpkResult = writeTpkKey(DeviceConfig.TPKIndex, it.clearPinKey!!)
+                    if (tpkResult != 0) {
+                        Timber.e("write tpk failed")
+                        Toast.makeText(context, "write tpk failed", Toast.LENGTH_SHORT).show()
+                    } else {
+                        //Toast.makeText(context, "write tpk success", Toast.LENGTH_SHORT).show()
+                        Timber.e("write tpk success")
+                    }
                     sendIntent.putExtra(CONFIGURATION_STATUS, configurationStatus)
                     localBroadcastManager.sendBroadcast(sendIntent)
                     if (configureSilently.not()) {

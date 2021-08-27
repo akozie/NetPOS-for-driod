@@ -34,7 +34,7 @@ fun List<TransactionResponse>.printEndOfDay(
         return Single.error(Throwable("Device cannot print"))
 
     val printerManager = NetPosSdk.getPrinterManager(context).apply {
-        if (DeviceConfig.Device ==  DeviceConfig.DEVICE_PRO) {
+        if (DeviceConfig.Device == DeviceConfig.DEVICE_PRO) {
             try {
                 setPrintGray(Integer.valueOf("5000"))
                 setLineSpace(Integer.valueOf("1"))
@@ -48,23 +48,22 @@ fun List<TransactionResponse>.printEndOfDay(
     val textPrintLine = TextPrintLine().apply {
         type = TextPrintLine.TEXT
     }
-    var amountApproved:Long = 0
+    var amountApproved: Long = 0
     var amountDeclined: Long = 0
 
     val bitmapPrintLine = BitmapPrintLine()
     bitmapPrintLine.type = PrintLine.BITMAP
     bitmapPrintLine.position = PrintLine.CENTER
-        val bitmap: Bitmap =
-            BitmapFactory.decodeResource(context.resources, R.drawable.ic_netpos_new)
+    val bitmap: Bitmap =
+        BitmapFactory.decodeResource(context.resources, R.drawable.ic_netpos_new)
     bitmapPrintLine.bitmap = Bitmap.createScaledBitmap(bitmap, 180, 120, false)
     printerManager.addPrintLine(bitmapPrintLine)
 
     var emitter: SingleEmitter<PrinterResponse>? = null
     forEach {
-        if (it.responseCode == "00"){
+        if (it.responseCode == "00") {
             amountApproved = amountApproved.plus(it.amount)
-        }
-        else
+        } else
             amountDeclined = amountDeclined.plus(it.amount)
 
         textPrintLine.apply {
@@ -140,7 +139,7 @@ fun List<TransactionResponse>.printEndOfDay(
     }
 }
 
-fun POIPrinterManage.appendTextEntity(printLine: TextPrintLine){
+fun POIPrinterManage.appendTextEntity(printLine: TextPrintLine) {
     addPrintLine(printLine)
 }
 
@@ -186,8 +185,8 @@ fun TransactionResponse.print(
     buildReceipt(context, isMerchantCopy).print(printerListener)
 }
 
-fun TransactionResponse.print(context: Context, remark: String? = null) =
-    buildReceipt(remark = remark, context = context).print()
+fun TransactionResponse.print(context: Context, remark: String? = null, isMerchantCopy: Boolean = false) =
+    buildReceipt(remark = remark, context = context, isMerchantCopy = isMerchantCopy).print()
 
 fun TransactionResponse.builder() = StringBuilder().apply {
     append("Merchant Name: ").append(Singletons.getCurrentlyLoggedInUser()!!.business_name)
@@ -239,7 +238,11 @@ fun TransactionResponse.buildReceipt(
     isMerchantCopy: Boolean = false,
     remark: String? = null
 ) =
-    ReceiptBuilder(context).also { builder ->
+    ReceiptBuilder(NetPosSdk.getPrinterManager(context).apply {
+        cleanCache()
+        setPrintGray(2000)
+        setLineSpace(1)
+    }).also { builder ->
         builder.appendLogo(
             BitmapFactory.decodeResource(
                 context.resources,
@@ -289,7 +292,11 @@ fun NipNotification.print(context: Context): Single<PrinterResponse> {
 }
 
 fun NipNotification.buildNipReceipt(context: Context): ReceiptBuilder =
-    ReceiptBuilder(context).apply {
+    ReceiptBuilder(NetPosSdk.getPrinterManager(context).apply {
+        cleanCache()
+        setPrintGray(2000)
+        setLineSpace(1)
+    }).apply {
         appendLogo(BitmapFactory.decodeResource(context.resources, R.drawable.ic_netpos_new))
         appendTextEntityFontSixteenCenter("BANK TRANSFER")
         appendTextEntity("\nBeneficiary Account Number: $beneficiaryAccountNumber")

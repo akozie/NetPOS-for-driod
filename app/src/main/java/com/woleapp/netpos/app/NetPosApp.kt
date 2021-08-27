@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.ContextWrapper
 import com.netpluspay.netpossdk.NetPosSdk
 import com.netpluspay.netpossdk.utils.TerminalParameters
+import com.netpluspay.netpossdk.utils.tlv.HexUtil
 import com.pixplicity.easyprefs.library.Prefs
 import timber.log.Timber
 
@@ -31,20 +32,17 @@ class NetPosApp : Application() {
 //        ProcessLifecycleOwner.get().lifecycle
 //            .addObserver(AppLifeCycleObserver())
 
-
         NetPosSdk.init()
         if (Prefs.contains("load_provided").not()) {
             NetPosSdk.loadProvidedCapksAndAids()
             NetPosSdk.loadEmvParams(
                 TerminalParameters()
                     .apply {
+                        //online E068C8
                         terminalCapability = "E0F8C8"
                     }
             )
             Prefs.putBoolean("load_provided", true)
         }
-
-        Timber.e(NetPosSdk.getDeviceSerial())
-
     }
 }

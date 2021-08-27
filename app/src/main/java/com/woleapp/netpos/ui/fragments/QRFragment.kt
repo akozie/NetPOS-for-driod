@@ -1,5 +1,9 @@
+@file:Suppress("DEPRECATION")
+
 package com.woleapp.netpos.ui.fragments
 
+import android.app.ProgressDialog
+import android.content.DialogInterface
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.view.LayoutInflater
@@ -29,6 +33,7 @@ class QRFragment : BaseFragment() {
     private lateinit var nibssQrBottomSheetDialog: BottomSheetDialog
     private lateinit var qrAmoutDialogBinding: QrAmoutDialogBinding
     private lateinit var qrAmountDialog: AlertDialog
+    private lateinit var zenithQRProgressDialog: ProgressDialog
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -38,7 +43,10 @@ class QRFragment : BaseFragment() {
         binding = FragmentTransactionsBinding.inflate(inflater, container, false)
         binding.rvTransactionsHeader.text = getString(R.string.qr_payment)
         adapter = ServiceAdapter {
-            showAmountDialog(it.id)
+            if (it.id == 2)
+                showZenithQrDialog()
+            else
+                showAmountDialog(it.id)
         }
         masterpassQrBottomSheetDialogBinding =
             QrBottomSheetDialogBinding.inflate(
@@ -113,7 +121,41 @@ class QRFragment : BaseFragment() {
                 }
             }
         }
+        viewModel.createZenithMerchant.observe(viewLifecycleOwner) { event ->
+            event.getContentIfNotHandled()?.let {
+                zenithQRProgressDialog.cancel()
+                if (it) {
+                    addFragmentWithoutRemove(QrRegistrationFragment.newInstance())
+                }
+            }
+        }
+        viewModel.zenithQr.observe(viewLifecycleOwner) { event ->
+            event.getContentIfNotHandled()?.let {
+                zenithQRProgressDialog.cancel()
+                masterpassQrBottomSheetDialogBinding.providerQr.visibility = View.VISIBLE
+                masterpassQrBottomSheetDialogBinding.providerQr.setImageResource(R.drawable.ic_zenith_logo)
+                masterpassQrBottomSheetDialogBinding.progress.visibility = View.GONE
+                masterpassQrBottomSheetDialogBinding.qr.setImageBitmap(it)
+                masterPassQrBottomSheetDialog.show()
+            }
+        }
         return binding.root
+    }
+
+    private fun showZenithQrDialog() {
+        if (::zenithQRProgressDialog.isInitialized.not())
+            zenithQRProgressDialog = ProgressDialog(requireContext())
+                .apply {
+                    this.setMessage("Please Wait")
+                    this.setCancelable(false)
+                    this.setButton(
+                        DialogInterface.BUTTON_POSITIVE, "Cancel"
+                    ) { _, _ ->
+                        zenithQRProgressDialog.cancel()
+                    }
+                }
+        zenithQRProgressDialog.show()
+        viewModel.getZenithQR()
     }
 
     private fun startNibssReQueryTimer() {
@@ -158,6 +200,7 @@ class QRFragment : BaseFragment() {
             .apply {
                 add(Service(0, "MasterPass QR", R.drawable.masterpass))
                 add(Service(1, "NIBSS QR", R.drawable.ic_qr_code))
+                //add(Service(2, "Zenith QR", R.drawable.ic_zenith_logo))
             }
         adapter.submitList(listOfService)
     }

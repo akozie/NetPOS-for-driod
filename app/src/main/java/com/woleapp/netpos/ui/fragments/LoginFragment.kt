@@ -1,12 +1,12 @@
 package com.woleapp.netpos.ui.fragments
 
-import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.viewModels
 import com.google.gson.JsonObject
 import com.woleapp.netpos.R
@@ -27,6 +27,7 @@ class LoginFragment : BaseFragment() {
     private val viewModel by viewModels<AuthViewModel>()
     private lateinit var binding: FragmentLoginBinding
     private lateinit var resetPasswordBinding: DialogPasswordResetBinding
+    private lateinit var passwordResetDialog: AlertDialog
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -43,6 +44,14 @@ class LoginFragment : BaseFragment() {
                 executePendingBindings()
                 viewmodel = viewModel
             }
+        passwordResetDialog = AlertDialog.Builder(requireContext())
+            .apply {
+                setView(resetPasswordBinding.root)
+                setCancelable(false)
+            }.create()
+        resetPasswordBinding.closeDialog.setOnClickListener {
+            passwordResetDialog.cancel()
+        }
         val credentials = JsonObject()
         credentials.addProperty("appname", getString(R.string._app_name))
         credentials.addProperty("password", getString(R.string._password))
@@ -64,12 +73,7 @@ class LoginFragment : BaseFragment() {
             }
         }
         binding.forgotPassword.setOnClickListener {
-            AlertDialog.Builder(requireContext())
-                .apply {
-                    setView(resetPasswordBinding.root)
-                    setCancelable(false)
-                    show()
-                }
+            passwordResetDialog.show()
         }
         viewModel.authDone.observe(viewLifecycleOwner) {
             it.getContentIfNotHandled()?.let { authenticated ->
@@ -84,7 +88,11 @@ class LoginFragment : BaseFragment() {
                             this.event = MqttEvents.AUTHENTICATION.event
                             this.code = "00"
                             this.timestamp = System.currentTimeMillis()
-                            this.data = AuthenticationEventData(this.business_name!!, this.storm_id!!, this.deviceSerial!!)
+                            this.data = AuthenticationEventData(
+                                this.business_name!!,
+                                this.storm_id!!,
+                                this.deviceSerial!!
+                            )
                             this.status = "SUCCESS"
                         }
                         MqttHelper.init(applicationContext, event, MqttTopics.AUTHENTICATION)
@@ -98,6 +106,12 @@ class LoginFragment : BaseFragment() {
             it.getContentIfNotHandled()?.let { gotoAdminPage ->
                 if (gotoAdminPage)
                     addFragmentWithoutRemove(AdministratorFragment(), R.id.auth_container)
+            }
+        }
+        viewModel.passwordResetSent.observe(viewLifecycleOwner) { event ->
+            event.getContentIfNotHandled()?.let {
+                if (it && passwordResetDialog.isShowing)
+                    passwordResetDialog.cancel()
             }
         }
     }

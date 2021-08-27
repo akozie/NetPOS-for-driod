@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="printer_settings_title">
+        <item>Print Customer copy only</item>
+        <item>Print Merchant and Customer copy</item>
+        <item>Ask before printing</item>
+        <item>Send Sms</item>
+    </string-array>
+    <string-array name="printer_settings_value">
+        <item>print_customer_copy_only</item>
+        <item>print_merchant_and_customer_copy</item>
+        <item>ask_before_printing</item>
+        <item>send_sms</item>
+    </string-array>
+</resources>

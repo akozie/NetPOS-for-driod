@@ -19,6 +19,7 @@ import com.netpluspay.nibssclient.models.CardData
 import com.netpluspay.nibssclient.models.IsoAccountType
 import com.pos.sdk.emvcore.POIEmvCoreManager.DEV_ICC
 import com.pos.sdk.emvcore.POIEmvCoreManager.DEV_PICC
+import com.pos.sdk.security.POIHsmManage
 import com.woleapp.netpos.R
 import com.woleapp.netpos.databinding.DialogSelectAccountTypeBinding
 import com.woleapp.netpos.model.CardReaderMqttEvent
@@ -113,7 +114,7 @@ fun getCardLiveData(
             //setCancelable(false)
         }
     var iccCardHelper: ICCCardHelper? = null
-    val cardService = CardReaderService(context, listOf(DEV_ICC, DEV_PICC))
+    val cardService = CardReaderService(context, listOf(DEV_ICC, DEV_PICC), keyMode = POIHsmManage.PED_PINBLOCK_FETCH_MODE_TPK)
     val c = cardService.initiateICCCardPayment(
         amount,
         cashBackAmount

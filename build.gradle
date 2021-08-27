@@ -5,8 +5,8 @@ buildscript {
     ext {
         lifecycle_version = "2.3.1"
         arch_version = "2.1.0"
-        kotlin_version = '1.4.32'
-        room_version = "2.2.6"
+        kotlin_version = '1.5.10'
+        room_version = "2.3.0"
     }
     repositories {
         mavenLocal()
@@ -16,7 +16,7 @@ buildscript {
 
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.2.0'
+        classpath 'com.android.tools.build:gradle:7.0.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath 'gradle.plugin.com.github.sgtsilvio.gradle:android-retrofix:0.3.6'
 

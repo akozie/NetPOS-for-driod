@@ -4,7 +4,9 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Color
+import android.util.Base64
 import android.util.Log
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.MultiFormatWriter
@@ -19,6 +21,7 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import okhttp3.ResponseBody
 import retrofit2.HttpException
+import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -55,6 +58,7 @@ private fun toHex(nybble: Int): Char {
     require(!(nybble < 0 || nybble > 15))
     return "0123456789ABCDEF"[nybble]
 }
+
 fun copyTextToClipboard(context: Context, label: String, text: String) {
     val clipboard: ClipboardManager? =
         context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
@@ -68,7 +72,7 @@ fun String.isValidIpAddress(): Boolean {
     return this.matches(PATTERN)
 }
 
-fun NibssAID.toPosEmvAid(): PosEmvAid{
+fun NibssAID.toPosEmvAid(): PosEmvAid {
     val emvAid = PosEmvAid()
     emvAid.AID = PosUtils.hexStringToBytes(this.AID)
     emvAid.Version = PosUtils.hexStringToBytes(this.applicationVersion)
@@ -88,7 +92,7 @@ fun NibssAID.toPosEmvAid(): PosEmvAid{
     return emvAid
 }
 
-fun NibssCA.toPosEmvCa(): PosEmvCapk{
+fun NibssCA.toPosEmvCa(): PosEmvCapk {
     val emvCapk = PosEmvCapk()
     emvCapk.RID = PosUtils.hexStringToBytes(this.RID)
     emvCapk.KeyID = PosUtils.hexStringToBytes(this.keyIndex)[0]
@@ -101,27 +105,25 @@ fun NibssCA.toPosEmvCa(): PosEmvCapk{
 }
 
 fun Throwable.getResponseBody(): String {
-    val error: String
-    error = if (isHttpException()) {
+    return if (isHttpException()) {
         val body: ResponseBody? =
             (this as HttpException).response()!!.errorBody()
         try {
             val sBody = body?.string()
-            Log.e("tag", "body $sBody")
-            sBody ?: "{\"message\": \"An unexpected error occurred, Please try again\"}"
+            Timber.e("body $sBody")
+            sBody
+                ?: "{\"message\": \"An unexpected error occurred {${this.localizedMessage}}, Please try again\"}"
         } catch (e1: Exception) {
             // userResponseResult.setValue(Error(Throwable("An unexpected error occurred")))
-            "{\"message\": \"An unexpected error occurred, Please try again\"}"
+            "{\"message\": \"An unexpected error occurred {${this.localizedMessage}}, Please try again\"}"
         } finally {
             body?.close()
         }
     } else
         "{\"message\": \"An unexpected error occurred, Please try again\"}"
-    return error
 }
 
-fun Throwable.isHttpException(): Boolean =
-    isHttpStatusCode(400) || isHttpStatusCode(404) || isHttpStatusCode(500)
+fun Throwable.isHttpException(): Boolean = (this is HttpException && this.code() in 400..599)
 
 fun Throwable.isHttpStatusCode(statusCode: Int): Boolean =
     (this is HttpException && this.code() == statusCode)
@@ -154,4 +156,9 @@ fun encodeAsBitmap(source: String, width: Int, height: Int): Bitmap? {
     bitmap.setPixels(pixels, 0, width, 0, 0, w, h)
 
     return bitmap
+}
+
+fun String.decodeBase64ToBitmap(): Bitmap? {
+    val decodedString: ByteArray = Base64.decode(this, Base64.DEFAULT)
+    return BitmapFactory.decodeByteArray(decodedString, 0, decodedString.size)
 }

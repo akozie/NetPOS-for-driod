@@ -25,13 +25,14 @@ public class AnotherExampleUnitTest {
         System.out.println("length: "+de.length());
         assertEquals(4, 2 + 2);
     }
-
+//0445f6e6fffebbbf
+    //0445F6E6FFFEBBBF
     @Test
     public void hexTest(){
         String plainPin = "1234";
-        String pin = "042539FFFFFFFFFF";
+        String pin = "044562FFFFFFFFFF";
         String pan = "0000911074859199";
-        String cardNum = "0000" + "4960091814144423".substring(3, 15);
+        String cardNum = "0000" + "5399419000144402".substring(3, 15);
         String pinKey = "c692419319d592a8a8254b4d81eb7b1f";
         String expected = "E14E2C20426FE377".toLowerCase();
        // System.out.println(Util.BytesToString(HexDump.hexStringToByteArray("0425A8EF8B7A6E66")));

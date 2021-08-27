@@ -111,4 +111,13 @@
     <string name="masterpass_qr">masterpass qr</string>
     <string name="requerying_qr_transaction">ReQuerying transaction in %ds</string>
     <string name="req_trans">ReQuerying Transaction</string>
+    <string name="zenith_qr_registration">Zenith QR Registration</string>
+    <string name="bank_verification_number_bvn">Bank Verification Number (BVN)</string>
+    <string name="select_state">Select State</string>
+    <string name="select_city">Select LGA</string>
+    <string name="select_merchant_category">Select Merchant Category</string>
+    <string name="register">Register</string>
+    <string name="merchant">Merchant</string>
+    <string name="customer">Customer</string>
+    <string name="select_receipt_format">Select receipt format</string>
 </resources>

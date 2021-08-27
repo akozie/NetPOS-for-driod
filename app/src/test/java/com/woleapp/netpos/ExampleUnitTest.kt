@@ -32,6 +32,7 @@ class ExampleUnitTest {
         //println("78b4311d3e83a85c924edcc60dddc99d76fde9a21459e879fcd88878a31de8c5" == "78b4311d3e83a85c924edcc60dddc99d76fde9a21459e879fcd88878a31de8c5")
         println(SimpleDateFormat("y-MM-dd HH:mm:ss").format(getBeginningOfDay(1606290839000)))
         println(SimpleDateFormat("y-MM-dd HH:mm:ss").format(getEndOfDayTimeStamp(1606290839000)))
+        println("11110010001111100000010010000101101011101100000010000110001000000000000000000000000000000000000000000000000000000000000000000000".length)
         val s =
             "{\"business_name\":\"CamelCase\",\"code\":\"00\",\"data\":{\"AID\":\"\",\"RRN\":\"201216183858\",\"STAN\":\"183858\",\"TSI\":\"\",\"TVR\":\"\",\"accountType\":\"SAVINGS\",\"acquiringInstCode\":\"539941\",\"additionalAmount\":0,\"amount\":200,\"appCryptogram\":\"\",\"authCode\":\"iN2fgd\",\"cardExpiry\":\"2409\",\"cardHolder\":\"\",\"cardLabel\":\"\",\"id\":0,\"localDate\":\"1216\",\"localTime\":\"183858\",\"maskedPan\":\"539941xxxxxx4402\",\"merchantId\":\"2057LA100007032\",\"originalForwardingInstCode\":\"627629\",\"otherAmount\":0,\"otherId\":\"\",\"responseCode\":\"00\",\"responseDE55\":\"910ABCB033ACEA86509A0010\",\"responseMessage\":\"Approved\",\"terminalId\":\"2057H63U\",\"transactionTimeInMillis\":1608140338299,\"transactionType\":\"PURCHASE\",\"transmissionDateTime\":\"1216183858\"},\"deviceSerial\":\"B1791E1XL8080026\",\"event\":\"TRANSACTION\",\"geo\":\"lat:7.390478333333334 long:3.8802483333333337\",\"status\":\"Approved\",\"storm_id\":\"66f05f15-a3f6-4654-9aa9-3eea3a3360e1\",\"terminalId\":\"2057H63U\",\"timestamp\":1608140339954,\"transactionType\":\"PURCHASE\"}"
         assertEquals(4, 2 + 2)
@@ -134,12 +135,12 @@ class ExampleUnitTest {
     @Test
     fun generateNibssPinblock1() {
         val plainPin = "1234"
-        val pinCipher = "042580FFFFFFFFFF"
-        val pan = "5399831639539028"
+        val pinCipher = "041485FFFFFFFFFF"
+        val pan = "5399235034454322"
         val cardNum = "0000${pan.substring(3, 15)}"
         val pinblock = xorHex(pinCipher, cardNum)!!
         println(pinblock)
-        val clearPinKey = "0dd06dc89df280f4adc7fbb6a8585262"
+        val clearPinKey = "d9da8ace946e5b3ee31c9d298fba2f51"
         val pinblockToNibss = TripleDES.encrypt(pinblock, clearPinKey)
         println(pinblockToNibss)
         assert(pinblockToNibss.isBlank().not())

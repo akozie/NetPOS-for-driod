@@ -2,7 +2,6 @@
 
 package com.woleapp.netpos.ui.fragments
 
-import android.app.AlertDialog
 import android.app.ProgressDialog
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -10,9 +9,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.activityViewModels
 import com.google.android.material.snackbar.Snackbar
 import com.woleapp.netpos.R
+import com.woleapp.netpos.databinding.DialogPrintTypeBinding
 import com.woleapp.netpos.databinding.DialogTransactionResultBinding
 import com.woleapp.netpos.databinding.FragmentTransactionDetailsBinding
 import com.woleapp.netpos.nibss.NetPosTerminalConfig
@@ -29,6 +30,9 @@ class TransactionDetailsFragment : BaseFragment() {
     private lateinit var progressDialog: ProgressDialog
     private lateinit var alertDialog: AlertDialog
     private lateinit var receiptDialogBinding: DialogTransactionResultBinding
+    private lateinit var dialogPrintTypeBinding: DialogPrintTypeBinding
+    private lateinit var printTypeDialog: AlertDialog
+    private lateinit var printerErrorDialog: AlertDialog
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -43,6 +47,38 @@ class TransactionDetailsFragment : BaseFragment() {
         receiptDialogBinding = DialogTransactionResultBinding.inflate(inflater, null, false).apply {
             executePendingBindings()
         }
+        dialogPrintTypeBinding = DialogPrintTypeBinding.inflate(layoutInflater, null, false).apply {
+            executePendingBindings()
+        }
+        printTypeDialog = AlertDialog.Builder(requireContext()).setCancelable(false)
+            .apply {
+                setView(dialogPrintTypeBinding.root)
+                dialogPrintTypeBinding.apply {
+                    cancel.setOnClickListener {
+                        printTypeDialog.dismiss()
+                        //viewModel.finish()
+                    }
+                    customer.setOnClickListener {
+                        viewModel.startPrintingReceipt(requireContext(), isMerchantCopy = false)
+                    }
+                    merchant.setOnClickListener {
+                        viewModel.startPrintingReceipt(requireContext(), isMerchantCopy = true)
+                    }
+                }
+            }.create()
+        printerErrorDialog = AlertDialog.Builder(requireContext())
+            .apply {
+                setTitle("Printer Error")
+                setIcon(R.drawable.ic_warning)
+                setPositiveButton("Send Receipt") { d, _ ->
+                    d.cancel()
+                    viewModel.showReceiptDialog()
+                }
+                setNegativeButton("Dismiss") { d, _ ->
+                    d.cancel()
+                    //viewModel.finish()
+                }
+            }.create()
         progressDialog = ProgressDialog(requireContext())
             .apply {
                 setCancelable(false)
@@ -142,6 +178,10 @@ class TransactionDetailsFragment : BaseFragment() {
         alertDialog.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
         viewModel.showPrintDialog.observe(viewLifecycleOwner) { event ->
             event.getContentIfNotHandled()?.let {
+                if (printTypeDialog.isShowing)
+                    printTypeDialog.cancel()
+                if (printerErrorDialog.isShowing)
+                    printerErrorDialog.cancel()
                 alertDialog.apply {
                     receiptDialogBinding.transactionContent.text = it
                     show()
@@ -159,22 +199,21 @@ class TransactionDetailsFragment : BaseFragment() {
             }
         }
 
+        viewModel.showReceiptType.observe(viewLifecycleOwner) { event ->
+            event.getContentIfNotHandled()?.let {
+                printTypeDialog.show()
+            }
+        }
+
         viewModel.showPrinterError.observe(viewLifecycleOwner) { event ->
             event.getContentIfNotHandled()?.let {
-                androidx.appcompat.app.AlertDialog.Builder(requireContext())
-                    .apply {
-                        setTitle("Printer Error")
-                        setIcon(R.drawable.ic_warning)
-                        setMessage(it)
-                        setPositiveButton("Send Receipt") { d, _ ->
-                            d.dismiss()
-                            viewModel.showReceiptDialog()
-                        }
-                        setNegativeButton("Dismiss") { d, _ ->
-                            d.dismiss()
-                            requireActivity().onBackPressed()
-                        }
-                    }.show()
+                if (printTypeDialog.isShowing)
+                    printTypeDialog.cancel()
+                if (printerErrorDialog.isShowing)
+                    printerErrorDialog.cancel()
+                printerErrorDialog.apply {
+                    setMessage(it)
+                }.show()
             }
         }
     }

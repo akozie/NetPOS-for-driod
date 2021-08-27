@@ -55,6 +55,12 @@ class DashboardFragment : BaseFragment() {
                 2 -> addFragmentWithoutRemove(NipNotificationFragment.newInstance())
                 3 -> addFragmentWithoutRemove(BillsFragment())
                 4 -> showCalendarDialog()
+                5 -> {
+                    parentFragmentManager.beginTransaction()
+                        .replace(R.id.container_main, SettingsFragment())
+                        .addToBackStack(null)
+                        .commit()
+                }
                 else -> {
                     sendPayload()
                 }
@@ -176,7 +182,7 @@ class DashboardFragment : BaseFragment() {
                         Toast.makeText(requireContext(), err.localizedMessage, Toast.LENGTH_LONG)
                             .show()
                         //Timber.e(err.localizedMessage)
-                    })
+                    }).disposeWith(CompositeDisposable())
             }
         }
         val bottomSheet = BottomSheetDialog(requireContext(), R.style.SheetDialog)
@@ -258,6 +264,7 @@ class DashboardFragment : BaseFragment() {
                 add(Service(2, "Bank Transfer", R.drawable.ic_lending))
                 add(Service(3, "Pay Bills", R.drawable.ic_bill))
                 add(Service(4, "View End Of Day Transactions", R.drawable.ic_print))
+                add(Service(5, "Settings", R.drawable.ic_baseline_settings))
             }
         adapter.submitList(listOfServices)
     }
