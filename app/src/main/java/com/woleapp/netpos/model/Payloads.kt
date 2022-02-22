@@ -55,6 +55,7 @@ data class PayBillResponse(
     var token: String?
 
 )
+data class AuthError(val success: Boolean, val message: String?)
 
 sealed class NetworkResponse
 

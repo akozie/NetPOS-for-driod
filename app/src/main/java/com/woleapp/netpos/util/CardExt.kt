@@ -6,21 +6,20 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.app.ProgressDialog
 import android.content.*
+import android.os.Looper
 import android.view.LayoutInflater
 import android.widget.Toast
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
-import com.netpluspay.netpossdk.emv.CardReadResult
-import com.netpluspay.netpossdk.emv.CardReaderEvent
-import com.netpluspay.netpossdk.emv.CardReaderService
+import com.mastercard.terminalsdk.listeners.PaymentDataProvider
+import com.mastercard.terminalsdk.utility.ByteArrayWrapper
 import com.netpluspay.nibssclient.models.CardData
 import com.netpluspay.nibssclient.models.IsoAccountType
-import com.pos.sdk.emvcore.POIEmvCoreManager.DEV_ICC
-import com.pos.sdk.emvcore.POIEmvCoreManager.DEV_PICC
-import com.pos.sdk.security.POIHsmManage
+import com.netpluspay.nibssclient.util.TripleDES
 import com.woleapp.netpos.R
+import com.woleapp.netpos.app.NetPosApp
 import com.woleapp.netpos.databinding.DialogSelectAccountTypeBinding
 import com.woleapp.netpos.model.CardReaderMqttEvent
 import com.woleapp.netpos.model.MqttEvent
@@ -28,6 +27,8 @@ import com.woleapp.netpos.model.MqttEvents
 import com.woleapp.netpos.model.MqttTopics
 import com.woleapp.netpos.mqtt.MqttHelper
 import com.woleapp.netpos.nibss.NetPosTerminalConfig
+import com.woleapp.netpos.taponphone.listener.TransactionListener
+import com.woleapp.netpos.ui.dialog.PasswordDialog
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -35,7 +36,6 @@ import org.apache.commons.lang.StringUtils
 import timber.log.Timber
 
 data class ICCCardHelper(
-    val cardReadResult: CardReadResult? = null,
     val customerName: String? = null,
     val cardScheme: String? = null,
     var accountType: IsoAccountType? = null,
@@ -114,85 +114,88 @@ fun getCardLiveData(
             //setCancelable(false)
         }
     var iccCardHelper: ICCCardHelper? = null
-    val cardService = CardReaderService(context, listOf(DEV_ICC, DEV_PICC), keyMode = POIHsmManage.PED_PINBLOCK_FETCH_MODE_TPK)
-    val c = cardService.initiateICCCardPayment(
-        amount,
-        cashBackAmount
-    )
-        .subscribeOn(Schedulers.io())
-        .observeOn(AndroidSchedulers.mainThread())
-        .subscribe({
-            when (it) {
-                is CardReaderEvent.CardRead -> {
-                    val cardResult: CardReadResult = it.data
 
-//                    Timber.e(cardResult.iccDataString)
-//                    Timber.e(cardResult.nibssIccSubset)
-                    val card = CardData(
-                        track2Data = cardResult.track2Data!!,
-                        nibssIccSubset = cardResult.nibssIccSubset,
-                        panSequenceNumber = cardResult.applicationPANSequenceNumber!!,
-                        posEntryMode = "051"
-                    )
-                    cardResult.cardScheme
-                    if (cardResult.encryptedPinBlock.isNullOrEmpty().not()) {
-                        card.apply {
-                            pinBlock = cardResult.encryptedPinBlock
-                        }
-                    }
-                    Timber.e(card.toString())
-                    //Timber.e(cardResult.iccDataString)
-                    //Timber.e(card.toString())
-                    iccCardHelper = ICCCardHelper(
-                        cardReadResult = cardResult,
-                        customerName = cardResult.cardHolderName,
-                        cardScheme = cardResult.cardScheme,
-                        cardData = card
-                    )
-                    val cardReaderMqttEvent = CardReaderMqttEvent(
-                        cardExpiry = cardResult.expirationDate,
-                        cardHolder = cardResult.cardHolderName,
-                        maskedPan = StringUtils.overlay(
-                            cardResult.applicationPANSequenceNumber,
-                            "xxxxxx",
-                            6,
-                            12
-                        )
-                    )
-                    sendCardEvent("SUCCESS", "00", cardReaderMqttEvent)
-                }
-                is CardReaderEvent.CardDetected -> {
-                    val mode = when (it.mode) {
-                        DEV_ICC -> "EMV"
-                        DEV_PICC -> "EMV Contactless"
-                        else -> "MAGNETIC STRIPE"
-                    }
-                    dialog.setMessage("Reading Card with $mode Please Wait")
-                    Timber.e("Card Detected")
-                }
-                else -> {
-
-                }
-            }
-        }, {
-            it?.let {
-                dialog.dismiss()
-                //sendCardEvent("ERROR", "99", CardReaderMqttEvent(readerError = it.localizedMessage))
-                Timber.e("error: ${it.localizedMessage}")
-                liveData.value = Event(ICCCardHelper(error = it))
-            }
-
-        }, {
-            dialog.dismiss()
-            showSelectAccountTypeDialog(context, iccCardHelper!!, liveData)
-        })
 
     dialog.setButton(DialogInterface.BUTTON_POSITIVE, "Stop") { d, _ ->
-        cardService.transEnd(message = "Stopped")
+        Toast.makeText(context, "transaction aborted", Toast.LENGTH_SHORT).show()
+        NetPosApp.INSTANCE.transactionsApi.abortTransaction()
         d.dismiss()
     }
+    NetPosApp.INSTANCE.outcomeObserver.resetObserver(object : TransactionListener {
+        override fun onTransactionSuccessful() {
+
+        }
+
+        override fun onOnlineReferral(cardData: CardData, pan: String) {
+            iccCardHelper = ICCCardHelper()
+            Looper.prepare()
+            Toast.makeText(context, "Online referral", Toast.LENGTH_SHORT).show()
+            dialog.dismiss()
+            Timber.e("on online referral")
+            Timber.e(cardData.toString())
+            PasswordDialog(context, pan, object: PasswordDialog.Listener{
+                override fun onConfirm(pinBlock: String?) {
+                    cardData.pinBlock = pinBlock
+                    iccCardHelper = ICCCardHelper(
+                        customerName = "CUSTOMER",
+                        cardScheme = "MasterCard",
+                        cardData = cardData
+                    )
+                    showSelectAccountTypeDialog(context, iccCardHelper!!, liveData)
+                }
+
+                override fun onError(message: String?) {
+                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                }
+
+            }).showDialog()
+        }
+
+        override fun onTransactionDeclined() {
+            Looper.prepare()
+            Toast.makeText(context, "transaction declined", Toast.LENGTH_SHORT).show()
+            dialog.dismiss()
+        }
+
+        override fun onApplicationEnded() {
+            Looper.prepare()
+            Toast.makeText(context, "application ended", Toast.LENGTH_SHORT).show()
+            dialog.dismiss()
+        }
+
+        override fun onTransactionCancelled() {
+            Looper.prepare()
+            Toast.makeText(context, "transaction cancelled", Toast.LENGTH_SHORT).show()
+            dialog.dismiss()
+        }
+
+        override fun logToScreen(s: String?) {
+
+        }
+
+    })
+    NetPosApp.INSTANCE.transactionsApi.initiatePayment(object :
+        PaymentDataProvider {
+        override fun getPaymentDataMap(): HashMap<Int, ByteArrayWrapper> {
+            val map = HashMap<Int, ByteArrayWrapper>()
+            map.apply {
+                put(0x9F02, ByteArrayWrapper(StringUtils.leftPad(amount.toString(), 12, '0')))
+                put(
+                    0x9F03,
+                    ByteArrayWrapper(StringUtils.leftPad(cashBackAmount.toString(), 12, '0'))
+                )
+                put(0x5F2A, ByteArrayWrapper("0566"))
+                put(0x9F1A, ByteArrayWrapper("0566"))
+            }
+            return map
+        }
+
+        override fun setPaymentDataEntry(p0: Int?, p1: ByteArrayWrapper?) {
+
+        }
+
+    })
     dialog.show()
-    compositeDisposable?.add(c)
 }
 
 fun sendCardEvent(s: String, s1: String, cardReaderMqttEvent: CardReaderMqttEvent) {
@@ -206,6 +209,7 @@ fun sendCardEvent(s: String, s1: String, cardReaderMqttEvent: CardReaderMqttEven
     }
     MqttHelper.sendPayload(MqttTopics.CARD_READER_EVENTS, event)
 }
+
 private fun showSelectAccountTypeDialog(
     context: Activity,
     iccCardHelper: ICCCardHelper,
@@ -239,12 +243,13 @@ private fun showSelectAccountTypeDialog(
             iccCardHelper.apply {
                 this.accountType = accountType
             }
-            liveData.value = Event(iccCardHelper)
+            Timber.e(iccCardHelper.toString())
+            liveData.postValue(Event(iccCardHelper))
         }
     }
     dialogSelectAccountTypeBinding.cancelButton.setOnClickListener {
         dialog.dismiss()
-        liveData.value = Event(ICCCardHelper(error = Throwable("Operation was canceled")))
+        liveData.postValue(Event(ICCCardHelper(error = Throwable("Operation was canceled"))))
     }
     dialog.show()
 }

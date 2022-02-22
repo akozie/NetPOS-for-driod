@@ -6,9 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.recyclerview.widget.GridLayoutManager
-
-import com.netpluspay.netpossdk.NetPosSdk
-import com.pos.sdk.emvcore.PosEmvCapk
 import com.woleapp.netpos.R
 import com.woleapp.netpos.adapter.ServiceAdapter
 import com.woleapp.netpos.databinding.FragmentReprintBinding
@@ -47,8 +44,8 @@ class ReprintFragment : BaseFragment() {
     }
 
     private fun getThem() {
-        Timber.e(NetPosSdk.getAids()?.size.toString())
-        Timber.e(NetPosSdk.getCapks()?.size.toString())
+//        Timber.e(NetPosSdk.getAids()?.size.toString())
+//        Timber.e(NetPosSdk.getCapks()?.size.toString())
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

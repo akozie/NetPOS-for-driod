@@ -50,22 +50,6 @@ class TransactionDetailsFragment : BaseFragment() {
         dialogPrintTypeBinding = DialogPrintTypeBinding.inflate(layoutInflater, null, false).apply {
             executePendingBindings()
         }
-        printTypeDialog = AlertDialog.Builder(requireContext()).setCancelable(false)
-            .apply {
-                setView(dialogPrintTypeBinding.root)
-                dialogPrintTypeBinding.apply {
-                    cancel.setOnClickListener {
-                        printTypeDialog.dismiss()
-                        //viewModel.finish()
-                    }
-                    customer.setOnClickListener {
-                        viewModel.startPrintingReceipt(requireContext(), isMerchantCopy = false)
-                    }
-                    merchant.setOnClickListener {
-                        viewModel.startPrintingReceipt(requireContext(), isMerchantCopy = true)
-                    }
-                }
-            }.create()
         printerErrorDialog = AlertDialog.Builder(requireContext())
             .apply {
                 setTitle("Printer Error")
@@ -178,10 +162,6 @@ class TransactionDetailsFragment : BaseFragment() {
         alertDialog.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
         viewModel.showPrintDialog.observe(viewLifecycleOwner) { event ->
             event.getContentIfNotHandled()?.let {
-                if (printTypeDialog.isShowing)
-                    printTypeDialog.cancel()
-                if (printerErrorDialog.isShowing)
-                    printerErrorDialog.cancel()
                 alertDialog.apply {
                     receiptDialogBinding.transactionContent.text = it
                     show()

@@ -5,12 +5,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import com.pos.sdk.printer.POIPrinterManage
 import com.woleapp.netpos.databinding.FragmentNipNotificationSearchBinding
 import com.woleapp.netpos.model.*
 import com.woleapp.netpos.mqtt.MqttHelper
 import com.woleapp.netpos.network.StormApiClient
-import com.woleapp.netpos.util.print
+
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
@@ -40,7 +39,7 @@ class NipNotificationSearch : BaseFragment() {
         binding.searchButton.setOnClickListener {
             if (binding.sessionCode.text.toString().isEmpty())
                 return@setOnClickListener
-            StormApiClient.getNipInstance().getNotificationByReference(
+            val subscribe = StormApiClient.getNipInstance().getNotificationByReference(
                 binding.sessionCode.text.toString()
             ).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -62,21 +61,27 @@ class NipNotificationSearch : BaseFragment() {
                             binding.nip.root.visibility = View.VISIBLE
                             binding.nip.print.setOnClickListener { _ ->
                                 Timber.e("print nip")
-                                it.first().print(requireContext(), object : POIPrinterManage.IPrinterListener{
-                                    override fun onError(p0: Int, p1: String?) {
-                                        Timber.e("printer error")
-                                        Toast.makeText(requireContext(), "Printer Error", Toast.LENGTH_SHORT).show()
-                                    }
-
-                                    override fun onFinish() {
-                                        Timber.e("on finish")
-                                    }
-
-                                    override fun onStart() {
-                                        Timber.e("on start")
-                                    }
-
-                                })
+//                                it.first().print(
+//                                    requireContext(),
+//                                    object : POIPrinterManage.IPrinterListener {
+//                                        override fun onError(p0: Int, p1: String?) {
+//                                            Timber.e("printer error")
+//                                            Toast.makeText(
+//                                                requireContext(),
+//                                                "Printer Error",
+//                                                Toast.LENGTH_SHORT
+//                                            ).show()
+//                                        }
+//
+//                                        override fun onFinish() {
+//                                            Timber.e("on finish")
+//                                        }
+//
+//                                        override fun onStart() {
+//                                            Timber.e("on start")
+//                                        }
+//
+//                                    })
                             }
                         } else
                             Toast.makeText(
@@ -85,7 +90,7 @@ class NipNotificationSearch : BaseFragment() {
                                 Toast.LENGTH_SHORT
                             ).show()
                     }
-                    throwable?.let {
+                    val let = throwable?.let {
                         event.apply {
                             this.event = MqttEvents.NIP_SEARCH.event
                             this.code = "99"

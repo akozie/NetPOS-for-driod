@@ -1,10 +1,10 @@
 package com.woleapp.netpos.model
 
+import android.os.Build
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
-import com.netpluspay.netpossdk.NetPosSdk
 import com.woleapp.netpos.nibss.NetPosTerminalConfig
 import com.woleapp.netpos.util.Singletons
 
@@ -68,7 +68,7 @@ data class MqttEvent<T>(
         storm_id = user!!.netplus_id!!
         business_name = user.business_name!!
         terminalId = NetPosTerminalConfig.getTerminalId()
-        deviceSerial = NetPosSdk.getDeviceSerial()
+        deviceSerial = Build.ID
     }
 }
 

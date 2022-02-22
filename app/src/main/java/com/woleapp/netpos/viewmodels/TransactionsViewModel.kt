@@ -4,7 +4,6 @@ import android.content.Context
 import android.os.Build
 import androidx.lifecycle.*
 import com.google.gson.JsonObject
-import com.netpluspay.netpossdk.printer.PrinterResponse
 import com.netpluspay.nibssclient.models.*
 import com.netpluspay.nibssclient.service.NibssApiWrapper
 import com.pixplicity.easyprefs.library.Prefs
@@ -177,111 +176,12 @@ class TransactionsViewModel : ViewModel() {
                 this.cardExpiry = ""
             }
 
-        if (Build.MODEL.equals("Pro", true) || Build.MODEL.equals("P3", true)) {
-            when (Prefs.getString(PREF_PRINTER_SETTINGS, PREF_VALUE_PRINT_CUSTOMER_COPY_ONLY)) {
-                PREF_VALUE_PRINT_CUSTOMER_COPY_ONLY -> startPrintingReceipt(
-                    context,
-                    isMerchantCopy = false
-                )
-                PREF_VALUE_PRINT_CUSTOMER_AND_MERCHANT_COPY -> startPrintingReceipt(
-                    context, printBoth = true
-                )
-                PREF_VALUE_PRINT_SMS -> _showPrintDialog.postValue(
-                    Event(transactionResponse.buildSMSText().toString())
-                )
-                PREF_VALUE_PRINT_ASK_BEFORE_PRINTING -> _showReceiptTypeMutableLiveData.postValue(
-                    Event(true)
-                )
-            }
-        } else
-            _showPrintDialog.postValue(
-                Event(transactionResponse.buildSMSText().toString())
-            )
-
-
-//        if (Build.MODEL.equals("Pro", true) || Build.MODEL.equals(
-//                "P3",
-//                true
-//            )
-//        ) transactionResponse.print(context, remark.value ?: "")
-//            .subscribeOn(Schedulers.io()) else {
-//            _showPrintDialog.postValue(
-//                Event(
-//                    transactionResponse.buildSMSText(remark.value ?: "").toString()
-//                )
-//            )
-//            Single.just(PrinterResponse(0, "SMS"))
-//        }.subscribeOn(Schedulers.io())
-//            .observeOn(AndroidSchedulers.mainThread())
-//            .subscribe { t1, t2 ->
-//
-//            }
-//            .disposeWith(compositeDisposable)
+        _showPrintDialog.postValue(
+            Event(transactionResponse.buildSMSText().toString())
+        )
     }
 
-    private fun sendPrinterEvent(it: PrinterResponse) {
-        val printerEvent = MqttEvent<PrinterEventData>()
-        printerEvent.apply {
-            this.event = MqttEvents.PRINTING_RECEIPT.event
-            this.code = it.code.toString()
-            this.timestamp = System.currentTimeMillis()
-            this.data = PrinterEventData(lastTransactionResponse.value?.RRN ?: "", it.message)
-            this.status = it.message
-        }
-        MqttHelper.sendPayload(MqttTopics.PRINTING_RECEIPT, printerEvent)
-    }
 
-    fun startPrintingReceipt(
-        context: Context, isMerchantCopy: Boolean = false,
-        printBoth: Boolean = false
-    ) {
-        inProgress.value = true
-        val transactionResponse = lastTransactionResponse.value
-        transactionResponse?.apply {
-            this.cardExpiry = ""
-            //this.cardHolder = this
-        }
-        transactionResponse?.print(context, isMerchantCopy = isMerchantCopy)
-            ?.subscribeOn(Schedulers.io())
-            ?.observeOn(AndroidSchedulers.mainThread())
-            ?.subscribe { t1, t2 ->
-                val printerEvent = MqttEvent<PrinterEventData>()
-                t1?.let {
-                    if (printBoth) {
-                        if (isMerchantCopy) {
-                            sendPrinterEvent(it)
-                            _done.value = true
-                            inProgress.value = false
-                        } else {
-                            sendPrinterEvent(it)
-                            startPrintingReceipt(context, isMerchantCopy = true, printBoth = true)
-                        }
-                    } else {
-                        sendPrinterEvent(it)
-                        _done.value = true
-                        inProgress.value = false
-                    }
-                }
-                t2?.let {
-                    _done.value = true
-                    inProgress.value = false
-                    _showPrinterError.value = Event(it.localizedMessage ?: "Error")
-                    Timber.e(it)
-                    _message.value = Event(it.localizedMessage ?: "Error")
-                    printerEvent.apply {
-                        this.event = MqttEvents.PRINTING_RECEIPT.event
-                        this.code = "-1"
-                        this.timestamp = System.currentTimeMillis()
-                        this.data = PrinterEventData(
-                            transactionResponse.RRN,
-                            it.localizedMessage ?: "Printer Error"
-                        )
-                        this.status = it.message
-                    }
-                }
-                MqttHelper.sendPayload(MqttTopics.PRINTING_RECEIPT, printerEvent)
-            }?.disposeWith(compositeDisposable)
-    }
 
     fun showReceiptDialog() {
         _showPrintDialog.value = Event(

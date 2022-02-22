@@ -4,6 +4,7 @@ package com.woleapp.netpos.ui.fragments
 
 import android.app.ProgressDialog
 import android.content.DialogInterface
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -14,23 +15,19 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.viewModels
 import com.google.android.material.snackbar.Snackbar
 import com.google.gson.JsonObject
-import com.netpluspay.netpossdk.NetPosSdk
 import com.netpluspay.nibssclient.models.TransactionType
 import com.woleapp.netpos.R
 import com.woleapp.netpos.databinding.DialogPrintTypeBinding
 import com.woleapp.netpos.databinding.DialogTransactionResultBinding
 import com.woleapp.netpos.databinding.FragmentSalesBinding
 import com.woleapp.netpos.nibss.NetPosTerminalConfig
-import com.woleapp.netpos.util.TRANSACTION_TYPE
-import com.woleapp.netpos.util.disposeWith
-import com.woleapp.netpos.util.showCardDialog
 import com.woleapp.netpos.viewmodels.SalesViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import com.woleapp.netpos.model.Vend
-import com.woleapp.netpos.util.Singletons
+import com.woleapp.netpos.util.*
 import io.reactivex.Observable
 import java.io.BufferedReader
 import java.io.InputStreamReader
@@ -85,30 +82,6 @@ class SalesFragment : BaseFragment() {
         dialogPrintTypeBinding = DialogPrintTypeBinding.inflate(layoutInflater, null, false).apply {
             executePendingBindings()
         }
-        printTypeDialog = AlertDialog.Builder(requireContext()).setCancelable(false)
-            .apply {
-                setView(dialogPrintTypeBinding.root)
-                dialogPrintTypeBinding.apply {
-                    cancel.setOnClickListener {
-                        printTypeDialog.dismiss()
-                        viewModel.finish()
-                    }
-                    customer.setOnClickListener {
-                        viewModel.printReceipt(
-                            requireContext(),
-                            isMerchantCopy = false,
-                            selected = true
-                        )
-                    }
-                    merchant.setOnClickListener {
-                        viewModel.printReceipt(
-                            requireContext(),
-                            isMerchantCopy = true,
-                            selected = true
-                        )
-                    }
-                }
-            }.create()
         printerErrorDialog = AlertDialog.Builder(requireContext())
             .apply {
                 setTitle("Printer Error")
@@ -148,7 +121,9 @@ class SalesFragment : BaseFragment() {
                         0L,
                         compositeDisposable
                     ).observe(viewLifecycleOwner) { event ->
+                        Timber.e("observed")
                         event.getContentIfNotHandled()?.let {
+                            Timber.e(it.toString())
                             it.error?.let { error ->
                                 Timber.e(error)
                                 Toast.makeText(
@@ -234,10 +209,6 @@ class SalesFragment : BaseFragment() {
         alertDialog.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
         viewModel.showPrintDialog.observe(viewLifecycleOwner) { event ->
             event.getContentIfNotHandled()?.let {
-                if (printTypeDialog.isShowing)
-                    printTypeDialog.cancel()
-                if (printerErrorDialog.isShowing)
-                    printerErrorDialog.cancel()
                 alertDialog.apply {
                     receiptDialogBinding.transactionContent.text = it
                     show()
@@ -338,7 +309,7 @@ class SalesFragment : BaseFragment() {
             var reader: BufferedReader? = null
             Observable.fromCallable {
                 socket.soTimeout = 120_000
-                socket.connect(InetSocketAddress("vend.netpluspay.com", 3535))
+                socket.connect(InetSocketAddress(VEND_IP, VEND_PORT))
                 printWriter = PrintWriter(socket.getOutputStream(), true)
                 reader = BufferedReader(InputStreamReader(socket.getInputStream()))
                 val firstData = reader?.readLine()
@@ -347,7 +318,7 @@ class SalesFragment : BaseFragment() {
                 Observable.interval(0, 5, TimeUnit.SECONDS)
             }.flatMap {
                 val out = JsonObject().apply {
-                    addProperty("serial_number", NetPosSdk.getDeviceSerial())
+                    addProperty("serial_number", Build.ID)
                     addProperty("status", "")
                 }.toString()
                 printWriter?.println(out)

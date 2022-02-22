@@ -1,18 +1,37 @@
 package com.woleapp.netpos.app
 
+import android.app.Activity
 import android.app.Application
 import android.content.ContextWrapper
-import com.netpluspay.netpossdk.NetPosSdk
-import com.netpluspay.netpossdk.utils.TerminalParameters
-import com.netpluspay.netpossdk.utils.tlv.HexUtil
+import com.mastercard.terminalsdk.ConfigurationInterface
+import com.mastercard.terminalsdk.TerminalSdk
+import com.mastercard.terminalsdk.TransactionInterface
+import com.oluwatayo.taponphone.implementations.TransactionProcessLoggerImpl
 import com.pixplicity.easyprefs.library.Prefs
+import com.woleapp.netpos.taponphone.implementations.*
+import com.woleapp.netpos.taponphone.implementations.nfc.NfcProvider
 import timber.log.Timber
 
 class NetPosApp : Application() {
 
+    lateinit var transactionsApi: TransactionInterface
+    lateinit var outcomeObserver: OutcomeObserver
+    lateinit var configuration: ConfigurationInterface
+    lateinit var builder: StringBuilder
+
+    companion object {
+        lateinit var INSTANCE: NetPosApp
+
+        fun assignInstance(instance: NetPosApp) {
+            INSTANCE = instance
+        }
+    }
+
+    val terminalSdk = TerminalSdk.getInstance()
 
     override fun onCreate() {
         super.onCreate()
+        assignInstance(this)
         Timber.plant(Timber.DebugTree())
         Prefs.Builder()
             .setContext(this)
@@ -32,17 +51,30 @@ class NetPosApp : Application() {
 //        ProcessLifecycleOwner.get().lifecycle
 //            .addObserver(AppLifeCycleObserver())
 
-        NetPosSdk.init()
-        if (Prefs.contains("load_provided").not()) {
-            NetPosSdk.loadProvidedCapksAndAids()
-            NetPosSdk.loadEmvParams(
-                TerminalParameters()
-                    .apply {
-                        //online E068C8
-                        terminalCapability = "E0F8C8"
-                    }
+    }
+    fun initMposLibrary(context: Activity) {
+        outcomeObserver = OutcomeObserver()
+        configuration = terminalSdk.configuration
+        builder = StringBuilder()
+        val nfcProvider = NfcProvider(context)
+        val cardCommProviderStub = CardCommProviderStub()
+        val logger = TransactionProcessLoggerImpl(builder)
+        configuration
+            .withResourceProvider(
+                ResourceProviderImplementation(this.applicationContext)
             )
-            Prefs.putBoolean("load_provided", true)
-        }
+            .withLogger(logger)
+            .withCardCommunication(nfcProvider, cardCommProviderStub)
+            .withTransactionObserver(outcomeObserver)
+            .withUnpredictableNumberProvider(UnpredictableNumberImplementation())
+            .withMessageDisplayProvider(DisplayImplementation(logger))
+        transactionsApi = configuration.initializeLibrary()
+        configuration.selectProfile("MPOS")
+    }
+
+    fun logBuilderToOutLogcat(){
+        println("-----BEGIN LOG-----")
+        println(builder.toString())
+        println("-----END LOG-----")
     }
 }

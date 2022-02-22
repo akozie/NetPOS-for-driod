@@ -4,17 +4,22 @@ import android.util.Patterns
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.auth0.android.jwt.JWT
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.pixplicity.easyprefs.library.Prefs
 import com.woleapp.netpos.BuildConfig
+import com.woleapp.netpos.model.AuthError
+import com.woleapp.netpos.model.User
 import com.woleapp.netpos.network.StormApiService
 import com.woleapp.netpos.util.*
 import com.woleapp.netpos.util.Singletons.gson
+import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import org.json.JSONObject
+import retrofit2.HttpException
 import timber.log.Timber
 
 class AuthViewModel : ViewModel() {
@@ -43,30 +48,6 @@ class AuthViewModel : ViewModel() {
         get() = _message
 
 
-    private fun getAppToken(next: () -> Unit) {
-        authInProgress.value = true
-        stormApiService!!.appToken(appCredentials)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { res, error ->
-                res?.let {
-                    if (it.success) {
-                        Prefs.putString(PREF_APP_TOKEN, it.token)
-                        next.invoke()
-                    } else {
-                        authInProgress.value = false
-                        _message.value = Event("An unexpected error occurred")
-                    }
-                }
-                error?.let {
-                    Timber.e(it)
-                    authInProgress.value = false
-                    _message.value = Event(it.localizedMessage ?: "authentication errorr")
-                }
-            }.disposeWith(disposables)
-    }
-
-
     fun login() {
         val username = usernameLiveData.value
         val password = passwordLiveData.value
@@ -78,33 +59,19 @@ class AuthViewModel : ViewModel() {
             _message.value = Event("Please enter a valid email")
             return
         }
-        val appToken = Prefs.getString(PREF_APP_TOKEN, null)
-        if (appToken == null || JWTHelper.isExpired(appToken)) {
-            getAppToken(::login)
-            return
-        }
-        auth(appToken, username, password)
+        auth(username, password)
     }
 
-    private fun auth(appToken: String, username: String, password: String) {
+    private fun auth(username: String, password: String) {
         authInProgress.value = true
         val credentials = JsonObject()
             .apply {
                 addProperty("username", username)
                 addProperty("password", password)
             }
-        stormApiService!!.userToken("Bearer $appToken", credentials)
+        stormApiService!!.userToken(credentials)
             .flatMap {
                 Timber.e(it.toString())
-                if (BuildConfig.BUILD_TYPE.equals(
-                        "releaseAdmin",
-                        true
-                    ) || BuildConfig.BUILD_TYPE.equals("nibssserverdebug", true)
-                )
-                    if (username == "dapo@webmallng.com") {
-                        //raise a fake exception to stop the process
-                        throw Exception("ADMIN")
-                    }
                 if (!it.success) {
                     throw Exception("Login Failed, Check Credentials")
                 }
@@ -112,7 +79,30 @@ class AuthViewModel : ViewModel() {
                 val stormId: String =
                     JWTHelper.getStormId(userToken) ?: throw Exception("Login Failed")
                 Prefs.putString(PREF_USER_TOKEN, userToken)
-                stormApiService!!.getAgentDetails(stormId)
+                val userTokenDecoded = JWT(userToken)
+                val user = User().apply {
+                    this.terminal_id =
+                        if (userTokenDecoded.claims.containsKey("terminalId")) userTokenDecoded.getClaim(
+                            "terminalId"
+                        ).asString() else null
+                    this.business_name =
+                        if (userTokenDecoded.claims.containsKey("businessName")) userTokenDecoded.getClaim(
+                            "businessName"
+                        ).asString() else null
+                    this.netplus_id =
+                        if (userTokenDecoded.claims.containsKey("stormId")) userTokenDecoded.getClaim(
+                            "stormId"
+                        ).asString() else null
+                    this.mid =
+                        if (userTokenDecoded.claims.containsKey("mid")) userTokenDecoded.getClaim("mid")
+                            .asString() else null
+                    this.partnerId =
+                        if (userTokenDecoded.claims.containsKey("partnerId")) userTokenDecoded.getClaim(
+                            "partnerId"
+                        ).asString() else null
+                }
+                Timber.e(user.terminal_id)
+                Single.just(user)
             }.subscribeOn(Schedulers.io())
             .doFinally { authInProgress.postValue(false) }
             .observeOn(AndroidSchedulers.mainThread())
@@ -129,7 +119,19 @@ class AuthViewModel : ViewModel() {
                         return@let
                     }
                     Timber.e(it.localizedMessage)
-                    _message.value = Event(it.localizedMessage ?: "login error")
+                    (it as? HttpException).let { httpException ->
+                        val errorMessage = httpException?.response()?.errorBody()?.string()
+                            ?: "{\"success\":false,\"message\":\"Unexpected error\"}"
+                        _message.value = Event(
+                            try {
+                                gson.fromJson(errorMessage, AuthError::class.java).message
+                                    ?: "Login Failed"
+                            } catch (e: Exception) {
+                                "login failed"
+                            }
+                        )
+                        Timber.e(errorMessage)
+                    }
                 }
             }.disposeWith(disposables)
 
@@ -141,15 +143,11 @@ class AuthViewModel : ViewModel() {
             _message.value = Event("Please enter your email address")
             return
         }
-        val appToken = Prefs.getString(PREF_APP_TOKEN, null)
-        if (appToken == null || JWTHelper.isExpired(appToken)) {
-            getAppToken(::resetPassword)
-            return
-        }
+
         val payload = JsonObject().apply {
             addProperty("username", username)
         }
-        stormApiService!!.passwordReset(appToken, payload).subscribeOn(Schedulers.io())
+        stormApiService!!.passwordReset(payload).subscribeOn(Schedulers.io())
             .doOnSubscribe {
                 passwordResetInProgress.postValue(true)
             }.doFinally { passwordResetInProgress.postValue(false) }

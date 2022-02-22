@@ -8,9 +8,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.gson.Gson
 import com.google.gson.JsonObject
-import com.netpluspay.netpossdk.NetPosSdk
-import com.netpluspay.netpossdk.printer.PrinterResponse
-import com.netpluspay.netpossdk.utils.DeviceConfig
 import com.netpluspay.nibssclient.exception.NibssClientException
 import com.netpluspay.nibssclient.models.*
 import com.netpluspay.nibssclient.service.NibssApiWrapper
@@ -123,28 +120,17 @@ class SalesViewModel : ViewModel() {
         Timber.e(Gson().toJson(requestData))
         NibssApiWrapper.makePayment(context, requestData)
             .flatMap {
-                if (it.responseCode == "A3") {
+                if (it.responseCode == "A3" || it.responseCode == "06") {
                     Prefs.remove(PREF_CONFIG_DATA)
                     Prefs.remove(PREF_KEYHOLDER)
                     _shouldRefreshNibssKeys.postValue(Event(true))
-                } else if (it.responseCode == "06") {
-                    val keyHolder = Singletons.getKeyHolder()
-                    keyHolder?.let { key ->
-                        val tpkResult =
-                            NetPosSdk.writeTpkKey(DeviceConfig.TPKIndex, key.clearPinKey!!)
-                        if (tpkResult != 0) {
-                            Timber.e("write tpk failed")
-                        } else {
-                            Timber.e("write tpk success")
-                        }
-                    }
                 }
                 if (isVend) {
                     val j = JsonObject().apply {
                         addProperty("amount", it.amount)
                         addProperty("responseCode", it.responseCode)
                         addProperty("RRN", it.RRN)
-                        addProperty("serial_number", NetPosSdk.getDeviceSerial())
+                        addProperty("serial_number", Build.ID)
                     }
                     sendVendResponse(context, j.toString())
                 }
@@ -244,111 +230,13 @@ class SalesViewModel : ViewModel() {
                 this.cardExpiry = ""
                 this.cardHolder = customerName.value ?: ""
             }
-
-        if (Build.MODEL.equals("Pro", true) || Build.MODEL.equals("P3", true)) {
-            when (Prefs.getString(PREF_PRINTER_SETTINGS, PREF_VALUE_PRINT_CUSTOMER_COPY_ONLY)) {
-                PREF_VALUE_PRINT_CUSTOMER_COPY_ONLY -> printReceipt(context, isMerchantCopy = false)
-                PREF_VALUE_PRINT_CUSTOMER_AND_MERCHANT_COPY -> printReceipt(
-                    context, printBoth = true
-                )
-                PREF_VALUE_PRINT_SMS -> _showPrintDialog.postValue(
-                    Event(transactionResponse.buildSMSText(remark.value ?: "").toString())
-                )
-                PREF_VALUE_PRINT_ASK_BEFORE_PRINTING -> _showReceiptTypeMutableLiveData.postValue(
-                    Event(true)
-                )
-            }
-        } else
-            _showPrintDialog.postValue(
-                Event(transactionResponse.buildSMSText(remark.value ?: "").toString())
-            )
-
-
-//        if (Build.MODEL.equals("Pro", true) || Build.MODEL.equals(
-//                "P3",
-//                true
-//            )
-//        ) transactionResponse.print(context, remark.value ?: "")
-//            .subscribeOn(Schedulers.io()) else {
-//            _showPrintDialog.postValue(
-//                Event(
-//                    transactionResponse.buildSMSText(remark.value ?: "").toString()
-//                )
-//            )
-//            Single.just(PrinterResponse(0, "SMS"))
-//        }.subscribeOn(Schedulers.io())
-//            .observeOn(AndroidSchedulers.mainThread())
-//            .subscribe { t1, t2 ->
-//
-//            }
-//            .disposeWith(compositeDisposable)
-    }
-
-
-    fun printReceipt(
-        context: Context,
-        isMerchantCopy: Boolean = false,
-        printBoth: Boolean = false,
-        selected: Boolean = false
-    ) {
-        lastTransactionResponse.value?.print(
-            context, remark = remark.value ?: "",
-            isMerchantCopy = isMerchantCopy
+        _showPrintDialog.postValue(
+            Event(transactionResponse.buildSMSText(remark.value ?: "").toString())
         )
-            ?.subscribeOn(Schedulers.io())?.observeOn(AndroidSchedulers.mainThread())
-            ?.subscribe { t1, t2 ->
-                t1?.let {
-                    if (printBoth) {
-                        if (isMerchantCopy) {
-                            sendPrintPayload(it)
-                            finish()
-                        } else {
-                            sendPrintPayload(it)
-                            printReceipt(context, isMerchantCopy = true, printBoth = true)
-                        }
-                    } else {
-                        sendPrintPayload(it)
-                        if (selected.not())
-                            finish()
-                    }
-                }
-                t2?.let {
-                    val printerEvent = MqttEvent<PrinterEventData>()
-                    printerEvent.apply {
-                        this.event = MqttEvents.PRINTING_RECEIPT.event
-                        this.code = "-1"
-                        this.timestamp = System.currentTimeMillis()
-                        this.data = PrinterEventData(
-                            lastTransactionResponse.value!!.RRN,
-                            it.localizedMessage ?: ""
-                        )
-                        this.status = it.message
-                    }
-                    MqttHelper.sendPayload(MqttTopics.PRINTING_RECEIPT, printerEvent)
-                    _showPrinterError.value = Event(it.localizedMessage ?: "Unknown printer error")
-                    _message.value = Event("Error: ${it.localizedMessage}")
-                    Timber.e(it)
-                }
-            }?.disposeWith(compositeDisposable)
     }
 
     fun finish() {
         _finish.value = Event(true)
-    }
-
-    private fun sendPrintPayload(it: PrinterResponse) {
-        val printerEvent = MqttEvent<PrinterEventData>()
-        printerEvent.apply {
-            this.event = MqttEvents.PRINTING_RECEIPT.event
-            this.code = it.code.toString()
-            this.timestamp = System.currentTimeMillis()
-            this.data = PrinterEventData(
-                lastTransactionResponse.value!!.RRN,
-                "Printing"
-            )
-            this.status = it.message
-        }
-        MqttHelper.sendPayload(MqttTopics.PRINTING_RECEIPT, printerEvent)
     }
 
 
@@ -418,7 +306,7 @@ class SalesViewModel : ViewModel() {
         Single.fromCallable {
             Socket().run {
                 soTimeout = 120_000
-                connect(InetSocketAddress("vend.netpluspay.com", 3535))
+                connect(InetSocketAddress(VEND_IP, VEND_PORT))
                 val reader = BufferedReader(InputStreamReader(getInputStream()))
                 Timber.e(reader.readLine())
                 val printWriter = PrintWriter(getOutputStream(), true)

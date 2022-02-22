@@ -42,7 +42,9 @@ data class User(
     @SerializedName("business_state")
     var business_state: String? = null,
     @SerializedName("phoneNumber")
-    var business_phone_number: String? = null
+    var business_phone_number: String? = null,
+    var mid: String? = null,
+    var partnerId: String? = null
 )
 
 data class TokenResp(val success: Boolean, val token: String)

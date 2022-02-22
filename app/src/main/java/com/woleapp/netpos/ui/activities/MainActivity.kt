@@ -6,13 +6,11 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.app.ProgressDialog
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
+import android.content.*
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
+import android.nfc.NfcManager
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -24,6 +22,7 @@ import com.netpluspay.nibssclient.models.MakePaymentParams
 import com.netpluspay.nibssclient.service.NibssApiWrapper
 import com.pixplicity.easyprefs.library.Prefs
 import com.woleapp.netpos.R
+import com.woleapp.netpos.app.NetPosApp
 import com.woleapp.netpos.databinding.ActivityMainBinding
 import com.woleapp.netpos.model.User
 import com.woleapp.netpos.mqtt.MqttHelper
@@ -106,6 +105,30 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
             }
         }
         checkTokenExpiry()
+        val nfcManager: NfcManager = getSystemService(NFC_SERVICE) as NfcManager
+        val nfcAdapter = nfcManager.defaultAdapter
+        if (nfcAdapter != null) {
+            //Toast.makeText(this, "Device has NFC support", Toast.LENGTH_SHORT).show()
+            if (nfcAdapter.isEnabled)
+                Toast.makeText(this, "NFC enabled", Toast.LENGTH_SHORT).show()
+            else {
+                AlertDialog.Builder(this)
+                    .setTitle("NFC Message")
+                    .setMessage("NFC is not enabled, go device settings to enable")
+                    .setPositiveButton("Settings") { dialog, which ->
+                        dialog.dismiss()
+                        startActivityForResult(Intent(android.provider.Settings.ACTION_NFC_SETTINGS), 0)
+                    }.show()
+            }
+        } else {
+            AlertDialog.Builder(this)
+                .setTitle("NFC Message")
+                .setMessage("Device dose not have NFC support")
+                .setPositiveButton("Close") { dialog, which ->
+                    dialog.dismiss()
+                    finish()
+                }.show()
+        }
     }
 
     private fun logout() {
@@ -142,6 +165,7 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        NetPosApp.INSTANCE.initMposLibrary(this)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         //loadCerts()
         if (!EasyPermissions.hasPermissions(

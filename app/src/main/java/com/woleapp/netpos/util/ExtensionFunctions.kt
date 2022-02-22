@@ -13,9 +13,7 @@ import com.google.zxing.MultiFormatWriter
 import com.google.zxing.common.BitMatrix
 import com.netpluspay.nibssclient.models.NibssAID
 import com.netpluspay.nibssclient.models.NibssCA
-import com.pos.sdk.emvcore.PosEmvAid
-import com.pos.sdk.emvcore.PosEmvCapk
-import com.pos.sdk.utils.PosUtils
+
 import com.woleapp.netpos.R
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
@@ -72,37 +70,37 @@ fun String.isValidIpAddress(): Boolean {
     return this.matches(PATTERN)
 }
 
-fun NibssAID.toPosEmvAid(): PosEmvAid {
-    val emvAid = PosEmvAid()
-    emvAid.AID = PosUtils.hexStringToBytes(this.AID)
-    emvAid.Version = PosUtils.hexStringToBytes(this.applicationVersion)
-    emvAid.TACDefault = PosUtils.hexStringToBytes(this.tacDefault)
-    emvAid.TACOnline = PosUtils.hexStringToBytes(this.tacOnline)
-    emvAid.TACDenial = PosUtils.hexStringToBytes(this.tacDenial)
-    emvAid.tDOL = PosUtils.hexStringToBytes(this.TDOL)
-    emvAid.dDOL = PosUtils.hexStringToBytes(this.DDOL)
-    emvAid.SelFlag = true
-    emvAid.TargetPer = 0
-    emvAid.MaxTargetPer = 99
-    emvAid.FloorLimit = 0
-    emvAid.Threshold = 10000
-    emvAid.ContactlessTransMoneyLimit = 200000
-    emvAid.TermDoCvmMoneyLimit = 200000
-    emvAid.ContactlessOfflineTransMoneyLimit = 0
-    return emvAid
-}
-
-fun NibssCA.toPosEmvCa(): PosEmvCapk {
-    val emvCapk = PosEmvCapk()
-    emvCapk.RID = PosUtils.hexStringToBytes(this.RID)
-    emvCapk.KeyID = PosUtils.hexStringToBytes(this.keyIndex)[0]
-    emvCapk.Modul = PosUtils.hexStringToBytes(this.modulus)
-    emvCapk.Exponent = PosUtils.hexStringToBytes(this.exponent)
-    emvCapk.CheckSum = PosUtils.hexStringToBytes(this.hash)
-    emvCapk.HashInd = this.hashAlgorithm.toByteOrNull() ?: PosEmvCapk.HASH_IND_SHA1
-    emvCapk.ArithInd = this.keyAlgorithm.toByteOrNull() ?: PosEmvCapk.AIRTH_IND_RSA
-    return emvCapk
-}
+//fun NibssAID.toPosEmvAid(): PosEmvAid {
+//    val emvAid = PosEmvAid()
+//    emvAid.AID = PosUtils.hexStringToBytes(this.AID)
+//    emvAid.Version = PosUtils.hexStringToBytes(this.applicationVersion)
+//    emvAid.TACDefault = PosUtils.hexStringToBytes(this.tacDefault)
+//    emvAid.TACOnline = PosUtils.hexStringToBytes(this.tacOnline)
+//    emvAid.TACDenial = PosUtils.hexStringToBytes(this.tacDenial)
+//    emvAid.tDOL = PosUtils.hexStringToBytes(this.TDOL)
+//    emvAid.dDOL = PosUtils.hexStringToBytes(this.DDOL)
+//    emvAid.SelFlag = true
+//    emvAid.TargetPer = 0
+//    emvAid.MaxTargetPer = 99
+//    emvAid.FloorLimit = 0
+//    emvAid.Threshold = 10000
+//    emvAid.ContactlessTransMoneyLimit = 200000
+//    emvAid.TermDoCvmMoneyLimit = 200000
+//    emvAid.ContactlessOfflineTransMoneyLimit = 0
+//    return emvAid
+//}
+//
+//fun NibssCA.toPosEmvCa(): PosEmvCapk {
+//    val emvCapk = PosEmvCapk()
+//    emvCapk.RID = PosUtils.hexStringToBytes(this.RID)
+//    emvCapk.KeyID = PosUtils.hexStringToBytes(this.keyIndex)[0]
+//    emvCapk.Modul = PosUtils.hexStringToBytes(this.modulus)
+//    emvCapk.Exponent = PosUtils.hexStringToBytes(this.exponent)
+//    emvCapk.CheckSum = PosUtils.hexStringToBytes(this.hash)
+//    emvCapk.HashInd = this.hashAlgorithm.toByteOrNull() ?: PosEmvCapk.HASH_IND_SHA1
+//    emvCapk.ArithInd = this.keyAlgorithm.toByteOrNull() ?: PosEmvCapk.AIRTH_IND_RSA
+//    return emvCapk
+//}
 
 fun Throwable.getResponseBody(): String {
     return if (isHttpException()) {

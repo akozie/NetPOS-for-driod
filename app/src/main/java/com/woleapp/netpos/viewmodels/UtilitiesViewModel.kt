@@ -7,7 +7,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.gson.Gson
 import com.google.gson.JsonObject
-import com.netpluspay.netpossdk.printer.PrinterResponse
 import com.netpluspay.nibssclient.models.*
 import com.netpluspay.nibssclient.service.NibssApiWrapper
 import com.pixplicity.easyprefs.library.Prefs
@@ -392,45 +391,11 @@ class UtilitiesViewModel : ViewModel() {
         _message.postValue(Event("Printing Receipt"))
         Timber.e(remark)
         val transactionResponse = lastTransactionResponse.value!!
-        val single = if (Build.MODEL.equals("Pro", true) || Build.MODEL.equals(
-                "P3",
-                true
+        _showPrintDialog.postValue(
+            Event(
+                transactionResponse.buildSMSText(remark).toString()
             )
-        ) transactionResponse.print(context, remark) else {
-            _showPrintDialog.postValue(
-                Event(
-                    transactionResponse.buildSMSText(remark).toString()
-                )
-            )
-            Single.just(PrinterResponse())
-        }
-        single.subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { t1, t2 ->
-                val printerEvent = MqttEvent<PrinterEventData>()
-                t1?.let {
-                    _message.value = Event("Printer: ${it.message}")
-                    printerEvent.apply {
-                        this.event = MqttEvents.PRINTING_RECEIPT.event
-                        this.code = it.code.toString()
-                        this.timestamp = System.currentTimeMillis()
-                        this.data = PrinterEventData(transactionResponse.RRN, it.message)
-                        this.status = it.message
-                    }
-                }
-                t2?.let {
-                    _message.value = Event(it.localizedMessage!!)
-                    _showPrinterError.value = Event(it.localizedMessage!!)
-                    printerEvent.apply {
-                        this.event = MqttEvents.PRINTING_RECEIPT.event
-                        this.code = "-1"
-                        this.timestamp = System.currentTimeMillis()
-                        this.data = PrinterEventData(transactionResponse.RRN, it.localizedMessage ?: "Printer Error")
-                        this.status = it.message
-                    }
-                }
-                MqttHelper.sendPayload(MqttTopics.PRINTING_RECEIPT, printerEvent)
-            }.disposeWith(compositeDisposable)
+        )
     }
 
     fun setCustomerName(name: String) {

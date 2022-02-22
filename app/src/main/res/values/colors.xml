@@ -5,4 +5,9 @@
     <color name="colorPrimaryLight">#9BC870</color>
     <color name="colorAccent">#795548</color>
     <color name="pinTextColor">#000</color>
+    <color name="gray">#a4a4a4</color>
+    <color name="pinButtonText">#ffffff</color>
+    <color name="pinButtonBackground">@color/colorPrimary</color>
+    <color name="colorError">#ffff4b55</color>
+    <color name="colorDivider">#ffe6ebf3</color>
 </resources>

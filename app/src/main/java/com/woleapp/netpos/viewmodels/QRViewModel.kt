@@ -141,10 +141,10 @@ class QRViewModel : ViewModel() {
                         Timber.e("message ${it.message()}")
                         Timber.e(it.message ?: "Error")
                     }
-                    //_qrErrorMessage.value = Event("Error: ${error.localizedMessage ?: "Error"}")
-//                    message.value = Event(
-//                        "An error occurred while fetching QR"
-//                    )
+                    _qrErrorMessage.value = Event("Error: ${error.localizedMessage ?: "Error"}")
+                    message.value = Event(
+                        "An error occurred while fetching QR"
+                  )
                 }
             }.disposeWith(disposable)
     }

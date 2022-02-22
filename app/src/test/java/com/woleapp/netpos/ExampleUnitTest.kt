@@ -14,6 +14,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.text.SimpleDateFormat
 import java.util.*
+import com.woleapp.netpos.ui.dialog.PasswordDialog
 
 /**
  * Example local unit test, which will execute on the development machine (host).
@@ -145,5 +146,7 @@ class ExampleUnitTest {
         println(pinblockToNibss)
         assert(pinblockToNibss.isBlank().not())
     }
+
+
 }
 

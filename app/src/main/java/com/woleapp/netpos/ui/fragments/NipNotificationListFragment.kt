@@ -51,9 +51,9 @@ class NipNotificationListFragment : BaseFragment() {
     ): View {
         binding = FragmentNipNotificationListBinding.inflate(inflater, container, false)
         adapter = NipAdapter {
-            it.print(requireContext()).subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { _, _ -> }
+//            it.print(requireContext()).subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe { _, _ -> }
         }
         return binding.root
     }
@@ -73,16 +73,16 @@ class NipNotificationListFragment : BaseFragment() {
         binding.printAll.setOnClickListener {
             adapter.currentList.let {
                 if (it.isEmpty().not()) {
-                    it.printAllNotifications(requireContext())
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe({
-
-                        }, { throwable ->
-                            Timber.e(throwable.localizedMessage)
-                        }, {
-
-                        })
+//                    it.printAllNotifications(requireContext())
+//                        .subscribeOn(Schedulers.io())
+//                        .observeOn(AndroidSchedulers.mainThread())
+//                        .subscribe({
+//
+//                        }, { throwable ->
+//                            Timber.e(throwable.localizedMessage)
+//                        }, {
+//
+//                        })
                 }
             }
         }

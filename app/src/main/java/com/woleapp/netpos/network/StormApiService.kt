@@ -15,6 +15,11 @@ interface StormApiService {
 
     @POST("api/auth")
     fun userToken(
+        @Body credentials: JsonObject?
+    ): Single<TokenResp>
+
+    @POST("api/auth")
+    fun userToken(
         @Header("Authorization") appToken: String?,
         @Body credentials: JsonObject?
     ): Single<TokenResp>
@@ -24,7 +29,6 @@ interface StormApiService {
 
     @POST("api/passwordReset")
     fun passwordReset(
-        @Header("Authorization") appToken: String?,
         @Body payload: JsonObject?
     ): Single<Response<Any?>?>
 

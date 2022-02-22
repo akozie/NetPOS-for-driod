@@ -173,16 +173,7 @@ class DashboardFragment : BaseFragment() {
                             "No transactions to print",
                             Toast.LENGTH_SHORT
                         ).show()
-                }.printEndOfDay(requireContext())
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe({ printResp ->
-                        Timber.e(printResp.toString())
-                    }, { err ->
-                        Toast.makeText(requireContext(), err.localizedMessage, Toast.LENGTH_LONG)
-                            .show()
-                        //Timber.e(err.localizedMessage)
-                    }).disposeWith(CompositeDisposable())
+                }
             }
         }
         val bottomSheet = BottomSheetDialog(requireContext(), R.style.SheetDialog)
