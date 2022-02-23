@@ -12,3 +12,9 @@
 /captures
 .externalNativeBuild
 .cxx
+app/releaseAdmin
+app/release
+terminallib
+terminalcore
+netpossdk
+epmslib-release
