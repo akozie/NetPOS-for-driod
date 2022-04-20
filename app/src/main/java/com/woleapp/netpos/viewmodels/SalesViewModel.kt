@@ -6,6 +6,14 @@ import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.danbamitale.epmslib.entities.CardData
+import com.danbamitale.epmslib.entities.HostConfig
+import com.danbamitale.epmslib.entities.TransactionRequestData
+import com.danbamitale.epmslib.entities.TransactionResponse
+import com.danbamitale.epmslib.entities.responseMessage
+import com.danbamitale.epmslib.processors.TransactionProcessor
+import com.danbamitale.epmslib.utils.IsoAccountType
+import com.danbamitale.epmslib.utils.MessageReasonCode
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.netpluspay.nibssclient.exception.NibssClientException
@@ -48,7 +56,7 @@ class SalesViewModel : ViewModel() {
     var pin = MutableLiveData("")
     val customerName = MutableLiveData("")
     val remark = MutableLiveData("")
-    private var isoAccountType: IsoAccountType? = null
+    private var isoAccountType: com.danbamitale.epmslib.utils.IsoAccountType? = null
     private var cardScheme: String? = null
     private val _showPrintDialog = MutableLiveData<Event<String>>()
     private var amountDbl: Double = 0.0
@@ -102,53 +110,38 @@ class SalesViewModel : ViewModel() {
         _getCardData.value = Event(true)
     }
 
-    fun makePayment(context: Context, transactionType: TransactionType = TransactionType.PURCHASE) {
+    fun makePayment(context: Context, transactionType: com.danbamitale.epmslib.entities.TransactionType = com.danbamitale.epmslib.entities.TransactionType.PURCHASE) {
         Timber.e(cardData.toString())
-        Timber.e("terminal id for transaction ${NetPosTerminalConfig.getTerminalId()}")
-        //IsoAccountType.
-        Timber.e(transactionType.toString())
-        val requestData = MakePaymentParams(
-            amountLong,
-            0L,
-            cardData!!,
-            transactionType,
-            isoAccountType ?: IsoAccountType.DEFAULT_UNSPECIFIED
-        ).apply {
-            remark = this@SalesViewModel.remark.value
+        val configData = NetPosTerminalConfig.getConfigData() ?: kotlin.run {
+            _message.value =
+                Event("Terminal has not been configured, restart the application to configure")
+            return
         }
+        val keyHolder = NetPosTerminalConfig.getKeyHolder()!!
+        Timber.e("terminal id for transaction ${NetPosTerminalConfig.getTerminalId()}")
+        val hostConfig = HostConfig(
+            NetPosTerminalConfig.getTerminalId(),
+            NetPosTerminalConfig.connectionData,
+            keyHolder,
+            configData
+        )
+        //IsoAccountType.
+        this.amountLong = amountDbl.toLong()
+        val requestData =
+            TransactionRequestData(transactionType, amountLong, 0L, accountType = isoAccountType!!)
+        val processor = TransactionProcessor(hostConfig)
         transactionState.value = STATE_PAYMENT_STARTED
-        Timber.e(Gson().toJson(requestData))
-        NibssApiWrapper.makePayment(context, requestData)
+        processor.processTransaction(context, requestData, cardData!!)
+            .onErrorResumeNext {
+                processor.rollback(context, MessageReasonCode.Timeout)
+            }
             .flatMap {
-                if (it.responseCode == "A3" || it.responseCode == "06") {
+                it.amount = amountLong
+                if (it.responseCode == "A3") {
                     Prefs.remove(PREF_CONFIG_DATA)
                     Prefs.remove(PREF_KEYHOLDER)
                     _shouldRefreshNibssKeys.postValue(Event(true))
                 }
-                if (isVend) {
-                    val j = JsonObject().apply {
-                        addProperty("amount", it.amount)
-                        addProperty("responseCode", it.responseCode)
-                        addProperty("RRN", it.RRN)
-                        addProperty("serial_number", Build.ID)
-                    }
-                    sendVendResponse(context, j.toString())
-                }
-                val transactionEvent = MqttEvent<NibssResponse>()
-                transactionEvent.apply {
-                    this.event = MqttEvents.TRANSACTIONS.event
-                    this.code = it.responseCode
-                    this.timestamp = System.currentTimeMillis()
-                    this.data = it.toNibssResponse(remark = remark.value)
-                    this.transactionType = transactionType.name
-                    this.status = try {
-                        it.responseMessage
-                    } catch (ex: Exception) {
-                        "Error"
-                    }
-                }
-                //Timber.e(gson.toJson(transactionEvent))
-                //MqttHelper.sendPayload(MqttTopics.TRANSACTIONS, event)
                 it.cardHolder = customerName.value!!
                 it.cardLabel = cardScheme!!
                 lastTransactionResponse.postValue(it)
@@ -157,15 +150,10 @@ class SalesViewModel : ViewModel() {
                 Timber.e(it.responseMessage)
                 _message.postValue(Event(if (it.responseCode == "00") "Transaction Approved" else "Transaction Not approved"))
                 printReceipt(context)
-                AppDatabase.getDatabaseInstance(context).transactionResponseDao()
-                    .insertNewTransaction(it)
+                Single.just(11)
             }
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .doOnError {
-                Timber.e("error thrown")
-                Timber.e(it.localizedMessage)
-            }
             .doFinally {
                 transactionState.value = STATE_PAYMENT_STAND_BY
             }.subscribe { t1, throwable ->
@@ -173,28 +161,8 @@ class SalesViewModel : ViewModel() {
 
                 }
                 throwable?.let {
-                    when (it) {
-                        is UnknownHostException, is SocketException -> {
-                            _message.value =
-                                Event("Connection Error::${it.localizedMessage}")
-                            Timber.e(it.localizedMessage)
-                        }
-                        is NibssClientException -> {
-                            it.nibssError?.let { nibssError ->
-                                Timber.e(nibssError.toString())
-                                if (nibssError.possibleSolution!! == "Attempt configure terminal") {
-                                    Prefs.remove(PREF_CONFIG_DATA)
-                                    Prefs.remove(PREF_KEYHOLDER)
-                                    _shouldRefreshNibssKeys.value = Event(true)
-                                }
-                                _message.value = Event(nibssError.error ?: "Error")
-                            }
-                        }
-                        else -> {
-                            _message.value = Event(it.localizedMessage ?: "Unknown exception")
-                            Timber.e(it)
-                        }
-                    }
+                    _message.value = Event("Error: ${it.localizedMessage}")
+                    Timber.e(it)
                 }
             }.disposeWith(compositeDisposable)
     }
@@ -221,17 +189,13 @@ class SalesViewModel : ViewModel() {
     }
 
     private fun printReceipt(context: Context) {
-        val transactionResponse = lastTransactionResponse.value ?: gatewayErrorTransactionResponse(
-            amountLong,
-            TransactionType.PURCHASE,
-            isoAccountType!!
-        )
-            .apply {
+        val transactionResponse = lastTransactionResponse.value
+            ?.apply {
                 this.cardExpiry = ""
                 this.cardHolder = customerName.value ?: ""
             }
         _showPrintDialog.postValue(
-            Event(transactionResponse.buildSMSText(remark.value ?: "").toString())
+            Event(transactionResponse?.buildSMSText(remark.value ?: "").toString())
         )
     }
 

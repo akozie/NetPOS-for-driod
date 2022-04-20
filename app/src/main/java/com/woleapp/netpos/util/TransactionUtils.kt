@@ -6,7 +6,7 @@ import com.netpluspay.nibssclient.models.TransactionType
 import com.netpluspay.nibssclient.models.responseMessage
 
 
-fun gatewayErrorTransactionResponse(amount: Long = 0, transactionType: TransactionType = TransactionType.PURCHASE, accountType: IsoAccountType = IsoAccountType.DEFAULT_UNSPECIFIED) = TransactionResponse().apply {
+fun gatewayErrorTransactionResponse(amount: Long = 0, transactionType: TransactionType = TransactionType.PURCHASE, accountType: com.danbamitale.epmslib.utils.IsoAccountType = com.danbamitale.epmslib.utils.IsoAccountType.DEFAULT_UNSPECIFIED) = TransactionResponse().apply {
     this.transactionType = transactionType
     this.responseCode = "A5"
     this.RRN = "000000000000"
@@ -15,7 +15,6 @@ fun gatewayErrorTransactionResponse(amount: Long = 0, transactionType: Transacti
     this.TSI = ""
     this.TVR = ""
     this.responseMessage
-    this.accountType = accountType
     this.transactionTimeInMillis = System.currentTimeMillis()
     this.acquiringInstCode = ""
     this.amount = amount

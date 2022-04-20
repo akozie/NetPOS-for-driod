@@ -13,9 +13,9 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
+import com.danbamitale.epmslib.entities.CardData
 import com.mastercard.terminalsdk.listeners.PaymentDataProvider
 import com.mastercard.terminalsdk.utility.ByteArrayWrapper
-import com.netpluspay.nibssclient.models.CardData
 import com.netpluspay.nibssclient.models.IsoAccountType
 import com.netpluspay.nibssclient.util.TripleDES
 import com.woleapp.netpos.R
