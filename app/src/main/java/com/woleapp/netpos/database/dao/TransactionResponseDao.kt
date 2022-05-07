@@ -5,8 +5,8 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
-import com.netpluspay.nibssclient.models.TransactionResponse
-import com.netpluspay.nibssclient.models.TransactionType
+import com.danbamitale.epmslib.entities.TransactionResponse
+import com.danbamitale.epmslib.entities.TransactionType
 import io.reactivex.Single
 
 @Dao
@@ -30,7 +30,7 @@ interface TransactionResponseDao {
     @Query("SELECT * FROM transactionresponse WHERE transactionType=:transactionType ORDER BY id DESC")
     fun getTransactionByTransactionType(transactionType: TransactionType): LiveData<List<TransactionResponse>>
 
-    @Query("SELECT * FROM transactionresponse WHERE transactionType='PURCHASE' AND responseCode='00'")
+    @Query("SELECT * FROM transactionresponse WHERE transactionType LIKE '%PURCHASE%' AND responseCode='00' ORDER BY id DESC")
     fun getRefundableTransactions(): LiveData<List<TransactionResponse>>
 
 }

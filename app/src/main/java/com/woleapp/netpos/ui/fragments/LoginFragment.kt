@@ -101,13 +101,6 @@ class LoginFragment : BaseFragment() {
                 }
             }
         }
-
-        viewModel.gotoAdminPage.observe(viewLifecycleOwner) {
-            it.getContentIfNotHandled()?.let { gotoAdminPage ->
-                if (gotoAdminPage)
-                    addFragmentWithoutRemove(AdministratorFragment(), R.id.auth_container)
-            }
-        }
         viewModel.passwordResetSent.observe(viewLifecycleOwner) { event ->
             event.getContentIfNotHandled()?.let {
                 if (it && passwordResetDialog.isShowing)

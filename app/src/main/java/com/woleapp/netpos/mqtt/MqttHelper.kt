@@ -59,18 +59,18 @@ object MqttHelper {
                     Timber.e("Disconnected::cause - ${it.cause} ")
                 }
             client = clientBuilder.useMqttVersion3().buildRx().apply {
-                connect().subscribe { t1, t2 ->
-                    t1?.let {
-                        event?.let {
-                            sendPayload(topic!!, it)
-                        }
-                        Timber.e("Connected:")
-                    }
-                    t2?.let {
-                        Timber.e("Connection Failed")
-                        Timber.e(it)
-                    }
-                }.disposeWith(disposables)
+//                connect().subscribe { t1, t2 ->
+//                    t1?.let {
+//                        event?.let {
+//                            sendPayload(topic!!, it)
+//                        }
+//                        Timber.e("Connected:")
+//                    }
+//                    t2?.let {
+//                        Timber.e("Connection Failed")
+//                        Timber.e(it)
+//                    }
+//                }.disposeWith(disposables)
             }
         }
     }

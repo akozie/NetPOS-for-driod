@@ -6,98 +6,105 @@
 
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <ScrollView
+        android:fillViewport="true"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginHorizontal="16dp">
+        android:layout_height="match_parent">
 
-        <ImageButton
-            android:id="@+id/close_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="?selectableItemBackground"
-            android:contentDescription="@string/close_dialog"
-            android:padding="16dp"
-            android:src="@drawable/ic_cal_clear"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <ImageView
-            android:id="@+id/netpos_logo"
-            android:layout_width="100dp"
-            android:layout_height="50dp"
-            android:layout_marginTop="16dp"
-            android:contentDescription="@string/netpos_logo"
-            android:src="@drawable/ic_netpos_new"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/transaction_content"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/dimen_16dp"
-            app:layout_constraintTop_toBottomOf="@id/netpos_logo" />
+            android:layout_height="match_parent"
+            android:layout_marginHorizontal="16dp">
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/email_wrapper"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginTop="@dimen/dimen_16dp"
-            android:hint="@string/email_address"
-            app:layout_constraintTop_toBottomOf="@id/transaction_content">
+            <ImageButton
+                android:id="@+id/close_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="?selectableItemBackground"
+                android:contentDescription="@string/close_dialog"
+                android:padding="16dp"
+                android:src="@drawable/ic_cal_clear"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/email_field"
+            <ImageView
+                android:id="@+id/netpos_logo"
+                android:layout_width="100dp"
+                android:layout_height="50dp"
+                android:layout_marginTop="16dp"
+                android:contentDescription="@string/netpos_logo"
+                android:src="@drawable/ic_netpos_new"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/transaction_content"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:inputType="textEmailAddress" />
-        </com.google.android.material.textfield.TextInputLayout>
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/dimen_16dp"
+                app:layout_constraintTop_toBottomOf="@id/netpos_logo" />
 
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/telephone_wrapper"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="@dimen/dimen_16dp"
-            android:layout_marginTop="8dp"
-            android:hint="@string/phone_number"
-            app:layout_constraintTop_toBottomOf="@id/email_wrapper">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/telephone"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/email_wrapper"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:inputType="phone"
-                android:maxLength="11" />
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="@dimen/dimen_16dp"
+                android:hint="@string/email_address"
+                app:layout_constraintTop_toBottomOf="@id/transaction_content">
 
-        </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/email_field"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:inputType="textEmailAddress" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-        <Button
-            android:id="@+id/send_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/dimen_8dp"
-            android:paddingHorizontal="36dp"
-            android:text="@string/send_receipt"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/telephone_wrapper" />
 
-        <ProgressBar
-            android:id="@+id/progress"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:layout_marginEnd="4dp"
-            android:elevation="@dimen/dimen_2dp"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="@id/send_button"
-            app:layout_constraintEnd_toEndOf="@id/send_button"
-            app:layout_constraintTop_toTopOf="@id/send_button" />
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/telephone_wrapper"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/dimen_16dp"
+                android:layout_marginTop="8dp"
+                android:hint="@string/phone_number"
+                app:layout_constraintTop_toBottomOf="@id/email_wrapper">
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/telephone"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:inputType="phone"
+                    android:maxLength="11" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <Button
+                android:id="@+id/send_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dimen_8dp"
+                android:paddingHorizontal="36dp"
+                android:text="@string/send_receipt"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/telephone_wrapper" />
+
+            <ProgressBar
+                android:id="@+id/progress"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_marginEnd="4dp"
+                android:elevation="@dimen/dimen_2dp"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="@id/send_button"
+                app:layout_constraintEnd_toEndOf="@id/send_button"
+                app:layout_constraintTop_toTopOf="@id/send_button" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </ScrollView>
 </layout>

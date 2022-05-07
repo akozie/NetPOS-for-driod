@@ -14,11 +14,7 @@ import com.danbamitale.epmslib.entities.responseMessage
 import com.danbamitale.epmslib.processors.TransactionProcessor
 import com.danbamitale.epmslib.utils.IsoAccountType
 import com.danbamitale.epmslib.utils.MessageReasonCode
-import com.google.gson.Gson
 import com.google.gson.JsonObject
-import com.netpluspay.nibssclient.exception.NibssClientException
-import com.netpluspay.nibssclient.models.*
-import com.netpluspay.nibssclient.service.NibssApiWrapper
 import com.pixplicity.easyprefs.library.Prefs
 import com.woleapp.netpos.database.AppDatabase
 import com.woleapp.netpos.model.*
@@ -41,8 +37,7 @@ import java.io.InputStreamReader
 import java.io.PrintWriter
 import java.net.InetSocketAddress
 import java.net.Socket
-import java.net.SocketException
-import java.net.UnknownHostException
+
 
 
 class SalesViewModel : ViewModel() {
@@ -52,7 +47,9 @@ class SalesViewModel : ViewModel() {
     val transactionState = MutableLiveData(STATE_PAYMENT_STAND_BY)
     private val lastTransactionResponse = MutableLiveData<TransactionResponse>()
     val amount: MutableLiveData<String> = MutableLiveData<String>("")
+    val cashback: MutableLiveData<String> = MutableLiveData<String>("")
     var amountLong = 0L
+    var cashbackLong = 0L
     var pin = MutableLiveData("")
     val customerName = MutableLiveData("")
     val remark = MutableLiveData("")
@@ -107,6 +104,7 @@ class SalesViewModel : ViewModel() {
             return
         }) * 100
         this.amountLong = amountDbl.toLong()
+        this.cashbackLong = cashback.value?.toDoubleOrNull()?.times(100)?.toLong() ?: 0L
         _getCardData.value = Event(true)
     }
 
@@ -128,7 +126,7 @@ class SalesViewModel : ViewModel() {
         //IsoAccountType.
         this.amountLong = amountDbl.toLong()
         val requestData =
-            TransactionRequestData(transactionType, amountLong, 0L, accountType = isoAccountType!!)
+            TransactionRequestData(transactionType, amountLong, cashbackLong, accountType = isoAccountType!!)
         val processor = TransactionProcessor(hostConfig)
         transactionState.value = STATE_PAYMENT_STARTED
         processor.processTransaction(context, requestData, cardData!!)
@@ -149,8 +147,8 @@ class SalesViewModel : ViewModel() {
                 Timber.e(it.responseCode)
                 Timber.e(it.responseMessage)
                 _message.postValue(Event(if (it.responseCode == "00") "Transaction Approved" else "Transaction Not approved"))
-                printReceipt(context)
-                Single.just(11)
+                printReceipt(it)
+                AppDatabase.getDatabaseInstance(context).transactionResponseDao().insertNewTransaction(it)
             }
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
@@ -188,14 +186,14 @@ class SalesViewModel : ViewModel() {
         )
     }
 
-    private fun printReceipt(context: Context) {
-        val transactionResponse = lastTransactionResponse.value
-            ?.apply {
+    private fun printReceipt(transactionResponse: TransactionResponse) {
+         transactionResponse.apply {
                 this.cardExpiry = ""
                 this.cardHolder = customerName.value ?: ""
             }
+        Timber.e(transactionResponse.toString())
         _showPrintDialog.postValue(
-            Event(transactionResponse?.buildSMSText(remark.value ?: "").toString())
+            Event(transactionResponse.buildSMSText(remark.value ?: "").toString())
         )
     }
 

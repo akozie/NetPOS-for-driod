@@ -5,14 +5,14 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import com.netpluspay.nibssclient.models.TransactionResponse
+import com.danbamitale.epmslib.entities.TransactionResponse
 import com.woleapp.netpos.database.dao.MqttLocalDao
 import com.woleapp.netpos.database.dao.TransactionResponseDao
 import com.woleapp.netpos.model.MqttEventsLocal
 import com.woleapp.netpos.util.RoomTypeConverters
 
 
-@Database(entities = [TransactionResponse::class, MqttEventsLocal::class], version = 2, exportSchema = false)
+@Database(entities = [TransactionResponse::class, MqttEventsLocal::class], version = 5, exportSchema = false)
 @TypeConverters(
    RoomTypeConverters::class
 )

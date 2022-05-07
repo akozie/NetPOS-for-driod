@@ -2,18 +2,16 @@ package com.woleapp.netpos.taponphone.implementations;
 
 import android.util.Log;
 
+import com.danbamitale.epmslib.entities.CardData;
 import com.mastercard.terminalsdk.iso8825.BerTlv;
 import com.mastercard.terminalsdk.listeners.TransactionOutcomeObserver;
 import com.mastercard.terminalsdk.objects.ErrorIndication;
 import com.mastercard.terminalsdk.objects.OutcomeParameterSet;
 import com.mastercard.terminalsdk.objects.ReaderOutcome;
 import com.mastercard.terminalsdk.utility.ByteUtility;
-import com.netpluspay.nibssclient.models.CardData;
-import com.netpluspay.nibssclient.util.TripleDES;
 
-import com.pixplicity.easyprefs.library.Prefs;
 import com.woleapp.netpos.taponphone.listener.TransactionListener;
-import com.woleapp.netpos.util.ExtensionFunctionsKt;
+
 
 import org.apache.commons.lang.StringUtils;
 

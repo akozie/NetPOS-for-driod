@@ -7,7 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
-import com.netpluspay.nibssclient.models.TransactionType
+import com.danbamitale.epmslib.entities.TransactionType
 import com.woleapp.netpos.R
 import com.woleapp.netpos.adapter.ServiceAdapter
 import com.woleapp.netpos.databinding.FragmentTransactionsBinding
@@ -15,6 +15,7 @@ import com.woleapp.netpos.databinding.LayoutPreauthDialogBinding
 import com.woleapp.netpos.model.Service
 import com.woleapp.netpos.util.HISTORY_ACTION_PREAUTH
 import com.woleapp.netpos.util.HISTORY_ACTION_REFUND
+import com.woleapp.netpos.util.HISTORY_ACTION_REVERSAL
 
 class TransactionsFragment : BaseFragment() {
 
@@ -31,6 +32,8 @@ class TransactionsFragment : BaseFragment() {
             val nextFrag: Fragment? = when (it.id) {
                 0 -> SalesFragment.newInstance()
                 1 -> TransactionHistoryFragment.newInstance(action = HISTORY_ACTION_REFUND)
+                8 -> TransactionHistoryFragment.newInstance(action = HISTORY_ACTION_REVERSAL)
+                7 -> SalesFragment.newInstance(TransactionType.PURCHASE_WITH_CASH_BACK)
                 2 -> {
                     showPreAuthDialog()
                     null
@@ -60,8 +63,10 @@ class TransactionsFragment : BaseFragment() {
     private fun setService() {
         val listOfService = ArrayList<Service>()
             .apply {
-                add(Service(0, "Sales", R.drawable.ic_purchase))
-                //add(Service(1, "Refund", R.drawable.ic_loop))
+                add(Service(0, "Purchase", R.drawable.ic_purchase))
+                add(Service(7, "Purchase With Cashback", R.drawable.ic_purchase))
+                add(Service(1, "Refund", R.drawable.ic_loop))
+                add(Service(8, "Reversal", R.drawable.ic_loop))
                 add(Service(2, "PRE AUTHORIZATION", R.drawable.ic_pre_auth))
                 add(Service(3, "Cash Advance", R.drawable.ic_pay_cash_icon))
                 add(Service(4, "QR", R.drawable.ic_qr_code))

@@ -1,15 +1,13 @@
 package com.woleapp.netpos.util
 
 import com.danbamitale.epmslib.entities.ConfigData
+import com.danbamitale.epmslib.entities.TransactionResponse
+import com.danbamitale.epmslib.entities.responseMessage
 import com.google.gson.Gson
-import com.netpluspay.nibssclient.models.KeyHolder
-import com.netpluspay.nibssclient.models.TransactionResponse
-import com.netpluspay.nibssclient.models.responseMessage
 import com.pixplicity.easyprefs.library.Prefs
 import com.woleapp.netpos.model.ConfigurationData
 import com.woleapp.netpos.model.NibssResponse
 import com.woleapp.netpos.model.User
-import com.woleapp.netpos.nibss.DEFAULT_TERMINAL_ID
 import com.woleapp.netpos.nibss.Keys
 import java.lang.Exception
 

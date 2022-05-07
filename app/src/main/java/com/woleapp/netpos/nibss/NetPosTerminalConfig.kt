@@ -33,8 +33,8 @@ class NetPosTerminalConfig {
         private var configurationData: ConfigurationData = getSavedConfigurationData()
         private val disposables = CompositeDisposable()
         var connectionData: ConnectionData = ConnectionData(
-            ipAddress = configurationData.ip,
-            ipPort = configurationData.port.toInt(),
+            ipAddress = "196.6.103.10",
+            ipPort = 55533,
             isSSL = true
         )
         private var terminalId: String? = null
@@ -47,11 +47,11 @@ class NetPosTerminalConfig {
         private var terminalConfigurator: TerminalConfigurator =
             TerminalConfigurator(connectionData)
 
-        fun getTerminalId() = terminalId ?: ""
+        fun getTerminalId() = terminalId ?: "3454B842"
 
 
         private fun setTerminalId() {
-            terminalId = Singletons.getCurrentlyLoggedInUser()?.terminal_id
+            terminalId = "3454B842"
         }
 
         private var keyHolder: KeyHolder? = null
@@ -67,8 +67,8 @@ class NetPosTerminalConfig {
             configureSilently: Boolean = false
         ) {
             KeyHolder.setHostKeyComponents(
-                configurationData.key1,
-                configurationData.key2
+                "5D25072F04832A2329D93E4F91BA23A2",
+                "86CBCDE3B0A22354853E04521686863D"
             )// default to test  //Set your base keys here
 
             setTerminalId()

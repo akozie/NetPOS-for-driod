@@ -5,16 +5,18 @@ import android.os.Build
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.danbamitale.epmslib.entities.*
+import com.danbamitale.epmslib.processors.TransactionProcessor
+import com.danbamitale.epmslib.utils.IsoAccountType
 import com.google.gson.Gson
 import com.google.gson.JsonObject
-import com.netpluspay.nibssclient.models.*
-import com.netpluspay.nibssclient.service.NibssApiWrapper
 import com.pixplicity.easyprefs.library.Prefs
 import com.woleapp.netpos.database.AppDatabase
 import com.woleapp.netpos.model.*
 import com.woleapp.netpos.mqtt.MqttHelper
 import com.woleapp.netpos.network.StormApiClient
 import com.woleapp.netpos.network.StormUtilitiesApiService
+import com.woleapp.netpos.nibss.NetPosTerminalConfig
 import com.woleapp.netpos.util.*
 import io.reactivex.Single
 
@@ -54,6 +56,15 @@ class UtilitiesViewModel : ViewModel() {
             it.value = Event(false)
         }
     }
+
+    private val hostConfig = HostConfig(
+        NetPosTerminalConfig.getTerminalId(),
+        NetPosTerminalConfig.connectionData,
+        NetPosTerminalConfig.getKeyHolder()!!,
+        NetPosTerminalConfig.getConfigData()!!
+    )
+
+    private val processor = TransactionProcessor(hostConfig)
 
     private val _shouldRefreshNibssKeys = MutableLiveData<Event<Boolean>>()
     val shouldRefreshNibssKeys: LiveData<Event<Boolean>>
@@ -298,54 +309,44 @@ class UtilitiesViewModel : ViewModel() {
     }
 
     private fun reverseTransaction(context: Context) {
-        val requestData = RefundTransactionParams(
-            cardData!!,
-            lastTransactionResponse.value!!,
-            messageReasonCode = MessageReasonCode.CompletedPartially,
-            accountType = isoAccountType!!
-        ).apply {
-            fundWallet = false
-        }
-        NibssApiWrapper.refundTransaction(
-            context,
-            requestData
-        ).subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .doFinally {
-                _showProgressMutableLiveData.value = Event(false)
-                _result.value = Event(
-                    errorResponse
-                        ?: ErrorNetworkResponse("An unresolvable error occurred, contact administrator")
-                )
-                printReceipt(context)
-            }
-            .subscribe { t1, t2 ->
-                t1?.let { response ->
-                    Timber.e(response.toString())
-                    lastTransactionResponse.value = response
-                    if (response.responseCode == "06") {
-                        errorResponse?.message =
-                            "Could not process ${payloadMutableLiveData.value?.billType} payment, Transaction Reversed"
-                    } else {
-                        errorResponse?.message =
-                            "Could not process ${payloadMutableLiveData.value?.billType} payment, Transaction could not be auto reversed, contact administrator"
+        val transactionResponse = lastTransactionResponse.value
+        transactionResponse?.let {
+            val originalDataElements = it.toOriginalDataElements()
+            val transactionRequestData = TransactionRequestData(
+                transactionType = TransactionType.REVERSAL,
+                amount = originalDataElements.originalAmount,
+                accountType = isoAccountType ?: IsoAccountType.DEFAULT_UNSPECIFIED,
+                originalDataElements = originalDataElements
+            )
+            processor.processTransaction(context, transactionRequestData, cardData!!)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doFinally {
+                    _showProgressMutableLiveData.value = Event(false)
+                    _result.value = Event(errorResponse ?: ErrorNetworkResponse("An unresolvable error occurred, contact administrator"))
+                    printReceipt(context)
+                }
+                .subscribe { t1, t2 ->
+                    t1?.let { response ->
+                        lastTransactionResponse.value = response
+                        if (response.responseCode == "00"){
+                            errorResponse?.message = "Could not process ${payloadMutableLiveData.value?.billType} payment, Transaction Reversed"
+                        }else{
+                            errorResponse?.message = "Could not process ${payloadMutableLiveData.value?.billType} payment, Transaction could not be auto reversed, contact administrator"
+                        }
                     }
-                }
-                t2?.let {
-                    errorResponse?.message =
-                        "Could not process ${payloadMutableLiveData.value?.billType} payment, Transaction could not be auto reversed, contact administrator"
-                }
-            }.disposeWith(compositeDisposable)
-
+                    t2?.let {
+                        errorResponse?.message = "Could not process ${payloadMutableLiveData.value?.billType} payment, Transaction could not be auto reversed, contact administrator"
+                    }
+                }.disposeWith(compositeDisposable)
+        }
     }
 
     fun makePayment(context: Context, transactionType: TransactionType = TransactionType.PURCHASE) {
         _showProgressMutableLiveData.value = Event(true)
-        val makePaymentParams =
-            MakePaymentParams(amountLong, 0L, cardData, transactionType, isoAccountType!!).apply {
-                fundWallet = false
-            }
-        NibssApiWrapper.makePayment(context, makePaymentParams)
+        val requestData =
+            TransactionRequestData(transactionType, 200, 0L, accountType = isoAccountType!!)
+        processor.processTransaction(context, requestData, cardData!!)
             .flatMap {
                 if (it.responseCode == "A3") {
                     Prefs.remove(PREF_CONFIG_DATA)
@@ -359,7 +360,8 @@ class UtilitiesViewModel : ViewModel() {
                 if (it.responseCode == "00") {
                     payBill(context)
                 } else {
-                    _showProgressMutableLiveData.postValue(Event(false))
+                    _message.value
+                    _showProgressMutableLiveData.value = Event(false)
                     _result.postValue(Event(ErrorNetworkResponse("Transaction Declined")))
                     printReceipt(context)
                 }

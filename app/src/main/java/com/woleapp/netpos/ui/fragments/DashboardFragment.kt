@@ -2,24 +2,28 @@
 
 package com.woleapp.netpos.ui.fragments
 
-import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.app.ProgressDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
+import com.danbamitale.epmslib.entities.*
+import com.danbamitale.epmslib.extensions.formatCurrencyAmount
+import com.danbamitale.epmslib.processors.TransactionProcessor
+import com.danbamitale.epmslib.utils.IsoAccountType
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.netpluspay.nibssclient.models.*
-import com.netpluspay.nibssclient.service.NibssApiWrapper
-import com.netpluspay.nibssclient.util.formatCurrencyAmount
 import com.pixplicity.easyprefs.library.Prefs
 import com.woleapp.netpos.R
 import com.woleapp.netpos.adapter.ServiceAdapter
 import com.woleapp.netpos.database.AppDatabase
+import com.woleapp.netpos.databinding.DialogTransactionResultBinding
 import com.woleapp.netpos.databinding.FragmentDashboardBinding
 import com.woleapp.netpos.databinding.LayoutPrintEndOfDayBinding
 import com.woleapp.netpos.model.*
@@ -30,6 +34,8 @@ import com.woleapp.netpos.viewmodels.TransactionsViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.*
 import kotlin.collections.ArrayList
@@ -41,6 +47,8 @@ class DashboardFragment : BaseFragment() {
     private lateinit var binding: FragmentDashboardBinding
     private lateinit var adapter: ServiceAdapter
     private var compositeDisposable = CompositeDisposable()
+    private lateinit var receiptDialogBinding: DialogTransactionResultBinding
+    private lateinit var alertDialog: AlertDialog
     private val transactionViewModel by activityViewModels<TransactionsViewModel>()
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -68,6 +76,38 @@ class DashboardFragment : BaseFragment() {
             //addFragmentWithoutRemove(nextFrag)
         }
         progressDialog = ProgressDialog(requireContext())
+        receiptDialogBinding = DialogTransactionResultBinding.inflate(inflater, null, false)
+            .apply { executePendingBindings() }
+        alertDialog = AlertDialog.Builder(requireContext()).setCancelable(false).apply {
+            setView(receiptDialogBinding.root)
+            receiptDialogBinding.apply {
+                closeBtn.setOnClickListener {
+                    alertDialog.dismiss()
+                }
+                sendButton.setOnClickListener {
+                    if (receiptDialogBinding.telephone.text.toString().length != 11) {
+                        Toast.makeText(
+                            requireContext(),
+                            "Please enter a valid phone number",
+                            Toast.LENGTH_LONG
+                        ).show()
+                        return@setOnClickListener
+                    }
+//                    viewModel.sendSmS(
+//                        receiptDialogBinding.telephone.text.toString()
+//                    )
+                    progress.visibility = View.VISIBLE
+                    sendButton.isEnabled = false
+                    lifecycleScope.launch {
+                        delay(3000)
+                    }
+                    progress.visibility = View.GONE
+                    sendButton.isEnabled = true
+                    alertDialog.cancel()
+                }
+            }
+        }.create()
+        alertDialog.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
         return binding.root
     }
 
@@ -95,10 +135,24 @@ class DashboardFragment : BaseFragment() {
         cardData: CardData,
         accountType: IsoAccountType = IsoAccountType.DEFAULT_UNSPECIFIED
     ) {
-        val checkBalanceParam = CheckBalanceParams(cardData, accountType)
+        if (NetPosTerminalConfig.getKeyHolder() == null) {
+            Toast.makeText(requireContext(), "Terminal not configured", Toast.LENGTH_LONG).show()
+            return
+        }
+
+        val hostConfig = HostConfig(
+            NetPosTerminalConfig.getTerminalId(),
+            NetPosTerminalConfig.connectionData,
+            NetPosTerminalConfig.getKeyHolder()!!,
+            NetPosTerminalConfig.getConfigData()!!
+        )
+        val requestData =
+            TransactionRequestData(TransactionType.BALANCE, 0L, accountType = accountType)
         progressDialog.setMessage("Checking Balance...")
         progressDialog.show()
-        val disposable = NibssApiWrapper.checkBalance(requireContext(), checkBalanceParam)
+        val processor = TransactionProcessor(hostConfig)
+        //processor.
+        val disposable = processor.processTransaction(requireContext(), requestData, cardData)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe { response, error ->
@@ -123,6 +177,8 @@ class DashboardFragment : BaseFragment() {
                         )
                     }
 
+                    val me = it.buildSMSText("Account Balance Check")
+
                     val messageString = if (it.isApproved) {
                         "Account Balance:\n " + it.accountBalances.joinToString("\n") { accountBalance ->
                             "${accountBalance.accountType}, ${
@@ -133,19 +189,26 @@ class DashboardFragment : BaseFragment() {
                         "${it.responseMessage}(${it.responseCode})"
                     }
 
-                    showMessage(if (it.isApproved) "Approved" else "Declined", messageString)
+                    showMessage(
+                        if (it.isApproved) "Approved" else "Declined", messageString, me.toString()
+                    )
                 }
             }
-        disposable.disposeWith(compositeDisposable)
+
+        //compositeDisposable.add(disposable)
     }
 
-    private fun showMessage(s: String, messageString: String) {
+
+    private fun showMessage(s: String, vararg messageString: String) {
         AlertDialog.Builder(requireContext())
             .apply {
                 setTitle(s)
-                setMessage(messageString)
+                setMessage(messageString.first())
                 setPositiveButton("Ok") { dialog, _ ->
                     dialog.dismiss()
+                    receiptDialogBinding.transactionContent.text =
+                        messageString.reversed().joinToString("\n")
+                    alertDialog.show()
                 }
                 create().show()
             }

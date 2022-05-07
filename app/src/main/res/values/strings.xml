@@ -133,4 +133,5 @@
     <string name="btn_cal_9">9</string>
     <string name="btn_esc">Esc</string>
     <string name="btn_confirm">Confirm</string>
+    <string name="hint_cashback">Enter Cashback Amount</string>
 </resources>

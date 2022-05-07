@@ -1,6 +1,6 @@
 package com.woleapp.netpos.model
 
-import com.netpluspay.nibssclient.models.CardData
+import com.danbamitale.epmslib.entities.CardData
 
 
 data class Logger(

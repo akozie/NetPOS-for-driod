@@ -1,6 +1,7 @@
 package com.woleapp.netpos.taponphone.listener;
 
-import com.netpluspay.nibssclient.models.CardData;
+
+import com.danbamitale.epmslib.entities.CardData;
 
 public interface TransactionListener {
 

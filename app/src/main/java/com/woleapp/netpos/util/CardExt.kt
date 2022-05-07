@@ -5,7 +5,7 @@ package com.woleapp.netpos.util
 import android.app.Activity
 import android.app.AlertDialog
 import android.app.ProgressDialog
-import android.content.*
+import android.content.DialogInterface
 import android.os.Looper
 import android.view.LayoutInflater
 import android.widget.Toast
@@ -14,10 +14,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import com.danbamitale.epmslib.entities.CardData
+import com.danbamitale.epmslib.utils.IsoAccountType
 import com.mastercard.terminalsdk.listeners.PaymentDataProvider
 import com.mastercard.terminalsdk.utility.ByteArrayWrapper
-import com.netpluspay.nibssclient.models.IsoAccountType
-import com.netpluspay.nibssclient.util.TripleDES
 import com.woleapp.netpos.R
 import com.woleapp.netpos.app.NetPosApp
 import com.woleapp.netpos.databinding.DialogSelectAccountTypeBinding
@@ -29,11 +28,10 @@ import com.woleapp.netpos.mqtt.MqttHelper
 import com.woleapp.netpos.nibss.NetPosTerminalConfig
 import com.woleapp.netpos.taponphone.listener.TransactionListener
 import com.woleapp.netpos.ui.dialog.PasswordDialog
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
 import org.apache.commons.lang.StringUtils
 import timber.log.Timber
+
 
 data class ICCCardHelper(
     val customerName: String? = null,
@@ -68,6 +66,7 @@ fun showCardDialog(
                     if (progressDialog.isShowing)
                         progressDialog.dismiss()
                     getCardLiveData(context, amount, cashBackAmount, liveData, compositeDisposable)
+                    //getFakeCardLiveData(liveData)
                     NetPosTerminalConfig.liveData.removeObserver(observer!!)
                 }
                 -1 -> {
@@ -91,14 +90,35 @@ fun showCardDialog(
             context.applicationContext
         )
         NetPosTerminalConfig.isConfigurationInProcess -> if (configurationFinished.not()) progressDialog.show()
-        NetPosTerminalConfig.configurationStatus == 1 -> getCardLiveData(
-            context,
-            amount,
-            cashBackAmount,
-            liveData
-        )
+        NetPosTerminalConfig.configurationStatus == 1 ->
+            getCardLiveData(
+                context,
+                amount,
+                cashBackAmount,
+                liveData
+            )
+        //getFakeCardLiveData(liveData)
     }
     return liveData
+}
+
+private fun cardData(): CardData {
+    return CardData(
+        "5199110749432974D2408221005006366F",
+        "9F26089E6C9D02727937F19F2701809F10120110A74003020000000000000000000000FF9F3704A70BE8C29F3602002B950500000080009A032109179C01009F02060000000002005F2A020566820239009F1A0205669F34034403029F3303E0F8C89F3501229F1E0842313739314531588407A00000000410109F090200029F03060000000000005F340100",
+        "000",
+        "051"
+    )
+}
+
+fun getFakeCardLiveData_(liveData: MutableLiveData<Event<ICCCardHelper>>) {
+    val iccHelper = ICCCardHelper(
+        "Oluwatayo/Adegboye",
+        "Mastercard",
+        IsoAccountType.DEFAULT_UNSPECIFIED,
+        cardData()
+    )
+    liveData.postValue(Event(iccHelper))
 }
 
 fun getCardLiveData(
@@ -133,7 +153,7 @@ fun getCardLiveData(
             dialog.dismiss()
             Timber.e("on online referral")
             Timber.e(cardData.toString())
-            PasswordDialog(context, pan, object: PasswordDialog.Listener{
+            PasswordDialog(context, pan, object : PasswordDialog.Listener {
                 override fun onConfirm(pinBlock: String?) {
                     cardData.pinBlock = pinBlock
                     iccCardHelper = ICCCardHelper(
@@ -251,5 +271,10 @@ private fun showSelectAccountTypeDialog(
         dialog.dismiss()
         liveData.postValue(Event(ICCCardHelper(error = Throwable("Operation was canceled"))))
     }
-    dialog.show()
+    //dialog.show()
+    iccCardHelper.apply {
+        this.accountType = IsoAccountType.DEFAULT_UNSPECIFIED
+    }
+    Timber.e(iccCardHelper.toString())
+    liveData.postValue(Event(iccCardHelper))
 }

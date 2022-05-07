@@ -5,8 +5,8 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.netpluspay.nibssclient.models.TransactionResponse
-import com.netpluspay.nibssclient.util.formatCurrencyAmount
+import com.danbamitale.epmslib.entities.TransactionResponse
+import com.danbamitale.epmslib.extensions.formatCurrencyAmount
 import com.woleapp.netpos.databinding.LayoutTransactionItemBinding
 import com.woleapp.netpos.util.formatDate
 

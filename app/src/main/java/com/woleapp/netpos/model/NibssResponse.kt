@@ -1,7 +1,7 @@
 package com.woleapp.netpos.model
 
-import com.netpluspay.nibssclient.models.IsoAccountType
-import com.netpluspay.nibssclient.models.TransactionType
+import com.danbamitale.epmslib.entities.TransactionType
+import com.danbamitale.epmslib.utils.IsoAccountType
 
 
 data class NibssResponse(

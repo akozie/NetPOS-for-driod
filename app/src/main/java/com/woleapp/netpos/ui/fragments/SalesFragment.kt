@@ -12,10 +12,11 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
+import com.danbamitale.epmslib.entities.TransactionType
 import com.google.android.material.snackbar.Snackbar
 import com.google.gson.JsonObject
-import com.netpluspay.nibssclient.models.TransactionType
 import com.woleapp.netpos.R
 import com.woleapp.netpos.databinding.DialogPrintTypeBinding
 import com.woleapp.netpos.databinding.DialogTransactionResultBinding
@@ -75,6 +76,8 @@ class SalesFragment : BaseFragment() {
                 TransactionType.PURCHASE.name
             )!!
         )
+        if (transactionType == TransactionType.PURCHASE_WITH_CASH_BACK)
+            binding.cashbackInputLayout.isVisible = true
         isVend = arguments?.getBoolean("IS_VEND", false) ?: false
         viewModel.isVend(isVend)
         receiptDialogBinding = DialogTransactionResultBinding.inflate(inflater, null, false)
@@ -118,7 +121,7 @@ class SalesFragment : BaseFragment() {
                         requireActivity(),
                         viewLifecycleOwner,
                         viewModel.amountLong,
-                        0L,
+                        viewModel.cashbackLong,
                         compositeDisposable
                     ).observe(viewLifecycleOwner) { event ->
                         Timber.e("observed")

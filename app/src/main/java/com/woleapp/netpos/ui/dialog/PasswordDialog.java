@@ -24,9 +24,9 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.Group;
 
 
-import com.netpluspay.nibssclient.models.KeyHolder;
-import com.netpluspay.nibssclient.util.TripleDES;
-import com.pixplicity.easyprefs.library.Prefs;
+import com.danbamitale.epmslib.entities.KeyHolder;
+import com.danbamitale.epmslib.entities.KeyHolderKt;
+import com.danbamitale.epmslib.utils.TripleDES;
 import com.woleapp.netpos.R;
 import com.woleapp.netpos.util.ExtensionFunctionsKt;
 import com.woleapp.netpos.util.Singletons;
@@ -175,7 +175,7 @@ public class PasswordDialog {
         System.out.println(pinblock);
         //System.out.println(TripleDES.encrypt(pinblock, pinKey));
         KeyHolder keyHolder = Singletons.INSTANCE.getKeyHolder();
-        return TripleDES.encrypt(pinblock, keyHolder.getClearPinKey());
+        return TripleDES.encrypt(pinblock, KeyHolderKt.getClearPinKey(keyHolder));
     }
 
 

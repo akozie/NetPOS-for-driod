@@ -83,6 +83,34 @@
                     android:text="@={viewmodel.amount}" />
             </LinearLayout>
 
+            <LinearLayout
+                android:id="@+id/cashback_input_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:visibility="gone"
+                app:layout_constraintTop_toBottomOf="@id/price_input_layout">
+
+                <TextView
+                    android:id="@+id/cashback_currency_textbox"
+                    style="@style/ServicesInputLayout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/services_edittext_background"
+                    android:text="@string/naira_symbol" />
+
+                <EditText
+                    android:id="@+id/cashback_textbox"
+                    style="@style/ServicesInputLayout"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:autofillHints="@string/hint_cashback"
+                    android:hint="@string/hint_cashback"
+                    android:inputType="numberDecimal"
+                    android:text="@={viewmodel.cashback}" />
+            </LinearLayout>
+
             <EditText
                 android:id="@+id/enter_name"
                 style="@style/ServicesInputLayout"
@@ -95,7 +123,7 @@
                 android:hint="@string/enter_name"
                 android:inputType="text"
                 android:text="@={viewmodel.customerName}"
-                app:layout_constraintTop_toBottomOf="@id/price_input_layout" />
+                app:layout_constraintTop_toBottomOf="@id/cashback_input_layout" />
 
             <EditText
                 android:id="@+id/enter_pin"
@@ -110,15 +138,15 @@
                 app:layout_constraintTop_toBottomOf="@id/enter_name" />
 
             <EditText
-                android:hint="@string/remark_optional"
-                android:inputType="text"
-                app:layout_constraintTop_toBottomOf="@id/enter_pin"
-                style="@style/ServicesInputLayout"
                 android:id="@+id/remark"
-                android:text="@={viewmodel.remark}"
+                style="@style/ServicesInputLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:autofillHints="@string/remark" />
+                android:autofillHints="@string/remark"
+                android:hint="@string/remark_optional"
+                android:inputType="text"
+                android:text="@={viewmodel.remark}"
+                app:layout_constraintTop_toBottomOf="@id/enter_pin" />
 
             <Button
                 android:id="@+id/process"

@@ -1,9 +1,6 @@
 package com.woleapp.netpos.util;
 
-import com.netpluspay.nibssclient.models.CardData;
-import com.netpluspay.nibssclient.models.IsoAccountType;
-import com.netpluspay.nibssclient.models.MakePaymentParams;
-import com.netpluspay.nibssclient.models.TransactionType;
+
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -18,17 +15,6 @@ import javax.crypto.spec.SecretKeySpec;
 
 public class SampleTripleDes {
 
-    public static void stuff(){
-        MakePaymentParams makePaymentParams = new MakePaymentParams(
-                0L,
-                0L,
-                CardData.Companion.initCardDataFromTrack(""),
-                TransactionType.PURCHASE,
-                IsoAccountType.DEFAULT_UNSPECIFIED
-        );
-        makePaymentParams.setTerminalId("");
-        makePaymentParams.setRemark("");
-    }
 
     public static String encrypt(String data, String key) {
         byte[] bData = String2Hex(data);
@@ -40,6 +26,7 @@ public class SampleTripleDes {
 
     public static String decrypt(String data, String key) {
         byte[] bData = String2Hex(data);
+
         byte[] bKey = String2Hex(key);
         byte[] bOutput = decrypt(bData, bKey);
         String result = Hex2String(bOutput);

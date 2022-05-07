@@ -3,6 +3,7 @@ package com.woleapp.netpos.app
 import android.app.Activity
 import android.app.Application
 import android.content.ContextWrapper
+import android.os.Build
 import com.mastercard.terminalsdk.ConfigurationInterface
 import com.mastercard.terminalsdk.TerminalSdk
 import com.mastercard.terminalsdk.TransactionInterface
@@ -39,6 +40,7 @@ class NetPosApp : Application() {
             .setPrefsName(packageName)
             .setUseDefaultSharedPreference(true)
             .build()
+        Timber.e(Build.ID)
         //TimeZone.setDefault(TimeZone.getTimeZone("GMT+8"));
 //        RxJavaPlugins.setErrorHandler {
 //            Timber.e("Error: ${it.localizedMessage}")

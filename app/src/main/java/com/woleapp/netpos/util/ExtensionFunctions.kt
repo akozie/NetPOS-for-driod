@@ -7,12 +7,10 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.util.Base64
-import android.util.Log
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.MultiFormatWriter
 import com.google.zxing.common.BitMatrix
-import com.netpluspay.nibssclient.models.NibssAID
-import com.netpluspay.nibssclient.models.NibssCA
+
 
 import com.woleapp.netpos.R
 import io.reactivex.disposables.CompositeDisposable

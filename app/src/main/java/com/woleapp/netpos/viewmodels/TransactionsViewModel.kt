@@ -3,9 +3,10 @@ package com.woleapp.netpos.viewmodels
 import android.content.Context
 import android.os.Build
 import androidx.lifecycle.*
+import com.danbamitale.epmslib.entities.*
+import com.danbamitale.epmslib.processors.TransactionProcessor
+import com.danbamitale.epmslib.utils.IsoAccountType
 import com.google.gson.JsonObject
-import com.netpluspay.nibssclient.models.*
-import com.netpluspay.nibssclient.service.NibssApiWrapper
 import com.pixplicity.easyprefs.library.Prefs
 import com.woleapp.netpos.database.AppDatabase
 import com.woleapp.netpos.model.*
@@ -38,6 +39,7 @@ class TransactionsViewModel : ViewModel() {
     private var cardScheme: String? = null
     private val _showProgressDialog = MutableLiveData<Event<Boolean>>()
     private val _showPrintDialog = MutableLiveData<Event<String>>()
+    private var transactionType: TransactionType = TransactionType.REFUND
 
     private val _showPrinterError = MutableLiveData<Event<String>>()
 
@@ -78,6 +80,8 @@ class TransactionsViewModel : ViewModel() {
     val selectedAction: LiveData<String>
         get() = _selectedAction
 
+    var transactionList: List<TransactionResponse>? = null
+
 
     fun setSelectedTransaction(transactionResponse: TransactionResponse) {
 //        Timber.e(gson.toJson(transactionResponse))
@@ -93,10 +97,13 @@ class TransactionsViewModel : ViewModel() {
         when (_selectedAction.value) {
             HISTORY_ACTION_PREAUTH -> appDatabase!!.transactionResponseDao()
                 .getTransactionByTransactionType(TransactionType.PRE_AUTHORIZATION)
-            HISTORY_ACTION_REFUND -> appDatabase!!.transactionResponseDao()
+            HISTORY_ACTION_REFUND, HISTORY_ACTION_REVERSAL -> appDatabase!!.transactionResponseDao()
                 .getRefundableTransactions()
             else -> appDatabase!!.transactionResponseDao()
                 .getTransactions(NetPosTerminalConfig.getTerminalId())
+        }.map {
+            transactionList = it
+            it
         }
 
 
@@ -108,6 +115,11 @@ class TransactionsViewModel : ViewModel() {
         when (_selectedAction.value) {
             HISTORY_ACTION_REPRINT -> printReceipt(context)
             HISTORY_ACTION_REFUND -> {
+                transactionType = TransactionType.REFUND
+                _beginGetCardDetails.value = Event(true)
+            }
+            HISTORY_ACTION_REVERSAL -> {
+                transactionType = TransactionType.REVERSAL
                 _beginGetCardDetails.value = Event(true)
             }
         }
@@ -122,43 +134,44 @@ class TransactionsViewModel : ViewModel() {
     }
 
     private fun refundTransaction(transactionResponse: TransactionResponse, context: Context) {
-        val refundTransactionParams = RefundTransactionParams(
-            cardData!!,
-            transactionResponse,
-            accountType,
-            MessageReasonCode.CompletedPartially
+        val originalDataElements = transactionResponse.toOriginalDataElements()
+
+        val hostConfig = HostConfig(
+            NetPosTerminalConfig.getTerminalId(),
+            NetPosTerminalConfig.connectionData,
+            NetPosTerminalConfig.getKeyHolder()!!,
+            NetPosTerminalConfig.getConfigData()!!
+        )
+
+        val requestData = TransactionRequestData(
+            transactionType = transactionType,
+            amount = originalDataElements.originalAmount,
+            originalDataElements = originalDataElements,
+            accountType = accountType
         )
         inProgress.value = true
-        NibssApiWrapper.refundTransaction(context, refundTransactionParams).flatMap {
+        TransactionProcessor(hostConfig).processTransaction(
+            context,
+            requestData,
+            cardData!!
+        ).flatMap {
             if (it.responseCode == "A3")
                 _shouldRefreshNibssKeys.postValue(Event(true))
             _message.postValue(Event("Transaction: ${it.responseMessage}"))
             it.cardHolder = cardHolderName
             it.cardLabel = cardScheme!!
-            val transactionEvent = MqttEvent<NibssResponse>()
-            transactionEvent.apply {
-                this.event = MqttEvents.TRANSACTIONS.event
-                this.code = it.responseCode
-                this.timestamp = System.currentTimeMillis()
-                this.data = it.toNibssResponse()
-                this.transactionType = it.transactionType.name
-                this.status = try {
-                    it.responseMessage
-                } catch (ex: Exception) {
-                    "Error"
-                }
-            }
-            //MqttHelper.sendPayload(MqttTopics.TRANSACTIONS, transactionEvent)
             it.id = transactionResponse.id
             lastTransactionResponse.postValue(it)
             appDatabase!!.transactionResponseDao().updateTransaction(it)
         }
+            .doFinally {
+                inProgress.postValue(false)
+            }
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe { response, error ->
                 error?.let {
-                    inProgress.value = false
-                    _message.value = Event(it.localizedMessage ?: "Error")
+                    _message.value = Event(it.localizedMessage ?: "")
                     Timber.e(it)
                     it.printStackTrace()
                 }
@@ -180,7 +193,6 @@ class TransactionsViewModel : ViewModel() {
             Event(transactionResponse.buildSMSText().toString())
         )
     }
-
 
 
     fun showReceiptDialog() {
@@ -205,44 +217,43 @@ class TransactionsViewModel : ViewModel() {
     fun doSaleCompletion(context: Context) {
         val transactionResponse = lastTransactionResponse.value!!
         val originalDataElements = transactionResponse.toOriginalDataElements()
+        val hostConfig = HostConfig(
+            NetPosTerminalConfig.getTerminalId(),
+            NetPosTerminalConfig.connectionData,
+            NetPosTerminalConfig.getKeyHolder()!!,
+            NetPosTerminalConfig.getConfigData()!!
+        )
+        //0428084454
+        //0428084454
 
-        val makePaymentParams = MakePaymentParams(
+        val requestData = TransactionRequestData(
+            transactionType = TransactionType.PRE_AUTHORIZATION_COMPLETION,
             amount = originalDataElements.originalAmount,
-            transactionType = TransactionType.PRE_AUTHORIZATION_COMPLETION
-        ).apply {
-            this.originalDataElements = originalDataElements
-        }
+            originalDataElements = originalDataElements
+        )
 
         _showProgressDialog.value = Event(true)
-        NibssApiWrapper.completion(context, makePaymentParams).flatMap {
+        TransactionProcessor(hostConfig).processTransaction(
+            context, requestData,
+            cardData!!
+        ).flatMap {
             if (it.responseCode == "A3")
                 _shouldRefreshNibssKeys.postValue(Event(true))
             _showProgressDialog.postValue(Event(false))
             _message.postValue(Event("Transaction: ${it.responseMessage}"))
             it.cardHolder = cardHolderName
             it.cardLabel = cardScheme!!
-            val transactionEvent = MqttEvent<NibssResponse>()
-            transactionEvent.apply {
-                this.event = MqttEvents.TRANSACTIONS.event
-                this.code = it.responseCode
-                this.timestamp = System.currentTimeMillis()
-                this.data = it.toNibssResponse()
-                this.transactionType = it.transactionType.name
-                this.status = try {
-                    it.responseMessage
-                } catch (ex: Exception) {
-                    "Error"
-                }
-            }
-            //MqttHelper.sendPayload(MqttTopics.TRANSACTIONS, transactionEvent)
             it.id = transactionResponse.id
             lastTransactionResponse.postValue(it)
             appDatabase!!.transactionResponseDao().updateTransaction(it)
-        }.subscribeOn(Schedulers.io())
+        }.doFinally {
+            inProgress.postValue(false)
+        }
+            .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe { response, error ->
                 error?.let {
-                    _message.value = Event(it.localizedMessage ?: "Error")
+                    _message.value = Event(it.localizedMessage ?: "")
                     Timber.e(it)
                     it.printStackTrace()
                 }
@@ -255,10 +266,22 @@ class TransactionsViewModel : ViewModel() {
 
     fun preAuthRefund(context: Context) {
         val transactionResponse = lastTransactionResponse.value!!
-        val refundTransactionParams =
-            RefundTransactionParams(cardData!!, transactionResponse, accountType)
+        val originalDataElements = transactionResponse.toOriginalDataElements()
+
+        val hostConfig = HostConfig(
+            NetPosTerminalConfig.getTerminalId(),
+            NetPosTerminalConfig.connectionData,
+            NetPosTerminalConfig.getKeyHolder()!!,
+            NetPosTerminalConfig.getConfigData()!!
+        )
+
+        val requestData = TransactionRequestData(
+            transactionType = TransactionType.REFUND,
+            amount = originalDataElements.originalAmount,
+            originalDataElements = originalDataElements
+        )
         _showProgressDialog.value = Event(true)
-        NibssApiWrapper.refundTransaction(context, refundTransactionParams)
+        TransactionProcessor(hostConfig).processTransaction(context, requestData, cardData!!)
             .flatMap {
                 if (it.responseCode == "A3")
                     _shouldRefreshNibssKeys.postValue(Event(true))
@@ -266,28 +289,17 @@ class TransactionsViewModel : ViewModel() {
                 _message.postValue(Event("Transaction: ${it.responseMessage}"))
                 it.cardHolder = cardHolderName
                 it.cardLabel = cardScheme!!
-                val transactionEvent = MqttEvent<NibssResponse>()
-                transactionEvent.apply {
-                    this.event = MqttEvents.TRANSACTIONS.event
-                    this.code = it.responseCode
-                    this.timestamp = System.currentTimeMillis()
-                    this.data = it.toNibssResponse()
-                    this.transactionType = it.transactionType.name
-                    this.status = try {
-                        it.responseMessage
-                    } catch (ex: Exception) {
-                        "Error"
-                    }
-                }
-                //MqttHelper.sendPayload(MqttTopics.TRANSACTIONS, transactionEvent)
                 it.id = transactionResponse.id
                 lastTransactionResponse.postValue(it)
                 appDatabase!!.transactionResponseDao().updateTransaction(it)
-            }.subscribeOn(Schedulers.io())
+            }.doFinally {
+                inProgress.postValue(false)
+            }
+            .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe { response, error ->
                 error?.let {
-                    _message.value = Event(it.localizedMessage ?: "Error")
+                    _message.value = Event(it.localizedMessage)
                     Timber.e(it)
                     it.printStackTrace()
                 }

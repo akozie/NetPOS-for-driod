@@ -41,6 +41,7 @@
             android:textColor="@android:color/white"
             android:textSize="16sp"
             android:textStyle="bold"
+            android:visibility="gone"
             app:layout_constraintEnd_toStartOf="@id/search_button"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/history_header">
@@ -59,11 +60,19 @@
             android:textColor="@android:color/white"
             android:textSize="16sp"
             android:textStyle="bold"
+            android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/history_button"
             app:layout_constraintTop_toTopOf="@id/history_button">
 
         </Button>
+
+        <androidx.appcompat.widget.SearchView
+            app:queryHint="Search with RRN or STAN"
+            android:id="@+id/transaction_search"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/history_button" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_transactions_history"
@@ -73,7 +82,7 @@
             android:visibility="visible"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/history_button" />
+            app:layout_constraintTop_toBottomOf="@id/transaction_search" />
 
         <LinearLayout
             android:id="@+id/search_layout"
@@ -83,7 +92,7 @@
             android:orientation="vertical"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/history_button">
+            app:layout_constraintTop_toBottomOf="@id/transaction_search">
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/textInputStartDate"
