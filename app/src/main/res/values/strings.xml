@@ -134,4 +134,7 @@
     <string name="btn_esc">Esc</string>
     <string name="btn_confirm">Confirm</string>
     <string name="hint_cashback">Enter Cashback Amount</string>
+    <string name="please_select_card_type">please select card type</string>
+    <string name="visa_card_icon">Visa card icon</string>
+    <string name="mastercard_icon">Mastercard icon</string>
 </resources>

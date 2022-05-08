@@ -1,4 +1,4 @@
-package com.woleapp.netpos.taponphone.implementations;
+package com.woleapp.netpos.taponphone.mastercard.implementations;
 
 import android.util.Log;
 
@@ -10,7 +10,7 @@ import com.mastercard.terminalsdk.objects.OutcomeParameterSet;
 import com.mastercard.terminalsdk.objects.ReaderOutcome;
 import com.mastercard.terminalsdk.utility.ByteUtility;
 
-import com.woleapp.netpos.taponphone.listener.TransactionListener;
+import com.woleapp.netpos.taponphone.mastercard.listener.TransactionListener;
 
 
 import org.apache.commons.lang.StringUtils;

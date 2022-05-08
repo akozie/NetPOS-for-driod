@@ -32,9 +32,15 @@ class NetPosTerminalConfig {
     companion object {
         private var configurationData: ConfigurationData = getSavedConfigurationData()
         private val disposables = CompositeDisposable()
+
+        //        var connectionData: ConnectionData = ConnectionData(
+//            ipAddress = "196.6.103.10",
+//            ipPort = 55533,
+//            isSSL = true
+//        )
         var connectionData: ConnectionData = ConnectionData(
-            ipAddress = "196.6.103.10",
-            ipPort = 55533,
+            ipAddress = configurationData.ip,
+            ipPort = configurationData.port.toInt(),
             isSSL = true
         )
         private var terminalId: String? = null
@@ -47,11 +53,11 @@ class NetPosTerminalConfig {
         private var terminalConfigurator: TerminalConfigurator =
             TerminalConfigurator(connectionData)
 
-        fun getTerminalId() = terminalId ?: "3454B842"
+        fun getTerminalId() = terminalId ?: "2101JJ41"
 
 
         private fun setTerminalId() {
-            terminalId = "3454B842"
+            terminalId = "2101JJ41"
         }
 
         private var keyHolder: KeyHolder? = null
@@ -67,8 +73,8 @@ class NetPosTerminalConfig {
             configureSilently: Boolean = false
         ) {
             KeyHolder.setHostKeyComponents(
-                "5D25072F04832A2329D93E4F91BA23A2",
-                "86CBCDE3B0A22354853E04521686863D"
+                configurationData.key1,
+                configurationData.key2
             )// default to test  //Set your base keys here
 
             setTerminalId()
@@ -140,7 +146,7 @@ class NetPosTerminalConfig {
             disposables.add(disposable)
         }
 
-        private fun callHome(context: Context): Single<Pair<KeyHolder?, ConfigData?>>{
+        private fun callHome(context: Context): Single<Pair<KeyHolder?, ConfigData?>> {
             Timber.e(keyHolder.toString())
             return terminalConfigurator.nibssCallHome(
                 context,

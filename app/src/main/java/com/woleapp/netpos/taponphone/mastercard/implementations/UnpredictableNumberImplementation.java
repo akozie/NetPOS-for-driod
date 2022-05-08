@@ -1,4 +1,4 @@
-package com.woleapp.netpos.taponphone.implementations;
+package com.woleapp.netpos.taponphone.mastercard.implementations;
 
 import com.mastercard.terminalsdk.listeners.UnpredictableNumberProvider;
 

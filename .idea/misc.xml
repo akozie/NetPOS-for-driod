@@ -6,8 +6,10 @@
         <entry key="../../../../layout/custom_preview.xml" value="0.22395833333333334" />
         <entry key="app/src/main/res/drawable-v24/ic_cal_clear.xml" value="0.22864583333333333" />
         <entry key="app/src/main/res/drawable/services_edittext_background.xml" value="0.22864583333333333" />
+        <entry key="app/src/main/res/layout/dialog_select_cardscheme.xml" value="0.3651041666666667" />
         <entry key="app/src/main/res/layout/dialog_transaction_result.xml" value="0.30462962962962964" />
         <entry key="app/src/main/res/layout/fragment_administrator.xml" value="0.2015625" />
+        <entry key="app/src/main/res/layout/fragment_dashboard.xml" value="0.3651041666666667" />
         <entry key="app/src/main/res/layout/fragment_sales.xml" value="0.18541666666666667" />
         <entry key="app/src/main/res/layout/fragment_transaction_details.xml" value="0.3651041666666667" />
         <entry key="app/src/main/res/layout/fragment_transaction_history.xml" value="0.3651041666666667" />

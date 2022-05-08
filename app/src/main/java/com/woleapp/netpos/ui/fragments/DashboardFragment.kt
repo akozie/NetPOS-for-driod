@@ -30,6 +30,7 @@ import com.woleapp.netpos.model.*
 import com.woleapp.netpos.mqtt.MqttHelper
 import com.woleapp.netpos.nibss.NetPosTerminalConfig
 import com.woleapp.netpos.util.*
+import com.woleapp.netpos.viewmodels.NfcCardReaderViewModel
 import com.woleapp.netpos.viewmodels.TransactionsViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -50,6 +51,10 @@ class DashboardFragment : BaseFragment() {
     private lateinit var receiptDialogBinding: DialogTransactionResultBinding
     private lateinit var alertDialog: AlertDialog
     private val transactionViewModel by activityViewModels<TransactionsViewModel>()
+    private val nfcCardReaderViewModel by activityViewModels<NfcCardReaderViewModel>()
+    private var observer: ((Event<ICCCardHelper>) -> Unit)? = null
+
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -108,16 +113,7 @@ class DashboardFragment : BaseFragment() {
             }
         }.create()
         alertDialog.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
-        return binding.root
-    }
-
-    private fun getBalance() {
-        showCardDialog(
-            requireActivity(),
-            viewLifecycleOwner,
-            1000,
-            0L
-        ).observe(viewLifecycleOwner) { event ->
+        observer = { event ->
             event.getContentIfNotHandled()?.let {
                 it.error?.let { error ->
                     Timber.e(error)
@@ -127,6 +123,35 @@ class DashboardFragment : BaseFragment() {
                 it.cardData?.let { cardData ->
                     checkBalance(cardData, it.accountType!!)
                 }
+            }
+        }
+        return binding.root
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        Timber.e("dashboard detached")
+    }
+
+    override fun onStart() {
+        super.onStart()
+        observer?.let {
+            //nfcCardReaderViewModel.iccCardHelperLiveData.observe(viewLifecycleOwner, it)
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        //nfcCardReaderViewModel.iccCardHelperLiveData.removeObservers(viewLifecycleOwner)
+    }
+
+    private fun getBalance() {
+        showCardDialog(
+            requireActivity(),
+            viewLifecycleOwner,
+        ).observe(viewLifecycleOwner) { event ->
+            event.getContentIfNotHandled()?.let {
+                nfcCardReaderViewModel.initiateNfcPayment(10, 0, it)
             }
         }
     }

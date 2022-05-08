@@ -21,11 +21,13 @@ import com.woleapp.netpos.util.HISTORY_ACTION_DEFAULT
 import com.woleapp.netpos.util.HISTORY_ACTION_PREAUTH
 import com.woleapp.netpos.util.builder
 import com.woleapp.netpos.util.showCardDialog
+import com.woleapp.netpos.viewmodels.NfcCardReaderViewModel
 import com.woleapp.netpos.viewmodels.TransactionsViewModel
 import timber.log.Timber
 
 class TransactionDetailsFragment : BaseFragment() {
     private val viewModel by activityViewModels<TransactionsViewModel>()
+    private val nfcCardReaderViewModel by activityViewModels<NfcCardReaderViewModel>()
     private lateinit var binding: FragmentTransactionDetailsBinding
     private lateinit var progressDialog: ProgressDialog
     private lateinit var alertDialog: AlertDialog
@@ -172,10 +174,13 @@ class TransactionDetailsFragment : BaseFragment() {
                 }
             }
         }
-        viewModel.shouldRefreshNibssKeys.observe(viewLifecycleOwner){event ->
+        viewModel.shouldRefreshNibssKeys.observe(viewLifecycleOwner) { event ->
             event.getContentIfNotHandled()?.let {
                 if (it)
-                    NetPosTerminalConfig.init(requireContext().applicationContext, configureSilently = true)
+                    NetPosTerminalConfig.init(
+                        requireContext().applicationContext,
+                        configureSilently = true
+                    )
             }
         }
 
@@ -196,32 +201,37 @@ class TransactionDetailsFragment : BaseFragment() {
                 }.show()
             }
         }
-    }
-
-    private fun gotoAction(action: () -> Unit) {
-        showCardDialog(
-            requireActivity(),
-            viewLifecycleOwner,
-            1000,
-            0L
-        ).observe(viewLifecycleOwner) { event ->
+        nfcCardReaderViewModel.iccCardHelperLiveData.observe(viewLifecycleOwner) { event ->
             event.getContentIfNotHandled()?.let {
                 it.error?.let { error ->
                     Timber.e(error)
                     Toast.makeText(
                         requireContext(),
-                        error.localizedMessage,
-                        Toast.LENGTH_SHORT
+                        error.message,
+                        Toast.LENGTH_LONG
                     )
                         .show()
                 }
-                it.cardData?.let { cardData ->
+                it.cardData?.let { _ ->
                     viewModel.setCardScheme(it.cardScheme!!)
                     viewModel.setCustomerName(it.customerName ?: "Customer")
                     viewModel.setAccountType(it.accountType!!)
-                    viewModel.cardData = cardData
-                    action.invoke()
+                    viewModel.cardData = it.cardData
+                    actionAfterCardRead?.invoke()
                 }
+            }
+        }
+    }
+
+    private var actionAfterCardRead: (() -> Unit)? = null
+    private fun gotoAction(action: () -> Unit) {
+        actionAfterCardRead = action
+        showCardDialog(
+            requireActivity(),
+            viewLifecycleOwner,
+        ).observe(viewLifecycleOwner) { event ->
+            event.getContentIfNotHandled()?.let {
+                nfcCardReaderViewModel.initiateNfcPayment(10, 0, it)
             }
         }
     }

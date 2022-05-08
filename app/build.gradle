@@ -22,7 +22,7 @@ android {
             storePassword keystoreProperties['storePassword']
         }
     }
-    compileSdkVersion 30
+    compileSdkVersion 32
     buildToolsVersion "29.0.3"
     buildFeatures.dataBinding = true
     ndkVersion "21.3.6528147"
@@ -30,8 +30,8 @@ android {
         resValue "string", "app_name", "NetPOS"
         vectorDrawables.useSupportLibrary = true
         applicationId "com.woleapp.netpos"
-        minSdkVersion 21
-        targetSdkVersion 30
+        minSdkVersion 23
+        targetSdkVersion 32
         versionCode 66
         versionName "1.1.66"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -95,8 +95,7 @@ android {
 }
 
 dependencies {
-
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation fileTree(include: ['*.jar', '*.aar'], dir: 'libs')
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
     implementation("commons-codec:commons-codec:1.15")
     implementation("commons-lang:commons-lang:2.6")

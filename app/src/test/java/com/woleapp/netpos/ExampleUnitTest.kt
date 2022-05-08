@@ -1,12 +1,12 @@
 package com.woleapp.netpos
 
 
+import com.danbamitale.epmslib.entities.AccountBalance
+import com.danbamitale.epmslib.entities.CardData
+import com.danbamitale.epmslib.entities.TransactionType
+import com.danbamitale.epmslib.utils.IsoAccountType
+import com.danbamitale.epmslib.utils.TripleDES
 import com.google.gson.Gson
-import com.netpluspay.nibssclient.models.AccountBalance
-import com.netpluspay.nibssclient.models.CardData
-import com.netpluspay.nibssclient.models.IsoAccountType
-import com.netpluspay.nibssclient.models.TransactionType
-import com.netpluspay.nibssclient.util.TripleDES
 import com.woleapp.netpos.util.getBeginningOfDay
 import com.woleapp.netpos.util.getEndOfDayTimeStamp
 import com.woleapp.netpos.util.xorHex

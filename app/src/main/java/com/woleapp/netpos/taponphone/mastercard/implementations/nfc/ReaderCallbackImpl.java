@@ -1,4 +1,4 @@
-package com.woleapp.netpos.taponphone.implementations.nfc;
+package com.woleapp.netpos.taponphone.mastercard.implementations.nfc;
 
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;

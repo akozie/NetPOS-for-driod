@@ -13,6 +13,7 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.AdapterView
 import android.widget.Toast
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.woleapp.netpos.R
@@ -27,6 +28,7 @@ import com.woleapp.netpos.network.StormApiClient
 import com.woleapp.netpos.network.StormUtilitiesApiClient
 import com.woleapp.netpos.nibss.NetPosTerminalConfig
 import com.woleapp.netpos.util.*
+import com.woleapp.netpos.viewmodels.NfcCardReaderViewModel
 import com.woleapp.netpos.viewmodels.UtilitiesViewModel
 import timber.log.Timber
 
@@ -38,6 +40,7 @@ class UtilitiesPaymentFragment : BaseFragment() {
     private lateinit var internetSubscriptionBinding: LayoutInternetSubscriptionBinding
     private lateinit var airtimeOrDataBinding: LayoutAirtimeOrDataBinding
     private val viewModel by viewModels<UtilitiesViewModel>()
+    private val nfcCardReaderViewModel by activityViewModels<NfcCardReaderViewModel>()
     private var progressDialog: ProgressDialog? = null
     private var alertDialog: AlertDialog? = null
     private var verifyBillDialog: BottomSheetDialog? = null
@@ -121,30 +124,35 @@ class UtilitiesPaymentFragment : BaseFragment() {
                 showCardDialog(
                     requireActivity(),
                     viewLifecycleOwner,
-                    1000,
-                    0L
-                ).observe(viewLifecycleOwner) { cardEvent ->
-                    cardEvent.getContentIfNotHandled()?.let {
-                        it.error?.let { error ->
-                            Timber.e(error)
-                            Toast.makeText(
-                                requireContext(),
-                                error.localizedMessage,
-                                Toast.LENGTH_SHORT
-                            )
-                                .show()
-                        }
-                        it.cardData?.let { _ ->
-                            viewModel.setCardScheme(it.cardScheme!!)
-                            viewModel.setCustomerName(it.customerName ?: "Customer")
-                            viewModel.setAccountType(it.accountType!!)
-                            viewModel.cardData = it.cardData
-                            viewModel.makePayment(requireContext())
-                        }
+                ).observe(viewLifecycleOwner) { event ->
+                    event.getContentIfNotHandled()?.let {
+                        nfcCardReaderViewModel.initiateNfcPayment(10, 0, it)
                     }
                 }
             }
         }
+
+        nfcCardReaderViewModel.iccCardHelperLiveData.observe(viewLifecycleOwner) { event ->
+            event.getContentIfNotHandled()?.let {
+                it.error?.let { error ->
+                    Timber.e(error)
+                    Toast.makeText(
+                        requireContext(),
+                        error.localizedMessage,
+                        Toast.LENGTH_SHORT
+                    )
+                        .show()
+                }
+                it.cardData?.let { _ ->
+                    viewModel.setCardScheme(it.cardScheme!!)
+                    viewModel.setCustomerName(it.customerName ?: "Customer")
+                    viewModel.setAccountType(it.accountType!!)
+                    viewModel.cardData = it.cardData
+                    viewModel.makePayment(requireContext())
+                }
+            }
+        }
+
         receiptDialog = AlertDialog.Builder(requireContext()).setCancelable(false).apply {
             setView(receiptDialogBinding.root)
             receiptDialogBinding.apply {
@@ -223,28 +231,28 @@ class UtilitiesPaymentFragment : BaseFragment() {
 
         Singletons.getCurrentlyLoggedInUser()!!.netplus_id
         viewModel.message.observe(
-            viewLifecycleOwner,
-            { event ->
-                event.getContentIfNotHandled()?.let {
-                    Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
-                    progressDialog?.setMessage(it)
-                }
-            })
-        viewModel.validateBillResponse.observe(viewLifecycleOwner, { event ->
+            viewLifecycleOwner
+        ) { event ->
+            event.getContentIfNotHandled()?.let {
+                Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+                progressDialog?.setMessage(it)
+            }
+        }
+        viewModel.validateBillResponse.observe(viewLifecycleOwner) { event ->
             event.getContentIfNotHandled()?.let {
                 dismissProgressBar()
                 layoutVerifyUtilityPaymentBinding.billResponse = it
                 verifyBillDialog!!.show()
             }
-        })
-        viewModel.showProgress.observe(viewLifecycleOwner, { event ->
+        }
+        viewModel.showProgress.observe(viewLifecycleOwner) { event ->
             event.getContentIfNotHandled()?.let {
                 if (it)
                     showProgressBar()
                 else dismissProgressBar()
             }
-        })
-        viewModel.result.observe(viewLifecycleOwner, { event ->
+        }
+        viewModel.result.observe(viewLifecycleOwner) { event ->
             event.getContentIfNotHandled()?.let {
                 dismissProgressBar()
                 when (it) {
@@ -290,7 +298,7 @@ class UtilitiesPaymentFragment : BaseFragment() {
                 }
                 alertDialog!!.show()
             }
-        })
+        }
         return when (arguments?.getInt("service_id")) {
             0 -> getCableTvView(inflater, container)
             1 -> getElectricityPageView(inflater, container)

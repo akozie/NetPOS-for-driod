@@ -13,6 +13,7 @@ import android.view.WindowManager
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isVisible
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import com.danbamitale.epmslib.entities.TransactionType
 import com.google.android.material.snackbar.Snackbar
@@ -29,6 +30,7 @@ import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import com.woleapp.netpos.model.Vend
 import com.woleapp.netpos.util.*
+import com.woleapp.netpos.viewmodels.NfcCardReaderViewModel
 import io.reactivex.Observable
 import java.io.BufferedReader
 import java.io.InputStreamReader
@@ -54,6 +56,7 @@ class SalesFragment : BaseFragment() {
     }
 
     private val viewModel by viewModels<SalesViewModel>()
+    private val nfcCardReaderViewModel by activityViewModels<NfcCardReaderViewModel>()
     private lateinit var transactionType: TransactionType
     private lateinit var alertDialog: AlertDialog
     private lateinit var receiptDialogBinding: DialogTransactionResultBinding
@@ -119,30 +122,16 @@ class SalesFragment : BaseFragment() {
                 if (shouldGetCardData)
                     showCardDialog(
                         requireActivity(),
-                        viewLifecycleOwner,
-                        viewModel.amountLong,
-                        viewModel.cashbackLong,
-                        compositeDisposable
+                        viewLifecycleOwner
                     ).observe(viewLifecycleOwner) { event ->
-                        Timber.e("observed")
                         event.getContentIfNotHandled()?.let {
                             Timber.e(it.toString())
-                            it.error?.let { error ->
-                                Timber.e(error)
-                                Toast.makeText(
-                                    requireContext(),
-                                    error.message,
-                                    Toast.LENGTH_LONG
-                                )
-                                    .show()
-                            }
-                            it.cardData?.let { _ ->
-                                viewModel.setCardScheme(it.cardScheme!!)
-                                viewModel.setCustomerName(it.customerName ?: "Customer")
-                                viewModel.setAccountType(it.accountType!!)
-                                viewModel.cardData = it.cardData
-                                viewModel.makePayment(requireContext(), transactionType)
-                            }
+                            nfcCardReaderViewModel.initiateNfcPayment(
+                                viewModel.amountLong,
+                                viewModel.cashbackLong,
+                                it
+                            )
+
                         }
                     }
             }
@@ -233,6 +222,27 @@ class SalesFragment : BaseFragment() {
         }
         binding.process.setOnClickListener {
             viewModel.validateField()
+        }
+
+        nfcCardReaderViewModel.iccCardHelperLiveData.observe(viewLifecycleOwner) { event ->
+            event.getContentIfNotHandled()?.let {
+                it.error?.let { error ->
+                    Timber.e(error)
+                    Toast.makeText(
+                        requireContext(),
+                        error.message,
+                        Toast.LENGTH_LONG
+                    )
+                        .show()
+                }
+                it.cardData?.let { _ ->
+                    viewModel.setCardScheme(it.cardScheme!!)
+                    viewModel.setCustomerName(it.customerName ?: "Customer")
+                    viewModel.setAccountType(it.accountType!!)
+                    viewModel.cardData = it.cardData
+                    viewModel.makePayment(requireContext(), transactionType)
+                }
+            }
         }
 
         return binding.root

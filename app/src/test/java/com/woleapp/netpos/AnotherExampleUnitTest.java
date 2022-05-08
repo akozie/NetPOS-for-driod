@@ -1,8 +1,7 @@
 package com.woleapp.netpos;
 
 
-import com.netpluspay.nibssclient.util.TripleDES;
-import com.woleapp.netpos.ui.dialog.PasswordDialog;
+import com.danbamitale.epmslib.utils.TripleDES;
 import com.woleapp.netpos.util.ExtensionFunctionsKt;
 
 import org.junit.Test;
@@ -16,7 +15,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import kotlin.coroutines.jvm.internal.SuspendFunction;
 
 @RunWith(JUnit4.class)
 public class AnotherExampleUnitTest {

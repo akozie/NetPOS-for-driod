@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="@dimen/dimen_16dp">
+
+        <TextView
+            android:id="@+id/header"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/please_select_card_type"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <View
+            android:visibility="invisible"
+            android:id="@+id/visa_selector"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@drawable/services_edittext_background"
+            app:layout_constraintBottom_toBottomOf="@id/visa_icon"
+            app:layout_constraintEnd_toEndOf="@id/visa_icon"
+            app:layout_constraintStart_toStartOf="@id/visa_icon"
+            app:layout_constraintTop_toTopOf="@id/visa_icon" />
+
+        <View
+            android:visibility="invisible"
+            android:id="@+id/mastercard_selector"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@drawable/services_edittext_background"
+            app:layout_constraintBottom_toBottomOf="@id/mastercard_icon"
+            app:layout_constraintEnd_toEndOf="@id/mastercard_icon"
+            app:layout_constraintStart_toStartOf="@id/mastercard_icon"
+            app:layout_constraintTop_toTopOf="@id/mastercard_icon" />
+
+
+        <ImageView
+            android:id="@+id/visa_icon"
+            android:layout_width="0dp"
+            android:layout_height="100dp"
+            android:layout_marginTop="@dimen/dimen_32dp"
+            android:layout_marginEnd="@dimen/dimen_4dp"
+            android:contentDescription="@string/visa_card_icon"
+            android:padding="@dimen/dimen_8dp"
+            android:src="@drawable/visacards"
+            app:layout_constraintEnd_toStartOf="@id/mastercard_icon"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/header" />
+
+        <ImageView
+            android:id="@+id/mastercard_icon"
+            android:layout_width="0dp"
+            android:layout_height="100dp"
+            android:layout_marginStart="@dimen/dimen_4dp"
+            android:contentDescription="@string/mastercard_icon"
+            android:src="@drawable/ic_mastercard_logo_new"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/visa_icon"
+            app:layout_constraintTop_toTopOf="@id/visa_icon" />
+
+        <Button
+            android:enabled="false"
+            android:id="@+id/proceed_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dimen_32dp"
+            android:text="@string/proceed"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/visa_icon" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
