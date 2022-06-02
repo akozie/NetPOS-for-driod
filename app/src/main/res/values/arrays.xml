@@ -12,4 +12,49 @@
         <item>ask_before_printing</item>
         <item>send_sms</item>
     </string-array>
+    <string-array name="banks">
+        <item>Access Bank Plc</item>
+        <item>Diamond Bank</item>
+        <item>Ecobank Nigeria</item>
+        <item>Enterprise Bank</item>
+        <item>Fidelity Bank</item>
+        <item>First Bank</item>
+        <item>First City Monument Bank Ltd</item>
+        <item>Guaranty Trust Bank Plc</item>
+        <item>Heritage Bank</item>
+        <item>Keystone Bank</item>
+        <item>Pocketmoni</item>
+        <item>Skye Bank Plc</item>
+        <item>Stanbic-Ibtc Bank Plc</item>
+        <item>Standard Chartered Bank</item>
+        <item>Sterling Bank</item>
+        <item>Union Bank</item>
+        <item>United Bank for Africa Plc</item>
+        <item>Unity Bank PLC</item>
+        <item>Wema Bank</item>
+        <item>Zenith International Bank Ltd</item>
+    </string-array>
+    <string-array name="bank_codes">
+        <item>044</item>
+        <item>063</item>
+        <item>050</item>
+        <item>084</item>
+        <item>070</item>
+        <item>011</item>
+        <item>214</item>
+        <item>058</item>
+        <item>030</item>
+        <item>082</item>
+        <item>700</item>
+        <item>076</item>
+        <item>039</item>
+        <item>068</item>
+        <item>232</item>
+        <item>032</item>
+        <item>033</item>
+        <item>215</item>
+        <item>035</item>
+        <item>057</item>
+
+    </string-array>
 </resources>

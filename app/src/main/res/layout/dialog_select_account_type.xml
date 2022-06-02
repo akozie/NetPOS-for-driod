@@ -47,6 +47,7 @@
                 android:textAllCaps="true" />
 
             <RadioButton
+                android:visibility="gone"
                 android:id="@+id/credit_account"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -54,6 +55,7 @@
                 android:textAllCaps="true" />
 
             <RadioButton
+                android:visibility="gone"
                 android:id="@+id/bonus_account"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -61,6 +63,7 @@
                 android:textAllCaps="true" />
 
             <RadioButton
+                android:visibility="gone"
                 android:id="@+id/investment_account"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -68,6 +71,7 @@
                 android:textAllCaps="true" />
 
             <RadioButton
+                android:visibility="gone"
                 android:id="@+id/universal_account"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

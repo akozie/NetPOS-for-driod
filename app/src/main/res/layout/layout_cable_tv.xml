@@ -7,7 +7,7 @@
 
         <variable
             name="viewmodel"
-            type="com.woleapp.netpos.viewmodels.UtilitiesViewModel" />
+            type="com.woleapp.netpos.contactless.viewmodels.UtilitiesViewModel" />
     </data>
 
     <ScrollView

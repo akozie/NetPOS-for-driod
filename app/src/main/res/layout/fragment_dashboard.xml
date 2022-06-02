@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <com.woleapp.netpos.ui.widgets.GridRecyclerView
+        <com.woleapp.netpos.contactless.ui.widgets.GridRecyclerView
             android:layout_marginTop="16dp"
             android:id="@+id/rv_dashboard"
             android:scrollbars="none"

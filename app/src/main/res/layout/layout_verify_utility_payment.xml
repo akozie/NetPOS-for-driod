@@ -7,7 +7,7 @@
 
         <variable
             name="billResponse"
-            type="com.woleapp.netpos.model.ValidateBillResponse" />
+            type="com.woleapp.netpos.contactless.model.ValidateBillResponse" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

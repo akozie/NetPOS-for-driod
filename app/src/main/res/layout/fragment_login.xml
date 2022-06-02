@@ -7,7 +7,7 @@
 
         <variable
             name="viewmodel"
-            type="com.woleapp.netpos.viewmodels.AuthViewModel" />
+            type="com.woleapp.netpos.contactless.viewmodels.AuthViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -124,6 +124,18 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/forgot_password" />
 
+        <TextView
+            android:id="@+id/register"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dimen_32dp"
+            android:text="Don't have an account? Sign Up"
+            android:textColor="@color/colorPrimary"
+            android:textSize="@dimen/dimen_16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btn_login" />
+
         <ProgressBar
             android:id="@+id/auth_progress"
             progressBarInProgress="@{viewmodel.authInProgress}"
@@ -135,6 +147,30 @@
             app:layout_constraintBottom_toBottomOf="@id/btn_login"
             app:layout_constraintEnd_toEndOf="@id/btn_login"
             app:layout_constraintTop_toTopOf="@id/btn_login" />
+
+        <ImageView
+            android:id="@+id/contactless_logo"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/ic_contactless"
+            app:layout_constraintBottom_toBottomOf="@id/test_my_phone"
+            app:layout_constraintEnd_toStartOf="@id/test_my_phone"
+            app:layout_constraintTop_toBottomOf="@id/register"
+            app:layout_constraintTop_toTopOf="@id/test_my_phone" />
+
+        <TextView
+            android:id="@+id/test_my_phone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dimen_16dp"
+            android:layout_marginTop="@dimen/dimen_32dp"
+            android:text="Test My Phone"
+            android:textColor="@color/colorPrimary"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/register" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

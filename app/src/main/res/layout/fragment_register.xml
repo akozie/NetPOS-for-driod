@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="viewmodel"
+            type="com.woleapp.netpos.contactless.viewmodels.RegistrationViewModel" />
+    </data>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/white"
+        android:clickable="true"
+        android:fillViewport="true"
+        android:focusable="true">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/login_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/sign_up"
+                android:textAllCaps="true"
+                android:textColor="@android:color/black"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toTopOf="@id/textInputBusinessName"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.23000002"
+                app:layout_constraintVertical_chainStyle="packed" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/textInputBusinessName"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:hint="@string/business_name"
+                android:textColorHint="@android:color/black"
+                app:layout_constraintBottom_toTopOf="@id/text_contact_info"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/login_label">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/businessName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:autofillHints="@string/username"
+                    android:background="@drawable/edittext_bg"
+                    android:drawablePadding="8dp"
+                    android:inputType="text"
+                    android:singleLine="true"
+                    android:text="@={viewmodel.registrationModel.businessName}"
+                    android:textColor="@android:color/black"
+                    android:textColorHint="@android:color/darker_gray"
+                    android:textSize="15sp"
+                    app:startIconContentDescription="@string/username"
+                    tools:text="netpos" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/text_contact_info"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:hint="@string/fullname"
+                android:textColorHint="@android:color/black"
+                app:layout_constraintBottom_toTopOf="@id/textInputAddress"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/textInputBusinessName">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/contact_info"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:autofillHints="@string/username"
+                    android:background="@drawable/edittext_bg"
+                    android:drawablePadding="8dp"
+                    android:inputType="text"
+                    android:singleLine="true"
+                    android:text="@={viewmodel.registrationModel.contactInformation}"
+                    android:textColor="@android:color/black"
+                    android:textColorHint="@android:color/darker_gray"
+                    android:textSize="15sp"
+                    app:startIconContentDescription="@string/username"
+                    tools:text="netpos" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/textInputAddress"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:hint="@string/business_address"
+                android:textColorHint="@android:color/black"
+                app:layout_constraintBottom_toTopOf="@id/phoneee"
+                app:layout_constraintEnd_toEndOf="@id/textInputBusinessName"
+                app:layout_constraintStart_toStartOf="@id/textInputBusinessName"
+                app:layout_constraintTop_toBottomOf="@id/text_contact_info">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/address"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/edittext_bg"
+                    android:drawablePadding="8dp"
+                    android:gravity="top"
+                    android:inputType="textMultiLine"
+                    android:minLines="3"
+                    android:text="@={viewmodel.registrationModel.businessAddress}"
+                    android:textColor="@android:color/black"
+                    android:textColorHint="@android:color/black"
+                    android:textSize="15sp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/phoneee"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:hint="@string/phone_number"
+                android:textColorHint="@android:color/black"
+                app:layout_constraintEnd_toEndOf="@id/textInputBusinessName"
+                app:layout_constraintStart_toStartOf="@id/textInputBusinessName"
+                app:layout_constraintTop_toBottomOf="@id/textInputAddress">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/phone"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/edittext_bg"
+                    android:drawablePadding="8dp"
+                    android:inputType="phone"
+                    android:singleLine="true"
+                    android:text="@={viewmodel.registrationModel.phoneNumber}"
+                    android:textColor="@android:color/black"
+                    android:textColorHint="@android:color/black"
+                    android:textSize="15sp"
+                    app:endIconMode="password_toggle"
+                    tools:text="" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/email_field"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:hint="@string/enter_email_address"
+                android:textColorHint="@android:color/black"
+                app:layout_constraintEnd_toEndOf="@id/textInputBusinessName"
+                app:layout_constraintStart_toStartOf="@id/textInputBusinessName"
+                app:layout_constraintTop_toBottomOf="@id/phoneee">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/email"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/edittext_bg"
+                    android:drawablePadding="8dp"
+                    android:inputType="textEmailAddress"
+                    android:singleLine="true"
+                    android:text="@={viewmodel.registrationModel.email}"
+                    android:textColor="@android:color/black"
+                    android:textColorHint="@android:color/black"
+                    android:textSize="15sp"
+                    app:endIconMode="password_toggle"
+                    tools:text="" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+
+            <Button
+                android:id="@+id/btn_login"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:onClick="@{() -> viewmodel.register()}"
+                android:paddingHorizontal="48dp"
+                android:text="@string/submit"
+                android:textAllCaps="true"
+                android:textColor="@android:color/white"
+                app:buttonInProgress="@{viewmodel.authInProgress}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/spnBank" />
+
+
+            <ProgressBar
+                android:id="@+id/auth_progress"
+                progressBarInProgress="@{viewmodel.authInProgress}"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_marginVertical="8dp"
+                android:elevation="2dp"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="@id/btn_login"
+                app:layout_constraintEnd_toEndOf="@id/btn_login"
+                app:layout_constraintTop_toTopOf="@id/btn_login" />
+
+
+            <androidx.appcompat.widget.AppCompatSpinner
+                android:id="@+id/spnBank"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/dimen_16dp"
+                android:layout_marginTop="@dimen/dimen_16dp"
+                android:layout_marginEnd="@dimen/dimen_16dp"
+                android:prompt="@string/hint_choose_bank_caps"
+                android:spinnerMode="dropdown"
+                android:textColorHint="@android:color/black"
+                android:textSize="15sp"
+                app:layout_constraintTop_toBottomOf="@id/email_field" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </ScrollView>
+</layout>

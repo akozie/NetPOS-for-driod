@@ -137,4 +137,13 @@
     <string name="please_select_card_type">please select card type</string>
     <string name="visa_card_icon">Visa card icon</string>
     <string name="mastercard_icon">Mastercard icon</string>
+    <string name="business_name">Business Name</string>
+    <string name="address">Address</string>
+    <string name="hint_choose_bank_caps">Choose Bank</string>
+    <string name="contact_info">Contact Information</string>
+    <string name="submit">Submit</string>
+    <string name="nfc_message">Tap your NFC enabled %s on the NFC antenna of your device \n(NOTE: The antenna is usually at the back of most NFC enabled devices)</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="business_address">Business Location/Address</string>
+    <string name="fullname">Fullname</string>
 </resources>

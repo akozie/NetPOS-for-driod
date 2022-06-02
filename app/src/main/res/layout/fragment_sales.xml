@@ -7,7 +7,7 @@
 
         <variable
             name="viewmodel"
-            type="com.woleapp.netpos.viewmodels.SalesViewModel" />
+            type="com.woleapp.netpos.contactless.viewmodels.SalesViewModel" />
 
         <variable
             name="type"

@@ -27,13 +27,13 @@ android {
     buildFeatures.dataBinding = true
     ndkVersion "21.3.6528147"
     defaultConfig {
-        resValue "string", "app_name", "NetPOS"
+        resValue "string", "app_name", "NetPOS Contactless"
         vectorDrawables.useSupportLibrary = true
-        applicationId "com.woleapp.netpos"
+        applicationId "com.woleapp.netpos.contactless"
         minSdkVersion 23
         targetSdkVersion 32
-        versionCode 66
-        versionName "1.1.66"
+        versionCode 1
+        versionName "1.0.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         def environmentPath
         if (appModeProd == "true")
@@ -54,14 +54,14 @@ android {
             signingConfig signingConfigs.netpos_signing_config
             buildConfigField "String", "BUILD_VARIANT", "\"debug\""
             ndk {
-                abiFilters "armeabi-v7a", "x86"
+                abiFilters "armeabi-v7a", "x86", "x86_64"
             }
             resValue "string", "app_name", "NetPOS Debug"
         }
         release {
             signingConfig signingConfigs.netpos_signing_config
             buildConfigField "String", "BUILD_VARIANT", "\"release\""
-            resValue "string", "app_name", "NetPOS"
+            resValue "string", "app_name", "NetPOS Contactless"
             debuggable false
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
@@ -171,6 +171,9 @@ dependencies {
 
     //preference
     implementation("androidx.preference:preference-ktx:1.1.1")
+
+    //lottie
+    implementation 'com.airbnb.android:lottie:5.2.0'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'

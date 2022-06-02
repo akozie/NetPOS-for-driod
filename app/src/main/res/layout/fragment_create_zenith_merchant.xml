@@ -7,7 +7,7 @@
 
         <variable
             name="viewmodel"
-            type="com.woleapp.netpos.viewmodels.QRViewModel" />
+            type="com.woleapp.netpos.contactless.viewmodels.QRViewModel" />
     </data>
 
     <androidx.core.widget.NestedScrollView
