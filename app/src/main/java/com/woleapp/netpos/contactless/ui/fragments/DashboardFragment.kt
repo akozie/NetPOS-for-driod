@@ -303,8 +303,8 @@ class DashboardFragment : BaseFragment() {
             .apply {
                 add(Service(0, "Transaction", R.drawable.ic_trans))
                 add(Service(1, "Balance Inquiry", R.drawable.ic_write))
-                add(Service(2, "Bank Transfer", R.drawable.ic_lending))
-                add(Service(3, "Pay Bills", R.drawable.ic_bill))
+                //add(Service(2, "Bank Transfer", R.drawable.ic_lending))
+                //add(Service(3, "Pay Bills", R.drawable.ic_bill))
                 add(Service(4, "View End Of Day Transactions", R.drawable.ic_print))
                 add(Service(5, "Settings", R.drawable.ic_baseline_settings))
             }

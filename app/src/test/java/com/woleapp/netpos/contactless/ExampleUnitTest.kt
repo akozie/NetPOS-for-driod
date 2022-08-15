@@ -146,6 +146,13 @@ class ExampleUnitTest {
         assert(pinblockToNibss.isBlank().not())
     }
 
+    @Test
+    fun testTripleDesire(){
+        val key = "DC9AF23D991D39B406DA9EF38EFC8EFE"
+        val enc = "8248D3753C19A425"
+        println(TripleDES.decrypt(enc, key))
+        assertEquals(4, 2 + 2)
+    }
 
 }
 

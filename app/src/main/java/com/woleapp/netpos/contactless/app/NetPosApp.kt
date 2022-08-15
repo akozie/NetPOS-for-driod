@@ -16,10 +16,10 @@ import timber.log.Timber
 class NetPosApp : Application() {
 
     lateinit var transactionsApi: TransactionInterface
-    lateinit var outcomeObserver: com.woleapp.netpos.contactless.taponphone.mastercard.implementations.OutcomeObserver
+    lateinit var outcomeObserver: OutcomeObserver
     private lateinit var configuration: ConfigurationInterface
     lateinit var builder: StringBuilder
-    lateinit var nfcProvider: com.woleapp.netpos.contactless.taponphone.mastercard.implementations.nfc.NfcProvider
+    lateinit var nfcProvider: NfcProvider
 
     companion object {
         lateinit var INSTANCE: NetPosApp
@@ -86,28 +86,28 @@ class NetPosApp : Application() {
 
     fun initMposLibrary(context: Activity) {
         outcomeObserver =
-            com.woleapp.netpos.contactless.taponphone.mastercard.implementations.OutcomeObserver()
+            OutcomeObserver()
         configuration = terminalSdk.configuration
         builder = StringBuilder()
         nfcProvider =
-            com.woleapp.netpos.contactless.taponphone.mastercard.implementations.nfc.NfcProvider(
+            NfcProvider(
                 context
             )
         val cardCommProviderStub =
-            com.woleapp.netpos.contactless.taponphone.mastercard.implementations.CardCommProviderStub()
+            CardCommProviderStub()
         val logger = TransactionProcessLoggerImpl(builder)
         configuration
             .withResourceProvider(
-                com.woleapp.netpos.contactless.taponphone.mastercard.implementations.ResourceProviderImplementation(
+                ResourceProviderImplementation(
                     this.applicationContext
                 )
             )
             .withLogger(logger)
             .withCardCommunication(nfcProvider, cardCommProviderStub)
             .withTransactionObserver(outcomeObserver)
-            .withUnpredictableNumberProvider(com.woleapp.netpos.contactless.taponphone.mastercard.implementations.UnpredictableNumberImplementation())
+            .withUnpredictableNumberProvider(UnpredictableNumberImplementation())
             .withMessageDisplayProvider(
-                com.woleapp.netpos.contactless.taponphone.mastercard.implementations.DisplayImplementation(
+                DisplayImplementation(
                     logger
                 )
             )

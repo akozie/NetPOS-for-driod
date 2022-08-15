@@ -1,13 +1,20 @@
 package com.woleapp.netpos.contactless.ui.fragments
 
+import android.app.Activity
 import android.app.AlertDialog
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import com.danbamitale.epmslib.entities.TransactionType
+import com.netpluspay.netposbarcodesdk.NetPosBarcodeSdk
+import com.netpluspay.netposbarcodesdk.RESULT_CODE_TEXT
 import com.woleapp.netpos.contactless.R
 import com.woleapp.netpos.contactless.adapter.ServiceAdapter
 import com.woleapp.netpos.contactless.databinding.FragmentTransactionsBinding
@@ -21,6 +28,25 @@ class TransactionsFragment : BaseFragment() {
 
     private lateinit var adapter: ServiceAdapter
     private lateinit var binding: FragmentTransactionsBinding
+    private lateinit var resultLauncher: ActivityResultLauncher<Intent>
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        resultLauncher =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+                if (result.resultCode == Activity.RESULT_OK) {
+                    val data: Intent? = result.data
+                    data?.let {
+                        if (it.hasExtra(RESULT_CODE_TEXT)){
+                            val text = it.getStringExtra(RESULT_CODE_TEXT)
+                            Toast.makeText(requireContext(), text, Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }else{
+                    Toast.makeText(requireContext(), "scan failed", Toast.LENGTH_SHORT).show()
+                }
+            }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -39,8 +65,10 @@ class TransactionsFragment : BaseFragment() {
                     null
                 }
                 4 -> {
-                    //showQRBottomSheetDialog()
-                    QRFragment()
+                    //NetPosBarcodeSdk.
+                    //QRFragment()
+                    NetPosBarcodeSdk.startScan(requireContext(), resultLauncher)
+                    null
                 }
                 5 -> ReprintFragment()
                 6 -> SalesFragment.newInstance(isVend = true)
@@ -69,9 +97,9 @@ class TransactionsFragment : BaseFragment() {
                 //add(Service(8, "Reversal", R.drawable.ic_loop))
                 //add(Service(2, "PRE AUTHORIZATION", R.drawable.ic_pre_auth))
                 add(Service(3, "Cash Advance", R.drawable.ic_pay_cash_icon))
-                //add(Service(4, "QR", R.drawable.ic_qr_code))
+                add(Service(4, "Scan QR", R.drawable.ic_qr_code))
                 add(Service(5, "Reprint", R.drawable.ic_print))
-                add(Service(6, "VEND", R.drawable.ic_vend))
+                //add(Service(6, "VEND", R.drawable.ic_vend))
             }
         adapter.submitList(listOfService)
     }

@@ -26,7 +26,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
-        tools:replace="android:label">
+        tools:replace="android:label,android:theme">
 
         <activity
             android:name=".ui.activities.AuthenticationActivity"

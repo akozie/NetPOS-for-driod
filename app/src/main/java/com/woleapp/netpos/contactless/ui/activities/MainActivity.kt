@@ -4,7 +4,6 @@ package com.woleapp.netpos.contactless.ui.activities
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.app.PendingIntent
 import android.app.ProgressDialog
 import android.content.*
 import android.location.Location
@@ -129,11 +128,6 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks,
     }
 
     private fun startNfcPayment() {
-        val pendingIntent = PendingIntent.getActivity(
-            this, 0,
-            Intent(this, this.javaClass)
-                .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), PendingIntent.FLAG_MUTABLE
-        )
         nfcAdapter?.enableReaderMode(
             this,
             this,
@@ -379,12 +373,14 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks,
                 // Called when a new location is found by the network location provider.
                 location.let {
                     Prefs.putString(PREF_LAST_LOCATION, "lat:${it.latitude} long:${it.longitude}")
-                    //Timber.e("lat:${it.latitude} long:${it.longitude}")
                 }
             }
 
+            @Deprecated("Deprecated from api",
+                ReplaceWith("Check documentation, mfpm")
+            )
             override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {
-                Timber.e("On status changed")
+
             }
 
             override fun onProviderEnabled(provider: String) {
