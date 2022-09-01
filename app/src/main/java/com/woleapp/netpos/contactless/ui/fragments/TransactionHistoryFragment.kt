@@ -27,9 +27,7 @@ class TransactionHistoryFragment : BaseFragment() {
                     putString(HISTORY_ACTION, action)
                 }
             }
-
     }
-
 
     private lateinit var binding: FragmentTransactionHistoryBinding
     private val viewModel by activityViewModels<TransactionsViewModel>()
@@ -38,7 +36,7 @@ class TransactionHistoryFragment : BaseFragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentTransactionHistoryBinding.inflate(inflater, container, false)
         viewModel.setAppDatabase(AppDatabase.getDatabaseInstance(requireContext()))
         return binding.root
@@ -83,19 +81,19 @@ class TransactionHistoryFragment : BaseFragment() {
                 DividerItemDecoration.VERTICAL
             )
         )
-        if (action != HISTORY_ACTION_EOD)
+        if (action != HISTORY_ACTION_EOD) {
             viewModel.getTransactions().observe(viewLifecycleOwner) {
                 adapter.submitList(it)
                 adapter.notifyDataSetChanged()
             }
-        else {
+        } else {
             val eodList = viewModel.getEodList()
             adapter.submitList(eodList)
         }
         setSelectedTab()
         binding.transactionSearch.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-                if (query.isNullOrEmpty()){
+                if (query.isNullOrEmpty()) {
                     adapter.submitList(viewModel.transactionList)
                     return true
                 }
@@ -112,7 +110,7 @@ class TransactionHistoryFragment : BaseFragment() {
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
-                if (newText.isNullOrEmpty()){
+                if (newText.isNullOrEmpty()) {
                     adapter.submitList(viewModel.transactionList)
                     return true
                 }
@@ -127,7 +125,6 @@ class TransactionHistoryFragment : BaseFragment() {
                 )
                 return true
             }
-
         })
     }
 

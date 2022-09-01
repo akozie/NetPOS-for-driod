@@ -6,9 +6,9 @@ class Event<out T>(private val data: T) {
         private set
 
     fun getContentIfNotHandled(): T? {
-        return if (hasBeenHandled)
+        return if (hasBeenHandled) {
             null
-        else {
+        } else {
             hasBeenHandled = true
             data
         }

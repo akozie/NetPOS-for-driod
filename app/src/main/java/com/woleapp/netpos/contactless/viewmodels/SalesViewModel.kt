@@ -5,18 +5,17 @@ import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.danbamitale.epmslib.entities.CardData
-import com.danbamitale.epmslib.entities.HostConfig
-import com.danbamitale.epmslib.entities.TransactionRequestData
-import com.danbamitale.epmslib.entities.TransactionResponse
-import com.danbamitale.epmslib.entities.responseMessage
+import com.danbamitale.epmslib.entities.* // ktlint-disable no-wildcard-imports
 import com.danbamitale.epmslib.processors.TransactionProcessor
 import com.danbamitale.epmslib.utils.IsoAccountType
 import com.danbamitale.epmslib.utils.MessageReasonCode
+import com.google.gson.Gson
 import com.pixplicity.easyprefs.library.Prefs
 import com.woleapp.netpos.contactless.database.AppDatabase
+import com.woleapp.netpos.contactless.model.QrTransactionResponseModel
 import com.woleapp.netpos.contactless.nibss.NetPosTerminalConfig
-import com.woleapp.netpos.contactless.util.*
+import com.woleapp.netpos.contactless.util.* // ktlint-disable no-wildcard-imports
+import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -27,10 +26,10 @@ import java.io.InputStreamReader
 import java.io.PrintWriter
 import java.net.InetSocketAddress
 import java.net.Socket
+import javax.inject.Inject
 
-
-
-class SalesViewModel : ViewModel() {
+@HiltViewModel
+class SalesViewModel @Inject constructor() : ViewModel() {
     private var isVend: Boolean = false
     var cardData: CardData? = null
     private val compositeDisposable: CompositeDisposable by lazy { CompositeDisposable() }
@@ -81,22 +80,26 @@ class SalesViewModel : ViewModel() {
     val showReceiptType: LiveData<Event<Boolean>>
         get() = _showReceiptTypeMutableLiveData
 
-
     fun setCustomerName(name: String) {
         customerName.value = name
     }
 
     fun validateField() {
-        amountDbl = (amount.value!!.toDoubleOrNull() ?: kotlin.run {
-            _message.value = Event("Enter a valid amount")
-            return
-        }) * 100
+        amountDbl = (
+            amount.value!!.toDoubleOrNull() ?: kotlin.run {
+                _message.value = Event("Enter a valid amount")
+                return
+            }
+            ) * 100
         this.amountLong = amountDbl.toLong()
         this.cashbackLong = cashback.value?.toDoubleOrNull()?.times(100)?.toLong() ?: 0L
         _getCardData.value = Event(true)
     }
 
-    fun makePayment(context: Context, transactionType: com.danbamitale.epmslib.entities.TransactionType = com.danbamitale.epmslib.entities.TransactionType.PURCHASE) {
+    fun makePayment(
+        context: Context,
+        transactionType: com.danbamitale.epmslib.entities.TransactionType = com.danbamitale.epmslib.entities.TransactionType.PURCHASE
+    ) {
         Timber.e(cardData.toString())
         val configData = NetPosTerminalConfig.getConfigData() ?: kotlin.run {
             _message.value =
@@ -111,10 +114,15 @@ class SalesViewModel : ViewModel() {
             keyHolder,
             configData
         )
-        //IsoAccountType.
+        // IsoAccountType.
         this.amountLong = amountDbl.toLong()
         val requestData =
-            TransactionRequestData(transactionType, amountLong, cashbackLong, accountType = isoAccountType!!)
+            TransactionRequestData(
+                transactionType,
+                amountLong,
+                cashbackLong,
+                accountType = isoAccountType!!
+            )
         val processor = TransactionProcessor(hostConfig)
         transactionState.value = STATE_PAYMENT_STARTED
         processor.processTransaction(context, requestData, cardData!!)
@@ -136,7 +144,8 @@ class SalesViewModel : ViewModel() {
                 Timber.e(it.responseMessage)
                 _message.postValue(Event(if (it.responseCode == "00") "Transaction Approved" else "Transaction Not approved"))
                 printReceipt(it)
-                AppDatabase.getDatabaseInstance(context).transactionResponseDao().insertNewTransaction(it)
+                AppDatabase.getDatabaseInstance(context).transactionResponseDao()
+                    .insertNewTransaction(it)
             }
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
@@ -144,7 +153,6 @@ class SalesViewModel : ViewModel() {
                 transactionState.value = STATE_PAYMENT_STAND_BY
             }.subscribe { t1, throwable ->
                 t1?.let {
-
                 }
                 throwable?.let {
                     _message.value = Event("Error: ${it.localizedMessage}")
@@ -152,7 +160,6 @@ class SalesViewModel : ViewModel() {
                 }
             }.disposeWith(compositeDisposable)
     }
-
 
     override fun onCleared() {
         super.onCleared()
@@ -175,10 +182,10 @@ class SalesViewModel : ViewModel() {
     }
 
     private fun printReceipt(transactionResponse: TransactionResponse) {
-         transactionResponse.apply {
-                this.cardExpiry = ""
-                this.cardHolder = customerName.value ?: ""
-            }
+        transactionResponse.apply {
+            this.cardExpiry = ""
+            this.cardHolder = customerName.value ?: ""
+        }
         Timber.e(transactionResponse.toString())
         _showPrintDialog.postValue(
             Event(transactionResponse.buildSMSText(remark.value ?: "").toString())
@@ -188,7 +195,6 @@ class SalesViewModel : ViewModel() {
     fun finish() {
         _finish.value = Event(true)
     }
-
 
     fun isVend(vend: Boolean) {
         isVend = vend
@@ -208,12 +214,11 @@ class SalesViewModel : ViewModel() {
         }.subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .doFinally {
-
             }
             .subscribe { t1, t2 ->
                 t1?.let {
                     Timber.e(it)
-                    //Toast.makeText(context, "received", Toast.LENGTH_SHORT).show()
+                    // Toast.makeText(context, "received", Toast.LENGTH_SHORT).show()
                 }
                 t2?.let {
                     Toast.makeText(context, it.localizedMessage, Toast.LENGTH_SHORT).show()

@@ -21,6 +21,7 @@ import com.woleapp.netpos.contactless.databinding.QrAmoutDialogBinding
 import com.woleapp.netpos.contactless.databinding.QrBottomSheetDialogBinding
 import com.woleapp.netpos.contactless.model.Service
 import com.woleapp.netpos.contactless.viewmodels.QRViewModel
+import timber.log.Timber
 
 class QRFragment : BaseFragment() {
 
@@ -40,17 +41,21 @@ class QRFragment : BaseFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        Timber.d("QR_FRAGMENT===>THIS_IS_CALLED")
         binding = FragmentTransactionsBinding.inflate(inflater, container, false)
         binding.rvTransactionsHeader.text = getString(R.string.qr_payment)
         adapter = ServiceAdapter {
-            if (it.id == 2)
+            if (it.id == 2) {
                 showZenithQrDialog()
-            else
+            } else {
                 showAmountDialog(it.id)
+            }
         }
         masterpassQrBottomSheetDialogBinding =
             QrBottomSheetDialogBinding.inflate(
-                layoutInflater, null, false
+                layoutInflater,
+                null,
+                false
             ).apply {
                 executePendingBindings()
                 lifecycleOwner = viewLifecycleOwner
@@ -63,7 +68,9 @@ class QRFragment : BaseFragment() {
             }
         nibssQrBottomSheetDialogBinding =
             QrBottomSheetDialogBinding.inflate(
-                layoutInflater, null, false
+                layoutInflater,
+                null,
+                false
             ).apply {
                 executePendingBindings()
                 lifecycleOwner = viewLifecycleOwner
@@ -116,8 +123,9 @@ class QRFragment : BaseFragment() {
                     nibssQrBottomSheetDialogBinding.scanToPay.text = getString(R.string.req_trans)
                 } else {
                     nibssQrBottomSheetDialogBinding.progress.visibility = View.GONE
-                    if (viewModel.stillHasRetryAttempts)
+                    if (viewModel.stillHasRetryAttempts) {
                         startNibssReQueryTimer()
+                    }
                 }
             }
         }
@@ -143,17 +151,19 @@ class QRFragment : BaseFragment() {
     }
 
     private fun showZenithQrDialog() {
-        if (::zenithQRProgressDialog.isInitialized.not())
+        if (::zenithQRProgressDialog.isInitialized.not()) {
             zenithQRProgressDialog = ProgressDialog(requireContext())
                 .apply {
                     this.setMessage("Please Wait")
                     this.setCancelable(false)
                     this.setButton(
-                        DialogInterface.BUTTON_POSITIVE, "Cancel"
+                        DialogInterface.BUTTON_POSITIVE,
+                        "Cancel"
                     ) { _, _ ->
                         zenithQRProgressDialog.cancel()
                     }
                 }
+        }
         zenithQRProgressDialog.show()
         viewModel.getZenithQR()
     }
@@ -168,7 +178,6 @@ class QRFragment : BaseFragment() {
             }
 
             override fun onFinish() {
-
             }
         }
         timer.start()
@@ -200,7 +209,7 @@ class QRFragment : BaseFragment() {
             .apply {
                 add(Service(0, "MasterPass QR", R.drawable.masterpass))
                 add(Service(1, "NIBSS QR", R.drawable.ic_qr_code))
-                //add(Service(2, "Zenith QR", R.drawable.ic_zenith_logo))
+                // add(Service(2, "Zenith QR", R.drawable.ic_zenith_logo))
             }
         adapter.submitList(listOfService)
     }

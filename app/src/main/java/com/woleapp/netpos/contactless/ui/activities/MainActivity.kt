@@ -5,7 +5,8 @@ package com.woleapp.netpos.contactless.ui.activities
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.ProgressDialog
-import android.content.*
+import android.content.Intent
+import android.content.IntentFilter
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
@@ -17,11 +18,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import com.danbamitale.epmslib.utils.IsoAccountType
 import com.pixplicity.easyprefs.library.Prefs
 import com.visa.app.ttpkernel.ContactlessKernel
@@ -41,22 +42,26 @@ import com.woleapp.netpos.contactless.taponphone.visa.LiveNfcTransReceiver
 import com.woleapp.netpos.contactless.taponphone.visa.NfcPaymentType
 import com.woleapp.netpos.contactless.ui.dialog.PasswordDialog
 import com.woleapp.netpos.contactless.ui.fragments.DashboardFragment
-import com.woleapp.netpos.contactless.util.*
+import com.woleapp.netpos.contactless.util.* // ktlint-disable no-wildcard-imports
 import com.woleapp.netpos.contactless.util.Singletons.gson
 import com.woleapp.netpos.contactless.viewmodels.NfcCardReaderViewModel
-
+import dagger.hilt.android.AndroidEntryPoint
 import pub.devrel.easypermissions.EasyPermissions
 import timber.log.Timber
+import javax.inject.Inject
 
 @Suppress("DEPRECATION")
-class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks,
+@AndroidEntryPoint
+class MainActivity @Inject constructor() :
+    AppCompatActivity(),
+    EasyPermissions.PermissionCallbacks,
     NfcAdapter.ReaderCallback {
 
     private var progressDialog: ProgressDialog? = null
     private lateinit var alertDialog: AlertDialog
     private lateinit var binding: ActivityMainBinding
     private lateinit var dialogContactlessReaderBinding: DialogContatclessReaderBinding
-    private lateinit var viewModel: NfcCardReaderViewModel
+    private val viewModel by viewModels<NfcCardReaderViewModel>()
     private val contactlessKernel: ContactlessKernel by lazy {
         ContactlessKernel.getInstance(applicationContext)
     }
@@ -75,16 +80,17 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks,
     private lateinit var receiptAlertDialog: AlertDialog
     override fun onStop() {
         super.onStop()
-        //LocalBroadcastManager.getInstance(this).unregisterReceiver(receiver)
+        // LocalBroadcastManager.getInstance(this).unregisterReceiver(receiver)
         unregisterReceiver(batteryReceiver)
     }
 
     override fun onStart() {
         super.onStart()
         registerReceiver(batteryReceiver, iFilter)
-        //LocalBroadcastManager.getInstance(this).registerReceiver(receiver, IntentFilter(CONFIGURATION_ACTION))
-        when (//NetPosTerminalConfig.isConfigurationInProcess -> showProgressDialog()
-            NetPosTerminalConfig.configurationStatus) {
+        // LocalBroadcastManager.getInstance(this).registerReceiver(receiver, IntentFilter(CONFIGURATION_ACTION))
+        when ( // NetPosTerminalConfig.isConfigurationInProcess -> showProgressDialog()
+            NetPosTerminalConfig.configurationStatus
+        ) {
             -1 -> NetPosTerminalConfig.init(
                 applicationContext
             )
@@ -101,7 +107,7 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks,
         checkTokenExpiry()
         nfcAdapter = (applicationContext as NetPosApp).nfcProvider.mNFCManager?.mNfcAdapter
         if (nfcAdapter != null) {
-            //Toast.makeText(this, "Device has NFC support", Toast.LENGTH_SHORT).show()
+            // Toast.makeText(this, "Device has NFC support", Toast.LENGTH_SHORT).show()
             if (nfcAdapter?.isEnabled == false) {
                 AlertDialog.Builder(this)
                     .setTitle("NFC Message")
@@ -149,10 +155,9 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks,
         }
     }
 
-
     private fun resolveIntent(intent: Intent) {
         Timber.e("reaolve intent")
-        //intent.action
+        // intent.action
         val tag: Tag? = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG) as? Tag
         tag?.let {
             if (it.toString() == NFC_A_TAG || it.toString() == NFC_B_TAG) {
@@ -203,7 +208,6 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks,
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         NetPosApp.INSTANCE.initMposLibrary(this)
-        viewModel = ViewModelProvider(this).get(NfcCardReaderViewModel::class.java)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         dialogContactlessReaderBinding =
             DialogContatclessReaderBinding.inflate(layoutInflater).apply {
@@ -212,7 +216,7 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks,
         waitingDialog = AlertDialog.Builder(this)
             .apply {
                 setView(dialogContactlessReaderBinding.root)
-                //setCancelable(false)
+                // setCancelable(false)
             }.create()
         receiptDialogBinding = DialogTransactionResultBinding.inflate(layoutInflater, null, false)
             .apply { executePendingBindings() }
@@ -257,21 +261,24 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks,
         binding.dashboardHeader.logout.setOnClickListener {
             logout()
         }
-        if (checkBillsPaymentToken().not())
+        if (checkBillsPaymentToken().not()) {
             getBillsToken(StormApiClient.getInstance())
+        }
         showFragment(DashboardFragment(), DashboardFragment::class.java.simpleName)
         viewModel.enableNfcForegroundDispatcher.observe(this) { event ->
             event.getContentIfNotHandled()?.let {
-                if (it)
+                if (it) {
                     startNfcPayment()
-                else
+                } else {
                     stopNfcPayment()
+                }
             }
         }
         viewModel.showAccountTypeDialog.observe(this) { event ->
             event.getContentIfNotHandled()?.let {
-                if (it)
+                if (it) {
                     showSelectAccountTypeDialog()
+                }
             }
         }
         viewModel.showPinPadDialog.observe(this) { event ->
@@ -332,7 +339,9 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks,
         }.create()
         receiptAlertDialog.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
         viewModel.showPrintDialog.observe(this) { event ->
+            Timber.d("SHOW_QR_RECEIPT=====>YES_CALLED_FROM_MAIN_ACTIVITY")
             event.getContentIfNotHandled()?.let {
+                Timber.d("SHOW_QR_RECEIPT=====>YES_CALLED_FROM_MAIN_ACTIVITY2")
                 receiptAlertDialog.apply {
                     receiptDialogBinding.transactionContent.text = it
                     show()
@@ -362,7 +371,6 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks,
     }
 
     override fun onPermissionsDenied(requestCode: Int, perms: MutableList<String>) {
-
     }
 
     @SuppressLint("MissingPermission")
@@ -376,11 +384,11 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks,
                 }
             }
 
-            @Deprecated("Deprecated from api",
+            @Deprecated(
+                "Deprecated from api",
                 ReplaceWith("Check documentation, mfpm")
             )
             override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {
-
             }
 
             override fun onProviderEnabled(provider: String) {
@@ -397,7 +405,7 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks,
             0f,
             locationListener
         )
-        //locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
+        // locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
         locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
     }
 
@@ -416,8 +424,8 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks,
                     Toast.makeText(this@MainActivity, message, Toast.LENGTH_SHORT).show()
                     viewModel.setIccCardHelperLiveData(ICCCardHelper(error = Throwable(message)))
                 }
-
-            }).showDialog()
+            }
+        ).showDialog()
     }
 
     private fun showFragment(targetFragment: Fragment, className: String) {
@@ -431,7 +439,6 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks,
         } catch (e: Exception) {
             e.printStackTrace()
         }
-
     }
 
     private fun showSelectAccountTypeDialog() {

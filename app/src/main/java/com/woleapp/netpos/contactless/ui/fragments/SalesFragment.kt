@@ -13,31 +13,28 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import com.danbamitale.epmslib.entities.TransactionType
 import com.google.android.material.snackbar.Snackbar
 import com.google.gson.JsonObject
 import com.woleapp.netpos.contactless.R
 import com.woleapp.netpos.contactless.databinding.DialogPrintTypeBinding
 import com.woleapp.netpos.contactless.databinding.FragmentSalesBinding
+import com.woleapp.netpos.contactless.model.Vend
 import com.woleapp.netpos.contactless.nibss.NetPosTerminalConfig
+import com.woleapp.netpos.contactless.util.* // ktlint-disable no-wildcard-imports
+import com.woleapp.netpos.contactless.viewmodels.NfcCardReaderViewModel
 import com.woleapp.netpos.contactless.viewmodels.SalesViewModel
+import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
-import com.woleapp.netpos.contactless.model.Vend
-import com.woleapp.netpos.contactless.util.*
-import com.woleapp.netpos.contactless.viewmodels.NfcCardReaderViewModel
-import io.reactivex.Observable
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.io.PrintWriter
-import java.lang.Exception
 import java.net.InetSocketAddress
 import java.net.Socket
 import java.util.concurrent.TimeUnit
-
 
 class SalesFragment : BaseFragment() {
     companion object {
@@ -53,7 +50,7 @@ class SalesFragment : BaseFragment() {
             }
     }
 
-    private val viewModel by viewModels<SalesViewModel>()
+    private val viewModel by activityViewModels<SalesViewModel>()
     private val nfcCardReaderViewModel by activityViewModels<NfcCardReaderViewModel>()
     private lateinit var transactionType: TransactionType
     private lateinit var alertDialog: AlertDialog
@@ -76,8 +73,9 @@ class SalesFragment : BaseFragment() {
                 TransactionType.PURCHASE.name
             )!!
         )
-        if (transactionType == TransactionType.PURCHASE_WITH_CASH_BACK)
+        if (transactionType == TransactionType.PURCHASE_WITH_CASH_BACK) {
             binding.cashbackInputLayout.isVisible = true
+        }
         isVend = arguments?.getBoolean("IS_VEND", false) ?: false
         viewModel.isVend(isVend)
 
@@ -115,7 +113,7 @@ class SalesFragment : BaseFragment() {
         }*/
         viewModel.getCardData.observe(viewLifecycleOwner) { event ->
             event.getContentIfNotHandled()?.let { shouldGetCardData ->
-                if (shouldGetCardData)
+                if (shouldGetCardData) {
                     showCardDialog(
                         requireActivity(),
                         viewLifecycleOwner
@@ -127,9 +125,9 @@ class SalesFragment : BaseFragment() {
                                 viewModel.cashbackLong,
                                 it
                             )
-
                         }
                     }
+                }
             }
         }
         viewModel.showReceiptType.observe(viewLifecycleOwner) { event ->
@@ -145,16 +143,19 @@ class SalesFragment : BaseFragment() {
         }
         viewModel.finish.observe(viewLifecycleOwner) { event ->
             event.getContentIfNotHandled()?.let {
-                if (it)
+                if (it) {
                     requireActivity().onBackPressed()
+                }
             }
         }
         viewModel.showPrinterError.observe(viewLifecycleOwner) { event ->
             event.getContentIfNotHandled()?.let {
-                if (printTypeDialog.isShowing)
+                if (printTypeDialog.isShowing) {
                     printTypeDialog.cancel()
-                if (printerErrorDialog.isShowing)
+                }
+                if (printerErrorDialog.isShowing) {
                     printerErrorDialog.cancel()
+                }
                 printerErrorDialog.apply {
                     setMessage(it)
                 }.show()
@@ -169,11 +170,12 @@ class SalesFragment : BaseFragment() {
 
         viewModel.shouldRefreshNibssKeys.observe(viewLifecycleOwner) { event ->
             event.getContentIfNotHandled()?.let {
-                if (it)
+                if (it) {
                     NetPosTerminalConfig.init(
                         requireContext().applicationContext,
                         configureSilently = true
                     )
+                }
             }
         }
         binding.process.setOnClickListener {
@@ -251,7 +253,9 @@ class SalesFragment : BaseFragment() {
         Snackbar.make(
             requireActivity().findViewById(
                 R.id.container_main
-            ), message, Snackbar.LENGTH_LONG
+            ),
+            message,
+            Snackbar.LENGTH_LONG
         ).show()
     }
 
@@ -295,7 +299,7 @@ class SalesFragment : BaseFragment() {
                     val s = reader?.readLine()
                     Timber.e(s)
                     val vend = Singletons.gson.fromJson(s, Vend::class.java)
-                    //socket.close()
+                    // socket.close()
                     Observable.just(vend)
                 } catch (e: Exception) {
                     Observable.just(Vend(0.0))

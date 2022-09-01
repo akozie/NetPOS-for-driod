@@ -2,6 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
+apply plugin: 'dagger.hilt.android.plugin'
 
 
 def appPropertiesFile = rootProject.file("app-settings.properties")
@@ -32,8 +33,8 @@ android {
         applicationId "com.woleapp.netpos.contactless"
         minSdkVersion 23
         targetSdkVersion 32
-        versionCode 4
-        versionName "1.0.4"
+        versionCode 6
+        versionName "1.0.6"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         def environmentPath
         if (appModeProd == "true")
@@ -47,6 +48,20 @@ android {
         for (String key : envProperties.keySet()) {
             buildConfigField "String", key.replaceAll("\\.", "_").toUpperCase(), envProperties[key]
         }
+        Properties prop = new Properties();
+        prop.load(rootProject.file("local.properties").newDataInputStream())
+
+        buildConfigField("String", "STRING_AUTH_USER_NAME", "\"${prop.getProperty("STRING_AUTH_USER_NAME")}\"")
+        buildConfigField("String", "STRING_AUTH_PASSWORD", "\"${prop.getProperty("STRING_AUTH_PASSWORD")}\"")
+        buildConfigField("String", "STRING_GET_QR_BASE_URL",  "\"${prop.getProperty("STRING_GET_QR_BASE_URL")}\"")
+        buildConfigField("String", "STRING_MERCHANT_ID", "\"${prop.getProperty("STRING_MERCHANT_ID")}\"")
+        buildConfigField("String", "STRING_SEND_VERVE_OTP_BASE_URL", "\"${prop.getProperty("STRING_SEND_VERVE_OTP_BASE_URL")}\"")
+
+        buildConfigField("String", "STRING_WEB_VIEW_BASE_URL", "\"${prop.get("STRING_WEB_VIEW_BASE_URL")}\"")
+    }
+
+    dataBinding {
+        enabled = true
     }
 
     buildTypes {
@@ -96,6 +111,8 @@ android {
 }
 
 dependencies {
+    def lottieVersion = "5.2.0"
+
     implementation fileTree(include: ['*.jar', '*.aar'], dir: 'libs')
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
     implementation("commons-codec:commons-codec:1.15")
@@ -107,8 +124,6 @@ dependencies {
     implementation 'com.google.android.material:material:1.4.0'
     implementation 'androidx.fragment:fragment-ktx:1.3.5'
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
-
-
 
     //rx
     implementation 'io.reactivex.rxjava2:rxjava:2.2.21'
@@ -134,11 +149,32 @@ dependencies {
     kapt "androidx.room:room-compiler:$room_version"
     implementation "androidx.room:room-rxjava2:$room_version"
 
+    // OTP VIEWS
+//    implementation "com.github.mukeshsolanki:android-otpview-pinview:2.1.2"
+    implementation "io.github.chaosleung:pinview:$pin_view"
+
+    // BarCode Scanner Library
+    implementation 'com.github.yuriy-budiyev:code-scanner:2.3.2'
+
     //retrofit
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
     implementation 'com.squareup.retrofit2:adapter-rxjava2:2.9.0'
     implementation("com.squareup.okhttp3:logging-interceptor:4.9.0")
+
+    // Hilt
+    implementation "com.google.dagger:hilt-android:2.38.1"
+    kapt "com.google.dagger:hilt-compiler:2.38.1"
+
+    // For viewModel
+    implementation "androidx.hilt:hilt-lifecycle-viewmodel:1.0.0-alpha03"
+    kapt "androidx.hilt:hilt-compiler:1.0.0"
+
+    // Activity KTX for viewModels()
+    implementation "androidx.activity:activity-ktx:1.5.1"
+    
+    // Lifecycles only (without ViewModel or LiveData)
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.5.1"
 
     //easyprefs
     implementation 'com.pixplicity.easyprefs:library:1.9.0'
@@ -183,4 +219,7 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
     debugImplementation 'com.amitshekhar.android:debug-db:1.0.6'
+
+    // Lootie
+    implementation "com.airbnb.android:lottie:$lottieVersion"
 }

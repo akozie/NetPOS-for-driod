@@ -21,8 +21,9 @@ class ReprintFragment : BaseFragment() {
     ): View {
         binding = FragmentReprintBinding.inflate(inflater, container, false)
         adapter = ServiceAdapter {
-            if (it.id == 0)
+            if (it.id == 0) {
                 addFragmentWithoutRemove(TransactionHistoryFragment.newInstance(action = HISTORY_ACTION_REPRINT))
+            }
 //            else if (it.id == 1)
 //                printAllDialog()
 //            else  if (it.id == 2)
@@ -31,7 +32,6 @@ class ReprintFragment : BaseFragment() {
 //                loadCapk()
 //            else if (it.id == 4)
 //                getThem()
-
         }
         return binding.root
     }
@@ -53,10 +53,9 @@ class ReprintFragment : BaseFragment() {
             .apply {
                 add(Service(0, "Reprint One Transaction", R.drawable.ic_print_one))
                 add(Service(1, "Reprint All Transactions", R.drawable.ic_print_all))
-                //add(Service(2, "Add aid", R.drawable.ic_print_all))
-                //add(Service(3, "Add capks", R.drawable.ic_print_all))
-                //add(Service(4, "get them", R.drawable.ic_print_all))
-
+                // add(Service(2, "Add aid", R.drawable.ic_print_all))
+                // add(Service(3, "Add capks", R.drawable.ic_print_all))
+                // add(Service(4, "get them", R.drawable.ic_print_all))
             }
         adapter.submitList(listOfService)
     }

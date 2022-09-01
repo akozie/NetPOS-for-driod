@@ -13,8 +13,8 @@ object NetPosBarcodeSdk {
     ) {
         BarcodeActivity.startActivity(context, resultLauncher)
     }
-    
-    fun startScan(context: Activity, requestCode: Int){
+
+    fun startScan(context: Activity, requestCode: Int) {
         BarcodeActivity.startActivity(context, requestCode)
     }
 }

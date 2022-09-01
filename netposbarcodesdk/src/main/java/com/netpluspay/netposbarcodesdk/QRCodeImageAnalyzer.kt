@@ -1,12 +1,11 @@
 package com.netpluspay.netposbarcodesdk
 
-import android.graphics.ImageFormat.*
+import android.graphics.ImageFormat.* // ktlint-disable no-wildcard-imports
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
 import com.google.zxing.*
 import com.google.zxing.common.HybridBinarizer
 import com.google.zxing.multi.qrcode.QRCodeMultiReader
-
 
 internal class QRCodeImageAnalyzer(private val qrCodeFoundListener: QRCodeFoundListener) :
     ImageAnalysis.Analyzer {

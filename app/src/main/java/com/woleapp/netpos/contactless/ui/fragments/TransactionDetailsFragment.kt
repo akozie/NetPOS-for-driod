@@ -55,7 +55,7 @@ class TransactionDetailsFragment : BaseFragment() {
                 }
                 setNegativeButton("Dismiss") { d, _ ->
                     d.cancel()
-                    //viewModel.finish()
+                    // viewModel.finish()
                 }
             }.create()
         progressDialog = ProgressDialog(requireContext())
@@ -69,10 +69,11 @@ class TransactionDetailsFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         viewModel.selectedAction.observe(viewLifecycleOwner) {
-            if (it == HISTORY_ACTION_DEFAULT)
+            if (it == HISTORY_ACTION_DEFAULT) {
                 binding.actionButton.visibility = View.GONE
-            else
+            } else {
                 binding.actionButton.text = it
+            }
             if (it == HISTORY_ACTION_PREAUTH) {
                 binding.actionButton.visibility = View.GONE
                 if (viewModel.lastTransactionResponse.value!!.responseCode == "00") {
@@ -97,7 +98,7 @@ class TransactionDetailsFragment : BaseFragment() {
         binding.details.text = viewModel.lastTransactionResponse.value!!.builder().toString()
         viewModel.done.observe(viewLifecycleOwner) {
             if (it) {
-                //Toast.makeText(requireContext(), "Done", Toast.LENGTH_SHORT).show()
+                // Toast.makeText(requireContext(), "Done", Toast.LENGTH_SHORT).show()
                 viewModel.reset()
             }
         }
@@ -105,12 +106,12 @@ class TransactionDetailsFragment : BaseFragment() {
             event.getContentIfNotHandled()?.let {
                 if (it) progressDialog.show() else progressDialog.dismiss()
             }
-
         }
         viewModel.beginGetCardDetails.observe(viewLifecycleOwner) { event ->
             event.getContentIfNotHandled()?.let { startCardReader ->
-                if (startCardReader)
+                if (startCardReader) {
                     gotoAction { viewModel.refundTransaction(requireContext()) }
+                }
             }
         }
         viewModel.message.observe(viewLifecycleOwner) {
@@ -132,11 +133,12 @@ class TransactionDetailsFragment : BaseFragment() {
         }
         viewModel.shouldRefreshNibssKeys.observe(viewLifecycleOwner) { event ->
             event.getContentIfNotHandled()?.let {
-                if (it)
+                if (it) {
                     NetPosTerminalConfig.init(
                         requireContext().applicationContext,
                         configureSilently = true
                     )
+                }
             }
         }
 
@@ -148,10 +150,12 @@ class TransactionDetailsFragment : BaseFragment() {
 
         viewModel.showPrinterError.observe(viewLifecycleOwner) { event ->
             event.getContentIfNotHandled()?.let {
-                if (printTypeDialog.isShowing)
+                if (printTypeDialog.isShowing) {
                     printTypeDialog.cancel()
-                if (printerErrorDialog.isShowing)
+                }
+                if (printerErrorDialog.isShowing) {
                     printerErrorDialog.cancel()
+                }
                 printerErrorDialog.apply {
                     setMessage(it)
                 }.show()
@@ -184,7 +188,7 @@ class TransactionDetailsFragment : BaseFragment() {
         actionAfterCardRead = action
         showCardDialog(
             requireActivity(),
-            viewLifecycleOwner,
+            viewLifecycleOwner
         ).observe(viewLifecycleOwner) { event ->
             event.getContentIfNotHandled()?.let {
                 nfcCardReaderViewModel.initiateNfcPayment(10, 0, it)
@@ -204,7 +208,9 @@ class TransactionDetailsFragment : BaseFragment() {
         Snackbar.make(
             requireActivity().findViewById(
                 R.id.container_main
-            ), message, Snackbar.LENGTH_LONG
+            ),
+            message,
+            Snackbar.LENGTH_LONG
         ).show()
     }
 }

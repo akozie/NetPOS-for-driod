@@ -5,7 +5,6 @@ import androidx.lifecycle.MutableLiveData
 import com.google.gson.JsonObject
 import com.pixplicity.easyprefs.library.Prefs
 import com.woleapp.netpos.contactless.network.StormApiClient
-
 import com.woleapp.netpos.contactless.network.StormApiService
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -16,7 +15,6 @@ import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.HttpException
 import timber.log.Timber
-import java.lang.Exception
 
 fun checkBillsPaymentToken(): Boolean {
     val billsToken = Prefs.getString(PREF_BILLS_TOKEN, null)
@@ -65,7 +63,7 @@ fun getBillsToken(stormApiService: StormApiService): LiveData<Event<Boolean>> {
 }
 
 fun checkAppToken(): Boolean {
-    val appToken = Prefs.getString(PREF_APP_TOKEN, null)
+    val appToken = Prefs.getString(PREF_USER_TOKEN, null)
     return !(appToken.isNullOrEmpty() || JWTHelper.isExpired(appToken))
 }
 
@@ -95,7 +93,7 @@ private fun sendSmSReq(message: String, number: String): Single<Any> {
         addProperty("message", message)
     }
     Timber.e("payload: $map")
-    val auth = "Bearer ${Prefs.getString(PREF_APP_TOKEN, "")}"
+    val auth = "Bearer ${Prefs.getString(PREF_USER_TOKEN, "")}"
     val body: RequestBody = map.toString()
         .toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
     return StormApiClient.getSmsServiceInstance().sendSms(auth, body)
@@ -107,15 +105,15 @@ fun sendSMS(
     _smsSent: MutableLiveData<Event<Boolean>>,
     compositeDisposable: CompositeDisposable
 ) {
-
     val req = if (checkAppToken().not()) {
         Timber.e("app token not found, get it first")
         getAppToken(StormApiClient.getBillsInstance())
             .flatMap {
                 sendSmSReq(message, number)
             }
-    } else
+    } else {
         sendSmSReq(message, number)
+    }
 
     req
         .subscribeOn(Schedulers.io())
@@ -130,7 +128,7 @@ fun sendSMS(
                 val httpException = it as? HttpException
                 httpException?.let { e ->
                 }
-                //MqttHelper.sendPayload(MqttTopics.SMS_EVENTS, smsEvent)
+                // MqttHelper.sendPayload(MqttTopics.SMS_EVENTS, smsEvent)
                 _smsSent.value = Event(false)
             }
         }.disposeWith(compositeDisposable)

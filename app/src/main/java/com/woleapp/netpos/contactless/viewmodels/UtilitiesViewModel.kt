@@ -11,12 +11,14 @@ import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.pixplicity.easyprefs.library.Prefs
 import com.woleapp.netpos.contactless.database.AppDatabase
-import com.woleapp.netpos.contactless.model.*
+import com.woleapp.netpos.contactless.model.ErrorNetworkResponse
+import com.woleapp.netpos.contactless.model.NetworkResponse
+import com.woleapp.netpos.contactless.model.UtilitiesPayload
+import com.woleapp.netpos.contactless.model.ValidateBillResponse
 import com.woleapp.netpos.contactless.network.StormApiClient
 import com.woleapp.netpos.contactless.network.StormUtilitiesApiService
 import com.woleapp.netpos.contactless.nibss.NetPosTerminalConfig
 import com.woleapp.netpos.contactless.util.*
-
 import io.reactivex.SingleObserver
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -27,7 +29,6 @@ import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.HttpException
 import timber.log.Timber
-
 
 class UtilitiesViewModel : ViewModel() {
     var cardData: CardData? = null
@@ -123,7 +124,7 @@ class UtilitiesViewModel : ViewModel() {
 
     fun setUtilityProvider(utilityProvider: String) {
         val utilitiesPayload = payloadMutableLiveData.value
-        //_message.value = Event(utilityProvider)
+        // _message.value = Event(utilityProvider)
         payloadMutableLiveData.value = utilitiesPayload?.apply {
             provider = utilityProvider.replace(" ", "")
         }
@@ -149,8 +150,9 @@ class UtilitiesViewModel : ViewModel() {
             _message.value = Event("Please enter the destination number")
             return
         }
-        if (utilitiesPayload?.stringAmount.isNullOrEmpty())
+        if (utilitiesPayload?.stringAmount.isNullOrEmpty()) {
             utilitiesPayload?.stringAmount = "0"
+        }
         utilitiesPayload?.amount = utilitiesPayload?.stringAmount?.replace(",", "")?.toFloat() ?: 0f
         if (utilitiesPayload?.billType == "POWER" && utilitiesPayload.amount < 1000) {
             _message.value = Event("Amount should not be less than \u20A61000")
@@ -197,7 +199,6 @@ class UtilitiesViewModel : ViewModel() {
                         ErrorNetworkResponse("Could not verify destination Number: ${utilitiesPayload.destinationAccount}")
                     _result.value = Event(errorResponse)
                 }
-
             })
     }
 
@@ -215,7 +216,6 @@ class UtilitiesViewModel : ViewModel() {
         }
         _validateResponse.value = Event(billResponse)
     }
-
 
     /*fun getServiceFee() {
         val validateBillResponse = _billResponse.value
@@ -260,7 +260,7 @@ class UtilitiesViewModel : ViewModel() {
         }
         amountLong = utilitiesPayload.amount.toLong().times(100)
         _initiateBillsPayment.value = Event(utilitiesPayload.amount.toLong().times(100))
-        //payBill()
+        // payBill()
     }
 
     private fun payBill(context: Context) {
@@ -277,9 +277,9 @@ class UtilitiesViewModel : ViewModel() {
                     Timber.e(data?.reference!!)
                     remark.plus("\n${utilitiesPayload.billType} Payment Success")
                     if (utilitiesPayload.billType == "POWER") {
-                        it.message = if (data.token.isNullOrEmpty())
+                        it.message = if (data.token.isNullOrEmpty()) {
                             "Your power payment was successful but no token was generated, please contact support"
-                        else {
+                        } else {
                             "${it.message}\n\nMeter Token: ${data.token}"
                             remark.plus("\nMeter Token: ${data.token}")
                         }
@@ -295,8 +295,9 @@ class UtilitiesViewModel : ViewModel() {
                                 Event("${utilitiesPayload.billType} request failed, reversing transaction 😂")
                             val error = it.getResponseBody()
                             gson.fromJson(error, ErrorNetworkResponse::class.java)
-                        } else
+                        } else {
                             ErrorNetworkResponse(it.localizedMessage ?: "")
+                        }
 
                     remark.plus("\n${utilitiesPayload.billType} Payment Failed")
                     Timber.e(it.toString())
@@ -320,20 +321,26 @@ class UtilitiesViewModel : ViewModel() {
                 .observeOn(AndroidSchedulers.mainThread())
                 .doFinally {
                     _showProgressMutableLiveData.value = Event(false)
-                    _result.value = Event(errorResponse ?: ErrorNetworkResponse("An unresolvable error occurred, contact administrator"))
+                    _result.value = Event(
+                        errorResponse
+                            ?: ErrorNetworkResponse("An unresolvable error occurred, contact administrator")
+                    )
                     printReceipt(context)
                 }
                 .subscribe { t1, t2 ->
                     t1?.let { response ->
                         lastTransactionResponse.value = response
-                        if (response.responseCode == "00"){
-                            errorResponse?.message = "Could not process ${payloadMutableLiveData.value?.billType} payment, Transaction Reversed"
-                        }else{
-                            errorResponse?.message = "Could not process ${payloadMutableLiveData.value?.billType} payment, Transaction could not be auto reversed, contact administrator"
+                        if (response.responseCode == "00") {
+                            errorResponse?.message =
+                                "Could not process ${payloadMutableLiveData.value?.billType} payment, Transaction Reversed"
+                        } else {
+                            errorResponse?.message =
+                                "Could not process ${payloadMutableLiveData.value?.billType} payment, Transaction could not be auto reversed, contact administrator"
                         }
                     }
                     t2?.let {
-                        errorResponse?.message = "Could not process ${payloadMutableLiveData.value?.billType} payment, Transaction could not be auto reversed, contact administrator"
+                        errorResponse?.message =
+                            "Could not process ${payloadMutableLiveData.value?.billType} payment, Transaction could not be auto reversed, contact administrator"
                     }
                 }.disposeWith(compositeDisposable)
         }
@@ -353,7 +360,7 @@ class UtilitiesViewModel : ViewModel() {
                 it.cardHolder = customerName.value!!
                 it.cardLabel = cardScheme!!
                 lastTransactionResponse.postValue(it)
-                //_message.postValue(Event(if (it.responseCode == "00") "Transaction Approved" else "Transaction Not approved"))
+                // _message.postValue(Event(if (it.responseCode == "00") "Transaction Approved" else "Transaction Not approved"))
                 if (it.responseCode == "00") {
                     payBill(context)
                 } else {
@@ -369,7 +376,6 @@ class UtilitiesViewModel : ViewModel() {
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe { t1, throwable ->
                 t1?.let {
-
                 }
                 throwable?.let {
                     _message.value = Event(it.localizedMessage ?: "")
@@ -430,7 +436,6 @@ class UtilitiesViewModel : ViewModel() {
                 t2?.let {
                     val httpException = it as? HttpException
                     httpException?.let { _ ->
-
                     }
                     _smsSent.value = Event(false)
                 }

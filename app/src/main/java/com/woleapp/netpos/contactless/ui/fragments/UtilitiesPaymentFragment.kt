@@ -4,7 +4,6 @@ package com.woleapp.netpos.contactless.ui.fragments
 
 import android.app.AlertDialog
 import android.app.ProgressDialog
-
 import android.graphics.drawable.Animatable
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -19,7 +18,6 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.woleapp.netpos.contactless.R
 import com.woleapp.netpos.contactless.adapter.ServicesSpinnerAdapter
 import com.woleapp.netpos.contactless.database.DataGenerator
-
 import com.woleapp.netpos.contactless.databinding.*
 import com.woleapp.netpos.contactless.model.Biller
 import com.woleapp.netpos.contactless.model.ErrorNetworkResponse
@@ -31,7 +29,6 @@ import com.woleapp.netpos.contactless.util.*
 import com.woleapp.netpos.contactless.viewmodels.NfcCardReaderViewModel
 import com.woleapp.netpos.contactless.viewmodels.UtilitiesViewModel
 import timber.log.Timber
-
 
 class UtilitiesPaymentFragment : BaseFragment() {
 
@@ -111,11 +108,12 @@ class UtilitiesPaymentFragment : BaseFragment() {
 
         viewModel.shouldRefreshNibssKeys.observe(viewLifecycleOwner) { event ->
             event.getContentIfNotHandled()?.let {
-                if (it)
+                if (it) {
                     NetPosTerminalConfig.init(
                         requireContext().applicationContext,
                         configureSilently = true
                     )
+                }
             }
         }
 
@@ -123,7 +121,7 @@ class UtilitiesPaymentFragment : BaseFragment() {
             event.getContentIfNotHandled()?.let {
                 showCardDialog(
                     requireActivity(),
-                    viewLifecycleOwner,
+                    viewLifecycleOwner
                 ).observe(viewLifecycleOwner) { event ->
                     event.getContentIfNotHandled()?.let {
                         nfcCardReaderViewModel.initiateNfcPayment(10, 0, it)
@@ -158,7 +156,7 @@ class UtilitiesPaymentFragment : BaseFragment() {
             receiptDialogBinding.apply {
                 closeBtn.setOnClickListener {
                     receiptDialog.dismiss()
-                    //requireActivity().onBackPressed()
+                    // requireActivity().onBackPressed()
                 }
                 sendButton.setOnClickListener {
                     if (receiptDialogBinding.telephone.text.toString().length != 11) {
@@ -199,7 +197,7 @@ class UtilitiesPaymentFragment : BaseFragment() {
                 if (it) {
                     Toast.makeText(requireContext(), "Sent Receipt", Toast.LENGTH_LONG).show()
                     receiptDialog.dismiss()
-                    //requireActivity().onBackPressed()
+                    // requireActivity().onBackPressed()
                 }
             }
         }
@@ -218,7 +216,7 @@ class UtilitiesPaymentFragment : BaseFragment() {
                         }
                         setNegativeButton("Dismiss") { d, _ ->
                             d.dismiss()
-                            //requireActivity().onBackPressed()
+                            // requireActivity().onBackPressed()
                         }
                     }.show()
             }
@@ -247,9 +245,9 @@ class UtilitiesPaymentFragment : BaseFragment() {
         }
         viewModel.showProgress.observe(viewLifecycleOwner) { event ->
             event.getContentIfNotHandled()?.let {
-                if (it)
+                if (it) {
                     showProgressBar()
-                else dismissProgressBar()
+                } else dismissProgressBar()
             }
         }
         viewModel.result.observe(viewLifecycleOwner) { event ->
@@ -307,7 +305,6 @@ class UtilitiesPaymentFragment : BaseFragment() {
         }
     }
 
-
     private fun showProgressBar() {
         if (progressDialog != null && progressDialog!!.isShowing) return
         progressDialog?.show()
@@ -315,8 +312,9 @@ class UtilitiesPaymentFragment : BaseFragment() {
 
     private fun dismissProgressBar() {
         progressDialog?.run {
-            if (isShowing)
+            if (isShowing) {
                 dismiss()
+            }
         }
     }
 
@@ -331,7 +329,8 @@ class UtilitiesPaymentFragment : BaseFragment() {
             ServicesSpinnerAdapter(
                 requireContext(),
                 electricityBillers.map { it.billerName },
-                electricityBillers.map { it.imageUrl })
+                electricityBillers.map { it.imageUrl }
+            )
         val meterTypeSpinnerAdapter =
             ServicesSpinnerAdapter(requireContext(), listOf("prepaid", "postpaid"))
         binding = LayoutPowerOrElectricityBinding.inflate(inflater, container, false)
@@ -345,7 +344,6 @@ class UtilitiesPaymentFragment : BaseFragment() {
         binding.productsSpinner.onItemSelectedListener =
             object : AdapterView.OnItemSelectedListener {
                 override fun onNothingSelected(parent: AdapterView<*>?) {
-
                 }
 
                 override fun onItemSelected(
@@ -357,12 +355,10 @@ class UtilitiesPaymentFragment : BaseFragment() {
                     selected = position
                     binding.meterType.setSelection(0)
                     viewModel.setUtilityProvider(electricityBillers[selected].prepaidCode)
-
                 }
             }
         binding.meterType.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) {
-
             }
 
             override fun onItemSelected(
@@ -411,7 +407,6 @@ class UtilitiesPaymentFragment : BaseFragment() {
         airtimeOrDataBinding.selectDataBundleSpinner.onItemSelectedListener =
             object : AdapterView.OnItemSelectedListener {
                 override fun onNothingSelected(parent: AdapterView<*>?) {
-
                 }
 
                 override fun onItemSelected(
@@ -423,12 +418,10 @@ class UtilitiesPaymentFragment : BaseFragment() {
                     viewModel.setUtilityPackage("${dataPlanList[selectedNetwork][position].data} - ${dataPlanList[selectedNetwork][position].duration}")
                     airtimeOrDataBinding.priceTextbox.setText(dataPlanList[selectedNetwork][position].price)
                 }
-
             }
         airtimeOrDataBinding.dataOrAirtimeSpinner.onItemSelectedListener =
             object : AdapterView.OnItemSelectedListener {
                 override fun onNothingSelected(parent: AdapterView<*>?) {
-
                 }
 
                 override fun onItemSelected(
@@ -457,12 +450,10 @@ class UtilitiesPaymentFragment : BaseFragment() {
                     airtimeOrDataBinding.selectDataBundleSpinner.visibility = visibility
                     airtimeOrDataBinding.selectDataBundleSpinnerIcon.visibility = visibility
                 }
-
             }
         airtimeOrDataBinding.selectNetworkSpinner.onItemSelectedListener =
             object : AdapterView.OnItemSelectedListener {
                 override fun onNothingSelected(parent: AdapterView<*>?) {
-
                 }
 
                 override fun onItemSelected(
@@ -475,13 +466,12 @@ class UtilitiesPaymentFragment : BaseFragment() {
                     val dataBundleTypeSpinnerAdapter =
                         ServicesSpinnerAdapter(
                             context!!,
-                            dataPlanList[position].map { "${it.data} - ${it.duration}" })
+                            dataPlanList[position].map { "${it.data} - ${it.duration}" }
+                        )
                     airtimeOrDataBinding.selectDataBundleSpinner.adapter =
                         dataBundleTypeSpinnerAdapter
                     viewModel.setUtilityProvider(mobileOperatorsBillers[position].biller_code)
-
                 }
-
             }
 
         return airtimeOrDataBinding.root
@@ -502,7 +492,8 @@ class UtilitiesPaymentFragment : BaseFragment() {
             ServicesSpinnerAdapter(
                 requireContext(),
                 internetBiller.map { it.biller_name },
-                internetBiller.map { it.imageUrl })
+                internetBiller.map { it.imageUrl }
+            )
 
         internetSubscriptionBinding.providerSpinner.adapter = internetProviderSpinnerAdapter
         val billerPlans = DataGenerator.getBillerPlans(requireContext())
@@ -512,7 +503,6 @@ class UtilitiesPaymentFragment : BaseFragment() {
         internetSubscriptionBinding.providerSpinner.onItemSelectedListener =
             object : AdapterView.OnItemSelectedListener {
                 override fun onNothingSelected(parent: AdapterView<*>?) {
-
                 }
 
                 override fun onItemSelected(
@@ -529,24 +519,24 @@ class UtilitiesPaymentFragment : BaseFragment() {
                                 ServicesSpinnerAdapter(
                                     context!!,
                                     smileInternetList
-                                        .map { it.bundleName })
+                                        .map { it.bundleName }
+                                )
                             }
                             1 -> {
                                 viewModel.setUtilityProvider("SPECTRANET")
                                 ServicesSpinnerAdapter(
                                     context!!,
-                                    spectranetInternetList.map { it.planName })
+                                    spectranetInternetList.map { it.planName }
+                                )
                             }
                             else -> ServicesSpinnerAdapter(context!!, ArrayList())
                         }
                     internetSubscriptionBinding.packageSpinner.adapter = packageSpinnerAdapter
                 }
-
             }
         internetSubscriptionBinding.packageSpinner.onItemSelectedListener =
             object : AdapterView.OnItemSelectedListener {
                 override fun onNothingSelected(parent: AdapterView<*>?) {
-
                 }
 
                 override fun onItemSelected(
@@ -569,7 +559,6 @@ class UtilitiesPaymentFragment : BaseFragment() {
                     }
                     internetSubscriptionBinding.priceTextbox.setText(priceToPay)
                 }
-
             }
         return internetSubscriptionBinding.root
     }
@@ -587,7 +576,8 @@ class UtilitiesPaymentFragment : BaseFragment() {
             ServicesSpinnerAdapter(
                 requireContext(),
                 cableTvBiller.map { it.biller_name },
-                cableTvBiller.map { it.imageUrl })
+                cableTvBiller.map { it.imageUrl }
+            )
 
         val plans: Biller.BillerPlans = DataGenerator.getBillerPlans(context)
         val dstvPlans = plans.multichoicePlans.filter { !it.productCode.startsWith("GO") }
@@ -598,7 +588,6 @@ class UtilitiesPaymentFragment : BaseFragment() {
         cableBinding.selectCableTvCategory.onItemSelectedListener =
             object : AdapterView.OnItemSelectedListener {
                 override fun onNothingSelected(parent: AdapterView<*>?) {
-
                 }
 
                 override fun onItemSelected(
@@ -629,7 +618,6 @@ class UtilitiesPaymentFragment : BaseFragment() {
         cableBinding.selectCableTvPackage.onItemSelectedListener =
             object : AdapterView.OnItemSelectedListener {
                 override fun onNothingSelected(parent: AdapterView<*>?) {
-
                 }
 
                 override fun onItemSelected(

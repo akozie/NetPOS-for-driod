@@ -133,7 +133,9 @@ class NipNotificationFragment : BaseFragment() {
 
     private fun showDialogForAccountTransfer(code: String) {
         val bankDetailsBinding: LayoutBankDetailsBinding = LayoutBankDetailsBinding.inflate(
-            layoutInflater, null, false
+            layoutInflater,
+            null,
+            false
         )
         val bottomSheetDialog = BottomSheetDialog(requireContext(), R.style.SheetDialog)
         bottomSheetDialog.setCancelable(false)
@@ -145,8 +147,8 @@ class NipNotificationFragment : BaseFragment() {
 //        val bank ="GTB"
 //        val accountNumber = "0239952959"
 //        val accountName = "EasyPOS"
-        //val accountNumber2 = "2684362099"
-        //val bank2 = "FCMB"
+        // val accountNumber2 = "2684362099"
+        // val bank2 = "FCMB"
         val accountNumber2 = ""
         val bank2 = ""
         bankDetailsBinding.accountNumber2.text = accountNumber2
@@ -202,5 +204,4 @@ class NipNotificationFragment : BaseFragment() {
             }
         adapter.submitList(listOfService)
     }
-
 }

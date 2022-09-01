@@ -1,13 +1,13 @@
 package com.woleapp.netpos.contactless.viewmodels
 
 import android.content.Context
-import androidx.lifecycle.*
-import com.danbamitale.epmslib.entities.*
+import androidx.lifecycle.* // ktlint-disable no-wildcard-imports
+import com.danbamitale.epmslib.entities.* // ktlint-disable no-wildcard-imports
 import com.danbamitale.epmslib.processors.TransactionProcessor
 import com.danbamitale.epmslib.utils.IsoAccountType
 import com.woleapp.netpos.contactless.database.AppDatabase
 import com.woleapp.netpos.contactless.nibss.NetPosTerminalConfig
-import com.woleapp.netpos.contactless.util.*
+import com.woleapp.netpos.contactless.util.* // ktlint-disable no-wildcard-imports
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -41,11 +41,9 @@ class TransactionsViewModel : ViewModel() {
     val showReceiptType: LiveData<Event<Boolean>>
         get() = _showReceiptTypeMutableLiveData
 
-
     private val _shouldRefreshNibssKeys = MutableLiveData<Event<Boolean>>()
     val shouldRefreshNibssKeys: LiveData<Event<Boolean>>
         get() = _shouldRefreshNibssKeys
-
 
     private val _toastMessage = MutableLiveData<Event<String>>()
     val toastMessage: LiveData<Event<String>>
@@ -69,7 +67,6 @@ class TransactionsViewModel : ViewModel() {
 
     var transactionList: List<TransactionResponse>? = null
 
-
     fun setSelectedTransaction(transactionResponse: TransactionResponse) {
 //        Timber.e(gson.toJson(transactionResponse))
 //        Timber.e(gson.toJson(transactionResponse.toNibssResponse()))
@@ -92,7 +89,6 @@ class TransactionsViewModel : ViewModel() {
             transactionList = it
             it
         }
-
 
     fun setAction(action: String?) {
         _selectedAction.value = action!!
@@ -142,8 +138,9 @@ class TransactionsViewModel : ViewModel() {
             requestData,
             cardData!!
         ).flatMap {
-            if (it.responseCode == "A3")
+            if (it.responseCode == "A3") {
                 _shouldRefreshNibssKeys.postValue(Event(true))
+            }
             _message.postValue(Event("Transaction: ${it.responseMessage}"))
             it.cardHolder = cardHolderName
             it.cardLabel = cardScheme!!
@@ -167,7 +164,6 @@ class TransactionsViewModel : ViewModel() {
                     printReceipt()
                 }
             }.disposeWith(compositeDisposable)
-
     }
 
     private fun printReceipt() {
@@ -180,7 +176,6 @@ class TransactionsViewModel : ViewModel() {
             Event(transactionResponse.buildSMSText().toString())
         )
     }
-
 
     fun showReceiptDialog() {
         _showPrintDialog.value = Event(
@@ -210,8 +205,8 @@ class TransactionsViewModel : ViewModel() {
             NetPosTerminalConfig.getKeyHolder()!!,
             NetPosTerminalConfig.getConfigData()!!
         )
-        //0428084454
-        //0428084454
+        // 0428084454
+        // 0428084454
 
         val requestData = TransactionRequestData(
             transactionType = TransactionType.PRE_AUTHORIZATION_COMPLETION,
@@ -221,11 +216,13 @@ class TransactionsViewModel : ViewModel() {
 
         _showProgressDialog.value = Event(true)
         TransactionProcessor(hostConfig).processTransaction(
-            context, requestData,
+            context,
+            requestData,
             cardData!!
         ).flatMap {
-            if (it.responseCode == "A3")
+            if (it.responseCode == "A3") {
                 _shouldRefreshNibssKeys.postValue(Event(true))
+            }
             _showProgressDialog.postValue(Event(false))
             _message.postValue(Event("Transaction: ${it.responseMessage}"))
             it.cardHolder = cardHolderName
@@ -270,8 +267,9 @@ class TransactionsViewModel : ViewModel() {
         _showProgressDialog.value = Event(true)
         TransactionProcessor(hostConfig).processTransaction(context, requestData, cardData!!)
             .flatMap {
-                if (it.responseCode == "A3")
+                if (it.responseCode == "A3") {
                     _shouldRefreshNibssKeys.postValue(Event(true))
+                }
                 _showProgressDialog.postValue(Event(false))
                 _message.postValue(Event("Transaction: ${it.responseMessage}"))
                 it.cardHolder = cardHolderName

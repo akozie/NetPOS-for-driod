@@ -13,6 +13,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.GridLayoutManager
 import com.danbamitale.epmslib.entities.*
+import com.danbamitale.epmslib.entities.TransactionResponse
 import com.danbamitale.epmslib.extensions.formatCurrencyAmount
 import com.danbamitale.epmslib.processors.TransactionProcessor
 import com.danbamitale.epmslib.utils.IsoAccountType
@@ -34,8 +35,6 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import java.util.*
-import kotlin.collections.ArrayList
-
 
 class DashboardFragment : BaseFragment() {
 
@@ -46,7 +45,6 @@ class DashboardFragment : BaseFragment() {
     private val transactionViewModel by activityViewModels<TransactionsViewModel>()
     private val nfcCardReaderViewModel by activityViewModels<NfcCardReaderViewModel>()
     private var observer: ((Event<ICCCardHelper>) -> Unit)? = null
-
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -71,8 +69,9 @@ class DashboardFragment : BaseFragment() {
                     sendPayload()
                 }
             }
-            //showFragment(nextFrag)
+            // showFragment(nextFrag)
         }
+
         progressDialog = ProgressDialog(requireContext())
 
         observer = { event ->
@@ -113,7 +112,7 @@ class DashboardFragment : BaseFragment() {
     private fun getBalance() {
         showCardDialog(
             requireActivity(),
-            viewLifecycleOwner,
+            viewLifecycleOwner
         ).observe(viewLifecycleOwner) { event ->
             event.getContentIfNotHandled()?.let {
                 nfcCardReaderViewModel.initiateNfcPayment(10, 0, it)
@@ -141,13 +140,14 @@ class DashboardFragment : BaseFragment() {
         progressDialog.setMessage("Checking Balance...")
         progressDialog.show()
         val processor = TransactionProcessor(hostConfig)
-        //processor.
+        // processor.
         val disposable = processor.processTransaction(requireContext(), requestData, cardData)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe { response, error ->
-                if (progressDialog.isShowing)
+                if (progressDialog.isShowing) {
                     progressDialog.dismiss()
+                }
                 error?.let {
                     it.printStackTrace()
                     Toast.makeText(
@@ -172,7 +172,7 @@ class DashboardFragment : BaseFragment() {
                     val messageString = if (it.isApproved) {
                         "Account Balance:\n " + it.accountBalances.joinToString("\n") { accountBalance ->
                             "${accountBalance.accountType}, ${
-                                accountBalance.amount.div(100).formatCurrencyAmount()
+                            accountBalance.amount.div(100).formatCurrencyAmount()
                             }"
                         }
                     } else {
@@ -180,14 +180,15 @@ class DashboardFragment : BaseFragment() {
                     }
 
                     showMessage(
-                        if (it.isApproved) "Approved" else "Declined", messageString, me.toString()
+                        if (it.isApproved) "Approved" else "Declined",
+                        messageString,
+                        me.toString()
                     )
                 }
             }
 
-        //compositeDisposable.add(disposable)
+        // compositeDisposable.add(disposable)
     }
-
 
     private fun showMessage(s: String, vararg messageString: String) {
         AlertDialog.Builder(requireContext())
@@ -218,12 +219,13 @@ class DashboardFragment : BaseFragment() {
                     R.id.print_declined -> declinedList
                     else -> transactions
                 }.apply {
-                    if (isEmpty())
+                    if (isEmpty()) {
                         Toast.makeText(
                             requireContext(),
                             "No transactions to print",
                             Toast.LENGTH_SHORT
                         ).show()
+                    }
                 }
             }
         }
@@ -275,7 +277,7 @@ class DashboardFragment : BaseFragment() {
     }
 
     private fun sendPayload() {
-        //val user = Singletons.gson.fromJson(Prefs.getString(PREF_USER, ""), User::class.java)
+        // val user = Singletons.gson.fromJson(Prefs.getString(PREF_USER, ""), User::class.java)
         val event = MqttEvent<AuthenticationEventData>()
         val authEventData =
             AuthenticationEventData(event.business_name!!, event.storm_id!!, event.deviceSerial!!)
@@ -288,7 +290,7 @@ class DashboardFragment : BaseFragment() {
             this.data = authEventData
         }
         MqttHelper.sendPayload(MqttTopics.AUTHENTICATION, event)
-        //Timber.e(Singletons.gson.toJson(event))
+        // Timber.e(Singletons.gson.toJson(event))
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -303,8 +305,8 @@ class DashboardFragment : BaseFragment() {
             .apply {
                 add(Service(0, "Transaction", R.drawable.ic_trans))
                 add(Service(1, "Balance Inquiry", R.drawable.ic_write))
-                //add(Service(2, "Bank Transfer", R.drawable.ic_lending))
-                //add(Service(3, "Pay Bills", R.drawable.ic_bill))
+                // add(Service(2, "Bank Transfer", R.drawable.ic_lending))
+                // add(Service(3, "Pay Bills", R.drawable.ic_bill))
                 add(Service(4, "View End Of Day Transactions", R.drawable.ic_print))
                 add(Service(5, "Settings", R.drawable.ic_baseline_settings))
             }

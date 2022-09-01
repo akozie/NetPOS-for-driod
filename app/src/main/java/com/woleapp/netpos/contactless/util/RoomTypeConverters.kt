@@ -4,7 +4,6 @@ import androidx.room.TypeConverter
 import com.danbamitale.epmslib.entities.TransactionType
 import com.danbamitale.epmslib.utils.IsoAccountType
 
-
 class RoomTypeConverters {
     companion object {
         @JvmStatic
@@ -21,6 +20,6 @@ class RoomTypeConverters {
 
         @JvmStatic
         @TypeConverter
-        fun convertTransactionResponseToEnum(value: String)= TransactionType.valueOf(value)
+        fun convertTransactionResponseToEnum(value: String) = TransactionType.valueOf(value)
     }
 }

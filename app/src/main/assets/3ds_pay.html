@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Payment</title>
+    </head>
+    <body>
+        <form id="authData" method="POST" target="threeDS">
+            <div style="display:none;">
+                <input name="TermUrl" id="TermUrl">
+                <input name="MD" id="MD">
+                <input name="PaReq" id="PaReq">
+            </div>
+        </form>
+        <iframe id="threeDS" name="threeDS" frameborder="0" style="height: 100vh; width: 100vw;"></iframe>
+        <script type="text/javascript">
+            function replace(termUrlValue, mdValue, paReqValue, acsUrl) {
+                document.getElementById("TermUrl").value = termUrlValue;
+                document.getElementById("MD").value = mdValue;
+                document.getElementById("PaReq").value = paReqValue;
+                document.getElementById("authData").setAttribute("action", acsUrl);
+            }
+            const dataFromAndroid = Android.sendValueToWebView().split("<======>");
+            const termUrlVal = dataFromAndroid[0];
+            const mdVal = dataFromAndroid[1];
+            const paReqVal = dataFromAndroid[2];
+            const acsUrlVal = dataFromAndroid[3];
+            const transIdVal = dataFromAndroid[4];
+            const reQueryUrl = dataFromAndroid[5];
+
+            <!-- automatically set value to the above form -->
+            replace(termUrlVal, mdVal, paReqVal, acsUrlVal);
+            document.getElementById("authData").submit();
+
+            const myheaders = {"Content-Type": "application/json", "Accept": "application/json"};
+
+            window.onmessage = (event) => {
+                fetch(reQueryUrl+transIdVal,{headers: myheaders, method: "GET"})
+                .then(async(response) => {
+                    const data = await response.text();
+                    Android.webViewCallback(data);
+                })
+                .catch(err => {
+                    Android.webViewCallback(JSON.stringify(err));
+                });
+            }
+        </script>
+    </body>
+</html>
