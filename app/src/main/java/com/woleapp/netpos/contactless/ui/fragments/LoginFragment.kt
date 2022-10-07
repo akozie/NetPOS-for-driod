@@ -17,8 +17,6 @@ import com.woleapp.netpos.contactless.databinding.FragmentLoginBinding
 import com.woleapp.netpos.contactless.model.AuthenticationEventData
 import com.woleapp.netpos.contactless.model.MqttEvent
 import com.woleapp.netpos.contactless.model.MqttEvents
-import com.woleapp.netpos.contactless.model.MqttTopics
-import com.woleapp.netpos.contactless.mqtt.MqttHelper
 import com.woleapp.netpos.contactless.network.StormApiClient
 import com.woleapp.netpos.contactless.nibss.NetPosTerminalConfig
 import com.woleapp.netpos.contactless.ui.activities.MainActivity
