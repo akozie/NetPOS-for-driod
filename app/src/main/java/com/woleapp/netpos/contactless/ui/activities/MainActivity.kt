@@ -14,6 +14,7 @@ import android.nfc.NfcAdapter
 import android.nfc.Tag
 import android.nfc.tech.IsoDep
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
@@ -24,6 +25,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import com.danbamitale.epmslib.utils.IsoAccountType
+import com.google.firebase.messaging.FirebaseMessaging
 import com.pixplicity.easyprefs.library.Prefs
 import com.visa.app.ttpkernel.ContactlessKernel
 import com.woleapp.netpos.contactless.R
@@ -354,6 +356,14 @@ class MainActivity @Inject constructor() :
         }
         waitingDialog.setOnDismissListener {
             viewModel.stopNfcReader()
+        }
+
+        FirebaseMessaging.getInstance().token.addOnCompleteListener {
+            if (!it.isSuccessful) {
+                //return@addOnCompleteListener
+            }
+            val token = it.result //this is the token retrieved
+            Log.d("FCM", token)
         }
     }
 

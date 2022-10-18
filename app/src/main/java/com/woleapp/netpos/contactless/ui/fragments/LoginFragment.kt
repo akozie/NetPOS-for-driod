@@ -11,15 +11,12 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.viewModels
 import com.google.gson.JsonObject
-import com.woleapp.netpos.contactless.BuildConfig
 import com.woleapp.netpos.contactless.R
 import com.woleapp.netpos.contactless.databinding.DialogPasswordResetBinding
 import com.woleapp.netpos.contactless.databinding.FragmentLoginBinding
 import com.woleapp.netpos.contactless.model.AuthenticationEventData
 import com.woleapp.netpos.contactless.model.MqttEvent
 import com.woleapp.netpos.contactless.model.MqttEvents
-import com.woleapp.netpos.contactless.model.MqttTopics
-import com.woleapp.netpos.contactless.mqtt.MqttHelper
 import com.woleapp.netpos.contactless.network.StormApiClient
 import com.woleapp.netpos.contactless.nibss.NetPosTerminalConfig
 import com.woleapp.netpos.contactless.ui.activities.MainActivity
@@ -89,7 +86,7 @@ class LoginFragment : BaseFragment() {
             requireActivity().getSystemService(AppCompatActivity.NFC_SERVICE) as NfcManager
         val nfcAdapter = nfcManager.defaultAdapter
         if (nfcAdapter != null) {
-            //Toast.makeText(this, "Device has NFC support", Toast.LENGTH_SHORT).show()
+            // Toast.makeText(this, "Device has NFC support", Toast.LENGTH_SHORT).show()
             if (nfcAdapter.isEnabled) {
                 Toast.makeText(requireContext(), "NFC enabled", Toast.LENGTH_SHORT).show()
                 android.app.AlertDialog.Builder(requireContext())
@@ -136,10 +133,12 @@ class LoginFragment : BaseFragment() {
             it.getContentIfNotHandled()?.let { authenticated ->
                 if (authenticated) {
                     activity?.apply {
-                        startActivity(Intent(this, MainActivity::class.java).apply {
-                            flags =
-                                Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                        })
+                        startActivity(
+                            Intent(this, MainActivity::class.java).apply {
+                                flags =
+                                    Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                            }
+                        )
                         NetPosTerminalConfig.init(applicationContext)
                         val event = MqttEvent<AuthenticationEventData>().apply {
                             this.event = MqttEvents.AUTHENTICATION.event
@@ -152,7 +151,7 @@ class LoginFragment : BaseFragment() {
                             )
                             this.status = "SUCCESS"
                         }
-                        //MqttHelper.init(applicationContext, event, MqttTopics.AUTHENTICATION)
+                        // MqttHelper.init(applicationContext, event, MqttTopics.AUTHENTICATION)
                         finish()
                     }
                 }
@@ -160,8 +159,9 @@ class LoginFragment : BaseFragment() {
         }
         viewModel.passwordResetSent.observe(viewLifecycleOwner) { event ->
             event.getContentIfNotHandled()?.let {
-                if (it && passwordResetDialog.isShowing)
+                if (it && passwordResetDialog.isShowing) {
                     passwordResetDialog.cancel()
+                }
             }
         }
     }

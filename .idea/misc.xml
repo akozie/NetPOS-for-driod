@@ -3,48 +3,61 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
-        <entry key="../../../../../layout/custom_preview.xml" value="0.2246376811594203" />
         <entry key="../../../../layout/custom_preview.xml" value="0.22395833333333334" />
+        <entry key="app/src/firstbank/res/drawable/ic_btn_cancel.xml" value="0.1845" />
+        <entry key="app/src/firstbank/res/drawable/ic_fb_img.xml" value="0.1845" />
+        <entry key="app/src/firstbank/res/layout/activity_authentication.xml" value="0.2947916666666667" />
+        <entry key="app/src/firstbank/res/layout/dashboard_header.xml" value="0.25" />
+        <entry key="app/src/firstbank/res/layout/dialog_select_account_type.xml" value="0.2947916666666667" />
+        <entry key="app/src/firstbank/res/layout/dialog_transaction_result.xml" value="0.2947916666666667" />
+        <entry key="app/src/firstbank/res/layout/fragment_login.xml" value="0.15729166666666666" />
+        <entry key="app/src/firstbank/res/layout/fragment_register.xml" value="0.15729166666666666" />
+        <entry key="app/src/firstbank/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.1" />
         <entry key="app/src/main/res/drawable-v24/ic_cal_clear.xml" value="0.22864583333333333" />
-        <entry key="app/src/main/res/drawable/action_button_background.xml" value="0.24" />
-        <entry key="app/src/main/res/drawable/animated_check.xml" value="0.24" />
-        <entry key="app/src/main/res/drawable/bg_white_background_rounded.xml" value="0.24" />
-        <entry key="app/src/main/res/drawable/bottom_sheet_background.xml" value="0.24" />
-        <entry key="app/src/main/res/drawable/curve_bg.xml" value="0.199" />
-        <entry key="app/src/main/res/drawable/ic_card_approved.xml" value="0.24" />
+        <entry key="app/src/main/res/drawable/ic_btn_cancel.xml" value="0.1845" />
+        <entry key="app/src/main/res/drawable/ic_card_approved.xml" value="0.1" />
+        <entry key="app/src/main/res/drawable/ic_fb_img.xml" value="0.1845" />
+        <entry key="app/src/main/res/drawable/ic_logout.xml" value="0.169" />
+        <entry key="app/src/main/res/drawable/ic_pay_cash_icon.xml" value="0.1" />
+        <entry key="app/src/main/res/drawable/ic_print.xml" value="0.1" />
+        <entry key="app/src/main/res/drawable/ic_print_all.xml" value="0.1" />
+        <entry key="app/src/main/res/drawable/ic_print_one.xml" value="0.1" />
+        <entry key="app/src/main/res/drawable/ic_purchase.xml" value="0.1" />
+        <entry key="app/src/main/res/drawable/ic_trans.xml" value="0.1" />
+        <entry key="app/src/main/res/drawable/ic_write.xml" value="0.1" />
         <entry key="app/src/main/res/drawable/services_edittext_background.xml" value="0.22864583333333333" />
         <entry key="app/src/main/res/drawable/white_custom_progress_bar.xml" value="0.2745" />
         <entry key="app/src/main/res/font/poppins_medium.xml" value="0.325" />
         <entry key="app/src/main/res/layout/activity_authentication.xml" value="0.23072916666666668" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.2947916666666667" />
-        <entry key="app/src/main/res/layout/dialog.xml" value="0.3729166666666667" />
-        <entry key="app/src/main/res/layout/dialog_contatcless_reader.xml" value="0.371875" />
+        <entry key="app/src/main/res/layout/dashboard_header.xml" value="0.1609375" />
+        <entry key="app/src/main/res/layout/dialog.xml" value="0.2947916666666667" />
+        <entry key="app/src/main/res/layout/dialog_contatcless_reader.xml" value="0.2947916666666667" />
+        <entry key="app/src/main/res/layout/dialog_fragment_zenith_mcc.xml" value="0.2947916666666667" />
+        <entry key="app/src/main/res/layout/dialog_password_reset.xml" value="0.2947916666666667" />
         <entry key="app/src/main/res/layout/dialog_print_type.xml" value="0.2947916666666667" />
-        <entry key="app/src/main/res/layout/dialog_select_account_type.xml" value="0.3729166666666667" />
-        <entry key="app/src/main/res/layout/dialog_select_cardscheme.xml" value="0.3651041666666667" />
-        <entry key="app/src/main/res/layout/dialog_transaction_result.xml" value="0.30462962962962964" />
-        <entry key="app/src/main/res/layout/fragment_administrator.xml" value="0.2015625" />
+        <entry key="app/src/main/res/layout/dialog_progress.xml" value="0.2947916666666667" />
+        <entry key="app/src/main/res/layout/dialog_select_account_type.xml" value="0.2947916666666667" />
+        <entry key="app/src/main/res/layout/dialog_select_cardscheme.xml" value="0.2947916666666667" />
+        <entry key="app/src/main/res/layout/dialog_transaction_result.xml" value="0.2947916666666667" />
         <entry key="app/src/main/res/layout/fragment_complete_qr_payment_web_view.xml" value="0.2947916666666667" />
         <entry key="app/src/main/res/layout/fragment_dashboard.xml" value="0.3651041666666667" />
         <entry key="app/src/main/res/layout/fragment_login.xml" value="0.375" />
         <entry key="app/src/main/res/layout/fragment_register.xml" value="0.3951995849609375" />
         <entry key="app/src/main/res/layout/fragment_reprint.xml" value="0.3729166666666667" />
         <entry key="app/src/main/res/layout/fragment_sales.xml" value="0.18541666666666667" />
-        <entry key="app/src/main/res/layout/fragment_transaction_details.xml" value="0.3651041666666667" />
-        <entry key="app/src/main/res/layout/fragment_transaction_history.xml" value="0.3651041666666667" />
-        <entry key="app/src/main/res/layout/fragment_transactions.xml" value="0.2947916666666667" />
-        <entry key="app/src/main/res/layout/layout_barcode_scanner_fragment.xml" value="0.29375" />
-        <entry key="app/src/main/res/layout/layout_enter_otp_fragment.xml" value="0.29375" />
-        <entry key="app/src/main/res/layout/layout_fragment_barcode.xml" value="0.246875" />
+        <entry key="app/src/main/res/layout/item_services_dropdown.xml" value="0.1609375" />
+        <entry key="app/src/main/res/layout/layout_enter_otp_fragment.xml" value="0.178125" />
         <entry key="app/src/main/res/layout/layout_input.xml" value="0.215625" />
-        <entry key="app/src/main/res/layout/layout_loading_dialog.xml" value="0.29375" />
         <entry key="app/src/main/res/layout/layout_password.xml" value="0.3651041666666667" />
-        <entry key="app/src/main/res/layout/layout_verve_card_qr_amount_dialog.xml" value="0.29375" />
+        <entry key="app/src/main/res/layout/layout_service_item.xml" value="0.1609375" />
+        <entry key="app/src/main/res/layout/layout_transaction_item.xml" value="0.2947916666666667" />
+        <entry key="app/src/main/res/layout/layout_verify_utility_payment.xml" value="0.2947916666666667" />
+        <entry key="app/src/main/res/layout/layout_verve_card_qr_amount_dialog.xml" value="0.2947916666666667" />
         <entry key="app/src/main/res/layout/qr_amout_dialog.xml" value="0.2947916666666667" />
-        <entry key="app/src/main/res/layout/transaction_status_modal.xml" value="0.30885416666666665" />
+        <entry key="app/src/main/res/layout/qr_bottom_sheet_dialog.xml" value="0.2947916666666667" />
+        <entry key="app/src/main/res/layout/transaction_status_modal.xml" value="0.2947916666666667" />
         <entry key="app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.37538461538461537" />
-        <entry key="netposbarcodesdk/src/main/res/drawable/ic_qr_borders.xml" value="0.284" />
-        <entry key="netposbarcodesdk/src/main/res/layout/activity_barcode_sdk.xml" value="0.37395833333333334" />
       </map>
     </option>
   </component>

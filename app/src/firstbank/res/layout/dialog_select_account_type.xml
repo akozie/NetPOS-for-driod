@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp">
+
+        <ImageView
+            android:id="@+id/fb_header_image"
+            android:layout_width="@dimen/dimen_50dp"
+            android:layout_height="@dimen/dimen_50dp"
+            android:layout_margin="@dimen/margin_20"
+            android:src="@drawable/ic_netpos_logo"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+        <TextView
+            android:id="@+id/header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:text="@string/select_account_type"
+            android:background="@color/colorPrimary"
+            android:textColor="@color/white"
+            android:textAllCaps="true"
+            android:layout_marginTop="@dimen/margin_20"
+            android:padding="@dimen/margin_10"
+            android:textSize="18sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/fb_header_image"/>
+
+
+        <RadioGroup
+            android:id="@+id/account_types"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:padding="5dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/header">
+
+            <RadioButton
+                android:id="@+id/savings_account"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/savings"
+                android:textAllCaps="true" />
+
+            <RadioButton
+                android:id="@+id/current_account"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/current"
+                android:textAllCaps="true" />
+
+            <RadioButton
+                android:id="@+id/credit_account"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/credit"
+                android:textAllCaps="true"
+                android:visibility="gone" />
+
+            <RadioButton
+                android:id="@+id/bonus_account"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/bonus_account"
+                android:textAllCaps="true"
+                android:visibility="gone" />
+
+            <RadioButton
+                android:id="@+id/investment_account"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/investment_account"
+                android:textAllCaps="true"
+                android:visibility="gone" />
+
+            <RadioButton
+                android:id="@+id/universal_account"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/universal_account"
+                android:textAllCaps="true"
+                android:visibility="gone" />
+
+        </RadioGroup>
+
+
+        <Button
+            android:id="@+id/cancel_button"
+            android:layout_width="@dimen/dimen_30dp"
+            android:layout_height="@dimen/dimen_30dp"
+            android:background="@drawable/ic_btn_cancel"
+            android:paddingStart="@dimen/dimen_16dp"
+            android:layout_marginEnd="@dimen/margin_10"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/fb_image"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scaleType="fitXY"
+            android:src="@drawable/fb_image"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/account_types"
+            app:layout_constraintStart_toStartOf="@+id/account_types"
+            app:layout_constraintTop_toBottomOf="@id/account_types" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

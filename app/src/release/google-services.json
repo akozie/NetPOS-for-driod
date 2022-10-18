@@ -1,0 +1,142 @@
+{
+  "project_info": {
+    "project_number": "983048306918",
+    "project_id": "netposcontactless",
+    "storage_bucket": "netposcontactless.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:983048306918:android:40aaea602e86e83abfbb27",
+        "android_client_info": {
+          "package_name": "com.woleapp.netpos.contactless"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "983048306918-3nd8524b8jqums09f9rau495c47sthjl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBIhdh0G7VzrVjZadvQlnOy6JuJfn5Et6o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "983048306918-3nd8524b8jqums09f9rau495c47sthjl.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:983048306918:android:e7c10802764f9403bfbb27",
+        "android_client_info": {
+          "package_name": "com.woleapp.netpos.contactless.debug"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "983048306918-3nd8524b8jqums09f9rau495c47sthjl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBIhdh0G7VzrVjZadvQlnOy6JuJfn5Et6o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "983048306918-3nd8524b8jqums09f9rau495c47sthjl.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:983048306918:android:07c42f5c58839bc6bfbb27",
+        "android_client_info": {
+          "package_name": "com.woleapp.netpos.contactless.firstbank"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "983048306918-keeiaooeqvgipi48beijvsd2l8i8ce1g.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.woleapp.netpos.contactless.firstbank",
+            "certificate_hash": "d63b0a7a6a6a542ab3bf2133c65462e24660398d"
+          }
+        },
+        {
+          "client_id": "983048306918-3nd8524b8jqums09f9rau495c47sthjl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBIhdh0G7VzrVjZadvQlnOy6JuJfn5Et6o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "983048306918-3nd8524b8jqums09f9rau495c47sthjl.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:983048306918:android:f3281092b50d1141bfbb27",
+        "android_client_info": {
+          "package_name": "com.woleapp.netpos.contactless.firstbank.debug"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "983048306918-1j1t19gcrjgg4rflfdcknqie1hjl1pv7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.woleapp.netpos.contactless.firstbank.debug",
+            "certificate_hash": "d63b0a7a6a6a542ab3bf2133c65462e24660398d"
+          }
+        },
+        {
+          "client_id": "983048306918-3nd8524b8jqums09f9rau495c47sthjl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBIhdh0G7VzrVjZadvQlnOy6JuJfn5Et6o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "983048306918-3nd8524b8jqums09f9rau495c47sthjl.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
