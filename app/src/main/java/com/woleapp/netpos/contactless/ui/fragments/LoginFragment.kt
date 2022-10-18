@@ -11,6 +11,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.viewModels
 import com.google.gson.JsonObject
+import com.woleapp.netpos.contactless.BuildConfig
 import com.woleapp.netpos.contactless.R
 import com.woleapp.netpos.contactless.databinding.DialogPasswordResetBinding
 import com.woleapp.netpos.contactless.databinding.FragmentLoginBinding
@@ -66,6 +67,7 @@ class LoginFragment : BaseFragment() {
         }
 
         binding.register.setOnClickListener {
+//            if (BuildConfig.FLAVOR)
             showFragment(
                 RegisterFragment(),
                 containerViewId = R.id.auth_container,

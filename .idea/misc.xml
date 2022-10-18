@@ -15,6 +15,7 @@
         <entry key="app/src/main/res/drawable/services_edittext_background.xml" value="0.22864583333333333" />
         <entry key="app/src/main/res/drawable/white_custom_progress_bar.xml" value="0.2745" />
         <entry key="app/src/main/res/font/poppins_medium.xml" value="0.325" />
+        <entry key="app/src/main/res/layout/activity_authentication.xml" value="0.23072916666666668" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.2947916666666667" />
         <entry key="app/src/main/res/layout/dialog.xml" value="0.3729166666666667" />
         <entry key="app/src/main/res/layout/dialog_contatcless_reader.xml" value="0.371875" />
@@ -25,7 +26,7 @@
         <entry key="app/src/main/res/layout/fragment_administrator.xml" value="0.2015625" />
         <entry key="app/src/main/res/layout/fragment_complete_qr_payment_web_view.xml" value="0.2947916666666667" />
         <entry key="app/src/main/res/layout/fragment_dashboard.xml" value="0.3651041666666667" />
-        <entry key="app/src/main/res/layout/fragment_login.xml" value="0.1765625" />
+        <entry key="app/src/main/res/layout/fragment_login.xml" value="0.375" />
         <entry key="app/src/main/res/layout/fragment_register.xml" value="0.3951995849609375" />
         <entry key="app/src/main/res/layout/fragment_reprint.xml" value="0.3729166666666667" />
         <entry key="app/src/main/res/layout/fragment_sales.xml" value="0.18541666666666667" />
