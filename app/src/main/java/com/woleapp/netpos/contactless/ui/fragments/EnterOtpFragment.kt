@@ -77,7 +77,7 @@ class EnterOtpFragment @Inject constructor() : BaseFragment() {
                 s?.let {
                     if (it.length == 6) {
                         closeSoftKeyboard(requireContext(), requireActivity())
-                        viewModel.sendOtpForVerveCard(s.toString())
+                        viewModel.sendOtpForVerveCard(s.toString())git status
                         observeServerResponse(
                             viewModel.transactionResponseFromVerve,
                             LoadingDialog(),

@@ -1,411 +1,33 @@
 {
   "project_info": {
-    "project_number": "407232811618",
-    "project_id": "netpos-3345b",
-    "storage_bucket": "netpos-3345b.appspot.com"
+    "project_number": "983048306918",
+    "project_id": "netposcontactless",
+    "storage_bucket": "netposcontactless.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:407232811618:android:72371ee21fcb5ebcf5b73b",
-        "android_client_info": {
-          "package_name": "com.bsystems"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "407232811618-0vb3c3kuvkdd3gu4mqou3a15gtp80od0.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.bsystems",
-            "certificate_hash": "d63b0a7a6a6a542ab3bf2133c65462e24660398d"
-          }
-        },
-        {
-          "client_id": "407232811618-ccp697t0tsad9c53o3k50s46l8s0ugcd.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyBXBvZYFLfY7XIkSAypMcxVT0ArfG_2HmI"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "407232811618-ccp697t0tsad9c53o3k50s46l8s0ugcd.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:407232811618:android:2f60f863a0de30daf5b73b",
-        "android_client_info": {
-          "package_name": "com.woleapp.agency"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "407232811618-h46n2n51f2gqidjhh5fpick1eco635lb.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.woleapp.agency",
-            "certificate_hash": "d63b0a7a6a6a542ab3bf2133c65462e24660398d"
-          }
-        },
-        {
-          "client_id": "407232811618-ccp697t0tsad9c53o3k50s46l8s0ugcd.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyBXBvZYFLfY7XIkSAypMcxVT0ArfG_2HmI"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "407232811618-ccp697t0tsad9c53o3k50s46l8s0ugcd.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:407232811618:android:026abc5fb3d9e03ff5b73b",
-        "android_client_info": {
-          "package_name": "com.woleapp.agency.debug"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "407232811618-4mmqmuhifclr5s2emd2no9lae4mrah6a.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.woleapp.agency.debug",
-            "certificate_hash": "d63b0a7a6a6a542ab3bf2133c65462e24660398d"
-          }
-        },
-        {
-          "client_id": "407232811618-ccp697t0tsad9c53o3k50s46l8s0ugcd.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyBXBvZYFLfY7XIkSAypMcxVT0ArfG_2HmI"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "407232811618-ccp697t0tsad9c53o3k50s46l8s0ugcd.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:407232811618:android:e447cd9ee08dfbcbf5b73b",
-        "android_client_info": {
-          "package_name": "com.woleapp.merchant"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "407232811618-0e9mhj5u99e3nv12ikvhgiir2j5bl8p6.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.woleapp.merchant",
-            "certificate_hash": "d63b0a7a6a6a542ab3bf2133c65462e24660398d"
-          }
-        },
-        {
-          "client_id": "407232811618-ccp697t0tsad9c53o3k50s46l8s0ugcd.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyBXBvZYFLfY7XIkSAypMcxVT0ArfG_2HmI"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "407232811618-ccp697t0tsad9c53o3k50s46l8s0ugcd.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:407232811618:android:d3b2c97c93745116f5b73b",
-        "android_client_info": {
-          "package_name": "com.woleapp.merchant.debug"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "407232811618-ik1tjgru96p0vtepp86fhhs36oktp41o.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.woleapp.merchant.debug",
-            "certificate_hash": "d63b0a7a6a6a542ab3bf2133c65462e24660398d"
-          }
-        },
-        {
-          "client_id": "407232811618-ccp697t0tsad9c53o3k50s46l8s0ugcd.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyBXBvZYFLfY7XIkSAypMcxVT0ArfG_2HmI"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "407232811618-ccp697t0tsad9c53o3k50s46l8s0ugcd.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:407232811618:android:1a8c05a530dd626ef5b73b",
-        "android_client_info": {
-          "package_name": "com.woleapp.netpos"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "407232811618-u782gh30oqn8lsh5kb9nk7vmdtjbb6pd.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.woleapp.netpos",
-            "certificate_hash": "d63b0a7a6a6a542ab3bf2133c65462e24660398d"
-          }
-        },
-        {
-          "client_id": "407232811618-ccp697t0tsad9c53o3k50s46l8s0ugcd.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyBXBvZYFLfY7XIkSAypMcxVT0ArfG_2HmI"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "407232811618-ccp697t0tsad9c53o3k50s46l8s0ugcd.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:407232811618:android:47e44d36848add13f5b73b",
-        "android_client_info": {
-          "package_name": "com.woleapp.netpos.aellacredit"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "407232811618-njkk6hsmgo3nog7qvqlvdko5rhqand5n.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.woleapp.netpos.aellacredit",
-            "certificate_hash": "d63b0a7a6a6a542ab3bf2133c65462e24660398d"
-          }
-        },
-        {
-          "client_id": "407232811618-ccp697t0tsad9c53o3k50s46l8s0ugcd.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyBXBvZYFLfY7XIkSAypMcxVT0ArfG_2HmI"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "407232811618-ccp697t0tsad9c53o3k50s46l8s0ugcd.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:407232811618:android:ee25cee04ec9f28cf5b73b",
-        "android_client_info": {
-          "package_name": "com.woleapp.netpos.aellacredit.debug"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "407232811618-joli8bb53errjjlh5ig49qv8c16103c9.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.woleapp.netpos.aellacredit.debug",
-            "certificate_hash": "87b017d0d2e0395b362b6cfb718cc51faafd1f00"
-          }
-        },
-        {
-          "client_id": "407232811618-ccp697t0tsad9c53o3k50s46l8s0ugcd.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyBXBvZYFLfY7XIkSAypMcxVT0ArfG_2HmI"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "407232811618-ccp697t0tsad9c53o3k50s46l8s0ugcd.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:407232811618:android:7181150bdf37cb5df5b73b",
-        "android_client_info": {
-          "package_name": "com.woleapp.netpos.church"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "407232811618-0uonstfgsndar924tph9n225i6kk60go.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.woleapp.netpos.church",
-            "certificate_hash": "d63b0a7a6a6a542ab3bf2133c65462e24660398d"
-          }
-        },
-        {
-          "client_id": "407232811618-ccp697t0tsad9c53o3k50s46l8s0ugcd.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyBXBvZYFLfY7XIkSAypMcxVT0ArfG_2HmI"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "407232811618-ccp697t0tsad9c53o3k50s46l8s0ugcd.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:407232811618:android:cc1b39cb88ee343ef5b73b",
-        "android_client_info": {
-          "package_name": "com.woleapp.netpos.church.debug"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "407232811618-7rtoesjel7em8ikfddq7dq514s6tlsq2.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.woleapp.netpos.church.debug",
-            "certificate_hash": "d63b0a7a6a6a542ab3bf2133c65462e24660398d"
-          }
-        },
-        {
-          "client_id": "407232811618-ccp697t0tsad9c53o3k50s46l8s0ugcd.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyBXBvZYFLfY7XIkSAypMcxVT0ArfG_2HmI"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "407232811618-ccp697t0tsad9c53o3k50s46l8s0ugcd.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:407232811618:android:453ce588bbd3a830f5b73b",
+        "mobilesdk_app_id": "1:983048306918:android:40aaea602e86e83abfbb27",
         "android_client_info": {
           "package_name": "com.woleapp.netpos.contactless"
         }
       },
       "oauth_client": [
         {
-          "client_id": "407232811618-peupl2ot7npo81emff7tesgual8e5e90.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.woleapp.netpos.contactless",
-            "certificate_hash": "d63b0a7a6a6a542ab3bf2133c65462e24660398d"
-          }
-        },
-        {
-          "client_id": "407232811618-ccp697t0tsad9c53o3k50s46l8s0ugcd.apps.googleusercontent.com",
+          "client_id": "983048306918-3nd8524b8jqums09f9rau495c47sthjl.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBXBvZYFLfY7XIkSAypMcxVT0ArfG_2HmI"
+          "current_key": "AIzaSyBIhdh0G7VzrVjZadvQlnOy6JuJfn5Et6o"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "407232811618-ccp697t0tsad9c53o3k50s46l8s0ugcd.apps.googleusercontent.com",
+              "client_id": "983048306918-3nd8524b8jqums09f9rau495c47sthjl.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
@@ -414,35 +36,27 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:407232811618:android:c1b302f9939dcc08f5b73b",
+        "mobilesdk_app_id": "1:983048306918:android:e7c10802764f9403bfbb27",
         "android_client_info": {
-          "package_name": "com.woleapp.netpos.debug"
+          "package_name": "com.woleapp.netpos.contactless.debug"
         }
       },
       "oauth_client": [
         {
-          "client_id": "407232811618-t7r686o77quls8dp8e32qe8qddgmm2nd.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.woleapp.netpos.debug",
-            "certificate_hash": "d63b0a7a6a6a542ab3bf2133c65462e24660398d"
-          }
-        },
-        {
-          "client_id": "407232811618-ccp697t0tsad9c53o3k50s46l8s0ugcd.apps.googleusercontent.com",
+          "client_id": "983048306918-3nd8524b8jqums09f9rau495c47sthjl.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBXBvZYFLfY7XIkSAypMcxVT0ArfG_2HmI"
+          "current_key": "AIzaSyBIhdh0G7VzrVjZadvQlnOy6JuJfn5Et6o"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "407232811618-ccp697t0tsad9c53o3k50s46l8s0ugcd.apps.googleusercontent.com",
+              "client_id": "983048306918-3nd8524b8jqums09f9rau495c47sthjl.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
@@ -451,35 +65,35 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:407232811618:android:b110c6b871ae0ecbf5b73b",
+        "mobilesdk_app_id": "1:983048306918:android:07c42f5c58839bc6bfbb27",
         "android_client_info": {
-          "package_name": "com.woleapp.netpos.heritage"
+          "package_name": "com.woleapp.netpos.contactless.firstbank"
         }
       },
       "oauth_client": [
         {
-          "client_id": "407232811618-9c4apmde9khnhhtc670950gj22ma6fq8.apps.googleusercontent.com",
+          "client_id": "983048306918-keeiaooeqvgipi48beijvsd2l8i8ce1g.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.woleapp.netpos.heritage",
+            "package_name": "com.woleapp.netpos.contactless.firstbank",
             "certificate_hash": "d63b0a7a6a6a542ab3bf2133c65462e24660398d"
           }
         },
         {
-          "client_id": "407232811618-ccp697t0tsad9c53o3k50s46l8s0ugcd.apps.googleusercontent.com",
+          "client_id": "983048306918-3nd8524b8jqums09f9rau495c47sthjl.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBXBvZYFLfY7XIkSAypMcxVT0ArfG_2HmI"
+          "current_key": "AIzaSyBIhdh0G7VzrVjZadvQlnOy6JuJfn5Et6o"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "407232811618-ccp697t0tsad9c53o3k50s46l8s0ugcd.apps.googleusercontent.com",
+              "client_id": "983048306918-3nd8524b8jqums09f9rau495c47sthjl.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
@@ -488,479 +102,35 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:407232811618:android:6787ece020e5a735f5b73b",
+        "mobilesdk_app_id": "1:983048306918:android:f3281092b50d1141bfbb27",
         "android_client_info": {
-          "package_name": "com.woleapp.netpos.heritage.debug"
+          "package_name": "com.woleapp.netpos.contactless.firstbank.debug"
         }
       },
       "oauth_client": [
         {
-          "client_id": "407232811618-tu68ev9r079ini0jhccn7rndb97nm25r.apps.googleusercontent.com",
+          "client_id": "983048306918-1j1t19gcrjgg4rflfdcknqie1hjl1pv7.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.woleapp.netpos.heritage.debug",
+            "package_name": "com.woleapp.netpos.contactless.firstbank.debug",
             "certificate_hash": "d63b0a7a6a6a542ab3bf2133c65462e24660398d"
           }
         },
         {
-          "client_id": "407232811618-ccp697t0tsad9c53o3k50s46l8s0ugcd.apps.googleusercontent.com",
+          "client_id": "983048306918-3nd8524b8jqums09f9rau495c47sthjl.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBXBvZYFLfY7XIkSAypMcxVT0ArfG_2HmI"
+          "current_key": "AIzaSyBIhdh0G7VzrVjZadvQlnOy6JuJfn5Et6o"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "407232811618-ccp697t0tsad9c53o3k50s46l8s0ugcd.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:407232811618:android:de83442de8aef146f5b73b",
-        "android_client_info": {
-          "package_name": "com.woleapp.netpos.konga"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "407232811618-cb1fq07ou2iqqh02vhnrfj73671na4bb.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.woleapp.netpos.konga",
-            "certificate_hash": "d63b0a7a6a6a542ab3bf2133c65462e24660398d"
-          }
-        },
-        {
-          "client_id": "407232811618-ccp697t0tsad9c53o3k50s46l8s0ugcd.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyBXBvZYFLfY7XIkSAypMcxVT0ArfG_2HmI"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "407232811618-ccp697t0tsad9c53o3k50s46l8s0ugcd.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:407232811618:android:478f1d3116c1405ff5b73b",
-        "android_client_info": {
-          "package_name": "com.woleapp.netpos.konga.debug"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "407232811618-m3dami7ju0u2vpabpm2aape00k1ikifa.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.woleapp.netpos.konga.debug",
-            "certificate_hash": "d63b0a7a6a6a542ab3bf2133c65462e24660398d"
-          }
-        },
-        {
-          "client_id": "407232811618-ccp697t0tsad9c53o3k50s46l8s0ugcd.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyBXBvZYFLfY7XIkSAypMcxVT0ArfG_2HmI"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "407232811618-ccp697t0tsad9c53o3k50s46l8s0ugcd.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:407232811618:android:395cc8911d11098af5b73b",
-        "android_client_info": {
-          "package_name": "com.woleapp.netpos.providus"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "407232811618-gt3q0d7k2ah3fgnmfvsaam1qjfg12c4g.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.woleapp.netpos.providus",
-            "certificate_hash": "d63b0a7a6a6a542ab3bf2133c65462e24660398d"
-          }
-        },
-        {
-          "client_id": "407232811618-ccp697t0tsad9c53o3k50s46l8s0ugcd.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyBXBvZYFLfY7XIkSAypMcxVT0ArfG_2HmI"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "407232811618-ccp697t0tsad9c53o3k50s46l8s0ugcd.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:407232811618:android:76588eb8e7f9a8fbf5b73b",
-        "android_client_info": {
-          "package_name": "com.woleapp.netpos.providus.debug"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "407232811618-fv06a14d5o1q5krr4ra9c1n1b6eg2q8e.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.woleapp.netpos.providus.debug",
-            "certificate_hash": "d63b0a7a6a6a542ab3bf2133c65462e24660398d"
-          }
-        },
-        {
-          "client_id": "407232811618-ccp697t0tsad9c53o3k50s46l8s0ugcd.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyBXBvZYFLfY7XIkSAypMcxVT0ArfG_2HmI"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "407232811618-ccp697t0tsad9c53o3k50s46l8s0ugcd.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:407232811618:android:d4f493de58acfff9f5b73b",
-        "android_client_info": {
-          "package_name": "com.woleapp.netpos.wema"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "407232811618-fngktafipbebh03i7nkb0tg25frbaild.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.woleapp.netpos.wema",
-            "certificate_hash": "d63b0a7a6a6a542ab3bf2133c65462e24660398d"
-          }
-        },
-        {
-          "client_id": "407232811618-ccp697t0tsad9c53o3k50s46l8s0ugcd.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyBXBvZYFLfY7XIkSAypMcxVT0ArfG_2HmI"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "407232811618-ccp697t0tsad9c53o3k50s46l8s0ugcd.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:407232811618:android:ced92fee5fdfa411f5b73b",
-        "android_client_info": {
-          "package_name": "com.woleapp.netpos.wema.debug"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "407232811618-shs5inv47r9rua62jh4nm372sj956len.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.woleapp.netpos.wema.debug",
-            "certificate_hash": "d63b0a7a6a6a542ab3bf2133c65462e24660398d"
-          }
-        },
-        {
-          "client_id": "407232811618-ccp697t0tsad9c53o3k50s46l8s0ugcd.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyBXBvZYFLfY7XIkSAypMcxVT0ArfG_2HmI"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "407232811618-ccp697t0tsad9c53o3k50s46l8s0ugcd.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:407232811618:android:6186b67d498ab491f5b73b",
-        "android_client_info": {
-          "package_name": "com.woleapp.netpos.wemaagent"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "407232811618-l170ban41cp7ppd7mverolpr8dnldrck.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.woleapp.netpos.wemaagent",
-            "certificate_hash": "d63b0a7a6a6a542ab3bf2133c65462e24660398d"
-          }
-        },
-        {
-          "client_id": "407232811618-ccp697t0tsad9c53o3k50s46l8s0ugcd.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyBXBvZYFLfY7XIkSAypMcxVT0ArfG_2HmI"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "407232811618-ccp697t0tsad9c53o3k50s46l8s0ugcd.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:407232811618:android:854efa2ffcdc5111f5b73b",
-        "android_client_info": {
-          "package_name": "com.woleapp.netpos.wemaagent.debug"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "407232811618-qmpre9r07c8limnqu2hkvome1m9n17uq.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.woleapp.netpos.wemaagent.debug",
-            "certificate_hash": "d63b0a7a6a6a542ab3bf2133c65462e24660398d"
-          }
-        },
-        {
-          "client_id": "407232811618-ccp697t0tsad9c53o3k50s46l8s0ugcd.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyBXBvZYFLfY7XIkSAypMcxVT0ArfG_2HmI"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "407232811618-ccp697t0tsad9c53o3k50s46l8s0ugcd.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:407232811618:android:3641ea7b049640b3f5b73b",
-        "android_client_info": {
-          "package_name": "com.woleapp.netpos.zenith"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "407232811618-038v4hlmo9b70cmnr5lafij74kfd2kna.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.woleapp.netpos.zenith",
-            "certificate_hash": "d63b0a7a6a6a542ab3bf2133c65462e24660398d"
-          }
-        },
-        {
-          "client_id": "407232811618-ccp697t0tsad9c53o3k50s46l8s0ugcd.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyBXBvZYFLfY7XIkSAypMcxVT0ArfG_2HmI"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "407232811618-ccp697t0tsad9c53o3k50s46l8s0ugcd.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:407232811618:android:5f031a94d3e57a18f5b73b",
-        "android_client_info": {
-          "package_name": "com.woleapp.netpos.zenith.debug"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "407232811618-leggqlcuhqikbgb24mv0i9898og2rhue.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.woleapp.netpos.zenith.debug",
-            "certificate_hash": "d63b0a7a6a6a542ab3bf2133c65462e24660398d"
-          }
-        },
-        {
-          "client_id": "407232811618-ccp697t0tsad9c53o3k50s46l8s0ugcd.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyBXBvZYFLfY7XIkSAypMcxVT0ArfG_2HmI"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "407232811618-ccp697t0tsad9c53o3k50s46l8s0ugcd.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:407232811618:android:70ebb0936be19027f5b73b",
-        "android_client_info": {
-          "package_name": "com.woleapp.zenith"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "407232811618-mvo5q2620m5v2892pvhc612ardruf4c1.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.woleapp.zenith",
-            "certificate_hash": "d63b0a7a6a6a542ab3bf2133c65462e24660398d"
-          }
-        },
-        {
-          "client_id": "407232811618-ccp697t0tsad9c53o3k50s46l8s0ugcd.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyBXBvZYFLfY7XIkSAypMcxVT0ArfG_2HmI"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "407232811618-ccp697t0tsad9c53o3k50s46l8s0ugcd.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:407232811618:android:423f0edc16119872f5b73b",
-        "android_client_info": {
-          "package_name": "com.woleapp.zenith.debug"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "407232811618-udjmq91eeuf3crgjaprvr6lnti4bpelb.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.woleapp.zenith.debug",
-            "certificate_hash": "87b017d0d2e0395b362b6cfb718cc51faafd1f00"
-          }
-        },
-        {
-          "client_id": "407232811618-ccp697t0tsad9c53o3k50s46l8s0ugcd.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyBXBvZYFLfY7XIkSAypMcxVT0ArfG_2HmI"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "407232811618-ccp697t0tsad9c53o3k50s46l8s0ugcd.apps.googleusercontent.com",
+              "client_id": "983048306918-3nd8524b8jqums09f9rau495c47sthjl.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
