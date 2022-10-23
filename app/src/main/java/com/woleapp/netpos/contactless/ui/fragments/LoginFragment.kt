@@ -64,7 +64,6 @@ class LoginFragment : BaseFragment() {
         }
 
         binding.register.setOnClickListener {
-//            if (BuildConfig.FLAVOR)
             showFragment(
                 RegisterFragment(),
                 containerViewId = R.id.auth_container,

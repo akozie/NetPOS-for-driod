@@ -36,6 +36,7 @@ import com.woleapp.netpos.contactless.util.HISTORY_ACTION_REFUND
 import com.woleapp.netpos.contactless.util.HISTORY_ACTION_REVERSAL
 import com.woleapp.netpos.contactless.util.RandomPurposeUtil.observeServerResponse
 import com.woleapp.netpos.contactless.util.RandomPurposeUtil.stringToBase64
+import com.woleapp.netpos.contactless.util.Singletons
 import com.woleapp.netpos.contactless.viewmodels.ScanQrViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -52,9 +53,14 @@ class TransactionsFragment @Inject constructor() : BaseFragment() {
     private lateinit var verveCardQrAmoutDialogBinding: LayoutVerveCardQrAmountDialogBinding
     private lateinit var qrAmountDialog: androidx.appcompat.app.AlertDialog
     private lateinit var qrAmountDialogForVerveCard: androidx.appcompat.app.AlertDialog
+    private lateinit var requestNarration: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        requestNarration = Singletons.getCurrentlyLoggedInUser()?.mid?.let {
+            "$it:${Singletons.getCurrentlyLoggedInUser()?.terminal_id}:${BuildConfig.STRING_MPGS_TAG}"
+        } ?: ""
 
         requireActivity().supportFragmentManager.setFragmentResultListener(
             STRING_QR_READ_RESULT_REQUEST_KEY,
@@ -223,7 +229,8 @@ class TransactionsFragment @Inject constructor() : BaseFragment() {
                     PostQrToServerModel(
                         it,
                         qrData.data,
-                        merchantId = BuildConfig.STRING_MERCHANT_ID
+                        merchantId = BuildConfig.STRING_MERCHANT_ID,
+                        narration = requestNarration
                     )
                 scanQrViewModel.setScannedQrIsVerveCard(false)
                 scanQrViewModel.postScannedQrRequestToServer(qrDataToSendToBackend)
@@ -262,7 +269,8 @@ class TransactionsFragment @Inject constructor() : BaseFragment() {
                                 it,
                                 qrData.data,
                                 merchantId = BuildConfig.STRING_MERCHANT_ID,
-                                padding = formattedPadding
+                                padding = formattedPadding,
+                                narration = requestNarration
                             )
                         scanQrViewModel.setScannedQrIsVerveCard(true)
                         scanQrViewModel.saveTheQrToSharedPrefs(qrDataToSendToBackend.copy(orderId = getGUID()))

@@ -8,22 +8,23 @@ import androidx.appcompat.widget.SearchView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.DividerItemDecoration
+import com.danbamitale.epmslib.entities.TransactionResponse
 import com.woleapp.netpos.contactless.R
+import com.woleapp.netpos.contactless.adapter.TransactionClickListener
 import com.woleapp.netpos.contactless.adapter.TransactionsAdapter
 import com.woleapp.netpos.contactless.database.AppDatabase
 import com.woleapp.netpos.contactless.databinding.FragmentTransactionHistoryBinding
-import com.woleapp.netpos.contactless.util.HISTORY_ACTION
-import com.woleapp.netpos.contactless.util.HISTORY_ACTION_DEFAULT
-import com.woleapp.netpos.contactless.util.HISTORY_ACTION_EOD
-import com.woleapp.netpos.contactless.util.HISTORY_ACTION_PREAUTH
+import com.woleapp.netpos.contactless.util.*
 import com.woleapp.netpos.contactless.viewmodels.TransactionsViewModel
 
 class TransactionHistoryFragment : BaseFragment() {
+    private lateinit var globalAction: String
 
     companion object {
         fun newInstance(action: String = HISTORY_ACTION_DEFAULT) =
             TransactionHistoryFragment().apply {
                 arguments = Bundle().apply {
+                    globalAction = action
                     putString(HISTORY_ACTION, action)
                 }
             }
@@ -49,6 +50,14 @@ class TransactionHistoryFragment : BaseFragment() {
             binding.historyHeader.text = getString(R.string.history_header_template, action)
         }
         viewModel.setAction(action)
+        val adapterListener = object : TransactionClickListener {
+            override fun invoke(p1: TransactionResponse) {
+                viewModel.setSelectedTransaction(p1)
+                viewModel.setAction(HISTORY_ACTION_REPRINT)
+                globalAction = HISTORY_ACTION_REPRINT
+                addFragmentWithoutRemove(TransactionDetailsFragment())
+            }
+        }
         if (action == HISTORY_ACTION_PREAUTH) {
             val header = "Select PREAUTH Transaction"
             binding.historyHeader.text = header
@@ -60,6 +69,8 @@ class TransactionHistoryFragment : BaseFragment() {
             binding.historyHeader.text = header
             binding.historyButton.visibility = View.GONE
             binding.searchButton.visibility = View.GONE
+            viewModel.setAction(HISTORY_ACTION_REPRINT)
+            adapter = TransactionsAdapter(adapterListener)
         }
         adapter = TransactionsAdapter {
             viewModel.setSelectedTransaction(it)
@@ -89,6 +100,7 @@ class TransactionHistoryFragment : BaseFragment() {
         } else {
             val eodList = viewModel.getEodList()
             adapter.submitList(eodList)
+            adapter.notifyDataSetChanged()
         }
         setSelectedTab()
         binding.transactionSearch.setOnQueryTextListener(object : SearchView.OnQueryTextListener {

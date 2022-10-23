@@ -4,12 +4,12 @@
     <dimen name="text_size_16sp">16sp</dimen>
     <dimen name="margin_15">15dp</dimen>
     <dimen name="margin_10">10dp</dimen>
-    <dimen name="dimen_10dp">10.0dip</dimen>
-    <dimen name="dimen_12dp">12.0dip</dimen>
-    <dimen name="dimen_15dp">15.0dip</dimen>
-    <dimen name="dimen_16dp">16.0dip</dimen>
-    <dimen name="dimen_20dp">20.0dip</dimen>
-    <dimen name="dimen_25dp">25.0dip</dimen>
+    <dimen name="dimen_10dp">10.0dp</dimen>
+    <dimen name="dimen_12dp">12.0dp</dimen>
+    <dimen name="dimen_15dp">15.0dp</dimen>
+    <dimen name="dimen_16dp">16.0dp</dimen>
+    <dimen name="dimen_20dp">20.0dp</dimen>
+    <dimen name="dimen_25dp">25.0dp</dimen>
     <dimen name="dimen_2dp">2.6999817dip</dimen>
     <dimen name="dimen_30dp">30.0dip</dimen>
     <dimen name="dimen_32dp">32.0dip</dimen>
@@ -32,4 +32,9 @@
     <dimen name="dimen_20sp">20sp</dimen>
     <dimen name="dimen_18sp">18sp</dimen>
     <dimen name="dimen_22sp">22sp</dimen>
+    <dimen name="dimen_16sp">16sp</dimen>
+    <dimen name="dimen_1dp">1dp</dimen>
+    <dimen name="dimen_120dp">120dp</dimen>
+    <dimen name="dimen_110dp">110dp</dimen>
+    <dimen name="dimen_45dp">45dp</dimen>
 </resources>

@@ -164,6 +164,7 @@ class SalesFragment : BaseFragment() {
 
         viewModel.showPrintDialog.observe(viewLifecycleOwner) { event ->
             event.getContentIfNotHandled()?.let {
+                nfcCardReaderViewModel.setLastPosTransactionResponse(viewModel.lastPosTransaction.value!!)
                 nfcCardReaderViewModel.prepareSMS(it)
             }
         }
@@ -335,43 +336,6 @@ class SalesFragment : BaseFragment() {
                     Timber.e("Error: ${it.localizedMessage}")
                     requireActivity().onBackPressed()
                 }).disposeWith(compositeDisposable)
-
-            /*Single.fromCallable {
-                Socket().run {
-                    connect(InetSocketAddress("vend.netpluspay.com", 3535), 30_000)
-                    soTimeout = 30_000
-                    val reader = BufferedReader(InputStreamReader(getInputStream()))
-                    val firstData = reader.readLine()
-                    Timber.e(firstData)
-                    val printWriter = PrintWriter(getOutputStream(), true)
-                    val out = JsonObject().apply {
-                        addProperty("serial_number", NetPosSdk.getDeviceSerial())
-                        addProperty("status", "")
-                    }.toString()
-                    printWriter.println(out)
-                    reader.readLine()
-                }
-            }.subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .doFinally {
-                    progressBar.dismiss()
-                }.flatMap {
-                    Timber.e(it)
-                    Single.just(Singletons.gson.fromJson(it, Vend::class.java))
-                }
-                .subscribe { t1, t2 ->
-                    t1?.let {
-                        Timber.e(it.toString())
-                        Toast.makeText(context, "received", Toast.LENGTH_SHORT).show()
-                        Toast.makeText(context, it.amount.toString(), Toast.LENGTH_LONG).show()
-                        binding.priceTextbox.setText(it.amount.toLong().toString())
-
-                    }
-                    t2?.let {
-                        Toast.makeText(context, it.localizedMessage, Toast.LENGTH_SHORT).show()
-                        Timber.e(it)
-                    }
-                }.disposeWith(compositeDisposable)*/
         }
     }
 

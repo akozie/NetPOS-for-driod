@@ -171,7 +171,6 @@ class TransactionsViewModel : ViewModel() {
             .apply {
                 this.cardExpiry = ""
             }
-
         _showPrintDialog.postValue(
             Event(transactionResponse.buildSMSText().toString())
         )

@@ -12,7 +12,7 @@ import com.woleapp.netpos.contactless.util.formatDate
 
 typealias TransactionClickListener = (TransactionResponse) -> Unit
 
-private object TransactionItemDiffUtil : DiffUtil.ItemCallback<TransactionResponse>() {
+object TransactionItemDiffUtil : DiffUtil.ItemCallback<TransactionResponse>() {
     override fun areItemsTheSame(
         oldItem: TransactionResponse,
         newItem: TransactionResponse

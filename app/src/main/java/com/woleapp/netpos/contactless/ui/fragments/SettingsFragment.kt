@@ -12,8 +12,8 @@ class SettingsFragment : PreferenceFragmentCompat() {
         val sharedPreferences =
             PreferenceManager.getDefaultSharedPreferences(requireContext())
         sharedPreferences.registerOnSharedPreferenceChangeListener { prefs, key ->
-            //Timber.e(Prefs.contains(key).toString())
-            //Timber.e(Prefs.getString(key, ""))
+            // Timber.e(Prefs.contains(key).toString())
+            // Timber.e(Prefs.getString(key, ""))
         }
     }
 }

@@ -57,6 +57,7 @@ android {
         buildConfigField("String", "STRING_GET_QR_BASE_URL", "\"${prop.getProperty("STRING_GET_QR_BASE_URL")}\"")
         buildConfigField("String", "STRING_MERCHANT_ID", "\"${prop.getProperty("STRING_MERCHANT_ID")}\"")
         buildConfigField("String", "STRING_SEND_VERVE_OTP_BASE_URL", "\"${prop.getProperty("STRING_SEND_VERVE_OTP_BASE_URL")}\"")
+        buildConfigField("String", "STRING_MPGS_TAG", "\"${prop.getProperty("STRING_MPGS_TAG")}\"")
 
         buildConfigField("String", "STRING_WEB_VIEW_BASE_URL", "\"${prop.get("STRING_WEB_VIEW_BASE_URL")}\"")
     }
