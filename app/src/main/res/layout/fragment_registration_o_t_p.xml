@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white"
+        android:clickable="true"
+        android:focusable="true"
+        tools:context=".ui.fragments.RegistrationOTPFragment">
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/poppins_bold"
+            android:text="@string/verify"
+            android:layout_margin="@dimen/dimen_20dp"
+            android:textSize="@dimen/dimen_50sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dimen_20dp"
+            android:fontFamily="@font/poppins_medium"
+            android:text="@string/otp_here"
+            android:textSize="@dimen/dimen_24sp"
+            app:layout_constraintStart_toStartOf="@+id/textView"
+            app:layout_constraintTop_toBottomOf="@+id/textView" />
+
+        <com.chaos.view.PinView
+            android:id="@+id/pinView"
+            style="@style/PinWidget.PinView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dimen_30dp"
+            android:cursorVisible="true"
+            android:elevation="@dimen/dimen_10dp"
+            android:gravity="center_horizontal"
+            android:inputType="numberPassword"
+            android:itemBackground="@color/colorPrimary"
+            android:textColor="@color/white"
+            android:textSize="@dimen/dimen_18sp"
+            app:cursorColor="@color/white"
+            app:hideLineWhenFilled="true"
+            app:itemCount="6"
+            app:itemHeight="@dimen/dimen_50dp"
+            app:itemRadius="@dimen/dimen_10dp"
+            app:itemSpacing="@dimen/dimen_10dp"
+            app:itemWidth="@dimen/dimen_50dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView2"
+            app:lineColor="@color/white"
+            app:viewType="rectangle" />
+
+        <TextView
+            android:id="@+id/resend_otp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dimen_15dp"
+            android:fontFamily="@font/poppins"
+            android:text="@string/resend_code"
+            android:textSize="@dimen/dimen_18sp"
+            app:layout_constraintEnd_toEndOf="@+id/pinView"
+            app:layout_constraintStart_toStartOf="@+id/pinView"
+            app:layout_constraintTop_toBottomOf="@+id/pinView" />
+
+        <TextView
+            android:id="@+id/otpResent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dimen_10dp"
+            android:text="@string/otp_resent"
+            android:textColor="@color/failed"
+            android:visibility="invisible"
+            app:layout_constraintEnd_toEndOf="@+id/resend_otp"
+            app:layout_constraintStart_toStartOf="@+id/resend_otp"
+            app:layout_constraintTop_toBottomOf="@+id/resend_otp" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

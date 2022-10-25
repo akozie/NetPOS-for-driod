@@ -161,4 +161,7 @@
     <string name="otp_here">Enter the OTP sent to you Here…</string>
     <string name="resend_code">Didn\'t Receive Code? Resend it</string>
     <string name="otp_resent">A fresh OTP has been sent to you...</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="password">Password</string>
+    <string name="are_you_an_existing_customer">Are you an existing customer?</string>
 </resources>

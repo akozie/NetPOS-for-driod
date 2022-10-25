@@ -106,6 +106,18 @@ android {
             dimension "whiteLabel"
             applicationIdSuffix ".firstbank"
         }
+        providus {
+            dimension "whiteLabel"
+            applicationIdSuffix ".providus"
+        }
+        wemabank {
+            dimension "whiteLabel"
+            applicationIdSuffix ".wemabank"
+        }
+        fcmb {
+            dimension "whiteLabel"
+            applicationIdSuffix ".fcmb"
+        }
     }
     variantFilter { variant ->
         def name_types = variant.flavors*.name
@@ -124,6 +136,9 @@ android {
             java.srcDirs('src/default/java')
         }
         firstbank {
+            java.srcDirs('src/default/java')
+        }
+        providus {
             java.srcDirs('src/default/java')
         }
     }
