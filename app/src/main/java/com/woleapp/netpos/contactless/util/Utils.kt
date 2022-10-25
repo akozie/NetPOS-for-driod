@@ -1,6 +1,5 @@
 package com.woleapp.netpos.contactless.util
 
-
 import android.content.IntentFilter
 import android.nfc.NfcAdapter
 import android.nfc.Tag
@@ -9,8 +8,9 @@ import android.nfc.tech.MifareClassic
 import android.nfc.tech.MifareUltralight
 import android.nfc.tech.NfcA
 import timber.log.Timber
+import java.text.SimpleDateFormat
+import java.util.*
 import kotlin.experimental.and
-
 
 fun dumpTagData(tag: Tag): String {
     Timber.e("dump tag")
@@ -122,9 +122,25 @@ val NFC_INTENT_FILTER = arrayOf(
 )
 val TECH_LIST = arrayOf(
     arrayOf(
-        NfcA::class.java.name, IsoDep::class.java.name
+        NfcA::class.java.name,
+        IsoDep::class.java.name
     )
 )
 
 const val NFC_A_TAG = "TAG: Tech [android.nfc.tech.IsoDep, android.nfc.tech.NfcA]"
 const val NFC_B_TAG = "TAG: Tech [android.nfc.tech.IsoDep, android.nfc.tech.NfcB]"
+
+fun getCurrentDateTimeAsFormattedString(): String {
+    val formattedTime =
+        SimpleDateFormat(
+            "yyyy-MM-dd hh:mm a",
+            Locale.getDefault()
+        ).format(System.currentTimeMillis())
+            .format(Date())
+
+    return formattedTime.replace(
+        formattedTime.takeLast(3),
+        "_${formattedTime.takeLast(3).trim()}"
+    ).replace(":", "_")
+        .replace("-", "_").replace(" ", "_at_")
+}

@@ -13,6 +13,7 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
@@ -20,7 +21,6 @@ import com.woleapp.netpos.contactless.R
 import com.woleapp.netpos.contactless.model.*
 import com.woleapp.netpos.contactless.ui.dialog.LoadingDialog
 import com.woleapp.netpos.contactless.util.AppConstants.STRING_LOADING_DIALOG_TAG
-import timber.log.Timber
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -36,7 +36,7 @@ object RandomPurposeUtil {
         return String(decodedString)
     }
 
-    fun Fragment.showSnackBar(rootView: View, message: String) {
+    fun LifecycleOwner.showSnackBar(rootView: View, message: String) {
         Snackbar.make(rootView, message, Snackbar.LENGTH_LONG).show()
     }
 

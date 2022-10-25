@@ -9,10 +9,8 @@ import com.danbamitale.epmslib.entities.* // ktlint-disable no-wildcard-imports
 import com.danbamitale.epmslib.processors.TransactionProcessor
 import com.danbamitale.epmslib.utils.IsoAccountType
 import com.danbamitale.epmslib.utils.MessageReasonCode
-import com.google.gson.Gson
 import com.pixplicity.easyprefs.library.Prefs
 import com.woleapp.netpos.contactless.database.AppDatabase
-import com.woleapp.netpos.contactless.model.QrTransactionResponseModel
 import com.woleapp.netpos.contactless.nibss.NetPosTerminalConfig
 import com.woleapp.netpos.contactless.util.* // ktlint-disable no-wildcard-imports
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -35,6 +33,7 @@ class SalesViewModel @Inject constructor() : ViewModel() {
     private val compositeDisposable: CompositeDisposable by lazy { CompositeDisposable() }
     val transactionState = MutableLiveData(STATE_PAYMENT_STAND_BY)
     private val lastTransactionResponse = MutableLiveData<TransactionResponse>()
+    val lastPosTransaction: LiveData<TransactionResponse> get() = lastTransactionResponse
     val amount: MutableLiveData<String> = MutableLiveData<String>("")
     val cashback: MutableLiveData<String> = MutableLiveData<String>("")
     var amountLong = 0L
@@ -45,6 +44,8 @@ class SalesViewModel @Inject constructor() : ViewModel() {
     private var isoAccountType: IsoAccountType? = null
     private var cardScheme: String? = null
     private val _showPrintDialog = MutableLiveData<Event<String>>()
+    val showPrintDialog: LiveData<Event<String>>
+        get() = _showPrintDialog
     private var amountDbl: Double = 0.0
     private val _shouldRefreshNibssKeys = MutableLiveData<Event<Boolean>>()
     val shouldRefreshNibssKeys: LiveData<Event<Boolean>>
@@ -65,9 +66,6 @@ class SalesViewModel @Inject constructor() : ViewModel() {
     val toastMessage: LiveData<Event<String>>
         get() = _toastMessage
     private val _getCardData = MutableLiveData<Event<Boolean>>()
-
-    val showPrintDialog: LiveData<Event<String>>
-        get() = _showPrintDialog
 
     val getCardData: LiveData<Event<Boolean>>
         get() = _getCardData

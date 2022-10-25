@@ -9,7 +9,10 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent">
 
         <com.airbnb.lottie.LottieAnimationView
             android:id="@+id/statusIconLAV"
@@ -43,9 +46,8 @@
             android:layout_marginTop="@dimen/dimen_20dp"
             android:layout_marginEnd="@dimen/margin_10"
             android:fontFamily="@font/poppins_bold"
-            android:layout_marginBottom="@dimen/dimen_50dp"
-            android:textSize="30sp"
             android:paddingHorizontal="@dimen/dimen_4dp"
+            android:textSize="30sp"
             android:textStyle="bold|italic"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@+id/statusIconLAV"
@@ -68,13 +70,39 @@
             android:id="@+id/print_receipt"
             android:layout_width="@dimen/dimen_40dp"
             android:layout_height="@dimen/dimen_40dp"
-            android:layout_marginStart="@dimen/margin_10"
-            android:contentDescription="@string/print_receipt"
-            app:layout_constraintBottom_toBottomOf="@+id/success_failed"
-            app:layout_constraintEnd_toEndOf="@+id/cancel_button"
-            app:layout_constraintStart_toEndOf="@+id/success_failed"
-            app:layout_constraintTop_toTopOf="@+id/success_failed"
-            app:srcCompat="@drawable/ic_baseline_print_24" />
+            android:layout_marginTop="@dimen/dimen_20dp"
+            android:layout_marginBottom="@dimen/dimen_40dp"
+            android:contentDescription="@string/send_receipt_as_message"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/download_receipt"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/success_failed"
+            app:srcCompat="@drawable/ic_message" />
+
+        <ImageView
+            android:id="@+id/download_receipt"
+            android:layout_width="@dimen/dimen_40dp"
+            android:layout_height="@dimen/dimen_40dp"
+            app:layout_constraintBottom_toBottomOf="@+id/print_receipt"
+            app:layout_constraintEnd_toStartOf="@+id/share_receipt"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/print_receipt"
+            app:layout_constraintTop_toTopOf="@+id/print_receipt"
+            app:srcCompat="@drawable/ic_download"
+            android:contentDescription="@string/download" />
+
+        <ImageView
+            android:id="@+id/share_receipt"
+            android:layout_width="@dimen/dimen_40dp"
+            android:layout_height="@dimen/dimen_40dp"
+            app:layout_constraintBottom_toBottomOf="@+id/download_receipt"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/download_receipt"
+            app:layout_constraintTop_toTopOf="@+id/download_receipt"
+            app:srcCompat="@drawable/ic_share"
+            android:contentDescription="@string/share" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

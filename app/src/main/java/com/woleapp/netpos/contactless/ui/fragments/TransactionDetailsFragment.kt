@@ -93,6 +93,7 @@ class TransactionDetailsFragment : BaseFragment() {
             gotoAction { viewModel.doSaleCompletion(requireContext()) }
         }
         binding.actionButton.setOnClickListener {
+            nfcCardReaderViewModel.setLastPosTransactionResponse(viewModel.lastTransactionResponse.value!!)
             viewModel.performAction()
         }
         binding.details.text = viewModel.lastTransactionResponse.value!!.builder().toString()

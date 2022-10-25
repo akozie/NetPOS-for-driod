@@ -52,8 +52,8 @@ object AppModule {
         @Named("headerInterceptor") headerInterceptor: Interceptor
     ): OkHttpClient =
         OkHttpClient().newBuilder()
-            .connectTimeout(20, TimeUnit.SECONDS)
-            .readTimeout(20, TimeUnit.SECONDS)
+            .connectTimeout(60, TimeUnit.SECONDS)
+            .readTimeout(60, TimeUnit.SECONDS)
             .retryOnConnectionFailure(true)
             .addInterceptor(headerInterceptor)
             .addInterceptor(loggingInterceptor)
@@ -66,8 +66,8 @@ object AppModule {
         @Named("loggingInterceptor") loggingInterceptor: Interceptor
     ): OkHttpClient =
         OkHttpClient().newBuilder()
-            .connectTimeout(20, TimeUnit.SECONDS)
-            .readTimeout(20, TimeUnit.SECONDS)
+            .connectTimeout(60, TimeUnit.SECONDS)
+            .readTimeout(60, TimeUnit.SECONDS)
             .retryOnConnectionFailure(true)
             .addInterceptor(loggingInterceptor)
             .build()

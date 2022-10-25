@@ -30,10 +30,7 @@ import com.pixplicity.easyprefs.library.Prefs
 import com.visa.app.ttpkernel.ContactlessKernel
 import com.woleapp.netpos.contactless.R
 import com.woleapp.netpos.contactless.app.NetPosApp
-import com.woleapp.netpos.contactless.databinding.ActivityMainBinding
-import com.woleapp.netpos.contactless.databinding.DialogContatclessReaderBinding
-import com.woleapp.netpos.contactless.databinding.DialogSelectAccountTypeBinding
-import com.woleapp.netpos.contactless.databinding.DialogTransactionResultBinding
+import com.woleapp.netpos.contactless.databinding.* // ktlint-disable no-wildcard-imports
 import com.woleapp.netpos.contactless.model.User
 import com.woleapp.netpos.contactless.mqtt.MqttHelper
 import com.woleapp.netpos.contactless.network.StormApiClient
@@ -45,11 +42,13 @@ import com.woleapp.netpos.contactless.taponphone.visa.NfcPaymentType
 import com.woleapp.netpos.contactless.ui.dialog.PasswordDialog
 import com.woleapp.netpos.contactless.ui.fragments.DashboardFragment
 import com.woleapp.netpos.contactless.util.* // ktlint-disable no-wildcard-imports
+import com.woleapp.netpos.contactless.util.RandomPurposeUtil.showSnackBar
 import com.woleapp.netpos.contactless.util.Singletons.gson
 import com.woleapp.netpos.contactless.viewmodels.NfcCardReaderViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import pub.devrel.easypermissions.EasyPermissions
 import timber.log.Timber
+import java.io.File
 import javax.inject.Inject
 
 @Suppress("DEPRECATION")
@@ -59,9 +58,11 @@ class MainActivity @Inject constructor() :
     EasyPermissions.PermissionCallbacks,
     NfcAdapter.ReaderCallback {
 
+    private lateinit var receiptPdf: File
     private var progressDialog: ProgressDialog? = null
     private lateinit var alertDialog: AlertDialog
     private lateinit var binding: ActivityMainBinding
+    private lateinit var pdfView: LayoutPosReceiptPdfBinding
     private lateinit var dialogContactlessReaderBinding: DialogContatclessReaderBinding
     private val viewModel by viewModels<NfcCardReaderViewModel>()
     private val contactlessKernel: ContactlessKernel by lazy {
@@ -158,7 +159,7 @@ class MainActivity @Inject constructor() :
     }
 
     private fun resolveIntent(intent: Intent) {
-        Timber.e("reaolve intent")
+        Timber.e("resolve intent")
         // intent.action
         val tag: Tag? = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG) as? Tag
         tag?.let {
@@ -209,6 +210,7 @@ class MainActivity @Inject constructor() :
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        pdfView = LayoutPosReceiptPdfBinding.inflate(layoutInflater)
         NetPosApp.INSTANCE.initMposLibrary(this)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         dialogContactlessReaderBinding =
@@ -341,16 +343,37 @@ class MainActivity @Inject constructor() :
         }.create()
         receiptAlertDialog.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
         viewModel.showPrintDialog.observe(this) { event ->
-            Timber.d("SHOW_QR_RECEIPT=====>YES_CALLED_FROM_MAIN_ACTIVITY")
             event.getContentIfNotHandled()?.let {
-                Timber.d("SHOW_QR_RECEIPT=====>YES_CALLED_FROM_MAIN_ACTIVITY2")
-                receiptAlertDialog.apply {
-                    receiptDialogBinding.transactionContent.text = it
-                    show()
-                }
-                receiptDialogBinding.apply {
-                    progress.visibility = View.GONE
-                    sendButton.isEnabled = true
+                when (Prefs.getString(PREF_PRINTER_SETTINGS, "nothing_is_there")) {
+                    PREF_VALUE_PRINT_DOWNLOAD -> {
+                        downloadPdfImpl()
+                        showSnackBar(
+                            binding.root,
+                            getString(R.string.fileDownloaded)
+                        )
+                    }
+                    PREF_VALUE_PRINT_SHARE -> {
+                        downloadPdfImpl()
+                        sharePdf(receiptPdf, this)
+                    }
+                    PREF_VALUE_PRINT_DOWNLOAD_AND_SHARE -> {
+                        downloadPdfImpl()
+                        showSnackBar(
+                            binding.root,
+                            getString(R.string.fileDownloaded)
+                        )
+                        sharePdf(receiptPdf, this)
+                    }
+                    else -> {
+                        receiptAlertDialog.apply {
+                            receiptDialogBinding.transactionContent.text = it
+                            show()
+                        }
+                        receiptDialogBinding.apply {
+                            progress.visibility = View.GONE
+                            sendButton.isEnabled = true
+                        }
+                    }
                 }
             }
         }
@@ -360,9 +383,9 @@ class MainActivity @Inject constructor() :
 
         FirebaseMessaging.getInstance().token.addOnCompleteListener {
             if (!it.isSuccessful) {
-                //return@addOnCompleteListener
+                // return@addOnCompleteListener
             }
-            val token = it.result //this is the token retrieved
+            val token = it.result // this is the token retrieved
             Log.d("FCM", token)
         }
     }
@@ -499,6 +522,22 @@ class MainActivity @Inject constructor() :
                     nfcAdapter?.disableReaderMode(this)
                 }
             }
+        }
+    }
+
+    private fun downloadPdfImpl() {
+        initViewsForPdfLayout(
+            pdfView,
+            viewModel.lastPosTransactionResponse.value
+        )
+        genericPermissionHandler(
+            this@MainActivity,
+            this,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            AppConstants.WRITE_PERMISSION_REQUEST_CODE,
+            getString(R.string.storage_permission_rationale_for_download)
+        ) {
+            receiptPdf = createPdf(pdfView, this)
         }
     }
 }

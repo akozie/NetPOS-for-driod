@@ -6,7 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.danbamitale.epmslib.entities.CardData
-import com.google.gson.Gson
+import com.danbamitale.epmslib.entities.TransactionResponse
 import com.mastercard.terminalsdk.listeners.PaymentDataProvider
 import com.mastercard.terminalsdk.utility.ByteArrayWrapper
 import com.visa.app.ttpkernel.ContactlessConfiguration
@@ -19,7 +19,7 @@ import com.woleapp.netpos.contactless.taponphone.mastercard.listener.Transaction
 import com.woleapp.netpos.contactless.taponphone.tlv.BerTag
 import com.woleapp.netpos.contactless.taponphone.tlv.BerTlvParser
 import com.woleapp.netpos.contactless.taponphone.tlv.HexUtil
-import com.woleapp.netpos.contactless.taponphone.visa.*
+import com.woleapp.netpos.contactless.taponphone.visa.* // ktlint-disable no-wildcard-imports
 import com.woleapp.netpos.contactless.taponphone.visa.PPSEv21.PPSEManager
 import com.woleapp.netpos.contactless.util.Event
 import com.woleapp.netpos.contactless.util.ICCCardHelper
@@ -36,6 +36,10 @@ import javax.inject.Inject
 class NfcCardReaderViewModel @Inject constructor() : ViewModel() {
     private val disposable = CompositeDisposable()
     private val icc = StringBuilder()
+
+    private var _lastPosTransactionResponse: MutableLiveData<TransactionResponse> =
+        MutableLiveData()
+    val lastPosTransactionResponse: LiveData<TransactionResponse> get() = _lastPosTransactionResponse
 
     private val _enableNfcForegroundDispatcher: MutableLiveData<Event<Boolean>> by lazy {
         MutableLiveData()
@@ -402,5 +406,9 @@ class NfcCardReaderViewModel @Inject constructor() : ViewModel() {
             qrTransactionResponseFromWebView.value!!.buildSMSTextForQrTransaction()
                 .toString()
         )
+    }
+
+    fun setLastPosTransactionResponse(lastPosTrans: TransactionResponse) {
+        _lastPosTransactionResponse.postValue(lastPosTrans)
     }
 }

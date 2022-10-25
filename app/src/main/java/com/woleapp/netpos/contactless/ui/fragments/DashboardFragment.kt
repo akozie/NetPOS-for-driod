@@ -312,4 +312,10 @@ class DashboardFragment : BaseFragment() {
             }
         adapter.submitList(listOfServices)
     }
+
+    override fun onResume() {
+        super.onResume()
+        val pref = Prefs.getString(PREF_PRINTER_SETTINGS, "nothing comes")
+        Timber.d("THE_PREFS_GOTTEN======>%s", pref)
+    }
 }

@@ -95,7 +95,7 @@ class LoginFragment : BaseFragment() {
             requireActivity().getSystemService(AppCompatActivity.NFC_SERVICE) as NfcManager
         val nfcAdapter = nfcManager.defaultAdapter
         if (nfcAdapter != null) {
-            //Toast.makeText(this, "Device has NFC support", Toast.LENGTH_SHORT).show()
+            // Toast.makeText(this, "Device has NFC support", Toast.LENGTH_SHORT).show()
             if (nfcAdapter.isEnabled) {
                 Toast.makeText(requireContext(), "NFC enabled", Toast.LENGTH_SHORT).show()
                 android.app.AlertDialog.Builder(requireContext())
@@ -142,10 +142,12 @@ class LoginFragment : BaseFragment() {
             it.getContentIfNotHandled()?.let { authenticated ->
                 if (authenticated) {
                     activity?.apply {
-                        startActivity(Intent(this, MainActivity::class.java).apply {
-                            flags =
-                                Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                        })
+                        startActivity(
+                            Intent(this, MainActivity::class.java).apply {
+                                flags =
+                                    Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                            }
+                        )
                         NetPosTerminalConfig.init(applicationContext)
                         val event = MqttEvent<AuthenticationEventData>().apply {
                             this.event = MqttEvents.AUTHENTICATION.event
@@ -158,7 +160,7 @@ class LoginFragment : BaseFragment() {
                             )
                             this.status = "SUCCESS"
                         }
-                        //MqttHelper.init(applicationContext, event, MqttTopics.AUTHENTICATION)
+                        // MqttHelper.init(applicationContext, event, MqttTopics.AUTHENTICATION)
                         finish()
                     }
                 }
@@ -166,8 +168,9 @@ class LoginFragment : BaseFragment() {
         }
         viewModel.passwordResetSent.observe(viewLifecycleOwner) { event ->
             event.getContentIfNotHandled()?.let {
-                if (it && passwordResetDialog.isShowing)
+                if (it && passwordResetDialog.isShowing) {
                     passwordResetDialog.cancel()
+                }
             }
         }
     }

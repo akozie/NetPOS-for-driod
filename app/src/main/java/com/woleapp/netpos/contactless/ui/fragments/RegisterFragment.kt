@@ -60,19 +60,19 @@ class RegisterFragment : BaseFragment() {
     private fun setSpinner() {
         val banks = resources.getStringArray(R.array.bank_codes)
         val adapter = ArrayAdapter.createFromResource(
-            requireActivity(), R.array.banks, android.R.layout.simple_spinner_dropdown_item
+            requireActivity(),
+            R.array.banks,
+            android.R.layout.simple_spinner_dropdown_item
         )
         binding.spnBank.prompt =
             requireContext().resources.getString(R.string.hint_choose_bank_caps)
-        binding.spnBank.onItemSelectedListener = object :AdapterView.OnItemSelectedListener{
+        binding.spnBank.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
                 viewModel.setSelectedBank(banks[p2])
             }
 
             override fun onNothingSelected(p0: AdapterView<*>?) {
-
             }
-
         }
         binding.spnBank.adapter = adapter
     }
