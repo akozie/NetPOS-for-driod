@@ -42,6 +42,7 @@ import com.woleapp.netpos.contactless.taponphone.visa.NfcPaymentType
 import com.woleapp.netpos.contactless.ui.dialog.PasswordDialog
 import com.woleapp.netpos.contactless.ui.fragments.DashboardFragment
 import com.woleapp.netpos.contactless.util.* // ktlint-disable no-wildcard-imports
+import com.woleapp.netpos.contactless.util.AppConstants.WRITE_PERMISSION_REQUEST_CODE
 import com.woleapp.netpos.contactless.util.RandomPurposeUtil.showSnackBar
 import com.woleapp.netpos.contactless.util.Singletons.gson
 import com.woleapp.netpos.contactless.viewmodels.NfcCardReaderViewModel
@@ -534,7 +535,7 @@ class MainActivity @Inject constructor() :
             this@MainActivity,
             this,
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            AppConstants.WRITE_PERMISSION_REQUEST_CODE,
+            WRITE_PERMISSION_REQUEST_CODE,
             getString(R.string.storage_permission_rationale_for_download)
         ) {
             receiptPdf = createPdf(pdfView, this)

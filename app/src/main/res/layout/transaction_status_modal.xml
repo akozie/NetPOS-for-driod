@@ -74,35 +74,10 @@
             android:layout_marginBottom="@dimen/dimen_40dp"
             android:contentDescription="@string/send_receipt_as_message"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/download_receipt"
-            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/success_failed"
-            app:srcCompat="@drawable/ic_message" />
-
-        <ImageView
-            android:id="@+id/download_receipt"
-            android:layout_width="@dimen/dimen_40dp"
-            android:layout_height="@dimen/dimen_40dp"
-            app:layout_constraintBottom_toBottomOf="@+id/print_receipt"
-            app:layout_constraintEnd_toStartOf="@+id/share_receipt"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/print_receipt"
-            app:layout_constraintTop_toTopOf="@+id/print_receipt"
-            app:srcCompat="@drawable/ic_download"
-            android:contentDescription="@string/download" />
-
-        <ImageView
-            android:id="@+id/share_receipt"
-            android:layout_width="@dimen/dimen_40dp"
-            android:layout_height="@dimen/dimen_40dp"
-            app:layout_constraintBottom_toBottomOf="@+id/download_receipt"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/download_receipt"
-            app:layout_constraintTop_toTopOf="@+id/download_receipt"
-            app:srcCompat="@drawable/ic_share"
-            android:contentDescription="@string/share" />
+            app:srcCompat="@drawable/ic_print" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

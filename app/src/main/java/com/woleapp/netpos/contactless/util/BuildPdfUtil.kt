@@ -228,7 +228,7 @@ private fun initViewsForPosReceipt(
             dateTime.text =
                 pdfView.appVersion.context.getString(
                     R.string.date_time_place_holder,
-                    it.transmissionDateTime
+                    it.transactionTimeInMillis.formatDate()
                 )
             transAmount.text = pdfView.appVersion.context.getString(
                 R.string.amount_place_holder,
@@ -236,7 +236,7 @@ private fun initViewsForPosReceipt(
             )
             stan.text =
                 pdfView.appVersion.context.getString(
-                    R.string.narration_place_holder,
+                    R.string.stan_place_holder,
                     it.STAN
                 )
             cardHolder.text =

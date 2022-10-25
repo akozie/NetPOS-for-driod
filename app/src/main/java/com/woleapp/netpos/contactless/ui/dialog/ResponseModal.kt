@@ -1,6 +1,5 @@
 package com.woleapp.netpos.contactless.ui.dialog
 
-import android.Manifest
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -21,13 +20,8 @@ import com.woleapp.netpos.contactless.model.ModalData
 import com.woleapp.netpos.contactless.model.QrTransactionResponseFinalModel
 import com.woleapp.netpos.contactless.util.AppConstants.QR_TRANSACTION_RESULT_BUNDLE_KEY
 import com.woleapp.netpos.contactless.util.AppConstants.QR_TRANSACTION_RESULT_REQUEST_KEY
-import com.woleapp.netpos.contactless.util.AppConstants.WRITE_PERMISSION_REQUEST_CODE
 import com.woleapp.netpos.contactless.util.Mappers.mapQrTransToNormalTransRespType
-import com.woleapp.netpos.contactless.util.RandomPurposeUtil.showSnackBar
-import com.woleapp.netpos.contactless.util.createPdf
-import com.woleapp.netpos.contactless.util.genericPermissionHandler
 import com.woleapp.netpos.contactless.util.initViewsForPdfLayout
-import com.woleapp.netpos.contactless.util.sharePdf
 import com.woleapp.netpos.contactless.viewmodels.NfcCardReaderViewModel
 import com.woleapp.netpos.contactless.viewmodels.ScanQrViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -44,8 +38,6 @@ class ResponseModal @Inject constructor() : DialogFragment() {
     private lateinit var statusTv: TextView
     private lateinit var cancelBtn: ImageView
     private lateinit var sendReceiptAsSms: ImageView
-    private lateinit var downloadReceiptAsPdf: ImageView
-    private lateinit var shareReceiptAsPdf: ImageView
     private lateinit var amountTv: TextView
     private var modalData: ModalData? = null
     private lateinit var pdfView: LayoutQrReceiptPdfBinding
@@ -107,35 +99,10 @@ class ResponseModal @Inject constructor() : DialogFragment() {
             dialog?.dismiss()
             nfcCardReaderViewModel.showReceiptDialogForQrPayment()
         }
-        shareReceiptAsPdf.setOnClickListener {
-            initViewsForPdfLayout(pdfView, responseFromWebView)
-            dialog?.dismiss()
-            receiptPdf = createPdf(pdfView, this)
-
-            sharePdf(receiptPdf, this@ResponseModal)
-        }
-        downloadReceiptAsPdf.setOnClickListener {
-            initViewsForPdfLayout(pdfView, responseFromWebView)
-            genericPermissionHandler(
-                this@ResponseModal,
-                requireContext(),
-                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                WRITE_PERMISSION_REQUEST_CODE,
-                getString(R.string.storage_permission_rationale_for_download)
-            ) {
-                receiptPdf = createPdf(pdfView, this)
-                showSnackBar(
-                    binding.root,
-                    getString(R.string.fileDownloaded)
-                )
-            }
-        }
     }
 
     private fun initViews() {
         with(binding) {
-            shareReceiptAsPdf = shareReceipt
-            downloadReceiptAsPdf = downloadReceipt
             lottieIcon = statusIconLAV
             statusTv = successFailed
             cancelBtn = cancelButton
