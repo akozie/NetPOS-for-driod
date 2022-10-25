@@ -19,7 +19,7 @@ class JavaScriptInterface @AssistedInject constructor(
     @Assisted private val fragmentManager: FragmentManager,
     @Assisted("termUrl") private val termUrl: String,
     @Assisted("md") private val md: String,
-    @Assisted("paReq") private val paReq: String,
+    @Assisted("cReq") private val cReq: String,
     @Assisted("acsUrl") private val acsUrl: String,
     @Assisted("transId") private val transId: String
 ) {
@@ -30,7 +30,7 @@ class JavaScriptInterface @AssistedInject constructor(
 
     @JavascriptInterface
     fun sendValueToWebView() =
-        "$termUrl<======>$md<======>$paReq<======>$acsUrl<======>$transId<======>$webViewBaseUrl"
+        "$termUrl<======>$md<======>$cReq<======>$acsUrl<======>$transId<======>$webViewBaseUrl"
 
     @JavascriptInterface
     fun webViewCallback(webViewResponse: String) {

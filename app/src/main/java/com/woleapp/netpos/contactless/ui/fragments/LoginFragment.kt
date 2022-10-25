@@ -11,6 +11,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.viewModels
 import com.google.gson.JsonObject
+import com.woleapp.netpos.contactless.BuildConfig
 import com.woleapp.netpos.contactless.R
 import com.woleapp.netpos.contactless.databinding.DialogPasswordResetBinding
 import com.woleapp.netpos.contactless.databinding.FragmentLoginBinding
@@ -64,11 +65,20 @@ class LoginFragment : BaseFragment() {
         }
 
         binding.register.setOnClickListener {
-            showFragment(
-                RegisterFragment(),
-                containerViewId = R.id.auth_container,
-                fragmentName = "Register Fragment"
-            )
+            if (BuildConfig.FLAVOR.contains("firstbank")||BuildConfig.FLAVOR.contains("providus")||
+                BuildConfig.FLAVOR.contains("wemabank")||BuildConfig.FLAVOR.contains("fcmb")){
+                showFragment(
+                    NewOrExistingFragment(),
+                    containerViewId = R.id.auth_container,
+                    fragmentName = "NewOrExisting Fragment"
+                )
+            }else{
+                showFragment(
+                    RegisterFragment(),
+                    containerViewId = R.id.auth_container,
+                    fragmentName = "Register Fragment"
+                )
+            }
         }
 
         binding.testMyPhone.setOnClickListener {
