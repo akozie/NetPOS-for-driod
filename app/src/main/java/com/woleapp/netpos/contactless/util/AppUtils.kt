@@ -2,12 +2,9 @@ package com.woleapp.netpos.contactless.util
 
 import android.app.Activity
 import android.content.Context
-import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
-import com.pixplicity.easyprefs.library.Prefs
 import com.woleapp.netpos.contactless.R
-import com.woleapp.netpos.contactless.util.RandomPurposeUtil.showSnackBar
 import pub.devrel.easypermissions.EasyPermissions
 
 data class DialogHelper(

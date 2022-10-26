@@ -46,7 +46,9 @@ import com.woleapp.netpos.contactless.taponphone.visa.NfcPaymentType
 import com.woleapp.netpos.contactless.ui.dialog.PasswordDialog
 import com.woleapp.netpos.contactless.ui.fragments.DashboardFragment
 import com.woleapp.netpos.contactless.util.* // ktlint-disable no-wildcard-imports
+import com.woleapp.netpos.contactless.util.AppConstants.IS_QR_TRANSACTION
 import com.woleapp.netpos.contactless.util.AppConstants.WRITE_PERMISSION_REQUEST_CODE
+import com.woleapp.netpos.contactless.util.Mappers.mapTransactionResponseToQrTransaction
 import com.woleapp.netpos.contactless.util.RandomPurposeUtil.showSnackBar
 import com.woleapp.netpos.contactless.util.Singletons.gson
 import com.woleapp.netpos.contactless.viewmodels.NfcCardReaderViewModel
@@ -554,11 +556,23 @@ class MainActivity @Inject constructor() :
     }
 
     private fun downloadPdfImpl() {
-        initViewsForPdfLayout(
-            pdfView,
-            viewModel.lastPosTransactionResponse.value
-        )
-        getPermissionAndCreatePdf(pdfView)
+        viewModel.lastPosTransactionResponse.value?.let {
+            if (it.TVR.contains(IS_QR_TRANSACTION)) {
+                val qrTransaction = it.copy(TVR = it.TVR.replace(IS_QR_TRANSACTION, ""))
+                    .mapTransactionResponseToQrTransaction()
+                initViewsForPdfLayout(
+                    qrPdfView,
+                    qrTransaction
+                )
+                getPermissionAndCreatePdf(qrPdfView)
+            } else {
+                initViewsForPdfLayout(
+                    pdfView,
+                    viewModel.lastPosTransactionResponse.value
+                )
+                getPermissionAndCreatePdf(pdfView)
+            }
+        }
     }
 
     private fun downloadPflImplForQrTransaction(qrTransaction: QrTransactionResponseFinalModel) {

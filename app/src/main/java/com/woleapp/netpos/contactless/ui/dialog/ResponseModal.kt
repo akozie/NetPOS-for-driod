@@ -18,6 +18,7 @@ import com.woleapp.netpos.contactless.databinding.LayoutQrReceiptPdfBinding
 import com.woleapp.netpos.contactless.databinding.TransactionStatusModalBinding
 import com.woleapp.netpos.contactless.model.ModalData
 import com.woleapp.netpos.contactless.model.QrTransactionResponseFinalModel
+import com.woleapp.netpos.contactless.util.AppConstants.IS_QR_TRANSACTION
 import com.woleapp.netpos.contactless.util.AppConstants.QR_TRANSACTION_RESULT_BUNDLE_KEY
 import com.woleapp.netpos.contactless.util.AppConstants.QR_TRANSACTION_RESULT_REQUEST_KEY
 import com.woleapp.netpos.contactless.util.AppConstants.SAVE_QR_TRANS_TO_DB
@@ -137,7 +138,8 @@ class ResponseModal @Inject constructor() : DialogFragment() {
                 transactionResponse.copy(
                     amount = transactionResponse.amount.times(
                         100
-                    )
+                    ),
+                    TVR = transactionResponse.TVR + IS_QR_TRANSACTION
                 )
             )
             .compose(getSingleTransformer(SAVE_QR_TRANS_TO_DB))

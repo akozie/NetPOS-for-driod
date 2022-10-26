@@ -22,4 +22,25 @@ object Mappers {
             terminalId = qrTrans.terminalId
             merchantId = qrTrans.merchantId
         }
+
+    fun TransactionResponse.mapTransactionResponseToQrTransaction() {
+        QrTransactionResponseFinalModel(
+            amount = this.amount,
+            responseCode = this.responseCode,
+            currency_code = "NGN",
+            customerName = this.cardHolder,
+            email = "",
+            message = this.otherId,
+            narration = this.otherId,
+            rrnOrderId = this.RRN,
+            result = this.otherId,
+            status = if (this.responseCode == "00") "APPROVED" else "DECLINED",
+            transIdStan = this.STAN,
+            transmissionDateTime = this.transmissionDateTime,
+            transactionTimeInMillis = this.transactionTimeInMillis,
+            transactionType = this.transactionType,
+            terminalId = this.terminalId,
+            merchantId = this.merchantId
+        )
+    }
 }
