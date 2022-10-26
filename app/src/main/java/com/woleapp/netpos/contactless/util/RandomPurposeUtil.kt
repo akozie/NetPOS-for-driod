@@ -103,7 +103,7 @@ object RandomPurposeUtil {
                         it.data is PostQrToServerResponse ||
                         it.data is PostQrToServerVerveResponseModel ||
                         it.data is QrTransactionResponseModel ||
-                        it.data is FailedTransactionResponse
+                        it.data is VerveTransactionResponse
                     ) {
                         successAction()
                     } else {
@@ -135,7 +135,7 @@ object RandomPurposeUtil {
         }
     }
 
-    fun formatFailedVerveTransRespToExtractIswResponse(transResponse: FailedTransactionResponse): FailedTransactionResponse {
+    fun formatFailedVerveTransRespToExtractIswResponse(transResponse: VerveTransactionResponse): VerveTransactionResponse {
         val iswResponseInStringFormat =
             transResponse.message.split("response:\n").last().removeSuffix("\n\"")
                 .replace("\\", "")

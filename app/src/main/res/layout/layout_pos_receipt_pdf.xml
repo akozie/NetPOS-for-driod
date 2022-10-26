@@ -19,6 +19,7 @@
             android:id="@+id/imageView"
             android:layout_width="@dimen/dimen_50dp"
             android:layout_height="@dimen/dimen_50dp"
+            android:scaleType="centerCrop"
             android:contentDescription="@string/app_logo"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -29,7 +30,7 @@
             android:id="@+id/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/dimen_15dp"
+            android:layout_marginTop="@dimen/dimen_10dp"
             android:fontFamily="@font/poppins_bold"
             android:text="@string/transaction_receipt"
             android:textSize="@dimen/dimen_20sp"
@@ -109,6 +110,19 @@
             app:layout_constraintTop_toBottomOf="@+id/date_time" />
 
         <TextView
+            android:id="@+id/rrn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dimen_10dp"
+            android:fontFamily="@font/poppins_medium"
+            android:text="@string/rrn_place_holder"
+            android:textSize="@dimen/dimen_16sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="@+id/trans_amount"
+            app:layout_constraintTop_toBottomOf="@+id/trans_amount" />
+
+        <TextView
             android:id="@+id/stan"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -118,8 +132,8 @@
             android:textSize="@dimen/dimen_16sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="@+id/trans_amount"
-            app:layout_constraintTop_toBottomOf="@+id/trans_amount" />
+            app:layout_constraintStart_toStartOf="@+id/rrn"
+            app:layout_constraintTop_toBottomOf="@+id/rrn" />
 
         <TextView
             android:id="@+id/card_holder"
@@ -216,21 +230,6 @@
             app:layout_constraintStart_toStartOf="@+id/app_version"
             app:layout_constraintTop_toBottomOf="@+id/app_version" />
 
-        <TextView
-            android:id="@+id/isCustomersCopy"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/dimen_10dp"
-            android:fontFamily="@font/poppins_bold"
-            android:text="@string/is_cutomers_copy_place_holder"
-            android:textSize="@dimen/dimen_16sp"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="@+id/powered_by"
-            app:layout_constraintTop_toBottomOf="@+id/powered_by"
-            tools:text="***CUSTOMER COPY***" />
-
         <View
             android:id="@+id/view3"
             android:layout_width="match_parent"
@@ -239,7 +238,7 @@
             android:layout_marginTop="@dimen/dimen_10dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/isCustomersCopy" />
+            app:layout_constraintTop_toBottomOf="@+id/powered_by" />
 
         <TextView
             android:id="@+id/textView3"

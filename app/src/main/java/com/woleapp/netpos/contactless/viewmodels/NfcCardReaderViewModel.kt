@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.danbamitale.epmslib.entities.CardData
 import com.danbamitale.epmslib.entities.TransactionResponse
+import com.google.gson.Gson
 import com.mastercard.terminalsdk.listeners.PaymentDataProvider
 import com.mastercard.terminalsdk.utility.ByteArrayWrapper
 import com.visa.app.ttpkernel.ContactlessConfiguration
@@ -23,7 +24,6 @@ import com.woleapp.netpos.contactless.taponphone.visa.* // ktlint-disable no-wil
 import com.woleapp.netpos.contactless.taponphone.visa.PPSEv21.PPSEManager
 import com.woleapp.netpos.contactless.util.Event
 import com.woleapp.netpos.contactless.util.ICCCardHelper
-import com.woleapp.netpos.contactless.util.buildSMSTextForQrTransaction
 import com.woleapp.netpos.contactless.util.sendSMS
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.disposables.CompositeDisposable
@@ -96,6 +96,10 @@ class NfcCardReaderViewModel @Inject constructor() : ViewModel() {
     private val _showPrintDialog = MutableLiveData<Event<String>>()
     val showPrintDialog: LiveData<Event<String>>
         get() = _showPrintDialog
+
+    private val _showQrPrintDialog = MutableLiveData<Event<String>>()
+    val showQrPrintDialog: LiveData<Event<String>>
+        get() = _showQrPrintDialog
 
     private val _smsSent = MutableLiveData<Event<Boolean>>()
     val smsSent: LiveData<Event<Boolean>>
@@ -402,9 +406,8 @@ class NfcCardReaderViewModel @Inject constructor() : ViewModel() {
     }
 
     fun showReceiptDialogForQrPayment() {
-        _showPrintDialog.value = Event(
-            qrTransactionResponseFromWebView.value!!.buildSMSTextForQrTransaction()
-                .toString()
+        _showQrPrintDialog.value = Event(
+            Gson().toJson(qrTransactionResponseFromWebView.value)
         )
     }
 

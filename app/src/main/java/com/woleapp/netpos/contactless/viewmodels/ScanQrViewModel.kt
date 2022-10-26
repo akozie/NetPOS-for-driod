@@ -109,7 +109,7 @@ class ScanQrViewModel @Inject constructor(
                             val transResponse = if (transResp.has("narration")) {
                                 gson.fromJson(transResp, QrTransactionResponseModel::class.java)
                             } else {
-                                gson.fromJson(transResp, FailedTransactionResponse::class.java)
+                                gson.fromJson(transResp, VerveTransactionResponse::class.java)
                             }
                             _transactionResponseFromVerve.value =
                                 Resource.success(transResponse)

@@ -20,15 +20,14 @@ import com.woleapp.netpos.contactless.model.ModalData
 import com.woleapp.netpos.contactless.model.QrTransactionResponseFinalModel
 import com.woleapp.netpos.contactless.util.AppConstants.QR_TRANSACTION_RESULT_BUNDLE_KEY
 import com.woleapp.netpos.contactless.util.AppConstants.QR_TRANSACTION_RESULT_REQUEST_KEY
+import com.woleapp.netpos.contactless.util.AppConstants.SAVE_QR_TRANS_TO_DB
 import com.woleapp.netpos.contactless.util.Mappers.mapQrTransToNormalTransRespType
+import com.woleapp.netpos.contactless.util.RxJavaUtils.getSingleTransformer
 import com.woleapp.netpos.contactless.util.initViewsForPdfLayout
 import com.woleapp.netpos.contactless.viewmodels.NfcCardReaderViewModel
 import com.woleapp.netpos.contactless.viewmodels.ScanQrViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
-import java.io.File
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -41,7 +40,6 @@ class ResponseModal @Inject constructor() : DialogFragment() {
     private lateinit var amountTv: TextView
     private var modalData: ModalData? = null
     private lateinit var pdfView: LayoutQrReceiptPdfBinding
-    private lateinit var receiptPdf: File
     private var responseFromWebView: QrTransactionResponseFinalModel? = null
     private val scanQrViewModel by activityViewModels<ScanQrViewModel>()
     private val nfcCardReaderViewModel by activityViewModels<NfcCardReaderViewModel>()
@@ -97,7 +95,10 @@ class ResponseModal @Inject constructor() : DialogFragment() {
         }
         sendReceiptAsSms.setOnClickListener {
             dialog?.dismiss()
-            nfcCardReaderViewModel.showReceiptDialogForQrPayment()
+            responseFromWebView?.let { qrTransResponse ->
+                nfcCardReaderViewModel.setQrTransactionResponse(qrTransResponse)
+                nfcCardReaderViewModel.showReceiptDialogForQrPayment()
+            }
         }
     }
 
@@ -113,7 +114,6 @@ class ResponseModal @Inject constructor() : DialogFragment() {
 
     private fun setData() {
         modalData?.let {
-//            scanQrViewModel.setQrTransactionResponse()
             if (it.status) {
                 lottieIcon.setAnimation(R.raw.lottiesuccess)
                 statusTv.text = getString(R.string.success)
@@ -140,13 +140,9 @@ class ResponseModal @Inject constructor() : DialogFragment() {
                     )
                 )
             )
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { responseFromDbOperations, error ->
+            .compose(getSingleTransformer(SAVE_QR_TRANS_TO_DB))
+            .subscribe { responseFromDbOperations ->
                 responseFromDbOperations?.let {
-                }
-                error?.let {
-                    Timber.d("DATA_FROM_SAVING_TO_DB====>%s", it.localizedMessage)
                 }
             }
     }

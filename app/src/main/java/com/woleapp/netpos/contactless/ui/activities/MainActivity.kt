@@ -23,14 +23,18 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
+import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
 import com.danbamitale.epmslib.utils.IsoAccountType
+import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.messaging.FirebaseMessaging
+import com.google.gson.Gson
 import com.pixplicity.easyprefs.library.Prefs
 import com.visa.app.ttpkernel.ContactlessKernel
 import com.woleapp.netpos.contactless.R
 import com.woleapp.netpos.contactless.app.NetPosApp
 import com.woleapp.netpos.contactless.databinding.* // ktlint-disable no-wildcard-imports
+import com.woleapp.netpos.contactless.model.QrTransactionResponseFinalModel
 import com.woleapp.netpos.contactless.model.User
 import com.woleapp.netpos.contactless.mqtt.MqttHelper
 import com.woleapp.netpos.contactless.network.StormApiClient
@@ -64,6 +68,7 @@ class MainActivity @Inject constructor() :
     private lateinit var alertDialog: AlertDialog
     private lateinit var binding: ActivityMainBinding
     private lateinit var pdfView: LayoutPosReceiptPdfBinding
+    private lateinit var qrPdfView: LayoutQrReceiptPdfBinding
     private lateinit var dialogContactlessReaderBinding: DialogContatclessReaderBinding
     private val viewModel by viewModels<NfcCardReaderViewModel>()
     private val contactlessKernel: ContactlessKernel by lazy {
@@ -212,6 +217,7 @@ class MainActivity @Inject constructor() :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         pdfView = LayoutPosReceiptPdfBinding.inflate(layoutInflater)
+        qrPdfView = LayoutQrReceiptPdfBinding.inflate(layoutInflater)
         NetPosApp.INSTANCE.initMposLibrary(this)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         dialogContactlessReaderBinding =
@@ -343,6 +349,13 @@ class MainActivity @Inject constructor() :
             }
         }.create()
         receiptAlertDialog.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
+        viewModel.showQrPrintDialog.observe(this) { event ->
+            event.getContentIfNotHandled()?.let {
+                val qrTransaction = Gson().fromJson(it, QrTransactionResponseFinalModel::class.java)
+                printQrTransactionUtil(qrTransaction)
+            }
+        }
+
         viewModel.showPrintDialog.observe(this) { event ->
             event.getContentIfNotHandled()?.let {
                 when (Prefs.getString(PREF_PRINTER_SETTINGS, "nothing_is_there")) {
@@ -382,13 +395,15 @@ class MainActivity @Inject constructor() :
             viewModel.stopNfcReader()
         }
 
-        FirebaseMessaging.getInstance().token.addOnCompleteListener {
-            if (!it.isSuccessful) {
-                // return@addOnCompleteListener
+        FirebaseMessaging.getInstance().token.addOnCompleteListener(
+            OnCompleteListener { task ->
+                if (!task.isSuccessful) {
+                    return@OnCompleteListener
+                }
+                val token = task.result // this is the token retrieved
+                Log.d("FCM", token)
             }
-            val token = it.result // this is the token retrieved
-            Log.d("FCM", token)
-        }
+        )
     }
 
     override fun onRequestPermissionsResult(
@@ -526,11 +541,7 @@ class MainActivity @Inject constructor() :
         }
     }
 
-    private fun downloadPdfImpl() {
-        initViewsForPdfLayout(
-            pdfView,
-            viewModel.lastPosTransactionResponse.value
-        )
+    private fun getPermissionAndCreatePdf(view: ViewDataBinding) {
         genericPermissionHandler(
             this@MainActivity,
             this,
@@ -538,7 +549,58 @@ class MainActivity @Inject constructor() :
             WRITE_PERMISSION_REQUEST_CODE,
             getString(R.string.storage_permission_rationale_for_download)
         ) {
-            receiptPdf = createPdf(pdfView, this)
+            receiptPdf = createPdf(view, this)
+        }
+    }
+
+    private fun downloadPdfImpl() {
+        initViewsForPdfLayout(
+            pdfView,
+            viewModel.lastPosTransactionResponse.value
+        )
+        getPermissionAndCreatePdf(pdfView)
+    }
+
+    private fun downloadPflImplForQrTransaction(qrTransaction: QrTransactionResponseFinalModel) {
+        initViewsForPdfLayout(
+            qrPdfView,
+            qrTransaction
+        )
+        getPermissionAndCreatePdf(qrPdfView)
+    }
+
+    private fun printQrTransactionUtil(qrTransaction: QrTransactionResponseFinalModel) {
+        when (Prefs.getString(PREF_PRINTER_SETTINGS, "nothing_is_there")) {
+            PREF_VALUE_PRINT_DOWNLOAD -> {
+                downloadPflImplForQrTransaction(qrTransaction)
+                showSnackBar(
+                    binding.root,
+                    getString(R.string.fileDownloaded)
+                )
+            }
+            PREF_VALUE_PRINT_SHARE -> {
+                downloadPflImplForQrTransaction(qrTransaction)
+                sharePdf(receiptPdf, this)
+            }
+            PREF_VALUE_PRINT_DOWNLOAD_AND_SHARE -> {
+                downloadPflImplForQrTransaction(qrTransaction)
+                showSnackBar(
+                    binding.root,
+                    getString(R.string.fileDownloaded)
+                )
+                sharePdf(receiptPdf, this)
+            }
+            else -> {
+                receiptAlertDialog.apply {
+                    receiptDialogBinding.transactionContent.text =
+                        qrTransaction.buildSMSTextForQrTransaction()
+                    show()
+                }
+                receiptDialogBinding.apply {
+                    progress.visibility = View.GONE
+                    sendButton.isEnabled = true
+                }
+            }
         }
     }
 }
