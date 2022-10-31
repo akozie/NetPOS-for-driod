@@ -66,7 +66,8 @@ class LoginFragment : BaseFragment() {
 
         binding.register.setOnClickListener {
             if (BuildConfig.FLAVOR.contains("firstbank")||BuildConfig.FLAVOR.contains("providus")||
-                BuildConfig.FLAVOR.contains("wemabank")||BuildConfig.FLAVOR.contains("fcmb")){
+                BuildConfig.FLAVOR.contains("wemabank")||BuildConfig.FLAVOR.contains("fcmb")||
+                BuildConfig.FLAVOR.contains("zenith")){
                 showFragment(
                     NewOrExistingFragment(),
                     containerViewId = R.id.auth_container,

@@ -119,6 +119,10 @@ android {
             dimension "whiteLabel"
             applicationIdSuffix ".fcmb"
         }
+        zenith {
+            dimension "whiteLabel"
+            applicationIdSuffix ".zenith"
+        }
     }
     variantFilter { variant ->
         def name_types = variant.flavors*.name

@@ -3,9 +3,19 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="app/src/firstbank/res/layout/dialog_select_account_type.xml" value="0.1175925925925926" />
+        <entry key="app/src/firstbank/res/layout/fragment_login.xml" value="0.1175925925925926" />
+        <entry key="app/src/main/res/layout/fragment_dashboard.xml" value="0.18385416666666668" />
         <entry key="app/src/main/res/layout/fragment_exisiting_customers_registration.xml" value="0.1175925925925926" />
+        <entry key="app/src/providus/res/layout/fragment_login.xml" value="0.18020833333333333" />
+        <entry key="app/src/wemabank/res/drawable/ic_logout.xml" value="0.192" />
+        <entry key="app/src/wemabank/res/layout/dashboard_header.xml" value="0.18020833333333333" />
+        <entry key="app/src/wemabank/res/layout/dialog_select_account_type.xml" value="0.25" />
+        <entry key="app/src/zenith/res/drawable/ic_logout.xml" value="0.192" />
+        <entry key="app/src/zenith/res/layout/dashboard_header.xml" value="0.335" />
+        <entry key="app/src/zenith/res/layout/fragment_dashboard.xml" value="0.18385416666666668" />
       </map>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" project-jdk-name="11" project-jdk-type="JavaSDK" />
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="11" project-jdk-type="JavaSDK" />
 </project>
