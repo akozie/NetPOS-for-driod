@@ -43,7 +43,6 @@ import com.woleapp.netpos.contactless.receivers.BatteryReceiver
 import com.woleapp.netpos.contactless.taponphone.mastercard.implementations.nfc.NFCManager.READER_FLAGS
 import com.woleapp.netpos.contactless.taponphone.visa.LiveNfcTransReceiver
 import com.woleapp.netpos.contactless.taponphone.visa.NfcPaymentType
-import com.woleapp.netpos.contactless.ui.dialog.PasswordDialog
 import com.woleapp.netpos.contactless.ui.fragments.DashboardFragment
 import com.woleapp.netpos.contactless.util.* // ktlint-disable no-wildcard-imports
 import com.woleapp.netpos.contactless.util.AppConstants.IS_QR_TRANSACTION

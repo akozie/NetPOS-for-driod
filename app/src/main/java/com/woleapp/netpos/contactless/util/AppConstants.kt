@@ -17,4 +17,6 @@ object AppConstants {
     const val QR_TRANSACTION_POST_REQUEST_PAYLOAD = "QR_TRANSACTION_POST_REQUEST_PAYLOAD"
     const val STRING_QR_TRANSACTION_DATE_TIME_FORMAT = "yyyy-MM-dd hh:mm a"
     const val WRITE_PERMISSION_REQUEST_CODE = 113
+    const val PIN_BLOCK_RK = "PIN_BLOCK_RK"
+    const val PIN_BLOCK_BK = "PIN_BLOCK_BK"
 }

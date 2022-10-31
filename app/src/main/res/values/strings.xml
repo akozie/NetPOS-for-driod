@@ -207,4 +207,5 @@
     <string name="receipt_footer_message">4, Hakeem Dickson Drive, Off TF, Kuboye Street, Oniru, Lagos \nEmail: info@netplusdotcom.com \nTel: +234 818 778 2542, +234 809 999 0660</string>
     <string name="email_info_netplusdotcom_com">Email: info@netplusdotcom.com</string>
     <string name="netplus_phone_number">Tel: +234 818 778 2542, +234 809 999 0660</string>
+    <string name="pin_too_short">Pin too short</string>
 </resources>

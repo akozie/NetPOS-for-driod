@@ -28,7 +28,6 @@ import com.woleapp.netpos.contactless.util.initViewsForPdfLayout
 import com.woleapp.netpos.contactless.viewmodels.NfcCardReaderViewModel
 import com.woleapp.netpos.contactless.viewmodels.ScanQrViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint

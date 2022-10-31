@@ -14,7 +14,8 @@ import java.lang.Exception
 fun useStormTerminalId() = Prefs.getBoolean(PREF_USE_STORM_TERMINAL_ID, true)
 fun TransactionResponse.toNibssResponse(remark: String? = null): NibssResponse =
     Singletons.gson.fromJson(
-        Singletons.gson.toJson(this), NibssResponse::class.java
+        Singletons.gson.toJson(this),
+        NibssResponse::class.java
     ).also {
         it.responseMessage = try {
             this.responseMessage
@@ -38,13 +39,18 @@ object Singletons {
     fun getCurrentlyLoggedInUser(): User? =
         gson.fromJson(Prefs.getString(PREF_USER, ""), User::class.java)
 
-
     fun getSavedConfigurationData(): ConfigurationData {
+//        return ConfigurationData(
+//            "196.6.103.18",
+//            "5016",
+//            Keys.posvasLiveKey1,
+//            Keys.posvasLiveKey2
+//        )
         return ConfigurationData(
-            "196.6.103.18",
-            "5016",
-            Keys.posvasLiveKey1,
-            Keys.posvasLiveKey2,
+            "196.6.103.10",
+            "55533",
+            "5D25072F04832A2329D93E4F91BA23A2",
+            "86CBCDE3B0A22354853E04521686863D"
         )
     }
 
@@ -53,11 +59,9 @@ object Singletons {
 
     fun getConfigData(): ConfigData? =
         gson.fromJson(Prefs.getString(PREF_CONFIG_DATA, null), ConfigData::class.java)
-
 }
 
 var TransactionResponse.additionalAmount: Long?
     get() = 0
     set(value) {
-
     }

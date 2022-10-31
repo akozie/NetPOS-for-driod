@@ -11,7 +11,7 @@ import com.pixplicity.easyprefs.library.Prefs
 import com.woleapp.netpos.contactless.model.AuthError
 import com.woleapp.netpos.contactless.model.User
 import com.woleapp.netpos.contactless.network.StormApiService
-import com.woleapp.netpos.contactless.util.*
+import com.woleapp.netpos.contactless.util.* // ktlint-disable no-wildcard-imports
 import com.woleapp.netpos.contactless.util.Singletons.gson
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -45,7 +45,6 @@ class AuthViewModel : ViewModel() {
 
     val message: LiveData<Event<String>>
         get() = _message
-
 
     fun login() {
         val username = usernameLiveData.value
@@ -133,7 +132,6 @@ class AuthViewModel : ViewModel() {
                     }
                 }
             }.disposeWith(disposables)
-
     }
 
     fun resetPassword() {
@@ -157,9 +155,9 @@ class AuthViewModel : ViewModel() {
                         Event("Password reset failed")
                     } else {
                         val res = JSONObject(Gson().toJson(it.body()))
-                        if (!res.getBoolean("success"))
+                        if (!res.getBoolean("success")) {
                             Event("Password reset failed")
-                        else {
+                        } else {
                             _passwordResetSent.value = Event(true)
                             Event("A password reset mail has been sent to $username")
                         }
