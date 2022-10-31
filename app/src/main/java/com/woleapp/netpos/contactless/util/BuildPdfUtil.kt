@@ -141,6 +141,11 @@ private fun initViewsForQrReceipt(
         responseFromWebView?.let { respFromWebView: QrTransactionResponseFinalModel ->
             merchantName.text = pdfView.root.context.getString(
                 R.string.merchant_name_place_holder,
+                Singletons.getCurrentlyLoggedInUser()?.business_name
+                    ?: "${BuildConfig.FLAVOR} POS MERCHANT"
+            )
+            cardOwner.text = pdfView.root.context.getString(
+                R.string.card_owner_place_holder,
                 respFromWebView.customerName
             )
             terminalIdPlaceHolder.text =

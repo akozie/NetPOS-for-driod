@@ -1,8 +1,8 @@
-package com.woleapp.netpos.contactless.ui.dialog
+package com.woleapp.netpos.contactless.ui.dialog // ktlint-disable filename
 
 import android.os.Bundle
-import android.view.*
-import android.widget.*
+import android.view.* // ktlint-disable no-wildcard-imports
+import android.widget.* // ktlint-disable no-wildcard-imports
 import androidx.core.os.bundleOf
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.DialogFragment
@@ -12,7 +12,7 @@ import com.woleapp.netpos.contactless.databinding.LayoutRandomizedPinBlockBindin
 import com.woleapp.netpos.contactless.util.AppConstants.PIN_BLOCK_BK
 import com.woleapp.netpos.contactless.util.AppConstants.PIN_BLOCK_RK
 
-class PasswordDialog : DialogFragment() {
+class PasswordDialog2 : DialogFragment() {
     private lateinit var binding: LayoutRandomizedPinBlockBinding
     private lateinit var tvMessageTv: TextView
     private lateinit var etPinEt: EditText

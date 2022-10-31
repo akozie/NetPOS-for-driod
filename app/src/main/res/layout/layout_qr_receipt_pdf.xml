@@ -133,7 +133,7 @@
             app:layout_constraintTop_toBottomOf="@+id/order_id" />
 
         <TextView
-            android:id="@+id/trans_id"
+            android:id="@+id/card_owner"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/dimen_10dp"
@@ -144,6 +144,19 @@
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="@+id/narration"
             app:layout_constraintTop_toBottomOf="@+id/narration" />
+
+        <TextView
+            android:id="@+id/trans_id"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dimen_10dp"
+            android:fontFamily="@font/poppins_medium"
+            android:text="@string/card_owner_place_holder"
+            android:textSize="@dimen/dimen_16sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="@+id/card_owner"
+            app:layout_constraintTop_toBottomOf="@+id/card_owner" />
 
         <TextView
             android:id="@+id/status"
