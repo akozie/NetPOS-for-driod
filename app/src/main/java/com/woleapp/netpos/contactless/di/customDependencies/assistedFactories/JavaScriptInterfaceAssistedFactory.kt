@@ -11,7 +11,7 @@ interface JavaScriptInterfaceAssistedFactory {
         @Assisted fragmentManager: FragmentManager,
         @Assisted("termUrl") termUrl: String,
         @Assisted("md") md: String,
-        @Assisted("paReq") paReq: String,
+        @Assisted("cReq") paReq: String,
         @Assisted("acsUrl") acsUrl: String,
         @Assisted("transId") transId: String
     ): JavaScriptInterface

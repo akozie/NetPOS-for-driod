@@ -28,7 +28,7 @@ data class QrTransactionResponseModel(
     ): QrTransactionResponseFinalModel {
         val transDateTime = getCurrentDateTime()
         return QrTransactionResponseFinalModel(
-            amount.toString().toDouble().toLong(),
+            amount.toDouble().toLong(),
             code,
             currency_code,
             customerName,

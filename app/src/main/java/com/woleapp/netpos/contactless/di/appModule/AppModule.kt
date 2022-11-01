@@ -2,6 +2,7 @@ package com.woleapp.netpos.contactless.di.appModule
 
 import com.google.gson.Gson
 import com.woleapp.netpos.contactless.BuildConfig
+import com.woleapp.netpos.contactless.network.AccountLookUpService
 import com.woleapp.netpos.contactless.network.QrService
 import com.woleapp.netpos.contactless.network.VerveOtpService
 import dagger.Module
@@ -30,6 +31,11 @@ object AppModule {
     @Singleton
     @Named("otpBaseUrl")
     fun providesBaseUrlForGetVerveOtp(): String = BuildConfig.STRING_SEND_VERVE_OTP_BASE_URL
+
+    @Provides
+    @Singleton
+    @Named("contactlessRegBaseUrl")
+    fun providesBaseUrlForContactlessReg(): String = BuildConfig.STRING_CONTACTLESS_EXISTING_BASE_URL
 
     @Provides
     @Singleton
@@ -102,6 +108,20 @@ object AppModule {
 
     @Provides
     @Singleton
+    @Named("contactlessRegRetrofit")
+    fun providesRetrofitForContactlessReg(
+        @Named("otpOkHttp") okhttp: OkHttpClient,
+        @Named("contactlessRegBaseUrl") contactlessRegBaseUrl: String
+    ): Retrofit =
+        Retrofit.Builder()
+            .addConverterFactory(GsonConverterFactory.create())
+            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+            .baseUrl(contactlessRegBaseUrl)
+            .client(okhttp)
+            .build()
+
+    @Provides
+    @Singleton
     fun providesQrService(
         @Named("defaultRetrofit") retrofit: Retrofit
     ): QrService = retrofit.create(QrService::class.java)
@@ -111,6 +131,14 @@ object AppModule {
     fun providesVerveOtpService(
         @Named("otpRetrofit") retrofit: Retrofit
     ): VerveOtpService = retrofit.create(VerveOtpService::class.java)
+
+
+    @Provides
+    @Singleton
+    fun providesContactlessRegService(
+        @Named("contactlessRegRetrofit") retrofit: Retrofit
+    ): AccountLookUpService = retrofit.create(AccountLookUpService::class.java)
+
 
     @Provides
     @Singleton

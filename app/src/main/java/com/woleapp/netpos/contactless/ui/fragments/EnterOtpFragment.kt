@@ -18,8 +18,8 @@ import com.google.gson.Gson
 import com.woleapp.netpos.contactless.BuildConfig
 import com.woleapp.netpos.contactless.R
 import com.woleapp.netpos.contactless.databinding.LayoutEnterOtpFragmentBinding
-import com.woleapp.netpos.contactless.model.FailedTransactionResponse
 import com.woleapp.netpos.contactless.model.QrTransactionResponseModel
+import com.woleapp.netpos.contactless.model.VerveTransactionResponse
 import com.woleapp.netpos.contactless.ui.dialog.LoadingDialog
 import com.woleapp.netpos.contactless.ui.dialog.ResponseModal
 import com.woleapp.netpos.contactless.util.AppConstants.QR_TRANSACTION_RESULT_BUNDLE_KEY
@@ -85,12 +85,14 @@ class EnterOtpFragment @Inject constructor() : BaseFragment() {
                         ) {
                             val transactionResponseFromVerve =
                                 viewModel.transactionResponseFromVerve.value!!.data!!
-                            val transResp =
-                                if (transactionResponseFromVerve is QrTransactionResponseModel) transactionResponseFromVerve else {
-                                    val failedTrans =
-                                        transactionResponseFromVerve as FailedTransactionResponse
-                                    formatFailedVerveTransRespToExtractIswResponse(failedTrans).mapToQrTransactionResponseModel()
-                                }
+                            val transResp: QrTransactionResponseModel = try {
+                                formatFailedVerveTransRespToExtractIswResponse(
+                                    transactionResponseFromVerve as VerveTransactionResponse
+                                ).mapToQrTransactionResponseModel()
+                            } catch (e: Exception) {
+                                (transactionResponseFromVerve as VerveTransactionResponse).mapToQrTransactionResponseModel()
+                            }
+
                             val formattedTransactionResp =
                                 transResp.mapQrTransRespToQrRespFinalModel(
                                     "",

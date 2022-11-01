@@ -1,6 +1,5 @@
 package com.woleapp.netpos.contactless.ui.dialog
 
-import android.Manifest
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -19,22 +18,16 @@ import com.woleapp.netpos.contactless.databinding.LayoutQrReceiptPdfBinding
 import com.woleapp.netpos.contactless.databinding.TransactionStatusModalBinding
 import com.woleapp.netpos.contactless.model.ModalData
 import com.woleapp.netpos.contactless.model.QrTransactionResponseFinalModel
+import com.woleapp.netpos.contactless.util.AppConstants.IS_QR_TRANSACTION
 import com.woleapp.netpos.contactless.util.AppConstants.QR_TRANSACTION_RESULT_BUNDLE_KEY
 import com.woleapp.netpos.contactless.util.AppConstants.QR_TRANSACTION_RESULT_REQUEST_KEY
-import com.woleapp.netpos.contactless.util.AppConstants.WRITE_PERMISSION_REQUEST_CODE
+import com.woleapp.netpos.contactless.util.AppConstants.SAVE_QR_TRANS_TO_DB
 import com.woleapp.netpos.contactless.util.Mappers.mapQrTransToNormalTransRespType
-import com.woleapp.netpos.contactless.util.RandomPurposeUtil.showSnackBar
-import com.woleapp.netpos.contactless.util.createPdf
-import com.woleapp.netpos.contactless.util.genericPermissionHandler
+import com.woleapp.netpos.contactless.util.RxJavaUtils.getSingleTransformer
 import com.woleapp.netpos.contactless.util.initViewsForPdfLayout
-import com.woleapp.netpos.contactless.util.sharePdf
 import com.woleapp.netpos.contactless.viewmodels.NfcCardReaderViewModel
 import com.woleapp.netpos.contactless.viewmodels.ScanQrViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
-import timber.log.Timber
-import java.io.File
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -44,12 +37,9 @@ class ResponseModal @Inject constructor() : DialogFragment() {
     private lateinit var statusTv: TextView
     private lateinit var cancelBtn: ImageView
     private lateinit var sendReceiptAsSms: ImageView
-    private lateinit var downloadReceiptAsPdf: ImageView
-    private lateinit var shareReceiptAsPdf: ImageView
     private lateinit var amountTv: TextView
     private var modalData: ModalData? = null
     private lateinit var pdfView: LayoutQrReceiptPdfBinding
-    private lateinit var receiptPdf: File
     private var responseFromWebView: QrTransactionResponseFinalModel? = null
     private val scanQrViewModel by activityViewModels<ScanQrViewModel>()
     private val nfcCardReaderViewModel by activityViewModels<NfcCardReaderViewModel>()
@@ -105,37 +95,15 @@ class ResponseModal @Inject constructor() : DialogFragment() {
         }
         sendReceiptAsSms.setOnClickListener {
             dialog?.dismiss()
-            nfcCardReaderViewModel.showReceiptDialogForQrPayment()
-        }
-        shareReceiptAsPdf.setOnClickListener {
-            initViewsForPdfLayout(pdfView, responseFromWebView)
-            dialog?.dismiss()
-            receiptPdf = createPdf(pdfView, this)
-
-            sharePdf(receiptPdf, this@ResponseModal)
-        }
-        downloadReceiptAsPdf.setOnClickListener {
-            initViewsForPdfLayout(pdfView, responseFromWebView)
-            genericPermissionHandler(
-                this@ResponseModal,
-                requireContext(),
-                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                WRITE_PERMISSION_REQUEST_CODE,
-                getString(R.string.storage_permission_rationale_for_download)
-            ) {
-                receiptPdf = createPdf(pdfView, this)
-                showSnackBar(
-                    binding.root,
-                    getString(R.string.fileDownloaded)
-                )
+            responseFromWebView?.let { qrTransResponse ->
+                nfcCardReaderViewModel.setQrTransactionResponse(qrTransResponse)
+                nfcCardReaderViewModel.showReceiptDialogForQrPayment()
             }
         }
     }
 
     private fun initViews() {
         with(binding) {
-            shareReceiptAsPdf = shareReceipt
-            downloadReceiptAsPdf = downloadReceipt
             lottieIcon = statusIconLAV
             statusTv = successFailed
             cancelBtn = cancelButton
@@ -146,7 +114,6 @@ class ResponseModal @Inject constructor() : DialogFragment() {
 
     private fun setData() {
         modalData?.let {
-//            scanQrViewModel.setQrTransactionResponse()
             if (it.status) {
                 lottieIcon.setAnimation(R.raw.lottiesuccess)
                 statusTv.text = getString(R.string.success)
@@ -170,16 +137,13 @@ class ResponseModal @Inject constructor() : DialogFragment() {
                 transactionResponse.copy(
                     amount = transactionResponse.amount.times(
                         100
-                    )
+                    ),
+                    TVR = transactionResponse.TVR + IS_QR_TRANSACTION
                 )
             )
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { responseFromDbOperations, error ->
+            .compose(getSingleTransformer(SAVE_QR_TRANS_TO_DB))
+            .subscribe { responseFromDbOperations ->
                 responseFromDbOperations?.let {
-                }
-                error?.let {
-                    Timber.d("DATA_FROM_SAVING_TO_DB====>%s", it.localizedMessage)
                 }
             }
     }

@@ -7,7 +7,7 @@ import com.woleapp.netpos.contactless.model.TokenResp
 import com.woleapp.netpos.contactless.model.User
 import io.reactivex.Single
 import retrofit2.Response
-import retrofit2.http.*
+import retrofit2.http.* // ktlint-disable no-wildcard-imports
 
 interface StormApiService {
     @POST("api/token")

@@ -1,0 +1,20 @@
+{
+  "version": 3,
+  "artifactType": {
+    "type": "APK",
+    "kind": "Directory"
+  },
+  "applicationId": "com.woleapp.netpos.contactless.wemabank",
+  "variantName": "wemabankRelease",
+  "elements": [
+    {
+      "type": "SINGLE",
+      "filters": [],
+      "attributes": [],
+      "versionCode": 10,
+      "versionName": "1.0.10",
+      "outputFile": "app-wemabank-release.apk"
+    }
+  ],
+  "elementType": "File"
+}

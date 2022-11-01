@@ -16,7 +16,6 @@ import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
 import com.danbamitale.epmslib.entities.TransactionResponse
-import com.pixplicity.easyprefs.library.Prefs
 import com.woleapp.netpos.contactless.BuildConfig
 import com.woleapp.netpos.contactless.R
 import com.woleapp.netpos.contactless.databinding.LayoutPosReceiptPdfBinding
@@ -30,20 +29,12 @@ fun initViewsForPdfLayout(
     pdfView: ViewDataBinding,
     receipt: Any?
 ) {
-    val isCustomerCopy: String = if (Prefs.getString(
-            PREF_PRINTER_SETTINGS,
-            PREF_VALUE_PRINT_CUSTOMER_COPY_ONLY
-        ).contains("customer", true)
-    ) pdfView.root.context.getString(R.string.customerCopy) else pdfView.root.context.getString(
-        R.string.merchantCopy
-    )
-
     when (receipt) {
         is QrTransactionResponseFinalModel -> {
-            initViewsForQrReceipt((pdfView as LayoutQrReceiptPdfBinding), receipt, isCustomerCopy)
+            initViewsForQrReceipt((pdfView as LayoutQrReceiptPdfBinding), receipt)
         }
         is TransactionResponse -> {
-            initViewsForPosReceipt((pdfView as LayoutPosReceiptPdfBinding), receipt, isCustomerCopy)
+            initViewsForPosReceipt((pdfView as LayoutPosReceiptPdfBinding), receipt)
         }
         else -> { /* Do nothing */
         }
@@ -144,13 +135,17 @@ fun createPdf(
 
 private fun initViewsForQrReceipt(
     pdfView: LayoutQrReceiptPdfBinding,
-    responseFromWebView: QrTransactionResponseFinalModel?,
-    isCustomerCopy: String
+    responseFromWebView: QrTransactionResponseFinalModel?
 ) {
     pdfView.apply {
         responseFromWebView?.let { respFromWebView: QrTransactionResponseFinalModel ->
             merchantName.text = pdfView.root.context.getString(
                 R.string.merchant_name_place_holder,
+                Singletons.getCurrentlyLoggedInUser()?.business_name
+                    ?: "${BuildConfig.FLAVOR} POS MERCHANT"
+            )
+            cardOwner.text = pdfView.root.context.getString(
+                R.string.card_owner_place_holder,
                 respFromWebView.customerName
             )
             terminalIdPlaceHolder.text =
@@ -199,19 +194,13 @@ private fun initViewsForQrReceipt(
                 R.string.app_version_place_holder,
                 "${BuildConfig.FLAVOR} POS ${BuildConfig.VERSION_NAME}"
             )
-            isCustomersCopy.text =
-                pdfView.appVersion.context.getString(
-                    R.string.is_cutomers_copy_place_holder,
-                    isCustomerCopy
-                )
         }
     }
 }
 
 private fun initViewsForPosReceipt(
     pdfView: LayoutPosReceiptPdfBinding,
-    transResponse: TransactionResponse,
-    isCustomerCopy: String
+    transResponse: TransactionResponse
 ) {
     pdfView.apply {
         transResponse.let {
@@ -228,7 +217,7 @@ private fun initViewsForPosReceipt(
             dateTime.text =
                 pdfView.appVersion.context.getString(
                     R.string.date_time_place_holder,
-                    it.transmissionDateTime
+                    it.transactionTimeInMillis.formatDate()
                 )
             transAmount.text = pdfView.appVersion.context.getString(
                 R.string.amount_place_holder,
@@ -236,7 +225,7 @@ private fun initViewsForPosReceipt(
             )
             stan.text =
                 pdfView.appVersion.context.getString(
-                    R.string.narration_place_holder,
+                    R.string.stan_place_holder,
                     it.STAN
                 )
             cardHolder.text =
@@ -264,11 +253,6 @@ private fun initViewsForPosReceipt(
                 R.string.app_version_place_holder,
                 "${BuildConfig.FLAVOR} POS ${BuildConfig.VERSION_NAME}"
             )
-            isCustomersCopy.text =
-                pdfView.appVersion.context.getString(
-                    R.string.is_cutomers_copy_place_holder,
-                    isCustomerCopy
-                )
         }
     }
 }

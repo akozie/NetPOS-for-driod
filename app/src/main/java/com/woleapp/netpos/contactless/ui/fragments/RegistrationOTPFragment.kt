@@ -5,25 +5,16 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.text.method.LinkMovementMethod
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
-import androidx.core.os.bundleOf
 import androidx.databinding.DataBindingUtil
 import com.chaos.view.PinView
-import com.woleapp.netpos.contactless.BuildConfig
 import com.woleapp.netpos.contactless.R
 import com.woleapp.netpos.contactless.databinding.FragmentRegistrationOTPBinding
-import com.woleapp.netpos.contactless.model.FailedTransactionResponse
-import com.woleapp.netpos.contactless.model.QrTransactionResponseModel
-import com.woleapp.netpos.contactless.ui.dialog.LoadingDialog
-import com.woleapp.netpos.contactless.util.AppConstants
 import com.woleapp.netpos.contactless.util.RandomPurposeUtil
-import com.woleapp.netpos.contactless.util.RandomPurposeUtil.observeServerResponse
-import com.woleapp.netpos.contactless.util.Singletons
 
 class RegistrationOTPFragment : BaseFragment() {
     private lateinit var binding: FragmentRegistrationOTPBinding

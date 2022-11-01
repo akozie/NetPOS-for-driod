@@ -13,7 +13,9 @@ import com.woleapp.netpos.contactless.ui.fragments.LoginFragment
 import com.woleapp.netpos.contactless.util.JWTHelper
 import com.woleapp.netpos.contactless.util.PREF_AUTHENTICATED
 import com.woleapp.netpos.contactless.util.PREF_USER_TOKEN
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class AuthenticationActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAuthenticationBinding
     override fun onCreate(savedInstanceState: Bundle?) {
