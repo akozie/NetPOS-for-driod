@@ -73,10 +73,10 @@ class ContactlessRegViewModel @Inject constructor(
         )
     }
 
-    fun registerExistingAccount(accountNumber: ExistingAccountRegisterRequest, bank: Int) {
+    fun registerExistingAccount(accountNumber: ExistingAccountRegisterRequest, bank: String, partnerId:String) {
         _existingRegRequestResponse.postValue(Resource.loading(null))
         disposable.add(
-            contactlessRegRepo.registerExistingAccount(accountNumber, bank)
+            contactlessRegRepo.registerExistingAccount(accountNumber, bank, partnerId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { data, error ->

@@ -11,8 +11,10 @@ import android.text.style.StyleSpan
 import android.util.Base64
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import com.google.android.material.snackbar.Snackbar
@@ -62,6 +64,16 @@ object RandomPurposeUtil {
         }
     }
 
+    fun generateRandomRrn(length: Int): String {
+        val random = Random()
+        var digits = ""
+        digits += (random.nextInt(9) + 1).toString()
+        for (i in 1 until length) {
+            digits += (random.nextInt(10) + 0).toString()
+        }
+        return digits
+    }
+
     @Throws(IndexOutOfBoundsException::class)
     fun customSpannableString(
         text: String,
@@ -89,6 +101,50 @@ object RandomPurposeUtil {
         return spannedText
     }
 
+    fun <T> observeServerResponseActivity(
+        context: Context,
+        lifecycle: LifecycleOwner,
+        serverResponse: LiveData<Resource<T>>,
+        loadingDialog: LoadingDialog,
+        fragmentManager: FragmentManager,
+        successAction: () -> Unit
+    ) {
+        serverResponse.observe(lifecycle) {
+            when (it.status) {
+                Status.SUCCESS -> {
+                    loadingDialog.dismiss()
+                    if (
+                        it.data is PostQrToServerResponse ||
+                        it.data is PostQrToServerVerveResponseModel ||
+                        it.data is QrTransactionResponseModel ||
+                        it.data is VerveTransactionResponse ||
+                        it.data is ExistingAccountRegisterResponse
+                    ) {
+                        Toast.makeText(context, "Success", Toast.LENGTH_SHORT).show()
+                        successAction()
+                    } else {
+                        Toast.makeText(context, R.string.an_error_occurred, Toast.LENGTH_SHORT).show()
+                    }
+                }
+                Status.LOADING -> {
+                    loadingDialog.show(
+                        fragmentManager,
+                        STRING_LOADING_DIALOG_TAG
+                    )
+                }
+                Status.ERROR -> {
+                    loadingDialog.dismiss()
+                    Toast.makeText(context, R.string.an_error_occurred, Toast.LENGTH_SHORT).show()
+                }
+                Status.TIMEOUT -> {
+                    loadingDialog.dismiss()
+                    Toast.makeText(context, R.string.timeOut, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+
     fun <T> Fragment.observeServerResponse(
         serverResponse: LiveData<Resource<T>>,
         loadingDialog: LoadingDialog,
@@ -103,8 +159,10 @@ object RandomPurposeUtil {
                         it.data is PostQrToServerResponse ||
                         it.data is PostQrToServerVerveResponseModel ||
                         it.data is QrTransactionResponseModel ||
-                        it.data is VerveTransactionResponse
+                        it.data is VerveTransactionResponse ||
+                        it.data is ExistingAccountRegisterResponse
                     ) {
+                        showToast("Success!")
                         successAction()
                     } else {
                         showSnackBar(this.requireView(), getString(R.string.an_error_occurred))

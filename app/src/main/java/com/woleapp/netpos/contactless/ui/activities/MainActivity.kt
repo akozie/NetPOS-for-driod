@@ -4,6 +4,8 @@ package com.woleapp.netpos.contactless.ui.activities
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
+import android.app.DatePickerDialog
 import android.app.ProgressDialog
 import android.content.Intent
 import android.content.IntentFilter
@@ -16,26 +18,37 @@ import android.nfc.tech.IsoDep
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.WindowManager
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
+import com.danbamitale.epmslib.entities.*
+import com.danbamitale.epmslib.entities.TransactionResponse
+import com.danbamitale.epmslib.extensions.formatCurrencyAmount
+import com.danbamitale.epmslib.processors.TransactionProcessor
 import com.danbamitale.epmslib.utils.IsoAccountType
 import com.google.android.gms.tasks.OnCompleteListener
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.android.material.navigation.NavigationBarView
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.gson.Gson
+import com.netpluspay.netposbarcodesdk.RESULT_CODE_TEXT
 import com.pixplicity.easyprefs.library.Prefs
 import com.visa.app.ttpkernel.ContactlessKernel
 import com.woleapp.netpos.contactless.R
 import com.woleapp.netpos.contactless.app.NetPosApp
+import com.woleapp.netpos.contactless.database.AppDatabase
 import com.woleapp.netpos.contactless.databinding.* // ktlint-disable no-wildcard-imports
-import com.woleapp.netpos.contactless.model.QrTransactionResponseFinalModel
-import com.woleapp.netpos.contactless.model.User
+import com.woleapp.netpos.contactless.model.*
 import com.woleapp.netpos.contactless.mqtt.MqttHelper
 import com.woleapp.netpos.contactless.network.StormApiClient
 import com.woleapp.netpos.contactless.nibss.NetPosTerminalConfig
@@ -43,19 +56,32 @@ import com.woleapp.netpos.contactless.receivers.BatteryReceiver
 import com.woleapp.netpos.contactless.taponphone.mastercard.implementations.nfc.NFCManager.READER_FLAGS
 import com.woleapp.netpos.contactless.taponphone.visa.LiveNfcTransReceiver
 import com.woleapp.netpos.contactless.taponphone.visa.NfcPaymentType
+import com.woleapp.netpos.contactless.ui.dialog.LoadingDialog
 import com.woleapp.netpos.contactless.ui.dialog.PasswordDialog
-import com.woleapp.netpos.contactless.ui.fragments.DashboardFragment
+import com.woleapp.netpos.contactless.ui.fragments.*
 import com.woleapp.netpos.contactless.util.* // ktlint-disable no-wildcard-imports
 import com.woleapp.netpos.contactless.util.AppConstants.IS_QR_TRANSACTION
+import com.woleapp.netpos.contactless.util.AppConstants.STRING_QR_READ_RESULT_BUNDLE_KEY
+import com.woleapp.netpos.contactless.util.AppConstants.STRING_QR_READ_RESULT_REQUEST_KEY
 import com.woleapp.netpos.contactless.util.AppConstants.WRITE_PERMISSION_REQUEST_CODE
+import com.woleapp.netpos.contactless.util.AppConstants.getGUID
 import com.woleapp.netpos.contactless.util.Mappers.mapTransactionResponseToQrTransaction
+import com.woleapp.netpos.contactless.util.RandomPurposeUtil.observeServerResponse
+import com.woleapp.netpos.contactless.util.RandomPurposeUtil.observeServerResponseActivity
 import com.woleapp.netpos.contactless.util.RandomPurposeUtil.showSnackBar
+import com.woleapp.netpos.contactless.util.RandomPurposeUtil.stringToBase64
 import com.woleapp.netpos.contactless.util.Singletons.gson
 import com.woleapp.netpos.contactless.viewmodels.NfcCardReaderViewModel
+import com.woleapp.netpos.contactless.viewmodels.ScanQrViewModel
+import com.woleapp.netpos.contactless.viewmodels.TransactionsViewModel
+import com.woleapp.netpos.contactless.BuildConfig
 import dagger.hilt.android.AndroidEntryPoint
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import pub.devrel.easypermissions.EasyPermissions
 import timber.log.Timber
 import java.io.File
+import java.util.*
 import javax.inject.Inject
 
 @Suppress("DEPRECATION")
@@ -73,6 +99,8 @@ class MainActivity @Inject constructor() :
     private lateinit var qrPdfView: LayoutQrReceiptPdfBinding
     private lateinit var dialogContactlessReaderBinding: DialogContatclessReaderBinding
     private val viewModel by viewModels<NfcCardReaderViewModel>()
+    private val nfcCardReaderViewModel by viewModels<NfcCardReaderViewModel>()
+    private val transactionViewModel by viewModels<TransactionsViewModel>()
     private val contactlessKernel: ContactlessKernel by lazy {
         ContactlessKernel.getInstance(applicationContext)
     }
@@ -89,6 +117,14 @@ class MainActivity @Inject constructor() :
     private var nfcAdapter: NfcAdapter? = null
     private lateinit var receiptDialogBinding: DialogTransactionResultBinding
     private lateinit var receiptAlertDialog: AlertDialog
+    private lateinit var resultLauncher: ActivityResultLauncher<Intent>
+    private lateinit var requestNarration: String
+    private lateinit var qrAmoutDialogBinding: QrAmoutDialogBinding
+    private lateinit var verveCardQrAmoutDialogBinding: LayoutVerveCardQrAmountDialogBinding
+    private lateinit var qrAmountDialog: androidx.appcompat.app.AlertDialog
+    private lateinit var qrAmountDialogForVerveCard: androidx.appcompat.app.AlertDialog
+    private val scanQrViewModel by viewModels<ScanQrViewModel>()
+
     override fun onStop() {
         super.onStop()
         // LocalBroadcastManager.getInstance(this).unregisterReceiver(receiver)
@@ -255,6 +291,48 @@ class MainActivity @Inject constructor() :
             setMessage("Configuring Terminal, Please wait")
             setCancelable(false)
         }
+        requestNarration = Singletons.getCurrentlyLoggedInUser()?.mid?.let {
+            "$it:${Singletons.getCurrentlyLoggedInUser()?.terminal_id}:${BuildConfig.STRING_MPGS_TAG}"
+        } ?: ""
+
+        this.supportFragmentManager.setFragmentResultListener(
+            STRING_QR_READ_RESULT_REQUEST_KEY,
+            this
+        ) { _, bundle ->
+            val data = bundle.getParcelable<QrScannedDataModel>(STRING_QR_READ_RESULT_BUNDLE_KEY)
+            data?.let {
+                if (it.card_scheme.contains(
+                        "verve",
+                        true
+                    )
+                ) showAmountDialogForVerveCard(it) else showAmountDialog(it)
+            }
+        }
+        resultLauncher =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+                if (result.resultCode == Activity.RESULT_OK) {
+                    val data: Intent? = result.data
+                    data?.let {
+                        if (it.hasExtra(RESULT_CODE_TEXT)) {
+                            val text = it.getStringExtra(RESULT_CODE_TEXT)
+                            Toast.makeText(
+                                this,
+                                getString(R.string.qr_scanned),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            text?.let { qrCardData ->
+                                val qrReadResult =
+                                    Gson().fromJson(qrCardData, QrCardReadResultModel::class.java)
+                                val scannedData =
+                                    QrScannedDataModel(card_scheme = "", qrReadResult.data)
+//                                showAmountDialog(qrReadResult.data)
+                            }
+                        }
+                    }
+                } else {
+                    Toast.makeText(this, "scan failed", Toast.LENGTH_SHORT).show()
+                }
+            }
         alertDialog = AlertDialog.Builder(this).run {
             setCancelable(false)
             title = "Message"
@@ -271,6 +349,32 @@ class MainActivity @Inject constructor() :
         }
         val user = gson.fromJson(Prefs.getString(PREF_USER, ""), User::class.java)
         binding.dashboardHeader.username.text = user.business_name
+        binding.dashboardBottomNavigationView.setOnItemSelectedListener(object :
+            NavigationBarView.OnItemSelectedListener {
+            override fun onNavigationItemSelected(item: MenuItem): Boolean {
+                when (item.itemId) {
+                    R.id.homeFragment -> {
+                        showFragment(DashboardFragment(), "Dashboard")
+                    }
+                    R.id.transaction -> {
+                        showFragment(TransactionsFragment(), "Transactions")
+                    }
+//                    R.id.balanceEnquiry -> {
+//                        getBalance()
+//                    }
+                    R.id.scanQR -> {
+                        showFragment(FragmentBarCodeScanner(), "Scan QR")
+                    }
+                    R.id.endOfDay -> {
+                        showCalendarDialog()
+                    }
+                    R.id.settings -> {
+                        showFragment(SettingsFragment(), "Settings")
+                    }
+                }
+                return true
+            }
+        })
         binding.dashboardHeader.logout.setOnClickListener {
             logout()
         }
@@ -406,6 +510,27 @@ class MainActivity @Inject constructor() :
                 Log.d("FCM", token)
             }
         )
+        qrAmoutDialogBinding = QrAmoutDialogBinding.inflate(layoutInflater, null, false)
+            .apply {
+                executePendingBindings()
+                lifecycleOwner = this@MainActivity
+            }
+
+        verveCardQrAmoutDialogBinding =
+            LayoutVerveCardQrAmountDialogBinding.inflate(layoutInflater, null, false)
+                .apply {
+                    executePendingBindings()
+                    lifecycleOwner = this@MainActivity
+                }
+
+        qrAmountDialog = androidx.appcompat.app.AlertDialog.Builder(this).apply {
+            setView(qrAmoutDialogBinding.root)
+        }.create()
+
+        qrAmountDialogForVerveCard =
+            androidx.appcompat.app.AlertDialog.Builder(this).apply {
+                setView(verveCardQrAmoutDialogBinding.root)
+            }.create()
     }
 
     override fun onRequestPermissionsResult(
@@ -613,6 +738,183 @@ class MainActivity @Inject constructor() :
                 receiptDialogBinding.apply {
                     progress.visibility = View.GONE
                     sendButton.isEnabled = true
+                }
+            }
+        }
+    }
+
+    private fun getBalance() {
+        showCardDialog(
+            this,
+            this
+        ).observe(this) { event ->
+            event.getContentIfNotHandled()?.let {
+                nfcCardReaderViewModel.initiateNfcPayment(10, 0, it)
+            }
+        }
+    }
+
+
+    private fun showMessage(s: String, vararg messageString: String) {
+        AlertDialog.Builder(this)
+            .apply {
+                setTitle(s)
+                setMessage(messageString.first())
+                setPositiveButton("Ok") { dialog, _ ->
+                    dialog.dismiss()
+                    nfcCardReaderViewModel.prepareSMS(messageString.reversed().joinToString("\n"))
+                }
+                create().show()
+            }
+    }
+
+    private fun showCalendarDialog() {
+        val calendar = Calendar.getInstance()
+        DatePickerDialog(
+            this,
+            { _, i, i2, i3 ->
+                getEndOfDayTransactions(
+                    Calendar.getInstance().apply { set(i, i2, i3) }.timeInMillis
+                )
+            },
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH)
+        ).show()
+    }
+
+    private fun getEndOfDayTransactions(timestamp: Long? = null) {
+        Toast.makeText(this, "Please wait", Toast.LENGTH_LONG).show()
+        val livedata = AppDatabase.getDatabaseInstance(this)
+            .transactionResponseDao()
+            .getEndOfDayTransaction(
+                getBeginningOfDay(timestamp),
+                getEndOfDayTimeStamp(timestamp),
+                NetPosTerminalConfig.getTerminalId()
+            )
+        livedata.observe(this) {
+            showEndOfDayBottomSheetDialog(it)
+            livedata.removeObservers(this)
+        }
+    }
+
+    private fun showEndOfDayBottomSheetDialog(transactions: List<TransactionResponse>) {
+        val approvedList = transactions.filter { it.responseCode == "00" }
+        val declinedList = transactions.filter { it.responseCode != "00" }
+        val endOfDay =
+            LayoutPrintEndOfDayBinding.inflate(LayoutInflater.from(this), null, false)
+        endOfDay.apply {
+            approvedCount.text = approvedList.size.toString()
+            declinedCount.text = declinedList.size.toString()
+            totalTransactions.text =
+                getString(R.string.total_transaction_count, transactions.size.toString())
+            print.setOnClickListener {
+                when (chipGroup.checkedChipId) {
+                    R.id.print_approved -> approvedList
+                    R.id.print_declined -> declinedList
+                    else -> transactions
+                }.apply {
+                    if (isEmpty()) {
+                        Toast.makeText(this@MainActivity,
+                            "No transactions to print",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+            }
+        }
+        val bottomSheet = BottomSheetDialog(this, R.style.SheetDialog)
+            .apply {
+                dismissWithAnimation = true
+                setCancelable(false)
+                setContentView(endOfDay.root)
+                show()
+            }
+        endOfDay.view.setOnClickListener {
+            transactionViewModel.setEndOfDayList(transactions)
+            bottomSheet.dismiss()
+            showFragment(TransactionHistoryFragment.newInstance(HISTORY_ACTION_EOD), "Transaction History")
+        }
+        endOfDay.closeButton.setOnClickListener {
+            bottomSheet.dismiss()
+        }
+    }
+
+    private fun showAmountDialog(qrData: QrScannedDataModel) {
+        qrAmountDialog.show()
+        qrAmoutDialogBinding.proceed.setOnClickListener {
+            val amountDouble = qrAmoutDialogBinding.amount.text.toString().toDoubleOrNull()
+            if (qrAmoutDialogBinding.amount.text.isNullOrEmpty()) qrAmoutDialogBinding.amount.error =
+                getString(R.string.amount_empty)
+            amountDouble?.let {
+                qrAmoutDialogBinding.amount.text?.clear()
+                qrAmountDialog.cancel()
+                val qrDataToSendToBackend =
+                    PostQrToServerModel(
+                        it,
+                        qrData.data,
+                        merchantId = BuildConfig.STRING_MERCHANT_ID,
+                        narration = requestNarration
+                    )
+                scanQrViewModel.setScannedQrIsVerveCard(false)
+                scanQrViewModel.postScannedQrRequestToServer(qrDataToSendToBackend)
+                observeServerResponseActivity(
+                    this,
+                    this,
+                    scanQrViewModel.sendQrToServerResponse,
+                    LoadingDialog(),
+                    supportFragmentManager
+                ) {
+                    showFragment(
+                        CompleteQrPaymentWebViewFragment(),
+                        "QR"
+                    )
+                }
+            }
+        }
+    }
+
+    private fun showAmountDialogForVerveCard(qrData: QrScannedDataModel) {
+        qrAmountDialogForVerveCard.show()
+        verveCardQrAmoutDialogBinding.proceed.setOnClickListener {
+            if (verveCardQrAmoutDialogBinding.amount.text.isNullOrEmpty()) {
+                verveCardQrAmoutDialogBinding.amount.error = getString(R.string.amount_empty)
+            }
+            if (verveCardQrAmoutDialogBinding.pin.text.isNullOrEmpty()) {
+                verveCardQrAmoutDialogBinding.pin.error = getString(R.string.enter_pin)
+            }
+            val amountDouble = verveCardQrAmoutDialogBinding.amount.text.toString().toDoubleOrNull()
+            verveCardQrAmoutDialogBinding.pin.text.toString().trim().let { pin ->
+                val formattedPadding = stringToBase64(pin).removeSuffix('\n'.toString())
+                if (pin.length == 4) {
+                    amountDouble?.let {
+                        verveCardQrAmoutDialogBinding.amount.text?.clear()
+                        verveCardQrAmoutDialogBinding.pin.text?.clear()
+                        qrAmountDialogForVerveCard.cancel()
+                        val qrDataToSendToBackend =
+                            PostQrToServerModel(
+                                it,
+                                qrData.data,
+                                merchantId = BuildConfig.STRING_MERCHANT_ID,
+                                padding = formattedPadding,
+                                narration = requestNarration
+                            )
+                        scanQrViewModel.setScannedQrIsVerveCard(true)
+                        scanQrViewModel.saveTheQrToSharedPrefs(qrDataToSendToBackend.copy(orderId = getGUID()))
+                        scanQrViewModel.postScannedQrRequestToServer(qrDataToSendToBackend)
+                        observeServerResponseActivity(
+                            this,
+                            this,
+                            scanQrViewModel.sendQrToServerResponseVerve,
+                            LoadingDialog(),
+                            supportFragmentManager
+                        ) {
+                            showFragment(
+                                EnterOtpFragment(),
+                                "OTP"
+                            )
+                        }
+                    }
                 }
             }
         }

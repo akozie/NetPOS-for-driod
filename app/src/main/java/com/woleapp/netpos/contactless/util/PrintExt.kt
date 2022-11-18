@@ -26,10 +26,14 @@ fun TransactionResponse.buildSMSText(s: String? = null): StringBuilder = StringB
         append("Remark: $it\n")
     }
     append("Auth Code: $authCode\n")
-    append("RRN: $RRN\n")
+    if (RRN.isNotEmpty()){
+        append("RRN: $RRN\n")
+    }
     append("STAN: $STAN\n")
     append("Card: $cardLabel - $maskedPan\n")
-    append("Card Owner: $cardHolder\n")
+    if (cardHolder.isNotEmpty()){
+        append("Card Owner: $cardHolder\n")
+    }
     append("Merchant: ${Singletons.getCurrentlyLoggedInUser()?.business_name}\n")
     append("Terminal ID: $terminalId\n")
 }
@@ -54,7 +58,9 @@ fun QrTransactionResponseFinalModel.buildSMSTextForQrTransaction(): StringBuilde
         append("OrderId: $rrnOrderId\n")
         append("Transaction Id: $transIdStan\n")
 //    append("Card: $cardLabel - $maskedPan\n")
-        append("Card Owner: $cardHolder\n")
+        if (cardHolder.isNotEmpty()){
+            append("Card Owner: $cardHolder\n")
+        }
         append("Merchant: ${Singletons.getCurrentlyLoggedInUser()?.business_name}\n")
         append("Terminal ID: ${Singletons.getCurrentlyLoggedInUser()?.terminal_id}\n")
     }

@@ -7,6 +7,8 @@
     <color name="pinTextColor">#000</color>
     <color name="white">#FFFFFF</color>
     <color name="gray">#a4a4a4</color>
+    <color name="dashboard_color">#eeeeee</color>
+    <color name="icon_color">#FBFBFB</color>
     <color name="pinButtonText">#ffffff</color>
     <color name="pinButtonBackground">@color/colorPrimary</color>
     <color name="colorError">#ffff4b55</color>

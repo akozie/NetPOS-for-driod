@@ -12,10 +12,10 @@
     <string name="service_item">Service item</string>
     <string name="transactions">Transactions</string>
     <string name="sales">Sales</string>
-    <string name="hint_amount">Enter Amount</string>
+    <string name="hint_amount">Enter Amount (=₦=)</string>
     <string name="naira_symbol">₦</string>
     <string name="enter_pin">Enter Card Pin</string>
-    <string name="proceess">Process</string>
+    <string name="proceess">Process Transaction</string>
     <string name="transaction_failed">transaction failed</string>
     <string name="transaction_status">Transaction Status</string>
     <string name="print">Print</string>
@@ -208,4 +208,18 @@
     <string name="email_info_netplusdotcom_com">Email: info@netplusdotcom.com</string>
     <string name="netplus_phone_number">Tel: +234 818 778 2542, +234 809 999 0660</string>
     <string name="pin_too_short">Pin too short</string>
+    <string name="lorem">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur malesuada lectus dui. Phasellus id ligula in eros porttitor vulputate eu vel arcu. Etiam eleifend pulvinar aliquet. Suspendisse potenti. Cras tincidunt dui mi, eu sagittis dui sagittis in. Aliquam mollis tincidunt lectus, sit amet dignissim tortor laoreet quis. Nunc id venenatis metus.
+Nam malesuada turpis quis porta pretium. Curabitur tempor tempus accumsan. Cras ac dolor ut eros finibus facilisis. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nam convallis finibus tellus id pellentesque. Aliquam ullamcorper, diam id pulvinar vestibulum, metus nisi lobortis dolor, sit amet porttitor urna metus nec nisl. Morbi a enim libero.
+Nullam purus nulla, elementum nec tempor eget, rutrum et risus. Nullam ut suscipit ligula. Mauris sed nulla eget magna sollicitudin dapibus sit amet eget nibh. Praesent non velit a odio sodales dapibus quis commodo mauris. In a ex ante. Aliquam eget euismod justo, vel scelerisque lectus. Vivamus ligula orci, pellentesque in sagittis in, pretium eu leo. Mauris ornare, ipsum id vestibulum scelerisque, nunc velit gravida est, molestie consequat risus sem dignissim massa. Sed at cursus massa. Ut in lorem sed dolor tincidunt lacinia.</string>
+    <string name="all_please_enter_business_name">Please Enter Business Name</string>
+    <string name="all_please_enter_full_name">Please Enter Full Name</string>
+    <string name="all_please_enter_location">Please Enter Your Location</string>
+    <string name="all_please_enter_phone_number">Please Enter your Phone Number</string>
+    <string name="all_please_enter_email_address">Please Enter your Email address</string>
+    <string name="all_please_enter_password">Please Enter Password</string>
+    <string name="all_please_enter_confirm_password">Please re-enter your password</string>
+<!--    <string name="invalid_phone_number">Invalid Phone number</string>-->
+<!--    <string name="all_phone_number_is_required">Phone Number is required</string>-->
+    <string name="all_password_mismatch">Password Mismatch</string>
+
 </resources>

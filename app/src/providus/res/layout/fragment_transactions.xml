@@ -13,16 +13,28 @@
         android:clickable="true"
         android:focusable="true">
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/colorPrimary"
+            app:layout_constraintBottom_toBottomOf="@+id/rv_transactions_header"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/rv_transactions_header" />
         <TextView
             android:id="@+id/rv_transactions_header"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
+            android:padding="@dimen/margin_10"
+            android:background="@drawable/fragment_header_background"
             android:gravity="center"
             android:text="@string/transactions"
             android:textAllCaps="true"
             android:textColor="@android:color/black"
             android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <com.woleapp.netpos.contactless.ui.widgets.GridRecyclerView

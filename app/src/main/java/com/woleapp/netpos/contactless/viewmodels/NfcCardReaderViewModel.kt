@@ -45,7 +45,7 @@ class NfcCardReaderViewModel @Inject constructor() : ViewModel() {
         MutableLiveData()
     }
 
-    // FOR QR
+    // FOR QRt
     private val _qrTransactionResponseFromWebView: MutableLiveData<QrTransactionResponseFinalModel> =
         MutableLiveData()
     val qrTransactionResponseFromWebView: LiveData<QrTransactionResponseFinalModel> get() = _qrTransactionResponseFromWebView

@@ -40,18 +40,18 @@ object Singletons {
         gson.fromJson(Prefs.getString(PREF_USER, ""), User::class.java)
 
     fun getSavedConfigurationData(): ConfigurationData {
-//        return ConfigurationData(
-//            "196.6.103.18",
-//            "5016",
-//            Keys.posvasLiveKey1,
-//            Keys.posvasLiveKey2
-//        )
         return ConfigurationData(
-            "196.6.103.10",
-            "55533",
-            "5D25072F04832A2329D93E4F91BA23A2",
-            "86CBCDE3B0A22354853E04521686863D"
+            "196.6.103.18",
+            "5016",
+            Keys.posvasLiveKey1,
+            Keys.posvasLiveKey2
         )
+//        return ConfigurationData(
+//            "196.6.103.10",
+//            "55533",
+//            "5D25072F04832A2329D93E4F91BA23A2",
+//            "86CBCDE3B0A22354853E04521686863D"
+//        )
     }
 
     fun getKeyHolder(): com.danbamitale.epmslib.entities.KeyHolder? =

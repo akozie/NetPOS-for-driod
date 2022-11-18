@@ -16,6 +16,6 @@ class ContactlessRegRepository @Inject constructor(
         ConfirmOTPRequest(otp,phoneNumber)
     )
 
-    fun registerExistingAccount(existingAccountRegisterRequest: ExistingAccountRegisterRequest, bank:Int) =
-        accountLookUpService.registerExistingAccount(existingAccountRegisterRequest, bank)
+    fun registerExistingAccount(existingAccountRegisterRequest: ExistingAccountRegisterRequest, bank:String, partnerId: String) =
+        accountLookUpService.registerExistingAccount(existingAccountRegisterRequest, bank, partnerId)
 }

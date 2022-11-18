@@ -15,6 +15,7 @@ import com.woleapp.netpos.contactless.model.AccountNumberLookUpResponse
 import com.woleapp.netpos.contactless.model.Status
 import com.woleapp.netpos.contactless.ui.dialog.LoadingDialog
 import com.woleapp.netpos.contactless.util.AppConstants.STRING_ACCOUNT_NUMBER_LOOKUP_TAG
+import com.woleapp.netpos.contactless.util.RandomPurposeUtil.observeServerResponse
 import com.woleapp.netpos.contactless.util.RandomPurposeUtil.showSnackBar
 import com.woleapp.netpos.contactless.util.Resource
 import com.woleapp.netpos.contactless.viewmodels.ContactlessRegViewModel
@@ -78,45 +79,20 @@ class NewOrExistingFragment : BaseFragment() {
                         Toast.LENGTH_SHORT
                     ).show()
                 } else {
-                    viewModel.accountLookUp(account)
-                    viewModel.accountNumberResponse.observe(viewLifecycleOwner, Observer {
-                        observeAccount(it){
-                            showFragment(
-                                RegistrationOTPFragment(),
-                                containerViewId = R.id.auth_container,
-                                fragmentName = "RegisterOTP Fragment"
-                            )
-                        }
-                    })
+                    showFragment(
+                        RegistrationOTPFragment(),
+                        containerViewId = R.id.auth_container,
+                        fragmentName = "RegisterOTP Fragment"
+                    )
+//                    viewModel.accountLookUp(account)
+//                    observeServerResponse(viewModel.accountNumberResponse, loader, requireActivity().supportFragmentManager){
+//                        showFragment(
+//                            RegistrationOTPFragment(),
+//                            containerViewId = R.id.auth_container,
+//                            fragmentName = "RegisterOTP Fragment"
+//                        )
+//                    }
                 }
-            }
-        }
-    }
-
-    private fun observeAccount(
-        accountNumberResp: Resource<AccountNumberLookUpResponse>,
-        successAction: () -> Unit
-    ) {
-        when (accountNumberResp.status) {
-            Status.SUCCESS -> {
-                loader.dismiss()
-                accountNumberResp.data?.let { accountLookUpResponse ->
-                    if (accountLookUpResponse.status) {
-                        //Toast.makeText(requireContext(), "${account}", Toast.LENGTH_SHORT).show()
-                        successAction()
-                    }
-                }
-            }
-            Status.LOADING -> {
-                loader.show(requireActivity().supportFragmentManager, STRING_ACCOUNT_NUMBER_LOOKUP_TAG)
-            }
-            Status.ERROR -> {
-                loader.dismiss()
-                showSnackBar(binding.root, getString(R.string.an_error_occurred))
-            }
-            Status.TIMEOUT -> {
-                loader.dismiss()
-                showSnackBar(binding.root, getString(R.string.timeOut))
             }
         }
     }

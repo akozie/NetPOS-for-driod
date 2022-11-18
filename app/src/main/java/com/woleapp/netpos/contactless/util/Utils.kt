@@ -7,6 +7,8 @@ import android.nfc.tech.IsoDep
 import android.nfc.tech.MifareClassic
 import android.nfc.tech.MifareUltralight
 import android.nfc.tech.NfcA
+import android.widget.Toast
+import androidx.fragment.app.Fragment
 import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.*
@@ -143,4 +145,12 @@ fun getCurrentDateTimeAsFormattedString(): String {
         "_${formattedTime.takeLast(3).trim()}"
     ).replace(":", "_")
         .replace("-", "_").replace(" ", "_at_")
+}
+
+fun validatePasswordMismatch(password: String, confirmPassword: String): Boolean {
+    return password == confirmPassword
+}
+
+fun Fragment.showToast(message: String) {
+    Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
 }

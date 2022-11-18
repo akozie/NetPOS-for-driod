@@ -10,17 +10,31 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
+import androidx.core.os.bundleOf
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.activityViewModels
 import com.chaos.view.PinView
+import com.pixplicity.easyprefs.library.Prefs
+import com.woleapp.netpos.contactless.BuildConfig
 import com.woleapp.netpos.contactless.R
 import com.woleapp.netpos.contactless.databinding.FragmentRegistrationOTPBinding
+import com.woleapp.netpos.contactless.model.QrTransactionResponseModel
+import com.woleapp.netpos.contactless.model.VerveTransactionResponse
+import com.woleapp.netpos.contactless.ui.dialog.LoadingDialog
+import com.woleapp.netpos.contactless.util.AppConstants
 import com.woleapp.netpos.contactless.util.RandomPurposeUtil
+import com.woleapp.netpos.contactless.util.RandomPurposeUtil.observeServerResponse
+import com.woleapp.netpos.contactless.util.Singletons
+import com.woleapp.netpos.contactless.viewmodels.ContactlessRegViewModel
 
 class RegistrationOTPFragment : BaseFragment() {
     private lateinit var binding: FragmentRegistrationOTPBinding
     private lateinit var resendCode: TextView
     private lateinit var otpView: PinView
     private lateinit var otpResentConfirmationText: TextView
+    private val viewModel by activityViewModels<ContactlessRegViewModel>()
+    private lateinit var loader:LoadingDialog
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -48,12 +62,21 @@ class RegistrationOTPFragment : BaseFragment() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 s?.let {
                     if (it.length == 6) {
+                        val accountNumber = Prefs.getString(AppConstants.SAVED_ACCOUNT_NUM_SIGNED_UP, "")
                         RandomPurposeUtil.closeSoftKeyboard(requireContext(), requireActivity())
                         showFragment(
                             ExistingCustomersRegistrationFragment(),
                             containerViewId = R.id.auth_container,
                             fragmentName = "Register Fragment"
                         )
+//                        viewModel.confirmOTP(accountNumber,s.toString())
+//                        observeServerResponse(viewModel.confirmOTPResponse, loader, requireActivity().supportFragmentManager){
+//                            showFragment(
+//                                ExistingCustomersRegistrationFragment(),
+//                                containerViewId = R.id.auth_container,
+//                                fragmentName = "Register Fragment"
+//                            )
+//                        }
                     }
                 }
             }

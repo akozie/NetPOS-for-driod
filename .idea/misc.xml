@@ -3,15 +3,100 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="app/src/fcmb/res/layout/activity_main.xml" value="0.19081272084805653" />
+        <entry key="app/src/fcmb/res/layout/dashboard_header.xml" value="0.2947916666666667" />
+        <entry key="app/src/fcmb/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.1045" />
         <entry key="app/src/firstbank/res/layout/dialog_select_account_type.xml" value="0.1175925925925926" />
         <entry key="app/src/firstbank/res/layout/fragment_login.xml" value="0.1175925925925926" />
+        <entry key="app/src/main/res/drawable/action_button_background.xml" value="0.183" />
+        <entry key="app/src/main/res/drawable/animated_check.xml" value="0.161" />
+        <entry key="app/src/main/res/drawable/bg_white_background_rounded.xml" value="0.183" />
+        <entry key="app/src/main/res/drawable/bottom_sheet_background.xml" value="0.183" />
+        <entry key="app/src/main/res/drawable/check_mark.xml" value="0.183" />
+        <entry key="app/src/main/res/drawable/curve_bg.xml" value="0.183" />
+        <entry key="app/src/main/res/drawable/edittext_bg.xml" value="0.183" />
+        <entry key="app/src/main/res/drawable/ic_add.xml" value="0.183" />
+        <entry key="app/src/main/res/drawable/ic_airtime_data.xml" value="0.183" />
+        <entry key="app/src/main/res/drawable/ic_arrow_drop_down.xml" value="0.183" />
+        <entry key="app/src/main/res/drawable/ic_baseline_print_24.xml" value="0.202" />
+        <entry key="app/src/main/res/drawable/ic_baseline_settings.xml" value="0.202" />
+        <entry key="app/src/main/res/drawable/ic_bill.xml" value="0.183" />
+        <entry key="app/src/main/res/drawable/ic_btn_cancel.xml" value="0.183" />
+        <entry key="app/src/main/res/drawable/ic_card_approved.xml" value="0.183" />
+        <entry key="app/src/main/res/drawable/ic_card_declined.xml" value="0.183" />
+        <entry key="app/src/main/res/drawable/ic_close.xml" value="0.183" />
+        <entry key="app/src/main/res/drawable/ic_content_copy.xml" value="0.183" />
+        <entry key="app/src/main/res/drawable/ic_download.xml" value="0.183" />
+        <entry key="app/src/main/res/drawable/ic_end_of_day.xml" value="0.183" />
+        <entry key="app/src/main/res/drawable/ic_error.xml" value="0.183" />
+        <entry key="app/src/main/res/drawable/ic_globe.xml" value="0.183" />
+        <entry key="app/src/main/res/drawable/ic_home_icon.xml" value="0.2425" />
+        <entry key="app/src/main/res/drawable/ic_launcher_background.xml" value="0.183" />
+        <entry key="app/src/main/res/drawable/ic_lending.xml" value="0.183" />
+        <entry key="app/src/main/res/drawable/ic_logout.xml" value="0.183" />
+        <entry key="app/src/main/res/drawable/ic_message.xml" value="0.183" />
+        <entry key="app/src/main/res/drawable/ic_notifications_none.xml" value="0.183" />
+        <entry key="app/src/main/res/drawable/ic_pay_cash_icon.xml" value="0.183" />
+        <entry key="app/src/main/res/drawable/ic_power.xml" value="0.183" />
+        <entry key="app/src/main/res/drawable/ic_pre_auth.xml" value="0.183" />
+        <entry key="app/src/main/res/drawable/ic_pre_auth_completion.xml" value="0.183" />
+        <entry key="app/src/main/res/drawable/ic_pre_auth_new.xml" value="0.183" />
+        <entry key="app/src/main/res/drawable/ic_print.xml" value="0.183" />
+        <entry key="app/src/main/res/drawable/ic_print_all.xml" value="0.183" />
+        <entry key="app/src/main/res/drawable/ic_print_one.xml" value="0.183" />
+        <entry key="app/src/main/res/drawable/ic_purchase.xml" value="0.183" />
+        <entry key="app/src/main/res/drawable/ic_qr_code.xml" value="0.183" />
+        <entry key="app/src/main/res/drawable/ic_search.xml" value="0.183" />
+        <entry key="app/src/main/res/drawable/ic_share.xml" value="0.183" />
+        <entry key="app/src/main/res/drawable/ic_television.xml" value="0.183" />
+        <entry key="app/src/main/res/drawable/ic_trans.xml" value="0.202" />
+        <entry key="app/src/main/res/drawable/ic_warning.xml" value="0.183" />
+        <entry key="app/src/main/res/drawable/ic_write.xml" value="0.183" />
+        <entry key="app/src/main/res/drawable/login_button_background.xml" value="0.183" />
+        <entry key="app/src/main/res/drawable/services_edittext_background.xml" value="0.183" />
+        <entry key="app/src/main/res/drawable/services_edittext_background_disabled.xml" value="0.183" />
+        <entry key="app/src/main/res/drawable/sheet_background.xml" value="0.183" />
+        <entry key="app/src/main/res/drawable/splash_background.xml" value="0.183" />
+        <entry key="app/src/main/res/drawable/white_custom_progress_bar.xml" value="0.183" />
+        <entry key="app/src/main/res/layout/activity_main.xml" value="0.25" />
+        <entry key="app/src/main/res/layout/dashboard_header.xml" value="0.2947916666666667" />
         <entry key="app/src/main/res/layout/dialog_account_number_layout.xml" value="0.1796875" />
-        <entry key="app/src/main/res/layout/fragment_dashboard.xml" value="0.18385416666666668" />
+        <entry key="app/src/main/res/layout/dialog_terms_and_conditions.xml" value="0.26614583333333336" />
+        <entry key="app/src/main/res/layout/fragment_dashboard.xml" value="0.25" />
         <entry key="app/src/main/res/layout/fragment_exisiting_customers_registration.xml" value="0.25" />
         <entry key="app/src/main/res/layout/fragment_new_or_existing.xml" value="0.3098958333333333" />
         <entry key="app/src/main/res/layout/fragment_register.xml" value="0.3098958333333333" />
         <entry key="app/src/main/res/layout/fragment_registration_o_t_p.xml" value="0.3098958333333333" />
+        <entry key="app/src/main/res/layout/fragment_reprint.xml" value="0.17447916666666666" />
+        <entry key="app/src/main/res/layout/fragment_sales.xml" value="0.375" />
+        <entry key="app/src/main/res/layout/fragment_terms_and_conditions.xml" value="0.2947916666666667" />
+        <entry key="app/src/main/res/layout/fragment_transaction_history.xml" value="0.17447916666666666" />
+        <entry key="app/src/main/res/layout/fragment_transactions.xml" value="0.19427083333333334" />
+        <entry key="app/src/main/res/layout/layout_enter_otp_fragment.xml" value="0.159375" />
+        <entry key="app/src/main/res/layout/layout_fragment_barcode.xml" value="0.2947916666666667" />
+        <entry key="app/src/main/res/layout/layout_service_item.xml" value="0.3098958333333333" />
+        <entry key="app/src/main/res/layout/qr_amout_dialog.xml" value="0.15833333333333333" />
+        <entry key="app/src/main/res/menu/bottom_nav.xml" value="0.30885416666666665" />
+        <entry key="app/src/providus/res/drawable/dashboard_background.xml" value="0.202" />
+        <entry key="app/src/providus/res/drawable/fragment_header_background.xml" value="0.183" />
+        <entry key="app/src/providus/res/drawable/ic_baseline_print_24.xml" value="0.202" />
+        <entry key="app/src/providus/res/drawable/ic_baseline_settings.xml" value="0.183" />
+        <entry key="app/src/providus/res/drawable/ic_pay_cash_icon.xml" value="0.183" />
+        <entry key="app/src/providus/res/drawable/ic_print.xml" value="0.183" />
+        <entry key="app/src/providus/res/drawable/ic_print_all.xml" value="0.183" />
+        <entry key="app/src/providus/res/drawable/ic_print_one.xml" value="0.183" />
+        <entry key="app/src/providus/res/drawable/ic_purchase.xml" value="0.183" />
+        <entry key="app/src/providus/res/drawable/ic_qr_code.xml" value="0.183" />
+        <entry key="app/src/providus/res/drawable/ic_trans.xml" value="0.202" />
+        <entry key="app/src/providus/res/drawable/ic_write.xml" value="0.183" />
+        <entry key="app/src/providus/res/layout/dashboard_header.xml" value="0.3239995320638021" />
+        <entry key="app/src/providus/res/layout/dialog_terms_and_conditions.xml" value="0.13177083333333334" />
         <entry key="app/src/providus/res/layout/fragment_login.xml" value="0.18020833333333333" />
+        <entry key="app/src/providus/res/layout/fragment_reprint.xml" value="0.17447916666666666" />
+        <entry key="app/src/providus/res/layout/fragment_sales.xml" value="0.17447916666666666" />
+        <entry key="app/src/providus/res/layout/fragment_transaction_history.xml" value="0.17447916666666666" />
+        <entry key="app/src/providus/res/layout/fragment_transactions.xml" value="0.34688995215311" />
+        <entry key="app/src/providus/res/layout/layout_service_item.xml" value="0.3098958333333333" />
         <entry key="app/src/wemabank/res/drawable/ic_logout.xml" value="0.192" />
         <entry key="app/src/wemabank/res/layout/dashboard_header.xml" value="0.18020833333333333" />
         <entry key="app/src/wemabank/res/layout/dialog_select_account_type.xml" value="0.25" />

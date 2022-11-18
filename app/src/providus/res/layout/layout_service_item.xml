@@ -30,8 +30,10 @@
 
             <ImageView
                 android:id="@+id/service_icon"
-                android:layout_width="50dp"
+                android:layout_width="100dp"
                 android:layout_height="100dp"
+                android:padding="@dimen/margin_20"
+                android:background="@drawable/dashboard_background"
                 android:layout_gravity="center"
                 android:layout_margin="16dp"
                 android:contentDescription="@string/service_item"

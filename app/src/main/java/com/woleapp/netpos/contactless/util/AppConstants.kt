@@ -20,4 +20,5 @@ object AppConstants {
     const val PIN_BLOCK_RK = "PIN_BLOCK_RK"
     const val PIN_BLOCK_BK = "PIN_BLOCK_BK"
     const val STRING_ACCOUNT_NUMBER_LOOKUP_TAG = "STRING_ACCOUNT_NUMBER_LOOKUP_TAG"
+    const val SAVED_ACCOUNT_NUM_SIGNED_UP = "0123456789"
 }

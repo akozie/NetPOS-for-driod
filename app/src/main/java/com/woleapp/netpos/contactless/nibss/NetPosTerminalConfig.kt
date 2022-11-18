@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.text.format.DateUtils
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
@@ -57,6 +58,7 @@ class NetPosTerminalConfig {
         private fun setTerminalId() {
             terminalId = Singletons.getCurrentlyLoggedInUser()?.terminal_id
 //            terminalId = "20398A4C"
+            //Log.d("CHECKTT", terminalId.toString())
         }
 
         private var keyHolder: KeyHolder? = null

@@ -79,27 +79,31 @@ class AuthViewModel : ViewModel() {
                 Prefs.putString(PREF_USER_TOKEN, userToken)
                 val userTokenDecoded = JWT(userToken)
                 val user = User().apply {
+                    this.business_address =
+                        if (userTokenDecoded.claims.containsKey("business_address")) userTokenDecoded.getClaim(
+                            "business_address"
+                        ).asString() else " "
                     this.terminal_id =
                         if (userTokenDecoded.claims.containsKey("terminalId")) userTokenDecoded.getClaim(
                             "terminalId"
-                        ).asString() else null
+                        ).asString() else " "
                     this.business_name =
                         if (userTokenDecoded.claims.containsKey("businessName")) userTokenDecoded.getClaim(
                             "businessName"
-                        ).asString() else null
+                        ).asString() else " "
                     this.netplus_id =
                         if (userTokenDecoded.claims.containsKey("stormId")) userTokenDecoded.getClaim(
                             "stormId"
-                        ).asString() else null
+                        ).asString() else " "
                     this.mid =
                         if (userTokenDecoded.claims.containsKey("mid")) userTokenDecoded.getClaim("mid")
-                            .asString() else null
+                            .asString() else " "
                     this.partnerId =
                         if (userTokenDecoded.claims.containsKey("partnerId")) userTokenDecoded.getClaim(
                             "partnerId"
-                        ).asString() else null
+                        ).asString() else " "
                 }
-                Timber.e(user.terminal_id)
+                Timber.d("BUSINESSADDRESS------> ${user.business_phone_number}")
                 Single.just(user)
             }.subscribeOn(Schedulers.io())
             .doFinally { authInProgress.postValue(false) }

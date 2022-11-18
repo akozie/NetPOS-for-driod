@@ -18,8 +18,7 @@ interface AccountLookUpService {
     @POST("user/register-existing-user")
     fun registerExistingAccount(
         @Body registerExistingAccountRegisterRequest: ExistingAccountRegisterRequest,
-        @Query("bank") bank: Int
+        @Query("bank") bank: String,
+        @Query("partnerId") partnerId: String
     ): Single<ExistingAccountRegisterResponse>
-
-
 }

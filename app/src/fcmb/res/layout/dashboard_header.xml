@@ -8,8 +8,8 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/dashboard_color">
+        android:layout_height="180dp"
+        android:background="@color/colorPrimary">
 
         <ImageButton
             android:id="@+id/logout"
@@ -25,22 +25,23 @@
 
         <ImageView
             android:id="@+id/netpos_logo"
-            android:layout_width="120dp"
-            android:layout_height="100dp"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
             android:layout_margin="8dp"
+            android:visibility="invisible"
             android:contentDescription="@string/netpos_logo"
             android:src="@drawable/ic_netpos_white"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
             android:id="@+id/user_image"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
             android:contentDescription="@string/user_image"
             android:src="@drawable/netpos_user"
-            android:layout_marginStart="@dimen/dimen_20dp"
             app:layout_constraintBottom_toTopOf="@id/welcome_label"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/netpos_logo"
             app:layout_constraintVertical_bias="0.22000003"
@@ -53,11 +54,12 @@
             android:layout_marginTop="8dp"
             android:text="@string/welcome"
             android:textAllCaps="true"
-            android:textColor="@android:color/black"
+            android:textColor="@android:color/white"
             android:textSize="14sp"
             android:textStyle="bold"
             app:layout_constraintBottom_toTopOf="@id/username"
-            app:layout_constraintStart_toStartOf="@+id/user_image"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/user_image" />
 
         <TextView
@@ -65,14 +67,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:layout_marginBottom="10dp"
             android:text="@string/dapo_uche"
             android:textAllCaps="true"
-            android:textSize="@dimen/dimen_20sp"
-            android:textColor="@android:color/black"
+            android:textColor="@android:color/white"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/welcome_label"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/welcome_label" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
