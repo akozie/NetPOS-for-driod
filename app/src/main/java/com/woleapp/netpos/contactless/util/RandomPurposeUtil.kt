@@ -2,6 +2,7 @@ package com.woleapp.netpos.contactless.util
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Context
 import android.graphics.Typeface
 import android.text.SpannableString
@@ -23,6 +24,7 @@ import com.woleapp.netpos.contactless.R
 import com.woleapp.netpos.contactless.model.*
 import com.woleapp.netpos.contactless.ui.dialog.LoadingDialog
 import com.woleapp.netpos.contactless.util.AppConstants.STRING_LOADING_DIALOG_TAG
+import kotlinx.android.synthetic.main.dialog_print_type.*
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -118,6 +120,7 @@ object RandomPurposeUtil {
                         it.data is PostQrToServerVerveResponseModel ||
                         it.data is QrTransactionResponseModel ||
                         it.data is VerveTransactionResponse ||
+                        it.data is ConfirmOTPResponse ||
                         it.data is ExistingAccountRegisterResponse
                     ) {
                         Toast.makeText(context, "Success", Toast.LENGTH_SHORT).show()
@@ -160,6 +163,8 @@ object RandomPurposeUtil {
                         it.data is PostQrToServerVerveResponseModel ||
                         it.data is QrTransactionResponseModel ||
                         it.data is VerveTransactionResponse ||
+                        it.data is AccountNumberLookUpResponse ||
+                        it.data is ConfirmOTPResponse ||
                         it.data is ExistingAccountRegisterResponse
                     ) {
                         showToast("Success!")
@@ -175,11 +180,64 @@ object RandomPurposeUtil {
                     )
                 }
                 Status.ERROR -> {
+                    loadingDialog.cancel
                     loadingDialog.dismiss()
+//                    if (it.data is AccountNumberLookUpResponse){
+//
+//                    }
                     showSnackBar(this.requireView(), getString(R.string.an_error_occurred))
                 }
                 Status.TIMEOUT -> {
+                    loadingDialog.cancel
                     loadingDialog.dismiss()
+                    //loadingDialog.requireActivity().finish()
+                    showSnackBar(this.requireView(), getString(R.string.timeOut))
+                }
+            }
+        }
+    }
+
+
+    fun <T> Fragment.observeServerResponse(
+        serverResponse: LiveData<Resource<T>>,
+        loadingDialog: AlertDialog,
+        fragmentManager: FragmentManager,
+        successAction: () -> Unit
+    ) {
+        serverResponse.observe(this.viewLifecycleOwner) {
+            when (it.status) {
+                Status.SUCCESS -> {
+                    loadingDialog.dismiss()
+                    if (
+                        it.data is PostQrToServerResponse ||
+                        it.data is PostQrToServerVerveResponseModel ||
+                        it.data is QrTransactionResponseModel ||
+                        it.data is VerveTransactionResponse ||
+                        it.data is AccountNumberLookUpResponse ||
+                        it.data is ConfirmOTPResponse ||
+                        it.data is ExistingAccountRegisterResponse
+                    ) {
+                        showToast("Success!")
+                        successAction()
+                    } else {
+                        showSnackBar(this.requireView(), getString(R.string.an_error_occurred))
+                    }
+                }
+                Status.LOADING -> {
+                    loadingDialog.show()
+                }
+                Status.ERROR -> {
+                    loadingDialog.cancel()
+                    loadingDialog.dismiss()
+//                    if (it.data is AccountNumberLookUpResponse){
+//
+//                    }
+                    showSnackBar(this.requireView(), getString(R.string.an_error_occurred))
+                }
+                Status.TIMEOUT -> {
+                    loadingDialog.cancel()
+                    loadingDialog.dismiss()
+                    //loadingDialog.requireActivity().finish()
                     showSnackBar(this.requireView(), getString(R.string.timeOut))
                 }
             }

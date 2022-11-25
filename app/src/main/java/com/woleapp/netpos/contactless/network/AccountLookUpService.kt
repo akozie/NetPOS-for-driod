@@ -10,15 +10,19 @@ import retrofit2.http.Query
 interface AccountLookUpService {
 
     @POST("account-lookup")
-    fun findAccount(@Body accountNumber: AccountNumberLookUpRequest): Single<AccountNumberLookUpResponse>
+    fun findAccount(
+        @Body accountNumber: AccountNumberLookUpRequest,
+        @Query("partnerId") partnerId: String
+    ): Single<AccountNumberLookUpResponse>
 
     @POST("confirm-otp")
-    fun confirmOTP(@Body confirmOTP: ConfirmOTPRequest): Single<ConfirmOTPResponse>
+    fun confirmOTP(
+        @Body confirmOTP: ConfirmOTPRequest
+    ): Single<ConfirmOTPResponse>
 
     @POST("user/register-existing-user")
     fun registerExistingAccount(
         @Body registerExistingAccountRegisterRequest: ExistingAccountRegisterRequest,
-        @Query("bank") bank: String,
         @Query("partnerId") partnerId: String
     ): Single<ExistingAccountRegisterResponse>
 }

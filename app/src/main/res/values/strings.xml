@@ -104,7 +104,7 @@
     <string name="monthly">Monthly</string>
     <string name="enter_smart_card_number">SmartCard Number</string>
     <string name="enter_meter_number">Meter Number</string>
-    <string name="enter_email_address">Email Address</string>
+    <string name="enter_email_address">Email Address (username)</string>
     <string name="service_asset">Service Asset</string>
     <string name="bills">BILLS</string>
     <string name="scan_to_pay">Scan to Pay</string>

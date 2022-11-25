@@ -14,23 +14,24 @@ import com.pixplicity.easyprefs.library.Prefs
 import com.woleapp.netpos.contactless.BuildConfig
 import com.woleapp.netpos.contactless.R
 import com.woleapp.netpos.contactless.databinding.FragmentExisitingCustomersRegistrationBinding
+import com.woleapp.netpos.contactless.model.Data
 import com.woleapp.netpos.contactless.model.ExistingAccountRegisterRequest
 import com.woleapp.netpos.contactless.ui.dialog.LoadingDialog
+import com.woleapp.netpos.contactless.util.*
 import com.woleapp.netpos.contactless.util.AppConstants.SAVED_ACCOUNT_NUM_SIGNED_UP
-import com.woleapp.netpos.contactless.util.RandomPurposeUtil
 import com.woleapp.netpos.contactless.util.RandomPurposeUtil.observeServerResponse
-import com.woleapp.netpos.contactless.util.showToast
-import com.woleapp.netpos.contactless.util.validatePasswordMismatch
+import com.woleapp.netpos.contactless.util.Singletons.gson
 import com.woleapp.netpos.contactless.viewmodels.ContactlessRegViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.dialog_terms_and_conditions.view.*
+import timber.log.Timber
 
 @AndroidEntryPoint
 class ExistingCustomersRegistrationFragment : BaseFragment() {
 
     private lateinit var binding: FragmentExisitingCustomersRegistrationBinding
     private val viewModel by activityViewModels<ContactlessRegViewModel>()
-    private lateinit var loader: LoadingDialog
+    private lateinit var loader: AlertDialog
     private lateinit var businessNameView: TextInputEditText
     private lateinit var contactName: TextInputEditText
     private lateinit var addressView: TextInputEditText
@@ -39,6 +40,9 @@ class ExistingCustomersRegistrationFragment : BaseFragment() {
     private lateinit var confirmPasswordView: TextInputEditText
     private lateinit var phoneNumber: TextInputEditText
     private lateinit var submitBtn: Button
+    private lateinit var partnerID: String
+    private lateinit var actNumber: String
+   // private lateinit var customerData: Data
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -57,11 +61,66 @@ class ExistingCustomersRegistrationFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        loader = LoadingDialog()
+        //loader = LoadingDialog()
         initViews()
+        initPartnerID()
+        val newActNumber =
+            Prefs.getString(AppConstants.SAVED_ACCOUNT_NUM_SIGNED_UP, "")
+        //val phoneNumber = newPoneNumber.replace("^\"|\"$", "")
+        actNumber =  newActNumber.substring(1, newActNumber.length-1)
+
+
+        val newBusinessName =
+            Prefs.getString(AppConstants.BUSINESS_NAME, "")
+        val businessName = newBusinessName.substring(1, newBusinessName.length-1)
+
+        val newBusinessAddress =
+            Prefs.getString(AppConstants.BUSINESS_ADDRESS, "")
+        val businessAddress = newBusinessAddress.substring(1, newBusinessAddress.length-1)
+
+        val newEmail =
+            Prefs.getString(AppConstants.EMAIL_ADDRESS, "")
+        val email = newEmail.substring(1, newEmail.length-1)
+
+        val newPhone =
+            Prefs.getString(AppConstants.PHONE_NUMBER, "")
+        val phone = newPhone.substring(1, newPhone.length-1)
+
+        val newContactInfo =
+            Prefs.getString(AppConstants.FULL_NAME, "")
+        val contactInfo = newContactInfo.substring(1, newContactInfo.length-1)
+
+
+        //Timber.d("VVVVVVVVV--->${customerData}")
+        binding.businessName.setText(businessName)
+        binding.contactInfo.setText(contactInfo)
+        binding.address.setText(businessAddress)
+        binding.phone.setText(phone)
+        binding.email.setText(email)
+
+
+        val dialogView: View = LayoutInflater.from(requireContext())
+            .inflate(R.layout.layout_loading_dialog, null)
+        val dialogBuilder: AlertDialog.Builder = AlertDialog.Builder(requireContext())
+        dialogBuilder.setView(dialogView)
+
+         loader = dialogBuilder.create()
+
 
         submitBtn.setOnClickListener {
             register()
+        }
+    }
+
+    private fun initPartnerID() {
+        val bankList = mapOf("firstbank" to "7D66B7F7-222B-41CC-A868-185F3A86313F", "fcmb" to "1B0E68FD-7676-4F2C-883D-3931C3564190", "providus" to "8B26F328-040F-4F27-A5BC-4414AB9D1EFA",
+            "wemabank" to "1E3D050B-6995-495F-982A-0511114959C8", "zenith" to "3D9B3E2D-5171-4D6A-99CC-E2799D16DD56")
+
+        for (element in bankList) {
+            if (element.key == BuildConfig.FLAVOR)
+                partnerID = element.value
+            //Timber.d("CODEBANK---->${element.value}")
+
         }
     }
 
@@ -231,9 +290,7 @@ class ExistingCustomersRegistrationFragment : BaseFragment() {
 
     private fun registerExistingCustomer() {
         val existingAccountRegReq = ExistingAccountRegisterRequest(
-            accountNumber = RandomPurposeUtil.generateRandomRrn(
-                    10
-                ),
+            accountNumber = actNumber,
             businessAddress = addressView.text.toString().trim(),
             businessName = businessNameView.text.toString().trim(),
             contactInformation = contactName.text.toString().trim(),
@@ -245,8 +302,7 @@ class ExistingCustomersRegistrationFragment : BaseFragment() {
         )
         viewModel.registerExistingAccount(
             existingAccountRegReq,
-            "011",
-            "7FD43DF1-633F-4250-8C6F-B49DBB9650EA"
+            partnerId = partnerID
         )
         observeServerResponse(
             viewModel.existingRegRequestResponse,

@@ -195,7 +195,7 @@
                 app:buttonInProgress="@{viewmodel.authInProgress}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/spnBank" />
+                app:layout_constraintTop_toBottomOf="@id/email_field" />
 
 
             <ProgressBar
@@ -211,18 +211,18 @@
                 app:layout_constraintTop_toTopOf="@id/btn_login" />
 
 
-            <androidx.appcompat.widget.AppCompatSpinner
-                android:id="@+id/spnBank"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/dimen_16dp"
-                android:layout_marginTop="@dimen/dimen_16dp"
-                android:layout_marginEnd="@dimen/dimen_16dp"
-                android:prompt="@string/hint_choose_bank_caps"
-                android:spinnerMode="dropdown"
-                android:textColorHint="@android:color/black"
-                android:textSize="15sp"
-                app:layout_constraintTop_toBottomOf="@id/email_field" />
+<!--            <androidx.appcompat.widget.AppCompatSpinner-->
+<!--                android:id="@+id/spnBank"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_marginStart="@dimen/dimen_16dp"-->
+<!--                android:layout_marginTop="@dimen/dimen_16dp"-->
+<!--                android:layout_marginEnd="@dimen/dimen_16dp"-->
+<!--                android:prompt="@string/hint_choose_bank_caps"-->
+<!--                android:spinnerMode="dropdown"-->
+<!--                android:textColorHint="@android:color/black"-->
+<!--                android:textSize="15sp"-->
+<!--                app:layout_constraintTop_toBottomOf="@id/email_field" />-->
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

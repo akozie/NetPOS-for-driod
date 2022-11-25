@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
+import com.woleapp.netpos.contactless.BuildConfig
 import com.woleapp.netpos.contactless.R
 import com.woleapp.netpos.contactless.databinding.FragmentNewOrExistingBinding
 import com.woleapp.netpos.contactless.model.AccountNumberLookUpResponse
@@ -20,14 +21,19 @@ import com.woleapp.netpos.contactless.util.RandomPurposeUtil.showSnackBar
 import com.woleapp.netpos.contactless.util.Resource
 import com.woleapp.netpos.contactless.viewmodels.ContactlessRegViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.dialog_account_number_layout.view.*
+import timber.log.Timber
 
 @AndroidEntryPoint
 class NewOrExistingFragment : BaseFragment() {
 
     private lateinit var binding: FragmentNewOrExistingBinding
     private val viewModel by activityViewModels<ContactlessRegViewModel>()
-    private lateinit var loader:LoadingDialog
+    //private lateinit var loader:LoadingDialog
+    private lateinit var newPartnerId:String
+   // private lateinit var compositeDisposable:CompositeDisposable
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -40,10 +46,8 @@ class NewOrExistingFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        //binding.newOrExistingCardview.visibility = View.VISIBLE
-        // binding.newOrExistingCardview.visibility = View.VISIBLE
+        initPartnerID()
 
-        loader = LoadingDialog()
         binding.confirmationTvNo.setOnClickListener {
             showFragment(
                 RegisterFragment(),
@@ -53,7 +57,6 @@ class NewOrExistingFragment : BaseFragment() {
         }
 
         binding.confirmationTvYes.setOnClickListener {
-            //binding.newOrExistingCardview.visibility = View.GONE
             activity?.getFragmentManager()?.popBackStack()
             val dialogView: View = LayoutInflater.from(requireContext())
                 .inflate(R.layout.dialog_account_number_layout, null)
@@ -79,23 +82,33 @@ class NewOrExistingFragment : BaseFragment() {
                         Toast.LENGTH_SHORT
                     ).show()
                 } else {
-                    showFragment(
-                        RegistrationOTPFragment(),
-                        containerViewId = R.id.auth_container,
-                        fragmentName = "RegisterOTP Fragment"
-                    )
-//                    viewModel.accountLookUp(account)
-//                    observeServerResponse(viewModel.accountNumberResponse, loader, requireActivity().supportFragmentManager){
-//                        showFragment(
-//                            RegistrationOTPFragment(),
-//                            containerViewId = R.id.auth_container,
-//                            fragmentName = "RegisterOTP Fragment"
-//                        )
-//                    }
+                    viewModel.accountLookUp(account, newPartnerId)
+                    observeServerResponse(viewModel.accountNumberResponse, LoadingDialog(), requireActivity().supportFragmentManager){
+                        showFragment(
+                            RegistrationOTPFragment(),
+                            containerViewId = R.id.auth_container,
+                            fragmentName = "RegisterOTP Fragment"
+                        )
+                    }
                 }
             }
         }
     }
+
+    private fun initPartnerID() {
+        val bankList = mutableMapOf("firstbank" to "7D66B7F7-222B-41CC-A868-185F3A86313F", "fcmb" to "1B0E68FD-7676-4F2C-883D-3931C3564190", "providus" to "8B26F328-040F-4F27-A5BC-4414AB9D1EFA",
+            "wemabank" to "1E3D050B-6995-495F-982A-0511114959C8", "zenith" to "3D9B3E2D-5171-4D6A-99CC-E2799D16DD56")
+
+        for (element in bankList) {
+            if (element.key == BuildConfig.FLAVOR){
+                Timber.d("ACCOUNTBANK---->${element.value}")
+                newPartnerId = element.value
+                Timber.d("PARTNERID---->$newPartnerId")
+            }
+        }
+    }
+
 }
+
 
 

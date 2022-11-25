@@ -26,6 +26,7 @@ import com.woleapp.netpos.contactless.util.RandomPurposeUtil
 import com.woleapp.netpos.contactless.util.RandomPurposeUtil.observeServerResponse
 import com.woleapp.netpos.contactless.util.Singletons
 import com.woleapp.netpos.contactless.viewmodels.ContactlessRegViewModel
+import timber.log.Timber
 
 class RegistrationOTPFragment : BaseFragment() {
     private lateinit var binding: FragmentRegistrationOTPBinding
@@ -47,6 +48,12 @@ class RegistrationOTPFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val newPoneNumber =
+            Prefs.getString(AppConstants.SAVE_PHONE_NUMBER, "")
+        //val phoneNumber = newPoneNumber.replace("^\"|\"$", "")
+        val phoneNumber = newPoneNumber.substring(1, newPoneNumber.length-1)
+        //Timber.d("GGGGGGGGG---->${phoneNumber}")
+        loader = LoadingDialog()
         initViews()
         otpView.requestFocus()
         val inputMethodManager =
@@ -62,37 +69,42 @@ class RegistrationOTPFragment : BaseFragment() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 s?.let {
                     if (it.length == 6) {
-                        val accountNumber = Prefs.getString(AppConstants.SAVED_ACCOUNT_NUM_SIGNED_UP, "")
                         RandomPurposeUtil.closeSoftKeyboard(requireContext(), requireActivity())
-                        showFragment(
-                            ExistingCustomersRegistrationFragment(),
-                            containerViewId = R.id.auth_container,
-                            fragmentName = "Register Fragment"
-                        )
-//                        viewModel.confirmOTP(accountNumber,s.toString())
-//                        observeServerResponse(viewModel.confirmOTPResponse, loader, requireActivity().supportFragmentManager){
-//                            showFragment(
-//                                ExistingCustomersRegistrationFragment(),
-//                                containerViewId = R.id.auth_container,
-//                                fragmentName = "Register Fragment"
-//                            )
-//                        }
+                        viewModel.confirmOTP(phoneNumber, s.toString())
+                        observeServerResponse(viewModel.confirmOTPResponse, loader, requireActivity().supportFragmentManager){
+                            showFragment(
+                                ExistingCustomersRegistrationFragment(),
+                                containerViewId = R.id.auth_container,
+                                fragmentName = "Register Existing Customer Fragment"
+                            )
+                        }
                     }
                 }
             }
-
             override fun afterTextChanged(s: Editable?) {
             }
         })
-        val resendCodeText = "Didn't Receive Code? Resend it" /*getString(R.string.resend_code)*/
-        val spannableText = RandomPurposeUtil.customSpannableString(
-            resendCodeText,
-            resendCodeText.indexOf("Resend it"),
-            resendCodeText.length
-        ) {
-        }
-        resendCode.text = spannableText
-        resendCode.movementMethod = LinkMovementMethod.getInstance()
+//        val resendCodeText = "Didn't Receive Code? Resend it" /*getString(R.string.resend_code)*/
+//        val spannableText = RandomPurposeUtil.customSpannableString(
+//            resendCodeText,
+//            resendCodeText.indexOf("Resend it"),
+//            resendCodeText.length
+//        ) {
+//            val qrDataToResend = viewModel.accountLookUp()
+//            qrDataToResend?.let {
+//                viewModel.setScannedQrIsVerveCard(true)
+//                viewModel.postScannedQrRequestToServer(it)
+//                observeServerResponse(
+//                    viewModel.sendQrToServerResponse,
+//                    LoadingDialog(),
+//                    requireActivity().supportFragmentManager
+//                ) {
+//                    otpResentConfirmationText.visibility = View.VISIBLE
+//                }
+//            }
+//        }
+//        resendCode.text = spannableText
+//        resendCode.movementMethod = LinkMovementMethod.getInstance()
     }
 
     private fun initViews() {

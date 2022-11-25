@@ -28,9 +28,8 @@
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_margin="8dp"
-            android:visibility="invisible"
             android:contentDescription="@string/netpos_logo"
-            android:src="@drawable/ic_netpos_white"
+            android:src="@drawable/fcmb"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 

@@ -11,3 +11,4 @@ data class ExistingAccountRegisterRequest(
     val terminalId: String,
     val merchantId: String
 )
+

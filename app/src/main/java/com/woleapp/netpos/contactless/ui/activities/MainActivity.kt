@@ -366,6 +366,7 @@ class MainActivity @Inject constructor() :
                         showFragment(FragmentBarCodeScanner(), "Scan QR")
                     }
                     R.id.endOfDay -> {
+                        showFragment(TransactionsFragment(), "Transactions")
                         showCalendarDialog()
                     }
                     R.id.settings -> {
@@ -741,31 +742,6 @@ class MainActivity @Inject constructor() :
                 }
             }
         }
-    }
-
-    private fun getBalance() {
-        showCardDialog(
-            this,
-            this
-        ).observe(this) { event ->
-            event.getContentIfNotHandled()?.let {
-                nfcCardReaderViewModel.initiateNfcPayment(10, 0, it)
-            }
-        }
-    }
-
-
-    private fun showMessage(s: String, vararg messageString: String) {
-        AlertDialog.Builder(this)
-            .apply {
-                setTitle(s)
-                setMessage(messageString.first())
-                setPositiveButton("Ok") { dialog, _ ->
-                    dialog.dismiss()
-                    nfcCardReaderViewModel.prepareSMS(messageString.reversed().joinToString("\n"))
-                }
-                create().show()
-            }
     }
 
     private fun showCalendarDialog() {
