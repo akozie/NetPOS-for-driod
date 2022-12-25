@@ -253,6 +253,10 @@ private fun initViewsForPosReceipt(
                 R.string.app_version_place_holder,
                 "${BuildConfig.FLAVOR} POS ${BuildConfig.VERSION_NAME}"
             )
+            rrn.text = pdfView.appVersion.context.getString(
+                R.string.rrn_place_holder,
+                it.rrn
+            )
         }
     }
 }
