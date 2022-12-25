@@ -17,7 +17,7 @@
 
         <ImageView
             android:id="@+id/imageView"
-            android:layout_width="@dimen/dimen_50dp"
+            android:layout_width="90dp"
             android:layout_height="@dimen/dimen_50dp"
             android:scaleType="centerCrop"
             android:contentDescription="@string/app_logo"

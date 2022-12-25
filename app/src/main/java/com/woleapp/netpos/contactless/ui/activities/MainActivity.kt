@@ -30,11 +30,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
-import com.danbamitale.epmslib.entities.*
 import com.danbamitale.epmslib.entities.TransactionResponse
-import com.danbamitale.epmslib.extensions.formatCurrencyAmount
-import com.danbamitale.epmslib.processors.TransactionProcessor
 import com.danbamitale.epmslib.utils.IsoAccountType
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -44,10 +40,11 @@ import com.google.gson.Gson
 import com.netpluspay.netposbarcodesdk.RESULT_CODE_TEXT
 import com.pixplicity.easyprefs.library.Prefs
 import com.visa.app.ttpkernel.ContactlessKernel
+import com.woleapp.netpos.contactless.BuildConfig
 import com.woleapp.netpos.contactless.R
 import com.woleapp.netpos.contactless.app.NetPosApp
 import com.woleapp.netpos.contactless.database.AppDatabase
-import com.woleapp.netpos.contactless.databinding.* // ktlint-disable no-wildcard-imports
+import com.woleapp.netpos.contactless.databinding.*
 import com.woleapp.netpos.contactless.model.*
 import com.woleapp.netpos.contactless.mqtt.MqttHelper
 import com.woleapp.netpos.contactless.network.StormApiClient
@@ -59,25 +56,22 @@ import com.woleapp.netpos.contactless.taponphone.visa.NfcPaymentType
 import com.woleapp.netpos.contactless.ui.dialog.LoadingDialog
 import com.woleapp.netpos.contactless.ui.dialog.PasswordDialog
 import com.woleapp.netpos.contactless.ui.fragments.*
-import com.woleapp.netpos.contactless.util.* // ktlint-disable no-wildcard-imports
+import com.woleapp.netpos.contactless.util.*
 import com.woleapp.netpos.contactless.util.AppConstants.IS_QR_TRANSACTION
 import com.woleapp.netpos.contactless.util.AppConstants.STRING_QR_READ_RESULT_BUNDLE_KEY
 import com.woleapp.netpos.contactless.util.AppConstants.STRING_QR_READ_RESULT_REQUEST_KEY
 import com.woleapp.netpos.contactless.util.AppConstants.WRITE_PERMISSION_REQUEST_CODE
 import com.woleapp.netpos.contactless.util.AppConstants.getGUID
 import com.woleapp.netpos.contactless.util.Mappers.mapTransactionResponseToQrTransaction
-import com.woleapp.netpos.contactless.util.RandomPurposeUtil.observeServerResponse
 import com.woleapp.netpos.contactless.util.RandomPurposeUtil.observeServerResponseActivity
 import com.woleapp.netpos.contactless.util.RandomPurposeUtil.showSnackBar
 import com.woleapp.netpos.contactless.util.RandomPurposeUtil.stringToBase64
 import com.woleapp.netpos.contactless.util.Singletons.gson
 import com.woleapp.netpos.contactless.viewmodels.NfcCardReaderViewModel
+import com.woleapp.netpos.contactless.viewmodels.SalesViewModel
 import com.woleapp.netpos.contactless.viewmodels.ScanQrViewModel
 import com.woleapp.netpos.contactless.viewmodels.TransactionsViewModel
-import com.woleapp.netpos.contactless.BuildConfig
 import dagger.hilt.android.AndroidEntryPoint
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
 import pub.devrel.easypermissions.EasyPermissions
 import timber.log.Timber
 import java.io.File
@@ -791,7 +785,8 @@ class MainActivity @Inject constructor() :
                     else -> transactions
                 }.apply {
                     if (isEmpty()) {
-                        Toast.makeText(this@MainActivity,
+                        Toast.makeText(
+                            this@MainActivity,
                             "No transactions to print",
                             Toast.LENGTH_SHORT
                         ).show()
@@ -809,7 +804,10 @@ class MainActivity @Inject constructor() :
         endOfDay.view.setOnClickListener {
             transactionViewModel.setEndOfDayList(transactions)
             bottomSheet.dismiss()
-            showFragment(TransactionHistoryFragment.newInstance(HISTORY_ACTION_EOD), "Transaction History")
+            showFragment(
+                TransactionHistoryFragment.newInstance(HISTORY_ACTION_EOD),
+                "Transaction History"
+            )
         }
         endOfDay.closeButton.setOnClickListener {
             bottomSheet.dismiss()

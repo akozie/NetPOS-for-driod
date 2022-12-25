@@ -150,7 +150,7 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="qr_scanned">QR Scanned Successfully</string>
     <string name="processing">Processing…</string>
-    <string name="an_error_occurred">An error occured please tray again</string>
+    <string name="an_error_occurred">An error occurred please try again</string>
     <string name="timeOut">Time out! Please try again</string>
     <string name="scanning_not_completed">Scanning was not completed before quitting</string>
     <string name="failed">Failed</string>

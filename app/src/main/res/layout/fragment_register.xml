@@ -122,7 +122,6 @@
                     android:drawablePadding="8dp"
                     android:gravity="top"
                     android:inputType="textMultiLine"
-                    android:minLines="3"
                     android:text="@={viewmodel.registrationModel.businessAddress}"
                     android:textColor="@android:color/black"
                     android:textColorHint="@android:color/black"

@@ -45,9 +45,14 @@ class RegisterFragment : BaseFragment() {
         dialog = AlertDialog.Builder(requireContext())
             .setTitle("Registration Status")
             .setCancelable(false)
-            .setPositiveButton("Continue") { d, _ ->
-                d.cancel()
-                requireActivity().onBackPressed()
+            .setPositiveButton("Continue") { _, _ ->
+                //d.cancel()
+                //requireActivity().onBackPressed()
+                showFragment(
+                    LoginFragment(),
+                    containerViewId = R.id.auth_container,
+                    fragmentName = "Login Fragment"
+                )
             }
             .setMessage("Business Info Received, our team will contact you in 2 Business Days")
             .create()

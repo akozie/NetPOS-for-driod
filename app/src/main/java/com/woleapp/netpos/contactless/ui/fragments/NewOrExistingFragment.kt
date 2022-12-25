@@ -16,6 +16,7 @@ import com.woleapp.netpos.contactless.model.AccountNumberLookUpResponse
 import com.woleapp.netpos.contactless.model.Status
 import com.woleapp.netpos.contactless.ui.dialog.LoadingDialog
 import com.woleapp.netpos.contactless.util.AppConstants.STRING_ACCOUNT_NUMBER_LOOKUP_TAG
+import com.woleapp.netpos.contactless.util.RandomPurposeUtil
 import com.woleapp.netpos.contactless.util.RandomPurposeUtil.observeServerResponse
 import com.woleapp.netpos.contactless.util.RandomPurposeUtil.showSnackBar
 import com.woleapp.netpos.contactless.util.Resource
@@ -30,7 +31,7 @@ class NewOrExistingFragment : BaseFragment() {
 
     private lateinit var binding: FragmentNewOrExistingBinding
     private val viewModel by activityViewModels<ContactlessRegViewModel>()
-    //private lateinit var loader:LoadingDialog
+    private lateinit var loader:AlertDialog
     private lateinit var newPartnerId:String
    // private lateinit var compositeDisposable:CompositeDisposable
 
@@ -47,6 +48,13 @@ class NewOrExistingFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initPartnerID()
+        viewModel.message.observe(viewLifecycleOwner) {
+            it.getContentIfNotHandled()?.let { message ->
+                Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
+            }
+        }
+
+        loader = RandomPurposeUtil.alertDialog(requireContext())
 
         binding.confirmationTvNo.setOnClickListener {
             showFragment(
@@ -83,7 +91,7 @@ class NewOrExistingFragment : BaseFragment() {
                     ).show()
                 } else {
                     viewModel.accountLookUp(account, newPartnerId)
-                    observeServerResponse(viewModel.accountNumberResponse, LoadingDialog(), requireActivity().supportFragmentManager){
+                    observeServerResponse(viewModel.accountNumberResponse, loader, requireActivity().supportFragmentManager){
                         showFragment(
                             RegistrationOTPFragment(),
                             containerViewId = R.id.auth_container,

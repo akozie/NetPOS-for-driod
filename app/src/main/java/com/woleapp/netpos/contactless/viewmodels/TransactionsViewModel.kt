@@ -1,13 +1,16 @@
 package com.woleapp.netpos.contactless.viewmodels
 
 import android.content.Context
-import androidx.lifecycle.* // ktlint-disable no-wildcard-imports
-import com.danbamitale.epmslib.entities.* // ktlint-disable no-wildcard-imports
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.map
+import com.danbamitale.epmslib.entities.*
 import com.danbamitale.epmslib.processors.TransactionProcessor
 import com.danbamitale.epmslib.utils.IsoAccountType
 import com.woleapp.netpos.contactless.database.AppDatabase
 import com.woleapp.netpos.contactless.nibss.NetPosTerminalConfig
-import com.woleapp.netpos.contactless.util.* // ktlint-disable no-wildcard-imports
+import com.woleapp.netpos.contactless.util.*
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers

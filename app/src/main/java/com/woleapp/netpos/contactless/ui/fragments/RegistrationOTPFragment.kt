@@ -1,5 +1,6 @@
 package com.woleapp.netpos.contactless.ui.fragments
 
+import android.app.AlertDialog
 import android.content.Context
 import android.os.Bundle
 import android.text.Editable
@@ -10,6 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.activityViewModels
@@ -23,6 +25,7 @@ import com.woleapp.netpos.contactless.model.VerveTransactionResponse
 import com.woleapp.netpos.contactless.ui.dialog.LoadingDialog
 import com.woleapp.netpos.contactless.util.AppConstants
 import com.woleapp.netpos.contactless.util.RandomPurposeUtil
+import com.woleapp.netpos.contactless.util.RandomPurposeUtil.alertDialog
 import com.woleapp.netpos.contactless.util.RandomPurposeUtil.observeServerResponse
 import com.woleapp.netpos.contactless.util.Singletons
 import com.woleapp.netpos.contactless.viewmodels.ContactlessRegViewModel
@@ -34,7 +37,8 @@ class RegistrationOTPFragment : BaseFragment() {
     private lateinit var otpView: PinView
     private lateinit var otpResentConfirmationText: TextView
     private val viewModel by activityViewModels<ContactlessRegViewModel>()
-    private lateinit var loader:LoadingDialog
+    private lateinit var loader:AlertDialog
+    private lateinit var newAccountNumber:String
 
 
     override fun onCreateView(
@@ -48,12 +52,22 @@ class RegistrationOTPFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        viewModel.otpMessage.observe(viewLifecycleOwner) {
+            it.getContentIfNotHandled()?.let { message ->
+                Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
+            }
+        }
         val newPoneNumber =
             Prefs.getString(AppConstants.SAVE_PHONE_NUMBER, "")
         //val phoneNumber = newPoneNumber.replace("^\"|\"$", "")
         val phoneNumber = newPoneNumber.substring(1, newPoneNumber.length-1)
+
+        val newActNumber =
+            Prefs.getString(AppConstants.SAVED_ACCOUNT_NUM_SIGNED_UP, "")
+        newAccountNumber =  newActNumber.substring(1, newActNumber.length-1)
+
         //Timber.d("GGGGGGGGG---->${phoneNumber}")
-        loader = LoadingDialog()
+        loader = alertDialog(requireContext())
         initViews()
         otpView.requestFocus()
         val inputMethodManager =
@@ -70,7 +84,7 @@ class RegistrationOTPFragment : BaseFragment() {
                 s?.let {
                     if (it.length == 6) {
                         RandomPurposeUtil.closeSoftKeyboard(requireContext(), requireActivity())
-                        viewModel.confirmOTP(phoneNumber, s.toString())
+                        viewModel.confirmOTP(phoneNumber, newAccountNumber, s.toString())
                         observeServerResponse(viewModel.confirmOTPResponse, loader, requireActivity().supportFragmentManager){
                             showFragment(
                                 ExistingCustomersRegistrationFragment(),

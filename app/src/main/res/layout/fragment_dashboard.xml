@@ -63,15 +63,6 @@ xmlns:android="http://schemas.android.com/apk/res/android">
                 android:orientation="horizontal"
                 app:layout_constraintTop_toBottomOf="@id/select_transaction_spinner">
 
-<!--                <TextView-->
-<!--                    android:id="@+id/currency_textbox"-->
-<!--                    style="@style/ServicesInputLayout"-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="match_parent"-->
-<!--                    android:gravity="center"-->
-<!--                    android:background="@drawable/services_edittext_background"-->
-<!--                    android:text="@string/naira_symbol" />-->
-
                 <EditText
                     android:id="@+id/price_textbox"
                     style="@style/ServicesInputLayout"

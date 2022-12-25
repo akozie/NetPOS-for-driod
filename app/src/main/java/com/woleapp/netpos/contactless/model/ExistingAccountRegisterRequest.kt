@@ -7,8 +7,7 @@ data class ExistingAccountRegisterRequest(
     val contactInformation: String,
     val username: String,
     val password: String,
-    val phoneNumber: String,
-    val terminalId: String,
-    val merchantId: String
+    val phoneNumber: String
 )
+
 

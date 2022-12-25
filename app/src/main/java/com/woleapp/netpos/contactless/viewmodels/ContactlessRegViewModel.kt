@@ -3,16 +3,20 @@ package com.woleapp.netpos.contactless.viewmodels
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.google.gson.Gson
 import com.pixplicity.easyprefs.library.Prefs
 import com.woleapp.netpos.contactless.model.*
 import com.woleapp.netpos.contactless.network.ContactlessRegRepository
 import com.woleapp.netpos.contactless.util.AppConstants
+import com.woleapp.netpos.contactless.util.Event
 import com.woleapp.netpos.contactless.util.Resource
 import com.woleapp.netpos.contactless.util.Singletons.gson
+import com.woleapp.netpos.contactless.util.showToast
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import retrofit2.HttpException
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -26,16 +30,25 @@ class ContactlessRegViewModel @Inject constructor(
         MutableLiveData()
     val accountNumberResponse: LiveData<Resource<AccountNumberLookUpResponse>> get() = _accountNumberResponse
 
-
     private var _confirmOTPResponse: MutableLiveData<Resource<ConfirmOTPResponse>> =
         MutableLiveData()
     val confirmOTPResponse: LiveData<Resource<ConfirmOTPResponse>> get() = _confirmOTPResponse
-
 
     private var _existingRegRequestResponse: MutableLiveData<Resource<ExistingAccountRegisterResponse>> =
         MutableLiveData()
     val existingRegRequestResponse: LiveData<Resource<ExistingAccountRegisterResponse>> get() = _existingRegRequestResponse
 
+    private val _message = MutableLiveData<Event<String>>()
+    val message: LiveData<Event<String>>
+        get() = _message
+
+    private val _otpMessage = MutableLiveData<Event<String>>()
+    val otpMessage: LiveData<Event<String>>
+        get() = _otpMessage
+
+    private val _registerMessage = MutableLiveData<Event<String>>()
+    val registerMessage: LiveData<Event<String>>
+        get() = _registerMessage
 
     fun accountLookUp(accountNumber: String, partnerId: String) {
         _accountNumberResponse.postValue(Resource.loading(null))
@@ -47,36 +60,63 @@ class ContactlessRegViewModel @Inject constructor(
                 .subscribe { data, error ->
                     data?.let {
                         _accountNumberResponse.postValue(Resource.success(it))
-                        savePhoneNumber(data.phone)
+                        savePhoneNumber(it.phone)
+                        _message.value = Event(it.message)
                     }
                     error?.let {
                         _accountNumberResponse.postValue(Resource.error(null))
                         Timber.d("ERROR==${it.localizedMessage}")
+                        (it as? HttpException).let { httpException ->
+                            val errorMessage = httpException?.response()?.errorBody()?.string()
+                                ?: "{\"message\":\"Unexpected error\"}"
+                            _message.value = Event(
+                                try {
+                                    gson.fromJson(errorMessage, ExistingCustomerError::class.java).message
+                                        ?: "Error"
+                                } catch (e: Exception) {
+                                    "Error"
+                                }
+                            )
+                            //Timber.e("SHOWME--->$errorMessage")
+                        }
                     }
                 }
         )
     }
 
-    fun confirmOTP(phoneNumber: String, otp: String, ) {
+    fun confirmOTP(phoneNumber: String, accountNumber:String, otp: String, ) {
         _confirmOTPResponse.postValue(Resource.loading(null))
         disposable.add(
-            contactlessRegRepo.confirmOTP(phoneNumber, otp)
+            contactlessRegRepo.confirmOTP(phoneNumber, accountNumber, otp)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { data, error ->
                     data?.let {
                         _confirmOTPResponse.postValue(Resource.success(it))
                         //saveExistingCustomerData(data.data)
-                        saveExistingPhoneNumber(data.data.phone)
-                        saveEmail(data.data.email)
-                        saveBusinessName(data.data.businessName)
-                        saveBusinessAddress(data.data.address)
-                        saveFullName(data.data.fullName)
+                        saveExistingPhoneNumber(it.data.phone)
+                        saveEmail(it.data.email)
+                        saveBusinessName(it.data.businessName)
+                        saveBusinessAddress(it.data.address)
+                        saveFullName(it.data.fullName)
+                        _otpMessage.value = Event(it.message)
                     }
                     error?.let {
                         _confirmOTPResponse.postValue(Resource.error(null))
                         Timber.d("ERROR==${it.localizedMessage}")
-                    }
+                        (it as? HttpException).let { httpException ->
+                            val errorMessage = httpException?.response()?.errorBody()?.string()
+                                ?: "{\"message\":\"Unexpected error\"}"
+                            _otpMessage.value = Event(
+                                try {
+                                    gson.fromJson(errorMessage, ExistingCustomerError::class.java).message
+                                        ?: "Error"
+                                } catch (e: Exception) {
+                                    "Error"
+                                }
+                            )
+                            //Timber.e("SHOWME--->$errorMessage")
+                        }                    }
                 }
         )
     }
@@ -90,10 +130,24 @@ class ContactlessRegViewModel @Inject constructor(
                 .subscribe { data, error ->
                     data?.let {
                         _existingRegRequestResponse.postValue(Resource.success(it))
+                        _registerMessage.value = Event(it.message)
                     }
                     error?.let {
                         _existingRegRequestResponse.postValue(Resource.error(null))
                         Timber.d("ERROR==${it.localizedMessage}")
+                        (it as? HttpException).let { httpException ->
+                            val errorMessage = httpException?.response()?.errorBody()?.string()
+                                ?: "{\"message\":\"Unexpected error\"}"
+                            _registerMessage.value = Event(
+                                try {
+                                    gson.fromJson(errorMessage, ExistingCustomerError::class.java).message
+                                        ?: "Error"
+                                } catch (e: Exception) {
+                                    "Error"
+                                }
+                            )
+                            //Timber.e("SHOWME--->$errorMessage")
+                        }
                     }
                 }
         )

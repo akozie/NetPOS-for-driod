@@ -52,18 +52,6 @@ import java.util.concurrent.TimeUnit
 
 class DashboardFragment : BaseFragment() {
 
-//    companion object {
-//        fun getBalance():DashboardFragment = DashboardFragment().apply{
-//            showCardDialog(
-//                context!!,
-//                viewLifecycleOwner
-//            ).observe(this) { event ->
-//                event.getContentIfNotHandled()?.let {
-//                    nfcCardReaderViewModel.initiateNfcPayment(10, 0, it)
-//                }
-//            }
-//        }
-//    }
     private lateinit var progressDialog: ProgressDialog
     private lateinit var binding: FragmentDashboardBinding
     private lateinit var adapter: ServiceAdapter

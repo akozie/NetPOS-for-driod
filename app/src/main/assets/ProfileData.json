@@ -80,12 +80,12 @@
         "name": "Reader Contactless Transaction Limit (No On-device CVM)",
         "tag": "DF8124",
         "implementations": ["EMV", "EMV/DE"],
-        "value": "000000030000"
+        "value": "000010000000"
     }, {
         "name": "Reader Contactless Transaction Limit (On-device CVM)",
         "tag": "DF8125",
         "implementations": ["EMV", "EMV/DE"],
-        "value": "000000050000"
+        "value": "000010000000"
     }, {
         "name": "Reader CVM Required Limit",
         "tag": "DF8126",

@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.Toast
 import androidx.core.widget.doOnTextChanged
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.activityViewModels
@@ -19,6 +20,7 @@ import com.woleapp.netpos.contactless.model.ExistingAccountRegisterRequest
 import com.woleapp.netpos.contactless.ui.dialog.LoadingDialog
 import com.woleapp.netpos.contactless.util.*
 import com.woleapp.netpos.contactless.util.AppConstants.SAVED_ACCOUNT_NUM_SIGNED_UP
+import com.woleapp.netpos.contactless.util.RandomPurposeUtil.alertDialog
 import com.woleapp.netpos.contactless.util.RandomPurposeUtil.observeServerResponse
 import com.woleapp.netpos.contactless.util.Singletons.gson
 import com.woleapp.netpos.contactless.viewmodels.ContactlessRegViewModel
@@ -62,13 +64,17 @@ class ExistingCustomersRegistrationFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         //loader = LoadingDialog()
+        viewModel.registerMessage.observe(viewLifecycleOwner) {
+            it.getContentIfNotHandled()?.let { message ->
+                Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
+            }
+        }
         initViews()
         initPartnerID()
         val newActNumber =
             Prefs.getString(AppConstants.SAVED_ACCOUNT_NUM_SIGNED_UP, "")
         //val phoneNumber = newPoneNumber.replace("^\"|\"$", "")
         actNumber =  newActNumber.substring(1, newActNumber.length-1)
-
 
         val newBusinessName =
             Prefs.getString(AppConstants.BUSINESS_NAME, "")
@@ -99,13 +105,7 @@ class ExistingCustomersRegistrationFragment : BaseFragment() {
         binding.email.setText(email)
 
 
-        val dialogView: View = LayoutInflater.from(requireContext())
-            .inflate(R.layout.layout_loading_dialog, null)
-        val dialogBuilder: AlertDialog.Builder = AlertDialog.Builder(requireContext())
-        dialogBuilder.setView(dialogView)
-
-         loader = dialogBuilder.create()
-
+        loader = alertDialog(requireContext())
 
         submitBtn.setOnClickListener {
             register()
@@ -296,9 +296,9 @@ class ExistingCustomersRegistrationFragment : BaseFragment() {
             contactInformation = contactName.text.toString().trim(),
             username = emailView.text.toString().trim(),
             password = passwordView.text.toString().trim(),
-            phoneNumber = phoneNumber.text.toString().trim(),
-            terminalId = "2035095W",
-            merchantId = "2035FC190031251"
+            phoneNumber = phoneNumber.text.toString().trim()
+//            terminalId = "2035095W",
+//            merchantId = "2035FC190031251"
         )
         viewModel.registerExistingAccount(
             existingAccountRegReq,

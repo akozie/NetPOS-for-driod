@@ -65,18 +65,21 @@
         <entry key="app/src/main/res/layout/dialog_terms_and_conditions.xml" value="0.26614583333333336" />
         <entry key="app/src/main/res/layout/fragment_dashboard.xml" value="0.25" />
         <entry key="app/src/main/res/layout/fragment_exisiting_customers_registration.xml" value="0.25" />
+        <entry key="app/src/main/res/layout/fragment_login.xml" value="0.375" />
         <entry key="app/src/main/res/layout/fragment_new_or_existing.xml" value="0.3098958333333333" />
-        <entry key="app/src/main/res/layout/fragment_register.xml" value="0.3058823529411765" />
+        <entry key="app/src/main/res/layout/fragment_register.xml" value="0.25" />
         <entry key="app/src/main/res/layout/fragment_registration_o_t_p.xml" value="0.3098958333333333" />
         <entry key="app/src/main/res/layout/fragment_reprint.xml" value="0.17447916666666666" />
+        <entry key="app/src/main/res/layout/fragment_reprint_transactions.xml" value="0.25" />
         <entry key="app/src/main/res/layout/fragment_sales.xml" value="0.375" />
         <entry key="app/src/main/res/layout/fragment_terms_and_conditions.xml" value="0.2947916666666667" />
+        <entry key="app/src/main/res/layout/fragment_transaction_details.xml" value="0.3098958333333333" />
         <entry key="app/src/main/res/layout/fragment_transaction_history.xml" value="0.17447916666666666" />
         <entry key="app/src/main/res/layout/fragment_transactions.xml" value="0.19427083333333334" />
         <entry key="app/src/main/res/layout/layout_enter_otp_fragment.xml" value="0.159375" />
         <entry key="app/src/main/res/layout/layout_fragment_barcode.xml" value="0.2947916666666667" />
         <entry key="app/src/main/res/layout/layout_loading_dialog.xml" value="0.335" />
-        <entry key="app/src/main/res/layout/layout_pos_receipt_pdf.xml" value="0.14114583333333333" />
+        <entry key="app/src/main/res/layout/layout_pos_receipt_pdf.xml" value="0.335" />
         <entry key="app/src/main/res/layout/layout_service_item.xml" value="0.3098958333333333" />
         <entry key="app/src/main/res/layout/qr_amout_dialog.xml" value="0.15833333333333333" />
         <entry key="app/src/main/res/menu/bottom_nav.xml" value="0.30885416666666665" />

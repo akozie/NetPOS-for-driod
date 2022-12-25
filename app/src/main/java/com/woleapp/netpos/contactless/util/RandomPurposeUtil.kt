@@ -10,6 +10,8 @@ import android.text.Spanned
 import android.text.style.ClickableSpan
 import android.text.style.StyleSpan
 import android.util.Base64
+import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
@@ -25,6 +27,8 @@ import com.woleapp.netpos.contactless.model.*
 import com.woleapp.netpos.contactless.ui.dialog.LoadingDialog
 import com.woleapp.netpos.contactless.util.AppConstants.STRING_LOADING_DIALOG_TAG
 import kotlinx.android.synthetic.main.dialog_print_type.*
+import retrofit2.HttpException
+import timber.log.Timber
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -167,7 +171,6 @@ object RandomPurposeUtil {
                         it.data is ConfirmOTPResponse ||
                         it.data is ExistingAccountRegisterResponse
                     ) {
-                        showToast("Success!")
                         successAction()
                     } else {
                         showSnackBar(this.requireView(), getString(R.string.an_error_occurred))
@@ -182,10 +185,7 @@ object RandomPurposeUtil {
                 Status.ERROR -> {
                     loadingDialog.cancel
                     loadingDialog.dismiss()
-//                    if (it.data is AccountNumberLookUpResponse){
-//
-//                    }
-                    showSnackBar(this.requireView(), getString(R.string.an_error_occurred))
+                    //Timber.d("ADSFRTHG--->$it")
                 }
                 Status.TIMEOUT -> {
                     loadingDialog.cancel
@@ -217,7 +217,6 @@ object RandomPurposeUtil {
                         it.data is ConfirmOTPResponse ||
                         it.data is ExistingAccountRegisterResponse
                     ) {
-                        showToast("Success!")
                         successAction()
                     } else {
                         showSnackBar(this.requireView(), getString(R.string.an_error_occurred))
@@ -229,10 +228,6 @@ object RandomPurposeUtil {
                 Status.ERROR -> {
                     loadingDialog.cancel()
                     loadingDialog.dismiss()
-//                    if (it.data is AccountNumberLookUpResponse){
-//
-//                    }
-                    showSnackBar(this.requireView(), getString(R.string.an_error_occurred))
                 }
                 Status.TIMEOUT -> {
                     loadingDialog.cancel()
@@ -260,5 +255,16 @@ object RandomPurposeUtil {
             code = iswResponse.errors.first().code,
             message = iswResponse.errors.first().message
         )
+    }
+
+    fun alertDialog(
+        context: Context
+    ): AlertDialog{
+        val dialogView: View = LayoutInflater.from(context)
+            .inflate(R.layout.layout_loading_dialog, null)
+        val dialogBuilder: AlertDialog.Builder = AlertDialog.Builder(context)
+        dialogBuilder.setView(dialogView)
+
+    return dialogBuilder.create()
     }
 }
