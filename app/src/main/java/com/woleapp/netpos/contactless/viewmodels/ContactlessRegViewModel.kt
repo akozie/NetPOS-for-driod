@@ -84,10 +84,10 @@ class ContactlessRegViewModel @Inject constructor(
         )
     }
 
-    fun confirmOTP(phoneNumber: String, accountNumber:String, otp: String, ) {
+    fun confirmOTP(phoneNumber: String, accountNumber:String, otp: String, partnerId: String) {
         _confirmOTPResponse.postValue(Resource.loading(null))
         disposable.add(
-            contactlessRegRepo.confirmOTP(phoneNumber, accountNumber, otp)
+            contactlessRegRepo.confirmOTP(phoneNumber, accountNumber, otp, partnerId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { data, error ->

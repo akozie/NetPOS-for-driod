@@ -10,6 +10,7 @@
         <entry key="app/src/firstbank/res/layout/fragment_login.xml" value="0.1175925925925926" />
         <entry key="app/src/main/res/drawable/action_button_background.xml" value="0.183" />
         <entry key="app/src/main/res/drawable/animated_check.xml" value="0.161" />
+        <entry key="app/src/main/res/drawable/bg_gradient.xml" value="0.1075" />
         <entry key="app/src/main/res/drawable/bg_white_background_rounded.xml" value="0.183" />
         <entry key="app/src/main/res/drawable/bottom_sheet_background.xml" value="0.183" />
         <entry key="app/src/main/res/drawable/check_mark.xml" value="0.183" />
@@ -56,17 +57,19 @@
         <entry key="app/src/main/res/drawable/services_edittext_background.xml" value="0.183" />
         <entry key="app/src/main/res/drawable/services_edittext_background_disabled.xml" value="0.183" />
         <entry key="app/src/main/res/drawable/sheet_background.xml" value="0.183" />
-        <entry key="app/src/main/res/drawable/splash_background.xml" value="0.183" />
+        <entry key="app/src/main/res/drawable/splash_background.xml" value="0.125" />
         <entry key="app/src/main/res/drawable/white_custom_progress_bar.xml" value="0.183" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.25" />
         <entry key="app/src/main/res/layout/dashboard_header.xml" value="0.2947916666666667" />
         <entry key="app/src/main/res/layout/dialog_account_number_layout.xml" value="0.1796875" />
         <entry key="app/src/main/res/layout/dialog_print_type.xml" value="0.3098958333333333" />
-        <entry key="app/src/main/res/layout/dialog_terms_and_conditions.xml" value="0.26614583333333336" />
+        <entry key="app/src/main/res/layout/dialog_terms_and_conditions.xml" value="0.165" />
+        <entry key="app/src/main/res/layout/fragment_complete_qr_payment_web_view.xml" value="0.3098958333333333" />
         <entry key="app/src/main/res/layout/fragment_dashboard.xml" value="0.25" />
         <entry key="app/src/main/res/layout/fragment_exisiting_customers_registration.xml" value="0.25" />
         <entry key="app/src/main/res/layout/fragment_login.xml" value="0.375" />
         <entry key="app/src/main/res/layout/fragment_new_or_existing.xml" value="0.3098958333333333" />
+        <entry key="app/src/main/res/layout/fragment_pdf_viewer.xml" value="0.1921875" />
         <entry key="app/src/main/res/layout/fragment_register.xml" value="0.25" />
         <entry key="app/src/main/res/layout/fragment_registration_o_t_p.xml" value="0.3098958333333333" />
         <entry key="app/src/main/res/layout/fragment_reprint.xml" value="0.17447916666666666" />
@@ -80,7 +83,9 @@
         <entry key="app/src/main/res/layout/layout_fragment_barcode.xml" value="0.2947916666666667" />
         <entry key="app/src/main/res/layout/layout_loading_dialog.xml" value="0.335" />
         <entry key="app/src/main/res/layout/layout_pos_receipt_pdf.xml" value="0.335" />
+        <entry key="app/src/main/res/layout/layout_randomized_pin_block.xml" value="0.2947916666666667" />
         <entry key="app/src/main/res/layout/layout_service_item.xml" value="0.3098958333333333" />
+        <entry key="app/src/main/res/layout/layout_verve_card_qr_amount_dialog.xml" value="0.2947916666666667" />
         <entry key="app/src/main/res/layout/qr_amout_dialog.xml" value="0.15833333333333333" />
         <entry key="app/src/main/res/menu/bottom_nav.xml" value="0.30885416666666665" />
         <entry key="app/src/providus/res/drawable/dashboard_background.xml" value="0.202" />

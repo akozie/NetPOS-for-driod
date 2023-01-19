@@ -63,6 +63,7 @@ import com.woleapp.netpos.contactless.util.AppConstants.STRING_QR_READ_RESULT_RE
 import com.woleapp.netpos.contactless.util.AppConstants.WRITE_PERMISSION_REQUEST_CODE
 import com.woleapp.netpos.contactless.util.AppConstants.getGUID
 import com.woleapp.netpos.contactless.util.Mappers.mapTransactionResponseToQrTransaction
+import com.woleapp.netpos.contactless.util.RandomPurposeUtil.observeServerResponse
 import com.woleapp.netpos.contactless.util.RandomPurposeUtil.observeServerResponseActivity
 import com.woleapp.netpos.contactless.util.RandomPurposeUtil.showSnackBar
 import com.woleapp.netpos.contactless.util.RandomPurposeUtil.stringToBase64
@@ -285,9 +286,13 @@ class MainActivity @Inject constructor() :
             setMessage("Configuring Terminal, Please wait")
             setCancelable(false)
         }
-        requestNarration = Singletons.getCurrentlyLoggedInUser()?.mid?.let {
-            "$it:${Singletons.getCurrentlyLoggedInUser()?.terminal_id}:${BuildConfig.STRING_MPGS_TAG}"
-        } ?: ""
+
+        val mid = Singletons.getConfigData()?.cardAcceptorIdCode ?: ""
+        requestNarration = if (Singletons.getCurrentlyLoggedInUser()?.terminal_id?.isNotEmpty() == true){
+            "${mid}:${Singletons.getCurrentlyLoggedInUser()?.terminal_id}:${BuildConfig.STRING_MPGS_TAG}"
+        }else{
+            ""
+        }
 
         this.supportFragmentManager.setFragmentResultListener(
             STRING_QR_READ_RESULT_REQUEST_KEY,
@@ -421,6 +426,10 @@ class MainActivity @Inject constructor() :
                     Toast.makeText(this, "Sent Receipt", Toast.LENGTH_LONG).show()
                     receiptDialogBinding.telephone.text?.clear()
                     receiptAlertDialog.dismiss()
+                } else {
+                    Toast.makeText(this, getString(R.string.error_sending_receipt), Toast.LENGTH_LONG).show()
+                    receiptDialogBinding.telephone.text?.clear()
+                    receiptAlertDialog.dismiss()
                 }
             }
         }
@@ -457,41 +466,6 @@ class MainActivity @Inject constructor() :
             }
         }
 
-        viewModel.showPrintDialog.observe(this) { event ->
-            event.getContentIfNotHandled()?.let {
-                when (Prefs.getString(PREF_PRINTER_SETTINGS, "nothing_is_there")) {
-                    PREF_VALUE_PRINT_DOWNLOAD -> {
-                        downloadPdfImpl()
-                        showSnackBar(
-                            binding.root,
-                            getString(R.string.fileDownloaded)
-                        )
-                    }
-                    PREF_VALUE_PRINT_SHARE -> {
-                        downloadPdfImpl()
-                        sharePdf(receiptPdf, this)
-                    }
-                    PREF_VALUE_PRINT_DOWNLOAD_AND_SHARE -> {
-                        downloadPdfImpl()
-                        showSnackBar(
-                            binding.root,
-                            getString(R.string.fileDownloaded)
-                        )
-                        sharePdf(receiptPdf, this)
-                    }
-                    else -> {
-                        receiptAlertDialog.apply {
-                            receiptDialogBinding.transactionContent.text = it
-                            show()
-                        }
-                        receiptDialogBinding.apply {
-                            progress.visibility = View.GONE
-                            sendButton.isEnabled = true
-                        }
-                    }
-                }
-            }
-        }
         waitingDialog.setOnDismissListener {
             viewModel.stopNfcReader()
         }
@@ -527,6 +501,12 @@ class MainActivity @Inject constructor() :
                 setView(verveCardQrAmoutDialogBinding.root)
             }.create()
     }
+    override fun onResume() {
+        super.onResume()
+        handlePdfReceiptPrinting()
+    }
+
+
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -675,26 +655,6 @@ class MainActivity @Inject constructor() :
         }
     }
 
-    private fun downloadPdfImpl() {
-        viewModel.lastPosTransactionResponse.value?.let {
-            if (it.TVR.contains(IS_QR_TRANSACTION)) {
-                val qrTransaction = it.copy(TVR = it.TVR.replace(IS_QR_TRANSACTION, ""))
-                    .mapTransactionResponseToQrTransaction()
-                initViewsForPdfLayout(
-                    qrPdfView,
-                    qrTransaction
-                )
-                getPermissionAndCreatePdf(qrPdfView)
-            } else {
-                initViewsForPdfLayout(
-                    pdfView,
-                    viewModel.lastPosTransactionResponse.value
-                )
-                getPermissionAndCreatePdf(pdfView)
-            }
-        }
-    }
-
     private fun downloadPflImplForQrTransaction(qrTransaction: QrTransactionResponseFinalModel) {
         initViewsForPdfLayout(
             qrPdfView,
@@ -706,6 +666,7 @@ class MainActivity @Inject constructor() :
     private fun printQrTransactionUtil(qrTransaction: QrTransactionResponseFinalModel) {
         when (Prefs.getString(PREF_PRINTER_SETTINGS, "nothing_is_there")) {
             PREF_VALUE_PRINT_DOWNLOAD -> {
+                receiptPdf = createPdf(binding, this)
                 downloadPflImplForQrTransaction(qrTransaction)
                 showSnackBar(
                     binding.root,
@@ -713,10 +674,12 @@ class MainActivity @Inject constructor() :
                 )
             }
             PREF_VALUE_PRINT_SHARE -> {
+                receiptPdf = createPdf(binding, this)
                 downloadPflImplForQrTransaction(qrTransaction)
                 sharePdf(receiptPdf, this)
             }
             PREF_VALUE_PRINT_DOWNLOAD_AND_SHARE -> {
+                receiptPdf = createPdf(binding, this)
                 downloadPflImplForQrTransaction(qrTransaction)
                 showSnackBar(
                     binding.root,
@@ -725,6 +688,7 @@ class MainActivity @Inject constructor() :
                 sharePdf(receiptPdf, this)
             }
             else -> {
+                receiptPdf = createPdf(binding, this)
                 receiptAlertDialog.apply {
                     receiptDialogBinding.transactionContent.text =
                         qrTransaction.buildSMSTextForQrTransaction()
@@ -828,7 +792,7 @@ class MainActivity @Inject constructor() :
                         it,
                         qrData.data,
                         merchantId = BuildConfig.STRING_MERCHANT_ID,
-                        narration = requestNarration
+                        naration = requestNarration
                     )
                 scanQrViewModel.setScannedQrIsVerveCard(false)
                 scanQrViewModel.postScannedQrRequestToServer(qrDataToSendToBackend)
@@ -839,9 +803,8 @@ class MainActivity @Inject constructor() :
                     LoadingDialog(),
                     supportFragmentManager
                 ) {
-                    showFragment(
-                        CompleteQrPaymentWebViewFragment(),
-                        "QR"
+                    addFragmentWithoutRemove(
+                        CompleteQrPaymentWebViewFragment()
                     )
                 }
             }
@@ -871,7 +834,7 @@ class MainActivity @Inject constructor() :
                                 qrData.data,
                                 merchantId = BuildConfig.STRING_MERCHANT_ID,
                                 padding = formattedPadding,
-                                narration = requestNarration
+                                naration = requestNarration
                             )
                         scanQrViewModel.setScannedQrIsVerveCard(true)
                         scanQrViewModel.saveTheQrToSharedPrefs(qrDataToSendToBackend.copy(orderId = getGUID()))
@@ -893,4 +856,86 @@ class MainActivity @Inject constructor() :
             }
         }
     }
+    private fun handlePdfReceiptPrinting() {
+        viewModel.showPrintDialog.observe(this) { event ->
+            event.getContentIfNotHandled()?.let {
+                when (Prefs.getString(PREF_PRINTER_SETTINGS, "nothing_is_there")) {
+                    PREF_VALUE_PRINT_DOWNLOAD -> {
+                        receiptPdf = createPdf(binding, this)
+                        downloadPdfImpl()
+                        showSnackBar(
+                            binding.root,
+                            getString(R.string.fileDownloaded)
+                        )
+                    }
+                    PREF_VALUE_PRINT_SHARE -> {
+                        receiptPdf = createPdf(binding, this)
+                        downloadPdfImpl()
+                        sharePdf(receiptPdf, this)
+                    }
+                    PREF_VALUE_PRINT_DOWNLOAD_AND_SHARE -> {
+                        receiptPdf = createPdf(binding, this)
+                        downloadPdfImpl()
+                        showSnackBar(
+                            binding.root,
+                            getString(R.string.fileDownloaded)
+                        )
+                        sharePdf(receiptPdf, this)
+                    }
+                    else -> {
+                        receiptPdf = createPdf(binding, this)
+                        receiptAlertDialog.apply {
+                            receiptDialogBinding.transactionContent.text = it
+                            show()
+                        }
+                        receiptDialogBinding.apply {
+                            progress.visibility = View.GONE
+                            sendButton.isEnabled = true
+                        }
+                    }
+                }
+            }
+        }
+
+    }
+
+    private fun downloadPdfImpl() {
+        viewModel.lastPosTransactionResponse.value?.let {
+            if (it.TVR.contains(IS_QR_TRANSACTION)) {
+                val qrTransaction = it.copy(TVR = it.TVR.replace(IS_QR_TRANSACTION, ""))
+                    .mapTransactionResponseToQrTransaction()
+                initViewsForPdfLayout(
+                    qrPdfView,
+                    qrTransaction
+                )
+                getPermissionAndCreatePdf(qrPdfView)
+            } else {
+                initViewsForPdfLayout(
+                    pdfView,
+                    viewModel.lastPosTransactionResponse.value
+                )
+                getPermissionAndCreatePdf(pdfView)
+            }
+        }
+    }
+
+    fun addFragmentWithoutRemove(
+        fragment: Fragment,
+        containerViewId: Int = R.id.container_main,
+        fragmentName: String? = null
+    ) {
+        val tag = fragment.javaClass.simpleName
+        supportFragmentManager.beginTransaction().apply {
+            setCustomAnimations(
+                R.anim.right_to_left,
+                R.anim.left_to_right,
+                R.anim.right_to_left,
+                R.anim.left_to_right
+            )
+            add(containerViewId, fragment, fragmentName)
+            addToBackStack(tag)
+        }.commit()
+    }
+
+
 }

@@ -1,8 +1,14 @@
 package com.woleapp.netpos.contactless.viewmodels
 
+import android.app.AlertDialog
+import android.content.Context
+import android.view.LayoutInflater
+import android.view.View
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.woleapp.netpos.contactless.BuildConfig
+import com.woleapp.netpos.contactless.R
 import com.woleapp.netpos.contactless.model.RegistrationError
 import com.woleapp.netpos.contactless.model.RegistrationModel
 import com.woleapp.netpos.contactless.network.ContactlessClient
@@ -13,6 +19,7 @@ import com.woleapp.netpos.contactless.util.getResponseBody
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import kotlinx.android.synthetic.main.dialog_terms_and_conditions.view.*
 
 class RegistrationViewModel : ViewModel() {
 
@@ -33,11 +40,42 @@ class RegistrationViewModel : ViewModel() {
         get() = _message
 
 
-    fun register() {
+    fun register(context:Context) {
         if (registrationModel.value?.allFieldsFilled() == false) {
             _message.value = Event("All fields are required")
             return
         }
+        if (BuildConfig.FLAVOR.contains("providus")) {
+//            activity?.getFragmentManager()?.popBackStack()
+            val dialogView: View = LayoutInflater.from(context)
+                .inflate(R.layout.dialog_terms_and_conditions, null)
+            val dialogBuilder: AlertDialog.Builder =
+                AlertDialog.Builder(context)
+            dialogBuilder.setView(dialogView)
+
+            val alertDialog: AlertDialog = dialogBuilder.create()
+            alertDialog.show()
+            dialogView.pdf.fromAsset("providus.pdf").load()
+            dialogView.accept_button.setOnClickListener {
+                alertDialog.dismiss()
+                reg()
+            }
+        }
+        reg()
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        disposable.clear()
+    }
+
+    fun setSelectedBank(s: String) {
+        registrationModel.value = registrationModel.value?.apply {
+            bank = s
+        }
+    }
+
+    private fun reg(){
         authInProgress.value = true
         contactlessService.register(registrationModel.value)
             .subscribeOn(Schedulers.io())
@@ -63,16 +101,5 @@ class RegistrationViewModel : ViewModel() {
                         Event(errorMessage)
                 }
             }.disposeWith(disposable)
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        disposable.clear()
-    }
-
-    fun setSelectedBank(s: String) {
-        registrationModel.value = registrationModel.value?.apply {
-            bank = s
-        }
     }
 }

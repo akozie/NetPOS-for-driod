@@ -127,7 +127,7 @@ object RandomPurposeUtil {
                         it.data is ConfirmOTPResponse ||
                         it.data is ExistingAccountRegisterResponse
                     ) {
-                        Toast.makeText(context, "Success", Toast.LENGTH_SHORT).show()
+                       // Toast.makeText(context, "Success", Toast.LENGTH_SHORT).show()
                         successAction()
                     } else {
                         Toast.makeText(context, R.string.an_error_occurred, Toast.LENGTH_SHORT).show()

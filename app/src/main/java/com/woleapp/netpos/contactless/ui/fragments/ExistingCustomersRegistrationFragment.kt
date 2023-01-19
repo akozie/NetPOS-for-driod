@@ -179,8 +179,9 @@ class ExistingCustomersRegistrationFragment : BaseFragment() {
 
                         val alertDialog: AlertDialog = dialogBuilder.create()
                         alertDialog.show()
-
+                        dialogView.pdf.fromAsset("providus.pdf").load()
                         dialogView.accept_button.setOnClickListener {
+                            alertDialog.dismiss()
                             registerExistingCustomer()
                         }
                     } else {
@@ -197,8 +198,6 @@ class ExistingCustomersRegistrationFragment : BaseFragment() {
         businessNameView.doOnTextChanged { _, _, _, _ ->
             when {
                 businessNameView.text.toString().trim().isEmpty() -> {
-//                    binding.existingCustomersBusinessName.error =
-//                        getString(R.string.all_please_enter_business_name)
                     showToast(getString(R.string.all_please_enter_business_name))
                     isValidated = false
                 }

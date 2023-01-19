@@ -17,7 +17,8 @@ interface AccountLookUpService {
 
     @POST("confirm-otp")
     fun confirmOTP(
-        @Body confirmOTP: ConfirmOTPRequest
+        @Body confirmOTP: ConfirmOTPRequest,
+        @Query("partnerId") partnerId: String
     ): Single<ConfirmOTPResponse>
 
     @POST("user/register-existing-user")

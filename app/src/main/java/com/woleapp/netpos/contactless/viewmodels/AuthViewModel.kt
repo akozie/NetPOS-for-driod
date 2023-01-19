@@ -1,5 +1,6 @@
 package com.woleapp.netpos.contactless.viewmodels
 
+import android.util.Log
 import android.util.Patterns
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -103,7 +104,8 @@ class AuthViewModel : ViewModel() {
                             "partnerId"
                         ).asString() else " "
                 }
-                Timber.d("BUSINESSADDRESS------> ${user.business_phone_number}")
+                Timber.d("USER------> ${user}")
+                Log.d("ANOTHERUSER---", user.toString())
                 Single.just(user)
             }.subscribeOn(Schedulers.io())
             .doFinally { authInProgress.postValue(false) }

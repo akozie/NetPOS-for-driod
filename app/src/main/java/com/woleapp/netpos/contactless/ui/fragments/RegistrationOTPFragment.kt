@@ -39,6 +39,7 @@ class RegistrationOTPFragment : BaseFragment() {
     private val viewModel by activityViewModels<ContactlessRegViewModel>()
     private lateinit var loader:AlertDialog
     private lateinit var newAccountNumber:String
+    private lateinit var partnerID:String
 
 
     override fun onCreateView(
@@ -52,6 +53,7 @@ class RegistrationOTPFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        initPartnerID()
         viewModel.otpMessage.observe(viewLifecycleOwner) {
             it.getContentIfNotHandled()?.let { message ->
                 Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
@@ -84,13 +86,24 @@ class RegistrationOTPFragment : BaseFragment() {
                 s?.let {
                     if (it.length == 6) {
                         RandomPurposeUtil.closeSoftKeyboard(requireContext(), requireActivity())
-                        viewModel.confirmOTP(phoneNumber, newAccountNumber, s.toString())
-                        observeServerResponse(viewModel.confirmOTPResponse, loader, requireActivity().supportFragmentManager){
-                            showFragment(
-                                ExistingCustomersRegistrationFragment(),
-                                containerViewId = R.id.auth_container,
-                                fragmentName = "Register Existing Customer Fragment"
-                            )
+                        if (BuildConfig.FLAVOR.contains("providus")){
+                            viewModel.confirmOTP("", newAccountNumber, s.toString(), partnerID)
+                            observeServerResponse(viewModel.confirmOTPResponse, loader, requireActivity().supportFragmentManager){
+                                showFragment(
+                                    ExistingCustomersRegistrationFragment(),
+                                    containerViewId = R.id.auth_container,
+                                    fragmentName = "Register Existing Customer Fragment"
+                                )
+                            }
+                        }else{
+                            viewModel.confirmOTP(phoneNumber, newAccountNumber, s.toString(), "")
+                            observeServerResponse(viewModel.confirmOTPResponse, loader, requireActivity().supportFragmentManager){
+                                showFragment(
+                                    ExistingCustomersRegistrationFragment(),
+                                    containerViewId = R.id.auth_container,
+                                    fragmentName = "Register Existing Customer Fragment"
+                                )
+                            }
                         }
                     }
                 }
@@ -128,4 +141,18 @@ class RegistrationOTPFragment : BaseFragment() {
             otpResentConfirmationText = otpResent
         }
     }
+
+
+    private fun initPartnerID() {
+        val bankList = mapOf("firstbank" to "7D66B7F7-222B-41CC-A868-185F3A86313F", "fcmb" to "1B0E68FD-7676-4F2C-883D-3931C3564190", "providus" to "8B26F328-040F-4F27-A5BC-4414AB9D1EFA",
+            "wemabank" to "1E3D050B-6995-495F-982A-0511114959C8", "zenith" to "3D9B3E2D-5171-4D6A-99CC-E2799D16DD56")
+
+        for (element in bankList) {
+            if (element.key == BuildConfig.FLAVOR)
+                partnerID = element.value
+            //Timber.d("CODEBANK---->${element.value}")
+
+        }
+    }
+
 }

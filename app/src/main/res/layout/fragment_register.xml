@@ -186,7 +186,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:onClick="@{() -> viewmodel.register()}"
                 android:paddingHorizontal="48dp"
                 android:text="@string/submit"
                 android:textAllCaps="true"

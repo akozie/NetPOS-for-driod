@@ -7,6 +7,7 @@ import android.app.ProgressDialog
 import android.content.DialogInterface
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -72,6 +73,7 @@ class DashboardFragment : BaseFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+     //   Log.d("MID", "------->${Singletons.getCurrentlyLoggedInUser()?.netplus_id}")
         binding = FragmentDashboardBinding.inflate(inflater, container, false)
         transactionType = TransactionType.PURCHASE
         isVend = arguments?.getBoolean("IS_VEND", false) ?: false

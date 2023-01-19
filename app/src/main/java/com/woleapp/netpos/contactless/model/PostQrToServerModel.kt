@@ -9,5 +9,5 @@ data class PostQrToServerModel(
     val merchantId: String,
     val orderId: String = getGUID(),
     val padding: String? = null,
-    val narration: String
+    val naration: String
 )

@@ -37,4 +37,5 @@
     <dimen name="dimen_120dp">120dp</dimen>
     <dimen name="dimen_110dp">110dp</dimen>
     <dimen name="dimen_45dp">45dp</dimen>
+    <dimen name="dimen_56dp">56dp</dimen>
 </resources>

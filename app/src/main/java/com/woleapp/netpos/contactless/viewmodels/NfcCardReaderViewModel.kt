@@ -414,4 +414,5 @@ class NfcCardReaderViewModel @Inject constructor() : ViewModel() {
     fun setLastPosTransactionResponse(lastPosTrans: TransactionResponse) {
         _lastPosTransactionResponse.postValue(lastPosTrans)
     }
+
 }
