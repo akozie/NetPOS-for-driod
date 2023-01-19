@@ -79,5 +79,11 @@
         <item name="android:windowIsFloating">true</item>
     </style>
 
+    <style name="DialogTheme" parent="AppTheme">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">false</item>
+        <item name="android:windowIsFloating">false</item>
+    </style>
+
     <dimen name="text_size_12sp">12sp</dimen>
 </resources>

@@ -222,5 +222,6 @@ Nullam purus nulla, elementum nec tempor eget, rutrum et risus. Nullam ut suscip
     <!--    <string name="all_phone_number_is_required">Phone Number is required</string>-->
     <string name="all_password_mismatch">Password Mismatch</string>
     <string name="error_sending_receipt">Failed, please try again later!</string>
+    <string name="max_input">Maximum input reached</string>
 
 </resources>

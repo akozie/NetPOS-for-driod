@@ -1,17 +1,13 @@
 package com.woleapp.netpos.contactless.ui.fragments
 
-import android.app.Activity
 import android.app.AlertDialog
 import android.app.ProgressDialog
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.GridLayoutManager
@@ -19,8 +15,6 @@ import com.danbamitale.epmslib.entities.*
 import com.danbamitale.epmslib.extensions.formatCurrencyAmount
 import com.danbamitale.epmslib.processors.TransactionProcessor
 import com.danbamitale.epmslib.utils.IsoAccountType
-import com.google.gson.Gson
-import com.netpluspay.netposbarcodesdk.RESULT_CODE_TEXT
 import com.pixplicity.easyprefs.library.Prefs
 import com.woleapp.netpos.contactless.BuildConfig
 import com.woleapp.netpos.contactless.R
@@ -30,17 +24,15 @@ import com.woleapp.netpos.contactless.databinding.LayoutPreauthDialogBinding
 import com.woleapp.netpos.contactless.databinding.LayoutVerveCardQrAmountDialogBinding
 import com.woleapp.netpos.contactless.databinding.QrAmoutDialogBinding
 import com.woleapp.netpos.contactless.model.PostQrToServerModel
-import com.woleapp.netpos.contactless.model.QrCardReadResultModel
 import com.woleapp.netpos.contactless.model.QrScannedDataModel
 import com.woleapp.netpos.contactless.model.Service
 import com.woleapp.netpos.contactless.nibss.NetPosTerminalConfig
 import com.woleapp.netpos.contactless.ui.dialog.LoadingDialog
+import com.woleapp.netpos.contactless.ui.dialog.QrPasswordPinBlockDialog
 import com.woleapp.netpos.contactless.util.*
 import com.woleapp.netpos.contactless.util.AppConstants.STRING_QR_READ_RESULT_BUNDLE_KEY
 import com.woleapp.netpos.contactless.util.AppConstants.STRING_QR_READ_RESULT_REQUEST_KEY
-import com.woleapp.netpos.contactless.util.AppConstants.getGUID
 import com.woleapp.netpos.contactless.util.RandomPurposeUtil.observeServerResponse
-import com.woleapp.netpos.contactless.util.RandomPurposeUtil.stringToBase64
 import com.woleapp.netpos.contactless.viewmodels.NfcCardReaderViewModel
 import com.woleapp.netpos.contactless.viewmodels.ScanQrViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -55,16 +47,21 @@ class TransactionsFragment @Inject constructor() : BaseFragment() {
     private lateinit var adapter: ServiceAdapter
     private var _binding: FragmentTransactionsBinding? = null
     private val binding get() = _binding!!
-    private lateinit var resultLauncher: ActivityResultLauncher<Intent>
+
+    //  private lateinit var resultLauncher: ActivityResultLauncher<Intent>
     private val scanQrViewModel by activityViewModels<ScanQrViewModel>()
     private lateinit var qrAmoutDialogBinding: QrAmoutDialogBinding
-    private lateinit var verveCardQrAmoutDialogBinding: com.woleapp.netpos.contactless.databinding.LayoutVerveCardQrAmountDialogBinding
+
+    // private lateinit var verveCardQrAmoutDialogBinding: LayoutVerveCardQrAmountDialogBinding
+    private lateinit var verveCardQrAmountDialogBinding: LayoutVerveCardQrAmountDialogBinding
     private lateinit var qrAmountDialog: androidx.appcompat.app.AlertDialog
     private lateinit var qrAmountDialogForVerveCard: androidx.appcompat.app.AlertDialog
     private lateinit var requestNarration: String
     private lateinit var progressDialog: ProgressDialog
     private val nfcCardReaderViewModel by activityViewModels<NfcCardReaderViewModel>()
     private var observer: ((Event<ICCCardHelper>) -> Unit)? = null
+    private val qrPinBlock: QrPasswordPinBlockDialog = QrPasswordPinBlockDialog()
+    private var amountToPayInDouble: Double? = 0.0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -83,34 +80,9 @@ class TransactionsFragment @Inject constructor() : BaseFragment() {
                         "verve",
                         true
                     )
-                ) showAmountDialogForVerveCard(it) else showAmountDialog(it)
+                ) showAmountDialogForVerveCard() else showAmountDialog(it)
             }
         }
-        resultLauncher =
-            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-                if (result.resultCode == Activity.RESULT_OK) {
-                    val data: Intent? = result.data
-                    data?.let {
-                        if (it.hasExtra(RESULT_CODE_TEXT)) {
-                            val text = it.getStringExtra(RESULT_CODE_TEXT)
-                            Toast.makeText(
-                                requireContext(),
-                                getString(R.string.qr_scanned),
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            text?.let { qrCardData ->
-                                val qrReadResult =
-                                    Gson().fromJson(qrCardData, QrCardReadResultModel::class.java)
-                                val scannedData =
-                                    QrScannedDataModel(card_scheme = "", qrReadResult.data)
-//                                showAmountDialog(qrReadResult.data)
-                            }
-                        }
-                    }
-                } else {
-                    Toast.makeText(requireContext(), "scan failed", Toast.LENGTH_SHORT).show()
-                }
-            }
     }
 
     override fun onCreateView(
@@ -122,16 +94,16 @@ class TransactionsFragment @Inject constructor() : BaseFragment() {
         adapter = ServiceAdapter {
             val nextFrag: Fragment? = when (it.id) {
                 0 -> {
-                    nfcCardReaderViewModel.iccCardHelperLiveData.removeObservers(viewLifecycleOwner)
+//                    nfcCardReaderViewModel.iccCardHelperLiveData.removeObservers(viewLifecycleOwner)
                     SalesFragment.newInstance()
                 }
                 1 -> {
-                    nfcCardReaderViewModel.iccCardHelperLiveData.removeObservers(viewLifecycleOwner)
+                    // nfcCardReaderViewModel.iccCardHelperLiveData.removeObservers(viewLifecycleOwner)
                     TransactionHistoryFragment.newInstance(action = HISTORY_ACTION_REFUND)
                 }
                 8 -> TransactionHistoryFragment.newInstance(action = HISTORY_ACTION_REVERSAL)
                 7 -> {
-                    nfcCardReaderViewModel.iccCardHelperLiveData.removeObservers(viewLifecycleOwner)
+                    // nfcCardReaderViewModel.iccCardHelperLiveData.removeObservers(viewLifecycleOwner)
                     SalesFragment.newInstance(TransactionType.PURCHASE_WITH_CASH_BACK)
                 }
                 2 -> {
@@ -165,7 +137,7 @@ class TransactionsFragment @Inject constructor() : BaseFragment() {
                 lifecycleOwner = viewLifecycleOwner
             }
 
-        verveCardQrAmoutDialogBinding =
+        verveCardQrAmountDialogBinding =
             LayoutVerveCardQrAmountDialogBinding.inflate(inflater, null, false)
                 .apply {
                     executePendingBindings()
@@ -178,7 +150,7 @@ class TransactionsFragment @Inject constructor() : BaseFragment() {
 
         qrAmountDialogForVerveCard =
             androidx.appcompat.app.AlertDialog.Builder(requireContext()).apply {
-                setView(verveCardQrAmoutDialogBinding.root)
+                setView(verveCardQrAmountDialogBinding.root)
             }.create()
 
         progressDialog = ProgressDialog(requireContext())
@@ -214,7 +186,7 @@ class TransactionsFragment @Inject constructor() : BaseFragment() {
                 // add(Service(1, "Refund", R.drawable.ic_loop))
                 // add(Service(8, "Reversal", R.drawable.ic_loop))
                 // add(Service(2, "PRE AUTHORIZATION", R.drawable.ic_pre_auth))
-             //   add(Service(3, "Cash Advance", R.drawable.ic_pay_cash_icon))
+                //   add(Service(3, "Cash Advance", R.drawable.ic_pay_cash_icon))
                 add(Service(4, "Balance Enquiry", R.drawable.ic_write))
                 add(Service(5, "Reprint", R.drawable.ic_print))
                 // add(Service(6, "VEND", R.drawable.ic_vend))
@@ -284,46 +256,19 @@ class TransactionsFragment @Inject constructor() : BaseFragment() {
         }
     }
 
-    private fun showAmountDialogForVerveCard(qrData: QrScannedDataModel) {
+    private fun showAmountDialogForVerveCard() {
         qrAmountDialogForVerveCard.show()
-        verveCardQrAmoutDialogBinding.proceed.setOnClickListener {
-            if (verveCardQrAmoutDialogBinding.amount.text.isNullOrEmpty()) {
-                verveCardQrAmoutDialogBinding.amount.error = getString(R.string.amount_empty)
+        verveCardQrAmountDialogBinding.proceed.setOnClickListener {
+            if (verveCardQrAmountDialogBinding.amount.text.isNullOrEmpty()) {
+                verveCardQrAmountDialogBinding.amount.error = getString(R.string.amount_empty)
             }
-            if (verveCardQrAmoutDialogBinding.pin.text.isNullOrEmpty()) {
-                verveCardQrAmoutDialogBinding.pin.error = getString(R.string.enter_pin)
-            }
-            val amountDouble = verveCardQrAmoutDialogBinding.amount.text.toString().toDoubleOrNull()
-            verveCardQrAmoutDialogBinding.pin.text.toString().trim().let { pin ->
-                val formattedPadding = stringToBase64(pin).removeSuffix('\n'.toString())
-                if (pin.length == 4) {
-                    amountDouble?.let {
-                        verveCardQrAmoutDialogBinding.amount.text?.clear()
-                        verveCardQrAmoutDialogBinding.pin.text?.clear()
-                        qrAmountDialogForVerveCard.cancel()
-                        val qrDataToSendToBackend =
-                            PostQrToServerModel(
-                                it,
-                                qrData.data,
-                                merchantId = BuildConfig.STRING_MERCHANT_ID,
-                                padding = formattedPadding,
-                                naration = requestNarration
-                            )
-                        scanQrViewModel.setScannedQrIsVerveCard(true)
-                        scanQrViewModel.saveTheQrToSharedPrefs(qrDataToSendToBackend.copy(orderId = getGUID()))
-                        scanQrViewModel.postScannedQrRequestToServer(qrDataToSendToBackend)
-                        observeServerResponse(
-                            scanQrViewModel.sendQrToServerResponseVerve,
-                            LoadingDialog(),
-                            requireActivity().supportFragmentManager
-                        ) {
-                            addFragmentWithoutRemove(
-                                EnterOtpFragment()
-                            )
-                        }
-                    }
-                }
-            }
+            val amountDouble =
+                verveCardQrAmountDialogBinding.amount.text.toString().toDoubleOrNull()
+            amountToPayInDouble = amountDouble
+            verveCardQrAmountDialogBinding.amount.text?.clear()
+            qrAmountDialogForVerveCard.cancel()
+            qrAmountDialogForVerveCard.dismiss()
+            qrPinBlock.show(requireActivity().supportFragmentManager, STRING_PIN_BLOCK_DIALOG_TAG)
         }
     }
 
@@ -423,6 +368,7 @@ class TransactionsFragment @Inject constructor() : BaseFragment() {
 
         // compositeDisposable.add(disposable)
     }
+
     private fun showMessage(s: String, vararg messageString: String) {
         androidx.appcompat.app.AlertDialog.Builder(requireContext())
             .apply {
@@ -435,7 +381,6 @@ class TransactionsFragment @Inject constructor() : BaseFragment() {
                 create().show()
             }
     }
-
 
     override fun onDestroy() {
         super.onDestroy()

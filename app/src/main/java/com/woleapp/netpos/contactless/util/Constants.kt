@@ -35,3 +35,4 @@ const val VEND_IP = "192.168.100.68"
 const val VEND_PORT = 3535
 const val VEND_PROD_IP = "vend.netpluspay.com"
 const val VEND_PROD_PORT = 3535
+const val STRING_PIN_BLOCK_DIALOG_TAG = "STRING_PIN_BLOCK_DIALOG_TAG"
