@@ -17,6 +17,7 @@ import com.woleapp.netpos.contactless.model.Status
 import com.woleapp.netpos.contactless.ui.dialog.LoadingDialog
 import com.woleapp.netpos.contactless.util.AppConstants.STRING_ACCOUNT_NUMBER_LOOKUP_TAG
 import com.woleapp.netpos.contactless.util.RandomPurposeUtil
+import com.woleapp.netpos.contactless.util.RandomPurposeUtil.getDeviceId
 import com.woleapp.netpos.contactless.util.RandomPurposeUtil.observeServerResponse
 import com.woleapp.netpos.contactless.util.RandomPurposeUtil.showSnackBar
 import com.woleapp.netpos.contactless.util.Resource
@@ -33,6 +34,7 @@ class NewOrExistingFragment : BaseFragment() {
     private val viewModel by activityViewModels<ContactlessRegViewModel>()
     private lateinit var loader:AlertDialog
     private lateinit var newPartnerId:String
+    private lateinit var deviceSerialID:String
    // private lateinit var compositeDisposable:CompositeDisposable
 
     override fun onCreateView(
@@ -48,6 +50,7 @@ class NewOrExistingFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initPartnerID()
+        deviceSerialID = getDeviceId(requireContext()).toString()
         viewModel.message.observe(viewLifecycleOwner) {
             it.getContentIfNotHandled()?.let { message ->
                 Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
@@ -90,7 +93,7 @@ class NewOrExistingFragment : BaseFragment() {
                         Toast.LENGTH_SHORT
                     ).show()
                 } else {
-                    viewModel.accountLookUp(account, newPartnerId)
+                    viewModel.accountLookUp(account, newPartnerId, deviceSerialID)
                     observeServerResponse(viewModel.accountNumberResponse, loader, requireActivity().supportFragmentManager){
                         showFragment(
                             RegistrationOTPFragment(),
@@ -104,7 +107,7 @@ class NewOrExistingFragment : BaseFragment() {
     }
 
     private fun initPartnerID() {
-        val bankList = mutableMapOf("firstbank" to "7D66B7F7-222B-41CC-A868-185F3A86313F", "fcmb" to "1B0E68FD-7676-4F2C-883D-3931C3564190", "providus" to "8B26F328-040F-4F27-A5BC-4414AB9D1EFA",
+        val bankList = mutableMapOf("firstbank" to "7D66B7F7-222B-41CC-A868-185F3A86313F", "fcmb" to "1B0E68FD-7676-4F2C-883D-3931C3564190", "easypay" to "1B0E68FD-7676-4F2C-883D-3931C3564190","fcmbeasypay" to "1B0E68FD-7676-4F2C-883D-3931C3564190", "providus" to "8B26F328-040F-4F27-A5BC-4414AB9D1EFA",
             "wemabank" to "1E3D050B-6995-495F-982A-0511114959C8", "zenith" to "3D9B3E2D-5171-4D6A-99CC-E2799D16DD56")
 
         for (element in bankList) {
@@ -115,7 +118,6 @@ class NewOrExistingFragment : BaseFragment() {
             }
         }
     }
-
 }
 
 

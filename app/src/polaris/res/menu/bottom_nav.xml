@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/homeFragment"
+        android:enabled="true"
+        android:icon="@drawable/ic_home_icon"
+        android:title="Home" />
+
+    <item
+        android:id="@+id/transaction"
+        android:enabled="true"
+        android:icon="@drawable/ic_trans"
+        android:title="Transactions" />
+
+    <item
+        android:id="@+id/scanQR"
+        android:enabled="true"
+        android:icon="@drawable/ic_qr_code"
+        android:title="Scan QR" />
+
+    <item
+        android:id="@+id/endOfDay"
+        android:enabled="true"
+        android:icon="@drawable/ic_end_of_day"
+        android:title="End Of Day" />
+
+    <item
+        android:id="@+id/settings"
+        android:enabled="true"
+        android:icon="@drawable/ic_baseline_settings"
+        android:title="Settings" />
+
+</menu>

@@ -55,21 +55,23 @@ import com.woleapp.netpos.contactless.taponphone.visa.LiveNfcTransReceiver
 import com.woleapp.netpos.contactless.taponphone.visa.NfcPaymentType
 import com.woleapp.netpos.contactless.ui.dialog.LoadingDialog
 import com.woleapp.netpos.contactless.ui.dialog.PasswordDialog
+import com.woleapp.netpos.contactless.ui.dialog.QrPasswordPinBlockDialog
 import com.woleapp.netpos.contactless.ui.fragments.*
 import com.woleapp.netpos.contactless.util.*
 import com.woleapp.netpos.contactless.util.AppConstants.IS_QR_TRANSACTION
+import com.woleapp.netpos.contactless.util.AppConstants.STRING_FIREBASE_INTENT_ACTION
 import com.woleapp.netpos.contactless.util.AppConstants.STRING_QR_READ_RESULT_BUNDLE_KEY
 import com.woleapp.netpos.contactless.util.AppConstants.STRING_QR_READ_RESULT_REQUEST_KEY
+import com.woleapp.netpos.contactless.util.AppConstants.TAG_NOTIFICATION_RECEIVED_FROM_BACKEND
 import com.woleapp.netpos.contactless.util.AppConstants.WRITE_PERMISSION_REQUEST_CODE
-import com.woleapp.netpos.contactless.util.AppConstants.getGUID
 import com.woleapp.netpos.contactless.util.Mappers.mapTransactionResponseToQrTransaction
-import com.woleapp.netpos.contactless.util.RandomPurposeUtil.observeServerResponse
+import com.woleapp.netpos.contactless.util.RandomPurposeUtil.dateStr2Long
+import com.woleapp.netpos.contactless.util.RandomPurposeUtil.getCurrentDateTime
 import com.woleapp.netpos.contactless.util.RandomPurposeUtil.observeServerResponseActivity
 import com.woleapp.netpos.contactless.util.RandomPurposeUtil.showSnackBar
-import com.woleapp.netpos.contactless.util.RandomPurposeUtil.stringToBase64
 import com.woleapp.netpos.contactless.util.Singletons.gson
 import com.woleapp.netpos.contactless.viewmodels.NfcCardReaderViewModel
-import com.woleapp.netpos.contactless.viewmodels.SalesViewModel
+import com.woleapp.netpos.contactless.viewmodels.NotificationViewModel
 import com.woleapp.netpos.contactless.viewmodels.ScanQrViewModel
 import com.woleapp.netpos.contactless.viewmodels.TransactionsViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -81,9 +83,7 @@ import javax.inject.Inject
 
 @Suppress("DEPRECATION")
 @AndroidEntryPoint
-class MainActivity @Inject constructor() :
-    AppCompatActivity(),
-    EasyPermissions.PermissionCallbacks,
+class MainActivity @Inject constructor() : AppCompatActivity(), EasyPermissions.PermissionCallbacks,
     NfcAdapter.ReaderCallback {
 
     private lateinit var receiptPdf: File
@@ -115,10 +115,15 @@ class MainActivity @Inject constructor() :
     private lateinit var resultLauncher: ActivityResultLauncher<Intent>
     private lateinit var requestNarration: String
     private lateinit var qrAmoutDialogBinding: QrAmoutDialogBinding
-    private lateinit var verveCardQrAmoutDialogBinding: LayoutVerveCardQrAmountDialogBinding
+    private lateinit var verveCardQrAmountDialogBinding: LayoutVerveCardQrAmountDialogBinding
     private lateinit var qrAmountDialog: androidx.appcompat.app.AlertDialog
     private lateinit var qrAmountDialogForVerveCard: androidx.appcompat.app.AlertDialog
     private val scanQrViewModel by viewModels<ScanQrViewModel>()
+    private val qrPinBlock: QrPasswordPinBlockDialog = QrPasswordPinBlockDialog()
+    private var amountToPayInDouble: Double? = 0.0
+
+    private val notificationModel: NotificationViewModel by viewModels()
+    private lateinit var firebaseInstance: FirebaseMessaging
 
     override fun onStop() {
         super.onStop()
@@ -131,8 +136,7 @@ class MainActivity @Inject constructor() :
         registerReceiver(batteryReceiver, iFilter)
         // LocalBroadcastManager.getInstance(this).registerReceiver(receiver, IntentFilter(CONFIGURATION_ACTION))
         when ( // NetPosTerminalConfig.isConfigurationInProcess -> showProgressDialog()
-            NetPosTerminalConfig.configurationStatus
-        ) {
+            NetPosTerminalConfig.configurationStatus) {
             -1 -> NetPosTerminalConfig.init(
                 applicationContext
             )
@@ -151,22 +155,17 @@ class MainActivity @Inject constructor() :
         if (nfcAdapter != null) {
             // Toast.makeText(this, "Device has NFC support", Toast.LENGTH_SHORT).show()
             if (nfcAdapter?.isEnabled == false) {
-                AlertDialog.Builder(this)
-                    .setTitle("NFC Message")
+                AlertDialog.Builder(this).setTitle("NFC Message")
                     .setMessage("NFC is not enabled, goto device settings to enable")
-                    .setCancelable(false)
-                    .setPositiveButton("Settings") { dialog, _ ->
+                    .setCancelable(false).setPositiveButton("Settings") { dialog, _ ->
                         dialog.dismiss()
                         startActivityForResult(
-                            Intent(android.provider.Settings.ACTION_NFC_SETTINGS),
-                            0
+                            Intent(android.provider.Settings.ACTION_NFC_SETTINGS), 0
                         )
                     }.show()
             }
         } else {
-            AlertDialog.Builder(this)
-                .setTitle("NFC Message")
-                .setCancelable(false)
+            AlertDialog.Builder(this).setTitle("NFC Message").setCancelable(false)
                 .setMessage("Device dose not have NFC support")
                 .setPositiveButton("Close") { dialog, _ ->
                     dialog.dismiss()
@@ -177,10 +176,7 @@ class MainActivity @Inject constructor() :
 
     private fun startNfcPayment() {
         nfcAdapter?.enableReaderMode(
-            this,
-            this,
-            READER_FLAGS,
-            Bundle()
+            this, this, READER_FLAGS, Bundle()
         )
     }
 
@@ -257,11 +253,10 @@ class MainActivity @Inject constructor() :
             DialogContatclessReaderBinding.inflate(layoutInflater).apply {
                 executePendingBindings()
             }
-        waitingDialog = AlertDialog.Builder(this)
-            .apply {
-                setView(dialogContactlessReaderBinding.root)
-                // setCancelable(false)
-            }.create()
+        waitingDialog = AlertDialog.Builder(this).apply {
+            setView(dialogContactlessReaderBinding.root)
+            // setCancelable(false)
+        }.create()
         receiptDialogBinding = DialogTransactionResultBinding.inflate(layoutInflater, null, false)
             .apply { executePendingBindings() }
         if (!EasyPermissions.hasPermissions(
@@ -288,23 +283,22 @@ class MainActivity @Inject constructor() :
         }
 
         val mid = Singletons.getConfigData()?.cardAcceptorIdCode ?: ""
-        requestNarration = if (Singletons.getCurrentlyLoggedInUser()?.terminal_id?.isNotEmpty() == true){
-            "${mid}:${Singletons.getCurrentlyLoggedInUser()?.terminal_id}:${BuildConfig.STRING_MPGS_TAG}"
-        }else{
-            ""
-        }
+        requestNarration =
+            if (Singletons.getCurrentlyLoggedInUser()?.terminal_id?.isNotEmpty() == true) {
+                "${mid}:${Singletons.getCurrentlyLoggedInUser()?.terminal_id}:${UtilityParam.STRING_MPGS_TAG}"
+            } else {
+                ""
+            }
 
         this.supportFragmentManager.setFragmentResultListener(
-            STRING_QR_READ_RESULT_REQUEST_KEY,
-            this
+            STRING_QR_READ_RESULT_REQUEST_KEY, this
         ) { _, bundle ->
             val data = bundle.getParcelable<QrScannedDataModel>(STRING_QR_READ_RESULT_BUNDLE_KEY)
             data?.let {
                 if (it.card_scheme.contains(
-                        "verve",
-                        true
+                        "verve", true
                     )
-                ) showAmountDialogForVerveCard(it) else showAmountDialog(it)
+                ) showAmountDialogForVerveCard() else showAmountDialog(it)
             }
         }
         resultLauncher =
@@ -315,9 +309,7 @@ class MainActivity @Inject constructor() :
                         if (it.hasExtra(RESULT_CODE_TEXT)) {
                             val text = it.getStringExtra(RESULT_CODE_TEXT)
                             Toast.makeText(
-                                this,
-                                getString(R.string.qr_scanned),
-                                Toast.LENGTH_SHORT
+                                this, getString(R.string.qr_scanned), Toast.LENGTH_SHORT
                             ).show()
                             text?.let { qrCardData ->
                                 val qrReadResult =
@@ -368,13 +360,18 @@ class MainActivity @Inject constructor() :
                         showFragment(TransactionsFragment(), "Transactions")
                         showCalendarDialog()
                     }
-                    R.id.settings -> {
-                        showFragment(SettingsFragment(), "Settings")
+                    else -> {
+                        if (BuildConfig.FLAVOR.contains("polaris")) {
+                            showFragment(SettingsFragment(), "Settings")
+                        } else {
+                            showFragment(DisplayQrFragment(), "DisplayQR")
+                        }
                     }
                 }
                 return true
             }
         })
+
         binding.dashboardHeader.logout.setOnClickListener {
             logout()
         }
@@ -409,8 +406,7 @@ class MainActivity @Inject constructor() :
                 dialogContactlessReaderBinding.contactlessHeader.text =
                     getString(R.string.nfc_message, it.cardScheme)
                 dialogContactlessReaderBinding.contactlessHeader.highlightTexts(
-                    NfcPaymentType.MASTERCARD.cardScheme,
-                    NfcPaymentType.VISA.cardScheme
+                    NfcPaymentType.MASTERCARD.cardScheme, NfcPaymentType.VISA.cardScheme
                 )
                 dialogContactlessReaderBinding.cardScheme.setImageResource(it.icon)
                 waitingDialog.show()
@@ -427,7 +423,9 @@ class MainActivity @Inject constructor() :
                     receiptDialogBinding.telephone.text?.clear()
                     receiptAlertDialog.dismiss()
                 } else {
-                    Toast.makeText(this, getString(R.string.error_sending_receipt), Toast.LENGTH_LONG).show()
+                    Toast.makeText(
+                        this, getString(R.string.error_sending_receipt), Toast.LENGTH_LONG
+                    ).show()
                     receiptDialogBinding.telephone.text?.clear()
                     receiptAlertDialog.dismiss()
                 }
@@ -453,6 +451,7 @@ class MainActivity @Inject constructor() :
                         receiptDialogBinding.transactionContent.text.toString(),
                         receiptDialogBinding.telephone.text.toString()
                     )
+                    Log.d("PHONENUMBER", receiptDialogBinding.transactionContent.text.toString())
                     progress.visibility = View.VISIBLE
                     sendButton.isEnabled = false
                 }
@@ -470,48 +469,49 @@ class MainActivity @Inject constructor() :
             viewModel.stopNfcReader()
         }
 
-        FirebaseMessaging.getInstance().token.addOnCompleteListener(
-            OnCompleteListener { task ->
-                if (!task.isSuccessful) {
-                    return@OnCompleteListener
-                }
-                val token = task.result // this is the token retrieved
-                Log.d("FCM", token)
+        FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                return@OnCompleteListener
             }
-        )
-        qrAmoutDialogBinding = QrAmoutDialogBinding.inflate(layoutInflater, null, false)
-            .apply {
+            val token = task.result // this is the token retrieved
+            Log.d("FCM", token)
+        })
+        qrAmoutDialogBinding = QrAmoutDialogBinding.inflate(layoutInflater, null, false).apply {
+            executePendingBindings()
+            lifecycleOwner = this@MainActivity
+        }
+
+        verveCardQrAmountDialogBinding =
+            LayoutVerveCardQrAmountDialogBinding.inflate(layoutInflater, null, false).apply {
                 executePendingBindings()
                 lifecycleOwner = this@MainActivity
             }
-
-        verveCardQrAmoutDialogBinding =
-            LayoutVerveCardQrAmountDialogBinding.inflate(layoutInflater, null, false)
-                .apply {
-                    executePendingBindings()
-                    lifecycleOwner = this@MainActivity
-                }
 
         qrAmountDialog = androidx.appcompat.app.AlertDialog.Builder(this).apply {
             setView(qrAmoutDialogBinding.root)
         }.create()
 
-        qrAmountDialogForVerveCard =
-            androidx.appcompat.app.AlertDialog.Builder(this).apply {
-                setView(verveCardQrAmoutDialogBinding.root)
-            }.create()
+        qrAmountDialogForVerveCard = androidx.appcompat.app.AlertDialog.Builder(this).apply {
+            setView(verveCardQrAmountDialogBinding.root)
+        }.create()
+        val terminalId = Singletons.getCurrentlyLoggedInUser()?.terminal_id.toString()
+        val userName = Singletons.getCurrentlyLoggedInUser()?.netplus_id.toString()
+        firebaseInstance = FirebaseMessaging.getInstance()
+//        getFireBaseToken(firebaseInstance) {
+//            sendTokenToBackend(it, terminalId, userName)
+//        }
+
+  //      getIntentDataSentInFromFirebaseService()
     }
+
     override fun onResume() {
         super.onResume()
         handlePdfReceiptPrinting()
     }
 
 
-
     override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
+        requestCode: Int, permissions: Array<out String>, grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
@@ -536,8 +536,7 @@ class MainActivity @Inject constructor() :
             }
 
             @Deprecated(
-                "Deprecated from api",
-                ReplaceWith("Check documentation, mfpm")
+                "Deprecated from api", ReplaceWith("Check documentation, mfpm")
             )
             override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {
             }
@@ -551,10 +550,7 @@ class MainActivity @Inject constructor() :
             }
         }
         locationManager.requestLocationUpdates(
-            LocationManager.GPS_PROVIDER,
-            0L,
-            0f,
-            locationListener
+            LocationManager.GPS_PROVIDER, 0L, 0f, locationListener
         )
         // locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
         locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
@@ -563,30 +559,25 @@ class MainActivity @Inject constructor() :
     private fun showPinDialog(pan: String) {
         Timber.e("pan from show pin dialog")
         Timber.e(pan)
-        PasswordDialog(
-            this,
-            pan,
-            object : PasswordDialog.Listener {
-                override fun onConfirm(pinBlock: String?) {
-                    viewModel.setPinBlock(pinBlock)
-                }
-
-                override fun onError(message: String?) {
-                    Toast.makeText(this@MainActivity, message, Toast.LENGTH_SHORT).show()
-                    viewModel.setIccCardHelperLiveData(ICCCardHelper(error = Throwable(message)))
-                }
+        PasswordDialog(this, pan, object : PasswordDialog.Listener {
+            override fun onConfirm(pinBlock: String?) {
+                viewModel.setPinBlock(pinBlock)
             }
-        ).showDialog()
+
+            override fun onError(message: String?) {
+                Toast.makeText(this@MainActivity, message, Toast.LENGTH_SHORT).show()
+                viewModel.setIccCardHelperLiveData(ICCCardHelper(error = Throwable(message)))
+            }
+        }).showDialog()
     }
 
     private fun showFragment(targetFragment: Fragment, className: String) {
         try {
-            supportFragmentManager.beginTransaction()
-                .apply {
-                    replace(R.id.container_main, targetFragment, className)
-                    setCustomAnimations(R.anim.right_to_left, android.R.anim.fade_out)
-                    commit()
-                }
+            supportFragmentManager.beginTransaction().apply {
+                replace(R.id.container_main, targetFragment, className)
+                setCustomAnimations(R.anim.right_to_left, android.R.anim.fade_out)
+                commit()
+            }
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -594,20 +585,15 @@ class MainActivity @Inject constructor() :
 
     private fun showSelectAccountTypeDialog() {
         var dialogSelectAccountTypeBinding: DialogSelectAccountTypeBinding
-        val dialog = AlertDialog.Builder(this)
-            .apply {
-                dialogSelectAccountTypeBinding =
-                    DialogSelectAccountTypeBinding.inflate(
-                        LayoutInflater.from(context),
-                        null,
-                        false
-                    )
-                        .apply {
-                            executePendingBindings()
-                        }
-                setView(dialogSelectAccountTypeBinding.root)
-                setCancelable(false)
-            }.create()
+        val dialog = AlertDialog.Builder(this).apply {
+            dialogSelectAccountTypeBinding = DialogSelectAccountTypeBinding.inflate(
+                LayoutInflater.from(context), null, false
+            ).apply {
+                executePendingBindings()
+            }
+            setView(dialogSelectAccountTypeBinding.root)
+            setCancelable(false)
+        }.create()
         dialogSelectAccountTypeBinding.accountTypes.setOnCheckedChangeListener { _, checkedId ->
             val accountType = when (checkedId) {
                 R.id.savings_account -> IsoAccountType.SAVINGS
@@ -657,8 +643,7 @@ class MainActivity @Inject constructor() :
 
     private fun downloadPflImplForQrTransaction(qrTransaction: QrTransactionResponseFinalModel) {
         initViewsForPdfLayout(
-            qrPdfView,
-            qrTransaction
+            qrPdfView, qrTransaction
         )
         getPermissionAndCreatePdf(qrPdfView)
     }
@@ -667,32 +652,82 @@ class MainActivity @Inject constructor() :
         when (Prefs.getString(PREF_PRINTER_SETTINGS, "nothing_is_there")) {
             PREF_VALUE_PRINT_DOWNLOAD -> {
                 receiptPdf = createPdf(binding, this)
-                downloadPflImplForQrTransaction(qrTransaction)
-                showSnackBar(
-                    binding.root,
-                    getString(R.string.fileDownloaded)
-                )
+                receiptAlertDialog.apply {
+                    receiptDialogBinding.sendButton.text = "Download"
+                    receiptDialogBinding.telephoneWrapper.visibility = View.INVISIBLE
+                    receiptDialogBinding.transactionContent.text =
+                        qrTransaction.buildSMSTextForQrTransaction()
+                    show()
+                    receiptDialogBinding.sendButton.setOnClickListener {
+                        downloadPflImplForQrTransaction(qrTransaction)
+                        showSnackBar(
+                            binding.root, getString(R.string.fileDownloaded)
+                        )
+                    }
+                }
             }
             PREF_VALUE_PRINT_SHARE -> {
                 receiptPdf = createPdf(binding, this)
-                downloadPflImplForQrTransaction(qrTransaction)
-                sharePdf(receiptPdf, this)
+                receiptAlertDialog.apply {
+                    receiptDialogBinding.sendButton.text = "Share"
+//                    receiptDialogBinding.shareButton.visibility = View.GONE
+//                    receiptDialogBinding.shareLayout.visibility = View.VISIBLE
+                    receiptDialogBinding.telephoneWrapper.visibility = View.INVISIBLE
+                    receiptDialogBinding.transactionContent.text =
+                        qrTransaction.buildSMSTextForQrTransaction()
+                    show()
+                    receiptDialogBinding.sendButton.setOnClickListener {
+                        downloadPflImplForQrTransaction(qrTransaction)
+                        sharePdf(receiptPdf, this@MainActivity)
+                    }
+                }
             }
-            PREF_VALUE_PRINT_DOWNLOAD_AND_SHARE -> {
-                receiptPdf = createPdf(binding, this)
-                downloadPflImplForQrTransaction(qrTransaction)
-                showSnackBar(
-                    binding.root,
-                    getString(R.string.fileDownloaded)
-                )
-                sharePdf(receiptPdf, this)
-            }
-            else -> {
+            PREF_VALUE_PRINT_SMS -> {
                 receiptPdf = createPdf(binding, this)
                 receiptAlertDialog.apply {
                     receiptDialogBinding.transactionContent.text =
                         qrTransaction.buildSMSTextForQrTransaction()
                     show()
+                    receiptDialogBinding.sendButton.setOnClickListener {
+                        if (receiptDialogBinding.telephone.text.toString().length != 11) {
+                            Toast.makeText(
+                                this@MainActivity,
+                                "Please enter a valid phone number",
+                                Toast.LENGTH_LONG
+                            ).show()
+                            return@setOnClickListener
+                        }
+                        viewModel.sendSmS(
+                            receiptDialogBinding.transactionContent.text.toString(),
+                            receiptDialogBinding.telephone.text.toString()
+                        )
+                        Log.d(
+                            "PHONENUMBER", receiptDialogBinding.transactionContent.text.toString()
+                        )
+                        receiptDialogBinding.progress.visibility = View.VISIBLE
+                        receiptDialogBinding.sendButton.isEnabled = false
+                    }
+
+                }
+            }
+            else -> {
+                receiptPdf = createPdf(binding, this)
+                receiptAlertDialog.apply {
+//                    receiptDialogBinding.shareButton.visibility = View.GONE
+//                    receiptDialogBinding.shareLayout.visibility = View.VISIBLE
+//                    receiptDialogBinding.shareButton.text = "Download and Share"
+                    receiptDialogBinding.sendButton.text = "Download and Share"
+                    receiptDialogBinding.telephoneWrapper.visibility = View.INVISIBLE
+                    receiptDialogBinding.transactionContent.text =
+                        qrTransaction.buildSMSTextForQrTransaction()
+                    show()
+                    receiptDialogBinding.sendButton.setOnClickListener {
+                        downloadPflImplForQrTransaction(qrTransaction)
+                        showSnackBar(
+                            binding.root, getString(R.string.fileDownloaded)
+                        )
+                        sharePdf(receiptPdf, this@MainActivity)
+                    }
                 }
                 receiptDialogBinding.apply {
                     progress.visibility = View.GONE
@@ -709,7 +744,9 @@ class MainActivity @Inject constructor() :
             { _, i, i2, i3 ->
                 getEndOfDayTransactions(
                     Calendar.getInstance().apply { set(i, i2, i3) }.timeInMillis
-                )
+                ){
+                    showEndOfDayBottomSheetDialog(it)
+                }
             },
             calendar.get(Calendar.YEAR),
             calendar.get(Calendar.MONTH),
@@ -717,17 +754,16 @@ class MainActivity @Inject constructor() :
         ).show()
     }
 
-    private fun getEndOfDayTransactions(timestamp: Long? = null) {
+    private fun getEndOfDayTransactions(timestamp: Long? = null, actionToTake: (transactions:List<TransactionResponse>)->Unit) {
         Toast.makeText(this, "Please wait", Toast.LENGTH_LONG).show()
-        val livedata = AppDatabase.getDatabaseInstance(this)
-            .transactionResponseDao()
-            .getEndOfDayTransaction(
+        val livedata =
+            AppDatabase.getDatabaseInstance(this).transactionResponseDao().getEndOfDayTransaction(
                 getBeginningOfDay(timestamp),
                 getEndOfDayTimeStamp(timestamp),
                 NetPosTerminalConfig.getTerminalId()
             )
         livedata.observe(this) {
-            showEndOfDayBottomSheetDialog(it)
+            actionToTake.invoke(it)
             livedata.removeObservers(this)
         }
     }
@@ -735,8 +771,7 @@ class MainActivity @Inject constructor() :
     private fun showEndOfDayBottomSheetDialog(transactions: List<TransactionResponse>) {
         val approvedList = transactions.filter { it.responseCode == "00" }
         val declinedList = transactions.filter { it.responseCode != "00" }
-        val endOfDay =
-            LayoutPrintEndOfDayBinding.inflate(LayoutInflater.from(this), null, false)
+        val endOfDay = LayoutPrintEndOfDayBinding.inflate(LayoutInflater.from(this), null, false)
         endOfDay.apply {
             approvedCount.text = approvedList.size.toString()
             declinedCount.text = declinedList.size.toString()
@@ -750,27 +785,23 @@ class MainActivity @Inject constructor() :
                 }.apply {
                     if (isEmpty()) {
                         Toast.makeText(
-                            this@MainActivity,
-                            "No transactions to print",
-                            Toast.LENGTH_SHORT
+                            this@MainActivity, "No transactions to print", Toast.LENGTH_SHORT
                         ).show()
                     }
                 }
             }
         }
-        val bottomSheet = BottomSheetDialog(this, R.style.SheetDialog)
-            .apply {
-                dismissWithAnimation = true
-                setCancelable(false)
-                setContentView(endOfDay.root)
-                show()
-            }
+        val bottomSheet = BottomSheetDialog(this, R.style.SheetDialog).apply {
+            dismissWithAnimation = true
+            setCancelable(false)
+            setContentView(endOfDay.root)
+            show()
+        }
         endOfDay.view.setOnClickListener {
             transactionViewModel.setEndOfDayList(transactions)
             bottomSheet.dismiss()
             showFragment(
-                TransactionHistoryFragment.newInstance(HISTORY_ACTION_EOD),
-                "Transaction History"
+                TransactionHistoryFragment.newInstance(HISTORY_ACTION_EOD), "Transaction History"
             )
         }
         endOfDay.closeButton.setOnClickListener {
@@ -787,13 +818,12 @@ class MainActivity @Inject constructor() :
             amountDouble?.let {
                 qrAmoutDialogBinding.amount.text?.clear()
                 qrAmountDialog.cancel()
-                val qrDataToSendToBackend =
-                    PostQrToServerModel(
-                        it,
-                        qrData.data,
-                        merchantId = BuildConfig.STRING_MERCHANT_ID,
-                        naration = requestNarration
-                    )
+                val qrDataToSendToBackend = PostQrToServerModel(
+                    it,
+                    qrData.data,
+                    merchantId = UtilityParam.STRING_MERCHANT_ID,
+                    naration = requestNarration
+                )
                 scanQrViewModel.setScannedQrIsVerveCard(false)
                 scanQrViewModel.postScannedQrRequestToServer(qrDataToSendToBackend)
                 observeServerResponseActivity(
@@ -811,82 +841,95 @@ class MainActivity @Inject constructor() :
         }
     }
 
-    private fun showAmountDialogForVerveCard(qrData: QrScannedDataModel) {
+    private fun showAmountDialogForVerveCard() {
         qrAmountDialogForVerveCard.show()
-        verveCardQrAmoutDialogBinding.proceed.setOnClickListener {
-            if (verveCardQrAmoutDialogBinding.amount.text.isNullOrEmpty()) {
-                verveCardQrAmoutDialogBinding.amount.error = getString(R.string.amount_empty)
+        verveCardQrAmountDialogBinding.proceed.setOnClickListener {
+            if (verveCardQrAmountDialogBinding.amount.text.isNullOrEmpty()) {
+                verveCardQrAmountDialogBinding.amount.error = getString(R.string.amount_empty)
             }
-            if (verveCardQrAmoutDialogBinding.pin.text.isNullOrEmpty()) {
-                verveCardQrAmoutDialogBinding.pin.error = getString(R.string.enter_pin)
-            }
-            val amountDouble = verveCardQrAmoutDialogBinding.amount.text.toString().toDoubleOrNull()
-            verveCardQrAmoutDialogBinding.pin.text.toString().trim().let { pin ->
-                val formattedPadding = stringToBase64(pin).removeSuffix('\n'.toString())
-                if (pin.length == 4) {
-                    amountDouble?.let {
-                        verveCardQrAmoutDialogBinding.amount.text?.clear()
-                        verveCardQrAmoutDialogBinding.pin.text?.clear()
-                        qrAmountDialogForVerveCard.cancel()
-                        val qrDataToSendToBackend =
-                            PostQrToServerModel(
-                                it,
-                                qrData.data,
-                                merchantId = BuildConfig.STRING_MERCHANT_ID,
-                                padding = formattedPadding,
-                                naration = requestNarration
-                            )
-                        scanQrViewModel.setScannedQrIsVerveCard(true)
-                        scanQrViewModel.saveTheQrToSharedPrefs(qrDataToSendToBackend.copy(orderId = getGUID()))
-                        scanQrViewModel.postScannedQrRequestToServer(qrDataToSendToBackend)
-                        observeServerResponseActivity(
-                            this,
-                            this,
-                            scanQrViewModel.sendQrToServerResponseVerve,
-                            LoadingDialog(),
-                            supportFragmentManager
-                        ) {
-                            showFragment(
-                                EnterOtpFragment(),
-                                "OTP"
-                            )
-                        }
-                    }
-                }
-            }
+            val amountDouble =
+                verveCardQrAmountDialogBinding.amount.text.toString().toDoubleOrNull()
+            amountToPayInDouble = amountDouble
+            verveCardQrAmountDialogBinding.amount.text?.clear()
+            qrAmountDialogForVerveCard.cancel()
+            qrAmountDialogForVerveCard.dismiss()
+            qrPinBlock.show(supportFragmentManager, STRING_PIN_BLOCK_DIALOG_TAG)
         }
     }
+
     private fun handlePdfReceiptPrinting() {
         viewModel.showPrintDialog.observe(this) { event ->
             event.getContentIfNotHandled()?.let {
                 when (Prefs.getString(PREF_PRINTER_SETTINGS, "nothing_is_there")) {
                     PREF_VALUE_PRINT_DOWNLOAD -> {
                         receiptPdf = createPdf(binding, this)
-                        downloadPdfImpl()
-                        showSnackBar(
-                            binding.root,
-                            getString(R.string.fileDownloaded)
-                        )
+                        receiptAlertDialog.apply {
+                            receiptDialogBinding.sendButton.text = "Download"
+                            receiptDialogBinding.telephoneWrapper.visibility = View.INVISIBLE
+                            receiptDialogBinding.transactionContent.text = it
+                            show()
+                            receiptDialogBinding.sendButton.setOnClickListener {
+                                downloadPdfImpl()
+                                showSnackBar(
+                                    binding.root, getString(R.string.fileDownloaded)
+                                )
+                            }
+                        }
                     }
-                    PREF_VALUE_PRINT_SHARE -> {
-                        receiptPdf = createPdf(binding, this)
-                        downloadPdfImpl()
-                        sharePdf(receiptPdf, this)
-                    }
-                    PREF_VALUE_PRINT_DOWNLOAD_AND_SHARE -> {
-                        receiptPdf = createPdf(binding, this)
-                        downloadPdfImpl()
-                        showSnackBar(
-                            binding.root,
-                            getString(R.string.fileDownloaded)
-                        )
-                        sharePdf(receiptPdf, this)
-                    }
-                    else -> {
+                    PREF_VALUE_PRINT_SMS -> {
                         receiptPdf = createPdf(binding, this)
                         receiptAlertDialog.apply {
                             receiptDialogBinding.transactionContent.text = it
                             show()
+                            receiptDialogBinding.sendButton.setOnClickListener {
+                                if (receiptDialogBinding.telephone.text.toString().length != 11) {
+                                    Toast.makeText(
+                                        this@MainActivity,
+                                        "Please enter a valid phone number",
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                    return@setOnClickListener
+                                }
+                                viewModel.sendSmS(
+                                    receiptDialogBinding.transactionContent.text.toString(),
+                                    receiptDialogBinding.telephone.text.toString()
+                                )
+                                Log.d(
+                                    "PHONENUMBER",
+                                    receiptDialogBinding.transactionContent.text.toString()
+                                )
+                                receiptDialogBinding.progress.visibility = View.VISIBLE
+                                receiptDialogBinding.sendButton.isEnabled = false
+                            }
+                        }
+                    }
+                    PREF_VALUE_PRINT_SHARE -> {
+                        receiptPdf = createPdf(binding, this)
+                        receiptAlertDialog.apply {
+                            receiptDialogBinding.sendButton.text = "Share"
+                            receiptDialogBinding.telephoneWrapper.visibility = View.INVISIBLE
+                            receiptDialogBinding.transactionContent.text = it
+                            show()
+                            receiptDialogBinding.sendButton.setOnClickListener {
+                                downloadPdfImpl()
+                                sharePdf(receiptPdf, this@MainActivity)
+                            }
+                        }
+                    }
+                    else -> {
+                        receiptPdf = createPdf(binding, this)
+                        receiptAlertDialog.apply {
+                            receiptDialogBinding.sendButton.text = "Download and Share"
+                            receiptDialogBinding.telephoneWrapper.visibility = View.INVISIBLE
+                            receiptDialogBinding.transactionContent.text = it
+                            show()
+                            receiptDialogBinding.sendButton.setOnClickListener {
+                                downloadPdfImpl()
+                                showSnackBar(
+                                    binding.root, getString(R.string.fileDownloaded)
+                                )
+                                sharePdf(receiptPdf, this@MainActivity)
+                            }
                         }
                         receiptDialogBinding.apply {
                             progress.visibility = View.GONE
@@ -896,7 +939,6 @@ class MainActivity @Inject constructor() :
                 }
             }
         }
-
     }
 
     private fun downloadPdfImpl() {
@@ -905,14 +947,12 @@ class MainActivity @Inject constructor() :
                 val qrTransaction = it.copy(TVR = it.TVR.replace(IS_QR_TRANSACTION, ""))
                     .mapTransactionResponseToQrTransaction()
                 initViewsForPdfLayout(
-                    qrPdfView,
-                    qrTransaction
+                    qrPdfView, qrTransaction
                 )
                 getPermissionAndCreatePdf(qrPdfView)
             } else {
                 initViewsForPdfLayout(
-                    pdfView,
-                    viewModel.lastPosTransactionResponse.value
+                    pdfView, viewModel.lastPosTransactionResponse.value
                 )
                 getPermissionAndCreatePdf(pdfView)
             }
@@ -920,9 +960,7 @@ class MainActivity @Inject constructor() :
     }
 
     fun addFragmentWithoutRemove(
-        fragment: Fragment,
-        containerViewId: Int = R.id.container_main,
-        fragmentName: String? = null
+        fragment: Fragment, containerViewId: Int = R.id.container_main, fragmentName: String? = null
     ) {
         val tag = fragment.javaClass.simpleName
         supportFragmentManager.beginTransaction().apply {
@@ -937,5 +975,43 @@ class MainActivity @Inject constructor() :
         }.commit()
     }
 
+    private fun sendTokenToBackend(token: String, terminalId: String,
+                                   username: String) {
+        notificationModel.registerDeviceToken(token, terminalId, username)
+    }
 
+    private fun getFireBaseToken(
+        firebaseMessagingInstance: FirebaseMessaging,
+        actionToPerformWithTheReceivedToken: (received: String) -> Unit
+    ) {
+        firebaseMessagingInstance.token.addOnCompleteListener(
+            OnCompleteListener { task ->
+                if (!task.isSuccessful) {
+                 //   Log.w(TAG1, "Fetching FCM registgitration token failed", task.exception)
+                    return@OnCompleteListener
+                }
+
+                // Get new FCM registration token
+                val token = task.result
+                actionToPerformWithTheReceivedToken(token)
+            }
+        )
+    }
+
+    private fun getIntentDataSentInFromFirebaseService() {
+        intent?.action?.let { intentAction ->
+            intent.getBooleanExtra(TAG_NOTIFICATION_RECEIVED_FROM_BACKEND, false)
+                .let { intentExtra ->
+                    if (intentAction == STRING_FIREBASE_INTENT_ACTION) {
+                        if (intentExtra) {
+                            val currentDateTime = getCurrentDateTime()
+                            getEndOfDayTransactions(dateStr2Long(currentDateTime, "yyyy-MM-dd hh:mm a")){
+                                transactionViewModel.setEndOfDayList(it)
+                                addFragmentWithoutRemove(TransactionHistoryFragment.newInstance(HISTORY_ACTION))
+                            }
+                        }
+                    }
+                }
+        }
+    }
 }

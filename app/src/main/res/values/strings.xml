@@ -212,6 +212,7 @@
 Nam malesuada turpis quis porta pretium. Curabitur tempor tempus accumsan. Cras ac dolor ut eros finibus facilisis. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nam convallis finibus tellus id pellentesque. Aliquam ullamcorper, diam id pulvinar vestibulum, metus nisi lobortis dolor, sit amet porttitor urna metus nec nisl. Morbi a enim libero.
 Nullam purus nulla, elementum nec tempor eget, rutrum et risus. Nullam ut suscipit ligula. Mauris sed nulla eget magna sollicitudin dapibus sit amet eget nibh. Praesent non velit a odio sodales dapibus quis commodo mauris. In a ex ante. Aliquam eget euismod justo, vel scelerisque lectus. Vivamus ligula orci, pellentesque in sagittis in, pretium eu leo. Mauris ornare, ipsum id vestibulum scelerisque, nunc velit gravida est, molestie consequat risus sem dignissim massa. Sed at cursus massa. Ut in lorem sed dolor tincidunt lacinia.</string>
     <string name="all_please_enter_business_name">Please Enter Business Name</string>
+    <string name="all_please_enter_amount">Please Enter Amount</string>
     <string name="all_please_enter_full_name">Please Enter Full Name</string>
     <string name="all_please_enter_location">Please Enter Your Location</string>
     <string name="all_please_enter_phone_number">Please Enter your Phone Number</string>
@@ -223,5 +224,8 @@ Nullam purus nulla, elementum nec tempor eget, rutrum et risus. Nullam ut suscip
     <string name="all_password_mismatch">Password Mismatch</string>
     <string name="error_sending_receipt">Failed, please try again later!</string>
     <string name="max_input">Maximum input reached</string>
-
+    <string name="device_is_rooted">The application does not support a rooted device</string>
+    <string name="pay_now">PAY NOW</string>
+    <string name="pdf">PDF</string>
+    <string name="transacion_received">NetPos Transaction Notification!</string>
 </resources>

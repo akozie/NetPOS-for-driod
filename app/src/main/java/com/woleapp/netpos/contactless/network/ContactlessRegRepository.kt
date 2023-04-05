@@ -10,13 +10,13 @@ import javax.inject.Singleton
 class ContactlessRegRepository @Inject constructor(
     private val accountLookUpService: AccountLookUpService
 ) {
-    fun findAccount(accountNumber: String, partnerId: String) = accountLookUpService.findAccount(AccountNumberLookUpRequest(accountNumber), partnerId)
+    fun findAccount(accountNumber: String, partnerId: String, deviceSerialId: String) = accountLookUpService.findAccount(AccountNumberLookUpRequest(accountNumber), partnerId, deviceSerialId)
 
     fun confirmOTP(phoneNumber: String, accountNumber: String, otp:String, partnerId: String) = accountLookUpService.
     confirmOTP(
         ConfirmOTPRequest(phoneNumber, accountNumber, otp), partnerId
     )
 
-    fun registerExistingAccount(existingAccountRegisterRequest: ExistingAccountRegisterRequest, partnerId: String) =
-        accountLookUpService.registerExistingAccount(existingAccountRegisterRequest, partnerId)
+    fun registerExistingAccount(existingAccountRegisterRequest: ExistingAccountRegisterRequest, partnerId: String, deviceSerialId: String) =
+        accountLookUpService.registerExistingAccount(existingAccountRegisterRequest, partnerId, deviceSerialId)
 }

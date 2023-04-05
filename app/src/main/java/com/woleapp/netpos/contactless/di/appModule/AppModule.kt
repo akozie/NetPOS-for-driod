@@ -2,13 +2,16 @@ package com.woleapp.netpos.contactless.di.appModule
 
 import com.google.gson.Gson
 import com.woleapp.netpos.contactless.BuildConfig
-import com.woleapp.netpos.contactless.network.AccountLookUpService
-import com.woleapp.netpos.contactless.network.QrService
-import com.woleapp.netpos.contactless.network.VerveOtpService
+import com.woleapp.netpos.contactless.network.*
+import com.woleapp.netpos.contactless.util.UtilityParam
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import io.reactivex.Scheduler
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -25,17 +28,30 @@ object AppModule {
     @Provides
     @Singleton
     @Named("defaultBaseUrl")
-    fun providesBaseUrlForGettingThreshold(): String = BuildConfig.STRING_GET_QR_BASE_URL
+    fun providesBaseUrlForGettingThreshold(): String = UtilityParam.STRING_GET_QR_BASE_URL
 
     @Provides
     @Singleton
     @Named("otpBaseUrl")
-    fun providesBaseUrlForGetVerveOtp(): String = BuildConfig.STRING_SEND_VERVE_OTP_BASE_URL
+    fun providesBaseUrlForGetVerveOtp(): String = UtilityParam.STRING_SEND_VERVE_OTP_BASE_URL
 
     @Provides
     @Singleton
     @Named("contactlessRegBaseUrl")
-    fun providesBaseUrlForContactlessReg(): String = BuildConfig.STRING_CONTACTLESS_EXISTING_BASE_URL
+    fun providesBaseUrlForContactlessReg(): String =
+        UtilityParam.STRING_CONTACTLESS_EXISTING_BASE_URL
+
+    @Provides
+    @Singleton
+    @Named("contactlessQrPaymentBaseUrl")
+    fun providesBaseUrlForContactlessPaymentWithQr(): String =
+        UtilityParam.STRING_CONTACTLESS_PAYMENT_WITH_QR_BASE_URL
+
+    @Provides
+    @Singleton
+    @Named("notificationBaseUrl")
+    fun providesBaseUrlForNotification(): String =
+        UtilityParam.STRING_NOTIFICATION_BASE_URL
 
     @Provides
     @Singleton
@@ -48,7 +64,7 @@ object AppModule {
     @Singleton
     @Named("headerInterceptor")
     fun providesHeaderInterceptor(): Interceptor =
-        BasicAuthInterceptor(BuildConfig.STRING_AUTH_USER_NAME, BuildConfig.STRING_AUTH_PASSWORD)
+        BasicAuthInterceptor(UtilityParam.STRING_AUTH_USER_NAME, UtilityParam.STRING_AUTH_PASSWORD)
 
     @Provides
     @Singleton
@@ -124,6 +140,33 @@ object AppModule {
 
     @Provides
     @Singleton
+    @Named("contactlessQrPaymentRetrofit")
+    fun providesRetrofitForContactlessQrPayment(
+        @Named("otpOkHttp") okhttp: OkHttpClient,
+        @Named("contactlessQrPaymentBaseUrl") contactlessQrPaymentBaseUrl: String
+    ): Retrofit =
+        Retrofit.Builder()
+            .addConverterFactory(GsonConverterFactory.create())
+            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+            .baseUrl(contactlessQrPaymentBaseUrl)
+            .client(okhttp)
+            .build()
+    @Provides
+    @Singleton
+    @Named("notificationRetrofit")
+    fun providesRetrofitForNotificationService(
+        @Named("otpOkHttp") okhttp: OkHttpClient,
+        @Named("notificationBaseUrl") notificationBaseUrl: String
+    ): Retrofit =
+        Retrofit.Builder()
+            .addConverterFactory(GsonConverterFactory.create())
+            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+            .baseUrl(notificationBaseUrl)
+            .client(okhttp)
+            .build()
+
+    @Provides
+    @Singleton
     fun providesQrService(
         @Named("defaultRetrofit") retrofit: Retrofit
     ): QrService = retrofit.create(QrService::class.java)
@@ -144,5 +187,33 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun providesContactlessQrPaymentService(
+        @Named("contactlessQrPaymentRetrofit") retrofit: Retrofit
+    ): QrPaymentService = retrofit.create(QrPaymentService::class.java)
+
+
+    @Provides
+    @Singleton
+    fun providesNotificationService(
+        @Named("notificationRetrofit") retrofit: Retrofit
+    ): NotificationService = retrofit.create(NotificationService::class.java)
+
+
+    @Provides
+    @Singleton
     fun providesGson(): Gson = Gson()
+
+    @Provides
+    @Singleton
+    @Named("io-scheduler")
+    fun providesIoScheduler(): Scheduler = Schedulers.io()
+
+    @Provides
+    @Singleton
+    @Named("main-scheduler")
+    fun providesMainThreadScheduler(): Scheduler = AndroidSchedulers.mainThread()
+
+    @Provides
+    @Singleton
+    fun providesCompositeDisposable(): CompositeDisposable = CompositeDisposable()
 }

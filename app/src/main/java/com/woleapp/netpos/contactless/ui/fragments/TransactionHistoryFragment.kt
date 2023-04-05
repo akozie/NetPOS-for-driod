@@ -140,6 +140,7 @@ class TransactionHistoryFragment : BaseFragment() {
         })
     }
 
+
     private fun setSelectedTab(selectedTab: Int = 0) {
         if (selectedTab == 0) {
             binding.historyButton.setBackgroundColor(

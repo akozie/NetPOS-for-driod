@@ -9,10 +9,14 @@ import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
 import retrofit2.http.POST
+import retrofit2.http.Query
 
 interface ContactlessRegistrationService {
     @POST("user/register")
-    fun register(@Body registrationModel: RegistrationModel?): Single<RegistrationModel>
+    fun register(
+        @Body registrationModel: RegistrationModel?,
+        @Query("deviceSerialId") deviceSerialId: String
+        ): Single<RegistrationModel>
 }
 
 

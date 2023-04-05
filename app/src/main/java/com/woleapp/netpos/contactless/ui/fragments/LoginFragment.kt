@@ -1,14 +1,24 @@
 package com.woleapp.netpos.contactless.ui.fragments
 
+import android.Manifest
+import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.media.audiofx.BassBoost
 import android.nfc.NfcManager
+import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
+import android.telephony.TelephonyManager
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.fragment.app.viewModels
 import com.google.gson.JsonObject
 import com.woleapp.netpos.contactless.BuildConfig
@@ -21,7 +31,9 @@ import com.woleapp.netpos.contactless.model.MqttEvents
 import com.woleapp.netpos.contactless.network.StormApiClient
 import com.woleapp.netpos.contactless.nibss.NetPosTerminalConfig
 import com.woleapp.netpos.contactless.ui.activities.MainActivity
+import com.woleapp.netpos.contactless.util.RandomPurposeUtil.getDeviceId
 import com.woleapp.netpos.contactless.viewmodels.AuthViewModel
+
 
 class LoginFragment : BaseFragment() {
 
@@ -60,13 +72,16 @@ class LoginFragment : BaseFragment() {
             stormApiService = StormApiClient.getInstance()
             appCredentials = credentials
         }
+        val uniqueNumber = getDeviceId(requireContext()).toString()
+        Log.d("IMEI", uniqueNumber)
         binding.btnLogin.setOnClickListener {
-            viewModel.login()
+            viewModel.login(uniqueNumber)
         }
 
         binding.register.setOnClickListener {
             if (BuildConfig.FLAVOR.contains("firstbank")||BuildConfig.FLAVOR.contains("providus")||
                 BuildConfig.FLAVOR.contains("wemabank")||BuildConfig.FLAVOR.contains("fcmb")||
+                BuildConfig.FLAVOR.contains("easypay")||BuildConfig.FLAVOR.contains("fcmbeasypay")||
                 BuildConfig.FLAVOR.contains("zenith")){
                 showFragment(
                     NewOrExistingFragment(),
@@ -175,4 +190,6 @@ class LoginFragment : BaseFragment() {
             }
         }
     }
+
 }
+

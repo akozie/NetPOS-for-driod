@@ -13,6 +13,7 @@ import androidx.fragment.app.viewModels
 import com.woleapp.netpos.contactless.BuildConfig
 import com.woleapp.netpos.contactless.R
 import com.woleapp.netpos.contactless.databinding.FragmentRegisterBinding
+import com.woleapp.netpos.contactless.util.RandomPurposeUtil.getDeviceId
 import com.woleapp.netpos.contactless.viewmodels.RegistrationViewModel
 import timber.log.Timber
 
@@ -21,6 +22,7 @@ class RegisterFragment : BaseFragment() {
     private val viewModel by viewModels<RegistrationViewModel>()
     private lateinit var dialog: AlertDialog
     private lateinit var register :Button
+    private lateinit var deviceSerialId : String
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -64,8 +66,9 @@ class RegisterFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         //setSpinner()
+        deviceSerialId = getDeviceId(requireContext()).toString()
         register = binding.btnLogin
-        val bankList = mapOf("firstbank" to "7D66B7F7-222B-41CC-A868-185F3A86313F", "fcmb" to "1B0E68FD-7676-4F2C-883D-3931C3564190", "providus" to "8B26F328-040F-4F27-A5BC-4414AB9D1EFA",
+        val bankList = mapOf("firstbank" to "7D66B7F7-222B-41CC-A868-185F3A86313F", "fcmb" to "1B0E68FD-7676-4F2C-883D-3931C3564190", "easypay" to "1B0E68FD-7676-4F2C-883D-3931C3564190","fcmbeasypay" to "1B0E68FD-7676-4F2C-883D-3931C3564190", "providus" to "8B26F328-040F-4F27-A5BC-4414AB9D1EFA",
             "wemabank" to "1E3D050B-6995-495F-982A-0511114959C8", "zenith" to "3D9B3E2D-5171-4D6A-99CC-E2799D16DD56")
 
         for (element in bankList) {
@@ -76,7 +79,7 @@ class RegisterFragment : BaseFragment() {
         }
 
         register.setOnClickListener {
-            viewModel.register(requireContext())
+            viewModel.register(requireContext(), deviceSerialId)
         }
     }
 

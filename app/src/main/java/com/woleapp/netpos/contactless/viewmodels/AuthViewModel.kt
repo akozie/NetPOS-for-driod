@@ -47,7 +47,7 @@ class AuthViewModel : ViewModel() {
     val message: LiveData<Event<String>>
         get() = _message
 
-    fun login() {
+    fun login(deviceSerialId: String) {
         val username = usernameLiveData.value
         val password = passwordLiveData.value
         if (username.isNullOrEmpty() || password.isNullOrEmpty()) {
@@ -58,15 +58,16 @@ class AuthViewModel : ViewModel() {
             _message.value = Event("Please enter a valid email")
             return
         }
-        auth(username, password)
+        auth(username, password, deviceSerialId)
     }
 
-    private fun auth(username: String, password: String) {
+    private fun auth(username: String, password: String, deviceId: String) {
         authInProgress.value = true
         val credentials = JsonObject()
             .apply {
                 addProperty("username", username)
                 addProperty("password", password)
+                addProperty("deviceId", deviceId)
             }
         stormApiService!!.userToken(credentials)
             .flatMap {
@@ -102,6 +103,10 @@ class AuthViewModel : ViewModel() {
                     this.partnerId =
                         if (userTokenDecoded.claims.containsKey("partnerId")) userTokenDecoded.getClaim(
                             "partnerId"
+                        ).asString() else " "
+                    this.email =
+                        if (userTokenDecoded.claims.containsKey("email")) userTokenDecoded.getClaim(
+                            "email"
                         ).asString() else " "
                 }
                 Timber.d("USER------> ${user}")

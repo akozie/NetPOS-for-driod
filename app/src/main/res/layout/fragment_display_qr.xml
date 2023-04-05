@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+    </data>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/white"
+        android:clickable="true"
+        android:focusable="true"
+        tools:context=".ui.fragments.DisplayQrFragment">
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="@dimen/dimen_20dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/constraint_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dimen_30dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/price_input_layout"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:layout_marginTop="@dimen/dimen_30dp"
+                android:orientation="horizontal"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/price_text_box"
+                    style="@style/ServicesInputLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:autofillHints="@string/hint_amount"
+                    android:hint="@string/hint_amount"
+                    android:inputType="numberDecimal"
+                    android:textSize="@dimen/dimen_16sp"
+                    android:textStyle="italic" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+
+            <Button
+                android:id="@+id/process"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dimen_60dp"
+                android:paddingHorizontal="48dp"
+                android:text="@string/pay_now"
+                android:textAllCaps="true"
+                android:textColor="@android:color/white"
+                app:layout_constraintEnd_toEndOf="@+id/price_input_layout"
+                app:layout_constraintStart_toStartOf="@+id/price_input_layout"
+                app:layout_constraintTop_toBottomOf="@+id/price_input_layout" />
+
+            <ProgressBar
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:elevation="2dp"
+                android:paddingVertical="12dp"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="@id/process"
+                app:layout_constraintEnd_toEndOf="@id/process"
+                app:layout_constraintTop_toTopOf="@id/process" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
+</layout>

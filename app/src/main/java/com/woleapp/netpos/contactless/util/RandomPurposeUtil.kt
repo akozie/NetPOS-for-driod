@@ -5,19 +5,20 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
 import android.graphics.Typeface
+import android.os.Build
+import android.provider.Settings
+import android.telephony.TelephonyManager
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.ClickableSpan
 import android.text.style.StyleSpan
 import android.util.Base64
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import com.google.android.material.snackbar.Snackbar
@@ -26,9 +27,11 @@ import com.woleapp.netpos.contactless.R
 import com.woleapp.netpos.contactless.model.*
 import com.woleapp.netpos.contactless.ui.dialog.LoadingDialog
 import com.woleapp.netpos.contactless.util.AppConstants.STRING_LOADING_DIALOG_TAG
+import io.reactivex.Scheduler
+import io.reactivex.Single
+import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.dialog_print_type.*
-import retrofit2.HttpException
-import timber.log.Timber
+import java.text.DecimalFormat
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -127,10 +130,10 @@ object RandomPurposeUtil {
                         it.data is ConfirmOTPResponse ||
                         it.data is ExistingAccountRegisterResponse
                     ) {
-                       // Toast.makeText(context, "Success", Toast.LENGTH_SHORT).show()
                         successAction()
                     } else {
-                        Toast.makeText(context, R.string.an_error_occurred, Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, R.string.an_error_occurred, Toast.LENGTH_SHORT)
+                            .show()
                     }
                 }
                 Status.LOADING -> {
@@ -185,16 +188,73 @@ object RandomPurposeUtil {
                 Status.ERROR -> {
                     loadingDialog.cancel
                     loadingDialog.dismiss()
-                    //Timber.d("ADSFRTHG--->$it")
                 }
                 Status.TIMEOUT -> {
                     loadingDialog.cancel
                     loadingDialog.dismiss()
-                    //loadingDialog.requireActivity().finish()
                     showSnackBar(this.requireView(), getString(R.string.timeOut))
                 }
             }
         }
+    }
+
+
+    fun <T> Fragment.observeServerResponse(
+        serverResponse: Single<Resource<T>>,
+        loadingDialog: AlertDialog,
+        compositeDisposable: CompositeDisposable,
+        ioScheduler: Scheduler,
+        mainThreadSchedulers: Scheduler,
+        successAction: () -> Unit
+    ) {
+        compositeDisposable.add(
+            serverResponse.subscribeOn(ioScheduler).observeOn(mainThreadSchedulers)
+                .subscribe { data, error ->
+                    data?.let {
+                        when (it.status) {
+                            Status.SUCCESS -> {
+                                loadingDialog.dismiss()
+                                if (
+                                    it.data is PostQrToServerResponse ||
+                                    it.data is PostQrToServerVerveResponseModel ||
+                                    it.data is QrTransactionResponseModel ||
+                                    it.data is VerveTransactionResponse ||
+                                    it.data is AccountNumberLookUpResponse ||
+                                    it.data is ConfirmOTPResponse ||
+                                    it.data is ExistingAccountRegisterResponse ||
+                                    it.data is String
+                                ) {
+                                    successAction()
+                                } else {
+                                    showSnackBar(
+                                        this.requireView(),
+                                        getString(R.string.an_error_occurred)
+                                    )
+                                }
+                            }
+                            Status.LOADING -> {
+                                loadingDialog.show()
+                            }
+                            Status.ERROR -> {
+                                loadingDialog.cancel
+                                loadingDialog.dismiss()
+                            }
+                            Status.TIMEOUT -> {
+                                loadingDialog.cancel
+                                loadingDialog.dismiss()
+                                showSnackBar(this.requireView(), getString(R.string.timeOut))
+                            }
+                        }
+
+                    }
+                    error?.let {
+                        loadingDialog.cancel
+                        loadingDialog.dismiss()
+                        showSnackBar(this.requireView(), getString(R.string.an_error_occurred))
+                    }
+
+                }
+        )
     }
 
 
@@ -215,7 +275,8 @@ object RandomPurposeUtil {
                         it.data is VerveTransactionResponse ||
                         it.data is AccountNumberLookUpResponse ||
                         it.data is ConfirmOTPResponse ||
-                        it.data is ExistingAccountRegisterResponse
+                        it.data is ExistingAccountRegisterResponse ||
+                        it.data is String
                     ) {
                         successAction()
                     } else {
@@ -232,7 +293,6 @@ object RandomPurposeUtil {
                 Status.TIMEOUT -> {
                     loadingDialog.cancel()
                     loadingDialog.dismiss()
-                    //loadingDialog.requireActivity().finish()
                     showSnackBar(this.requireView(), getString(R.string.timeOut))
                 }
             }
@@ -259,12 +319,36 @@ object RandomPurposeUtil {
 
     fun alertDialog(
         context: Context
-    ): AlertDialog{
+    ): AlertDialog {
         val dialogView: View = LayoutInflater.from(context)
             .inflate(R.layout.layout_loading_dialog, null)
         val dialogBuilder: AlertDialog.Builder = AlertDialog.Builder(context)
+        dialogBuilder.setCancelable(false)
         dialogBuilder.setView(dialogView)
 
-    return dialogBuilder.create()
+        return dialogBuilder.create()
     }
+
+    fun Number.formatCurrencyAmountUsingCurrentModule(currencySymbol: String = "\u20A6"): String {
+        val format = DecimalFormat("#,###.00")
+        return "$currencySymbol${format.format(this)}"
+    }
+
+    fun getDeviceId(context: Context): String? {
+        val deviceId: String = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
+        } else {
+            val mTelephony = context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+            if (mTelephony.deviceId != null) {
+                mTelephony.deviceId
+            } else {
+                Settings.Secure.getString(
+                    context.contentResolver,
+                    Settings.Secure.ANDROID_ID
+                )
+            }
+        }
+        return deviceId
+    }
+
 }

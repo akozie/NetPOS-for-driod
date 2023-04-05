@@ -50,11 +50,11 @@ class ContactlessRegViewModel @Inject constructor(
     val registerMessage: LiveData<Event<String>>
         get() = _registerMessage
 
-    fun accountLookUp(accountNumber: String, partnerId: String) {
+    fun accountLookUp(accountNumber: String, partnerId: String, deviceSerialId: String) {
         _accountNumberResponse.postValue(Resource.loading(null))
         saveAccountNumber(accountNumber)
         disposable.add(
-            contactlessRegRepo.findAccount(accountNumber, partnerId)
+            contactlessRegRepo.findAccount(accountNumber, partnerId, deviceSerialId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { data, error ->
@@ -121,10 +121,10 @@ class ContactlessRegViewModel @Inject constructor(
         )
     }
 
-    fun registerExistingAccount(accountNumber: ExistingAccountRegisterRequest, partnerId:String) {
+    fun registerExistingAccount(accountNumber: ExistingAccountRegisterRequest, partnerId:String, deviceSerialId: String) {
         _existingRegRequestResponse.postValue(Resource.loading(null))
         disposable.add(
-            contactlessRegRepo.registerExistingAccount(accountNumber, partnerId)
+            contactlessRegRepo.registerExistingAccount(accountNumber, partnerId, deviceSerialId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { data, error ->

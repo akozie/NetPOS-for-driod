@@ -67,7 +67,7 @@ class TransactionsFragment @Inject constructor() : BaseFragment() {
         super.onCreate(savedInstanceState)
 
         requestNarration = Singletons.getCurrentlyLoggedInUser()?.mid?.let {
-            "$it:${Singletons.getCurrentlyLoggedInUser()?.terminal_id}:${BuildConfig.STRING_MPGS_TAG}"
+            "$it:${Singletons.getCurrentlyLoggedInUser()?.terminal_id}:${UtilityParam.STRING_MPGS_TAG}"
         } ?: ""
 
         requireActivity().supportFragmentManager.setFragmentResultListener(
@@ -92,19 +92,19 @@ class TransactionsFragment @Inject constructor() : BaseFragment() {
     ): View {
         _binding = FragmentTransactionsBinding.inflate(inflater, container, false)
         adapter = ServiceAdapter {
-            val nextFrag: Fragment? = when (it.id) {
+            val nextFrag:Any? = when (it.id) {
                 0 -> {
 //                    nfcCardReaderViewModel.iccCardHelperLiveData.removeObservers(viewLifecycleOwner)
-                    SalesFragment.newInstance()
+                    showFragment(SalesFragment.newInstance())
                 }
                 1 -> {
                     // nfcCardReaderViewModel.iccCardHelperLiveData.removeObservers(viewLifecycleOwner)
-                    TransactionHistoryFragment.newInstance(action = HISTORY_ACTION_REFUND)
+                    showFragment(TransactionHistoryFragment.newInstance(action = HISTORY_ACTION_REFUND))
                 }
-                8 -> TransactionHistoryFragment.newInstance(action = HISTORY_ACTION_REVERSAL)
+                8 -> showFragment(TransactionHistoryFragment.newInstance(action = HISTORY_ACTION_REVERSAL))
                 7 -> {
                     // nfcCardReaderViewModel.iccCardHelperLiveData.removeObservers(viewLifecycleOwner)
-                    SalesFragment.newInstance(TransactionType.PURCHASE_WITH_CASH_BACK)
+                    showFragment(SalesFragment.newInstance(TransactionType.PURCHASE_WITH_CASH_BACK))
                 }
                 2 -> {
                     showPreAuthDialog()
@@ -122,13 +122,23 @@ class TransactionsFragment @Inject constructor() : BaseFragment() {
 // //                    addFragmentWithoutRemove(FragmentBarCodeScanner())
 //                    null
 //                }
-                5 -> ReprintFragment()
-                6 -> SalesFragment.newInstance(isVend = true)
-                else -> SalesFragment.newInstance(TransactionType.CASH_ADVANCE)
+                5 -> showFragment(ReprintFragment())
+
+                3 -> {
+                //    if (!BuildConfig.FLAVOR.contains("providus")){
+                        parentFragmentManager.beginTransaction()
+                            .replace(R.id.container_main, SettingsFragment())
+                            .addToBackStack(null)
+                            .commit()
+//                    } else {
+//                    }
+                }
+                6 -> showFragment(SalesFragment.newInstance(isVend = true))
+                else -> showFragment(SalesFragment.newInstance(TransactionType.CASH_ADVANCE))
             }
-            nextFrag?.let { fragment ->
-                addFragmentWithoutRemove(fragment)
-            }
+//            nextFrag?.let { fragment ->
+//                addFragmentWithoutRemove(fragment)
+//            }
         }
 
         qrAmoutDialogBinding = QrAmoutDialogBinding.inflate(inflater, null, false)
@@ -187,6 +197,12 @@ class TransactionsFragment @Inject constructor() : BaseFragment() {
                 // add(Service(8, "Reversal", R.drawable.ic_loop))
                 // add(Service(2, "PRE AUTHORIZATION", R.drawable.ic_pre_auth))
                 //   add(Service(3, "Cash Advance", R.drawable.ic_pay_cash_icon))
+             //   if (!BuildConfig.FLAVOR.contains("providus")){
+                    add(Service(3, "Settings", R.drawable.ic_baseline_settings))
+            //    }
+                if (BuildConfig.FLAVOR.contains("polaris")){
+                    remove(Service(3, "Settings", R.drawable.ic_baseline_settings))
+                }
                 add(Service(4, "Balance Enquiry", R.drawable.ic_write))
                 add(Service(5, "Reprint", R.drawable.ic_print))
                 // add(Service(6, "VEND", R.drawable.ic_vend))
@@ -237,7 +253,7 @@ class TransactionsFragment @Inject constructor() : BaseFragment() {
                     PostQrToServerModel(
                         it,
                         qrData.data,
-                        merchantId = BuildConfig.STRING_MERCHANT_ID,
+                        merchantId = UtilityParam.STRING_MERCHANT_ID,
                         naration = requestNarration
                     )
                 Log.d("QRDATA", qrDataToSendToBackend.naration)

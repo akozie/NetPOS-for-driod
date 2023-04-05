@@ -40,29 +40,47 @@ class RegistrationViewModel : ViewModel() {
         get() = _message
 
 
-    fun register(context:Context) {
-        if (registrationModel.value?.allFieldsFilled() == false) {
-            _message.value = Event("All fields are required")
-            return
-        }
-        if (BuildConfig.FLAVOR.contains("providus")) {
+    fun register(context:Context, deviceSerialId: String) {
+        if (BuildConfig.FLAVOR.contains("providus") ||
+            BuildConfig.FLAVOR.contains("fcmb")|| BuildConfig.FLAVOR.contains("fcmbeasypay")||
+            BuildConfig.FLAVOR.contains("easypay")) {
 //            activity?.getFragmentManager()?.popBackStack()
-            val dialogView: View = LayoutInflater.from(context)
-                .inflate(R.layout.dialog_terms_and_conditions, null)
-            val dialogBuilder: AlertDialog.Builder =
-                AlertDialog.Builder(context)
-            dialogBuilder.setView(dialogView)
+            if (registrationModel.value?.allFieldsFilled() == false) {
+                _message.value = Event("All fields are required")
+                return
+            }else {
+                val dialogView: View = LayoutInflater.from(context)
+                    .inflate(R.layout.dialog_terms_and_conditions, null)
+                val dialogBuilder: AlertDialog.Builder =
+                    AlertDialog.Builder(context)
+                dialogBuilder.setView(dialogView)
 
-            val alertDialog: AlertDialog = dialogBuilder.create()
-            alertDialog.show()
-            dialogView.pdf.fromAsset("providus.pdf").load()
-            dialogView.accept_button.setOnClickListener {
-                alertDialog.dismiss()
-                reg()
+                val alertDialog: AlertDialog = dialogBuilder.create()
+                alertDialog.show()
+                if (BuildConfig.FLAVOR.contains("providus")) {
+                    dialogView.pdf.fromAsset("providus.pdf").load()
+                } else if (BuildConfig.FLAVOR.contains("fcmb")) {
+                    dialogView.pdf.fromAsset("qlick.pdf").load()
+                } else if (BuildConfig.FLAVOR.contains("easypay")) {
+                    dialogView.pdf.fromAsset("qlick.pdf").load()
+                }else if (BuildConfig.FLAVOR.contains("fcmbeasypay")) {
+                    dialogView.pdf.fromAsset("qlick.pdf").load()
+                }
+                dialogView.accept_button.setOnClickListener {
+                    alertDialog.dismiss()
+                    reg(deviceSerialId)
+                }
+            }
+        }else{
+            if (registrationModel.value?.allFieldsFilled() == false) {
+                _message.value = Event("All fields are required")
+                return
+            }else{
+                reg(deviceSerialId)
             }
         }
-        reg()
     }
+
 
     override fun onCleared() {
         super.onCleared()
@@ -75,9 +93,9 @@ class RegistrationViewModel : ViewModel() {
         }
     }
 
-    private fun reg(){
+    private fun reg(deviceSerialId: String){
         authInProgress.value = true
-        contactlessService.register(registrationModel.value)
+        contactlessService.register(registrationModel.value, deviceSerialId)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .doFinally {

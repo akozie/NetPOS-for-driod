@@ -22,6 +22,7 @@ android {
             keyPassword keystoreProperties['keyPassword']
             storeFile file(keystoreProperties['storeFile'])
             storePassword keystoreProperties['storePassword']
+            enableV1Signing false
         }
     }
     compileSdkVersion 32
@@ -34,8 +35,8 @@ android {
         applicationId "com.woleapp.netpos.contactless"
         minSdkVersion 23
         targetSdkVersion 32
-        versionCode 11
-        versionName "1.0.11"
+        versionCode 12
+        versionName "1.0.12"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         def environmentPath
         if (appModeProd == "true")
@@ -49,18 +50,19 @@ android {
         for (String key : envProperties.keySet()) {
             buildConfigField "String", key.replaceAll("\\.", "_").toUpperCase(), envProperties[key]
         }
-        Properties prop = new Properties();
-        prop.load(rootProject.file("local.properties").newDataInputStream())
-
-        buildConfigField("String", "STRING_AUTH_USER_NAME", "\"${prop.getProperty("STRING_AUTH_USER_NAME")}\"")
-        buildConfigField("String", "STRING_AUTH_PASSWORD", "\"${prop.getProperty("STRING_AUTH_PASSWORD")}\"")
-        buildConfigField("String", "STRING_GET_QR_BASE_URL", "\"${prop.getProperty("STRING_GET_QR_BASE_URL")}\"")
-        buildConfigField("String", "STRING_MERCHANT_ID", "\"${prop.getProperty("STRING_MERCHANT_ID")}\"")
-        buildConfigField("String", "STRING_SEND_VERVE_OTP_BASE_URL", "\"${prop.getProperty("STRING_SEND_VERVE_OTP_BASE_URL")}\"")
-        buildConfigField("String", "STRING_MPGS_TAG", "\"${prop.getProperty("STRING_MPGS_TAG")}\"")
-
-        buildConfigField("String", "STRING_WEB_VIEW_BASE_URL", "\"${prop.get("STRING_WEB_VIEW_BASE_URL")}\"")
-        buildConfigField("String", "STRING_CONTACTLESS_EXISTING_BASE_URL", "\"${prop.getProperty("STRING_CONTACTLESS_EXISTING_BASE_URL")}\"")
+//        Properties prop = new Properties();
+//        prop.load(rootProject.file("local.properties").newDataInputStream())
+//
+//        buildConfigField("String", "STRING_AUTH_USER_NAME", "\"${prop.getProperty("STRING_AUTH_USER_NAME")}\"")
+//        buildConfigField("String", "STRING_AUTH_PASSWORD", "\"${prop.getProperty("STRING_AUTH_PASSWORD")}\"")
+//        buildConfigField("String", "STRING_GET_QR_BASE_URL", "\"${prop.getProperty("STRING_GET_QR_BASE_URL")}\"")
+//        buildConfigField("String", "STRING_MERCHANT_ID", "\"${prop.getProperty("STRING_MERCHANT_ID")}\"")
+//        buildConfigField("String", "STRING_SEND_VERVE_OTP_BASE_URL", "\"${prop.getProperty("STRING_SEND_VERVE_OTP_BASE_URL")}\"")
+//        buildConfigField("String", "STRING_MPGS_TAG", "\"${prop.getProperty("STRING_MPGS_TAG")}\"")
+//
+//        buildConfigField("String", "STRING_WEB_VIEW_BASE_URL", "\"${prop.get("STRING_WEB_VIEW_BASE_URL")}\"")
+//        buildConfigField("String", "STRING_CONTACTLESS_EXISTING_BASE_URL", "\"${prop.getProperty("STRING_CONTACTLESS_EXISTING_BASE_URL")}\"")
+//        buildConfigField("String", "STRING_CONTACTLESS_PAYMENT_WITH_QR_BASE_URL", "\"${prop.getProperty("STRING_CONTACTLESS_PAYMENT_WITH_QR_BASE_URL")}\"")
     }
 
     dataBinding {
@@ -120,9 +122,25 @@ android {
             dimension "whiteLabel"
             applicationIdSuffix ".fcmb"
         }
+        easypay {
+            dimension "whiteLabel"
+            applicationIdSuffix ".easypay"
+        }
+        fcmbeasypay {
+            dimension "whiteLabel"
+            applicationIdSuffix ".fcmbeasypay"
+        }
         zenith {
             dimension "whiteLabel"
             applicationIdSuffix ".zenith"
+        }
+        unitybank {
+            dimension "whiteLabel"
+            applicationIdSuffix ".unitybank"
+        }
+        polaris {
+            dimension "whiteLabel"
+            applicationIdSuffix ".polaris"
         }
     }
     variantFilter { variant ->
@@ -161,6 +179,12 @@ android {
     }
     kotlinOptions {
         jvmTarget = "1.8"
+    }
+    ndkVersion '21.3.6528147'
+    externalNativeBuild {
+        ndkBuild {
+            path file('src/main/jni/Android.mk')
+        }
     }
 }
 
@@ -281,5 +305,20 @@ dependencies {
 
     //pdf viewer
     implementation 'com.github.barteksc:android-pdf-viewer:2.8.2'
+
+    //workmanager
+    def work_version = "2.5.0"
+    implementation "androidx.work:work-runtime-ktx:$work_version"
+
+    // Firebase
+    implementation platform('com.google.firebase:firebase-bom:30.4.1')
+    implementation 'com.google.firebase:firebase-analytics-ktx'
+    implementation 'com.google.firebase:firebase-messaging-ktx'
+    implementation 'com.google.firebase:firebase-analytics-ktx'
+
+    // Declare the dependencies for the Crashlytics and Analytics libraries
+    // When using the BoM, you don't specify versions in Firebase library dependencies
+//    implementation 'com.google.firebase:firebase-crashlytics'
+//    implementation 'com.google.firebase:firebase-analytics'
 
 }

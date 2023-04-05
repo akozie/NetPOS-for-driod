@@ -12,7 +12,8 @@ interface AccountLookUpService {
     @POST("account-lookup")
     fun findAccount(
         @Body accountNumber: AccountNumberLookUpRequest,
-        @Query("partnerId") partnerId: String
+        @Query("partnerId") partnerId: String,
+        @Query("deviceSerialId") deviceSerialId: String
     ): Single<AccountNumberLookUpResponse>
 
     @POST("confirm-otp")
@@ -24,6 +25,7 @@ interface AccountLookUpService {
     @POST("user/register-existing-user")
     fun registerExistingAccount(
         @Body registerExistingAccountRegisterRequest: ExistingAccountRegisterRequest,
-        @Query("partnerId") partnerId: String
+        @Query("partnerId") partnerId: String,
+        @Query("deviceSerialId") deviceSerialId: String
     ): Single<ExistingAccountRegisterResponse>
 }

@@ -7,9 +7,14 @@ import android.nfc.tech.IsoDep
 import android.nfc.tech.MifareClassic
 import android.nfc.tech.MifareUltralight
 import android.nfc.tech.NfcA
+import android.util.Log
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import timber.log.Timber
+import java.io.ByteArrayOutputStream
+import java.io.InputStream
+import java.net.URL
+import java.net.URLConnection
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.experimental.and
@@ -154,3 +159,4 @@ fun validatePasswordMismatch(password: String, confirmPassword: String): Boolean
 fun Fragment.showToast(message: String) {
     Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
 }
+

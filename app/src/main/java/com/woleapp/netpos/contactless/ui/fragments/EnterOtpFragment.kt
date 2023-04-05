@@ -30,6 +30,7 @@ import com.woleapp.netpos.contactless.util.RandomPurposeUtil.customSpannableStri
 import com.woleapp.netpos.contactless.util.RandomPurposeUtil.formatFailedVerveTransRespToExtractIswResponse
 import com.woleapp.netpos.contactless.util.RandomPurposeUtil.observeServerResponse
 import com.woleapp.netpos.contactless.util.Singletons
+import com.woleapp.netpos.contactless.util.UtilityParam
 import com.woleapp.netpos.contactless.viewmodels.ScanQrViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -98,7 +99,7 @@ class EnterOtpFragment @Inject constructor() : BaseFragment() {
                                     "",
                                     terminalId = Singletons.getCurrentlyLoggedInUser()?.terminal_id
                                         ?: "",
-                                    merchantId = BuildConfig.STRING_MERCHANT_ID
+                                    merchantId = UtilityParam.STRING_MERCHANT_ID
                                 )
                             requireActivity().supportFragmentManager.setFragmentResult(
                                 QR_TRANSACTION_RESULT_REQUEST_KEY,

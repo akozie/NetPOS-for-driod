@@ -11,6 +11,7 @@ import com.woleapp.netpos.contactless.util.AppConstants.QR_TRANSACTION_RESULT_BU
 import com.woleapp.netpos.contactless.util.AppConstants.QR_TRANSACTION_RESULT_REQUEST_KEY
 import com.woleapp.netpos.contactless.util.AppConstants.STRING_QR_RESPONSE_MODAL_DIALOG_TAG
 import com.woleapp.netpos.contactless.util.Singletons
+import com.woleapp.netpos.contactless.util.UtilityParam
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import javax.inject.Inject
@@ -26,7 +27,7 @@ class JavaScriptInterface @AssistedInject constructor(
     @Inject
     lateinit var responseModal: ResponseModal
     private val webViewBaseUrl =
-        BuildConfig.STRING_WEB_VIEW_BASE_URL + BuildConfig.STRING_MERCHANT_ID + "/"
+        UtilityParam.STRING_WEB_VIEW_BASE_URL + UtilityParam.STRING_MERCHANT_ID + "/"
 
     @JavascriptInterface
     fun sendValueToWebView() =
@@ -41,7 +42,7 @@ class JavaScriptInterface @AssistedInject constructor(
         val response = responseFromWebView.mapQrTransRespToQrRespFinalModel(
             accType = "",
             terminalId = Singletons.getCurrentlyLoggedInUser()?.terminal_id ?: "",
-            merchantId = BuildConfig.STRING_MERCHANT_ID
+            merchantId = UtilityParam.STRING_MERCHANT_ID
         )
         fragmentManager.setFragmentResult(
             QR_TRANSACTION_RESULT_REQUEST_KEY,

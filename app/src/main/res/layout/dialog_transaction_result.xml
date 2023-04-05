@@ -105,6 +105,51 @@
                 app:layout_constraintEnd_toEndOf="@id/send_button"
                 app:layout_constraintTop_toTopOf="@id/send_button" />
 
+<!--            <LinearLayout-->
+<!--                android:id="@+id/share_layout"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_marginTop="@dimen/margin_10"-->
+<!--                android:background="@drawable/receipt_button_background_color"-->
+<!--                android:gravity="center_vertical"-->
+<!--                android:orientation="horizontal"-->
+<!--                android:visibility="gone"-->
+<!--                app:layout_constraintEnd_toEndOf="@+id/transaction_content"-->
+<!--                app:layout_constraintStart_toStartOf="@+id/transaction_content"-->
+<!--                app:layout_constraintTop_toBottomOf="@+id/telephone_wrapper">-->
+
+<!--                <LinearLayout-->
+<!--                    android:layout_width="0dp"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:gravity="center"-->
+<!--                    android:layout_weight="1">-->
+
+<!--                    <ImageView-->
+<!--                        android:id="@+id/imageView"-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_marginEnd="@dimen/margin_10"-->
+<!--                        android:src="@drawable/ic_pdf_24"/>-->
+<!--                    <TextView-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:textStyle="bold"-->
+<!--                        android:textSize="@dimen/dimen_20sp"-->
+<!--                        android:textColor="@color/colorPrimary"-->
+<!--                        android:text="@string/pdf"/>-->
+<!--                </LinearLayout>-->
+
+<!--                <Button-->
+<!--                    android:id="@+id/share_button"-->
+<!--                    android:layout_width="0dp"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_weight="1"-->
+<!--                    android:drawableTop="@drawable/ic_share"-->
+<!--                    android:drawableTint="@color/white"-->
+<!--                    android:text="@string/share" />-->
+
+<!--            </LinearLayout>-->
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </ScrollView>

@@ -25,12 +25,16 @@
         android:icon="@drawable/ic_end_of_day"
         android:title="End Of Day" />
 
-    <item
-        android:id="@+id/settings"
+<!--    <item-->
+<!--        android:id="@+id/settings"-->
+<!--        android:enabled="true"-->
+<!--        android:icon="@drawable/ic_baseline_settings"-->
+<!--        android:title="Settings" />-->
+
+   <item
+        android:id="@+id/displayQR"
         android:enabled="true"
-        android:icon="@drawable/ic_baseline_settings"
-        android:title="Settings" />
-
-
+        android:icon="@drawable/ic_qr_code"
+        android:title="Display QR" />
 
 </menu>

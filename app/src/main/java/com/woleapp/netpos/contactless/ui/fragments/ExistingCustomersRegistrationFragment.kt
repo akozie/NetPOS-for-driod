@@ -21,6 +21,7 @@ import com.woleapp.netpos.contactless.ui.dialog.LoadingDialog
 import com.woleapp.netpos.contactless.util.*
 import com.woleapp.netpos.contactless.util.AppConstants.SAVED_ACCOUNT_NUM_SIGNED_UP
 import com.woleapp.netpos.contactless.util.RandomPurposeUtil.alertDialog
+import com.woleapp.netpos.contactless.util.RandomPurposeUtil.getDeviceId
 import com.woleapp.netpos.contactless.util.RandomPurposeUtil.observeServerResponse
 import com.woleapp.netpos.contactless.util.Singletons.gson
 import com.woleapp.netpos.contactless.viewmodels.ContactlessRegViewModel
@@ -44,6 +45,7 @@ class ExistingCustomersRegistrationFragment : BaseFragment() {
     private lateinit var submitBtn: Button
     private lateinit var partnerID: String
     private lateinit var actNumber: String
+    private lateinit var deviceSerialID: String
    // private lateinit var customerData: Data
 
     override fun onCreateView(
@@ -61,9 +63,10 @@ class ExistingCustomersRegistrationFragment : BaseFragment() {
         return binding.root
     }
 
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        //loader = LoadingDialog()
+        deviceSerialID = getDeviceId(requireContext()).toString()
         viewModel.registerMessage.observe(viewLifecycleOwner) {
             it.getContentIfNotHandled()?.let { message ->
                 Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
@@ -94,15 +97,14 @@ class ExistingCustomersRegistrationFragment : BaseFragment() {
 
         val newContactInfo =
             Prefs.getString(AppConstants.FULL_NAME, "")
-        val contactInfo = newContactInfo.substring(1, newContactInfo.length-1)
+        val contactInfo = newContactInfo.substring(1, newContactInfo.length-1).replace("\\u0026", "&")
 
 
-        //Timber.d("VVVVVVVVV--->${customerData}")
-        binding.businessName.setText(businessName)
+        binding.businessName.setText(businessName.replace("\\u0026", "&"))
         binding.contactInfo.setText(contactInfo)
-        binding.address.setText(businessAddress)
+        binding.address.setText(businessAddress.replace("\\u0026", "&"))
         binding.phone.setText(phone)
-        binding.email.setText(email)
+        binding.email.setText(email.replace("\\u0026", "&"))
 
 
         loader = alertDialog(requireContext())
@@ -113,14 +115,15 @@ class ExistingCustomersRegistrationFragment : BaseFragment() {
     }
 
     private fun initPartnerID() {
-        val bankList = mapOf("firstbank" to "7D66B7F7-222B-41CC-A868-185F3A86313F", "fcmb" to "1B0E68FD-7676-4F2C-883D-3931C3564190", "providus" to "8B26F328-040F-4F27-A5BC-4414AB9D1EFA",
+        val bankList = mapOf("firstbank" to "7D66B7F7-222B-41CC-A868-185F3A86313F", "fcmb" to "1B0E68FD-7676-4F2C-883D-3931C3564190",
+            "easypay" to "1B0E68FD-7676-4F2C-883D-3931C3564190","fcmbeasypay" to "1B0E68FD-7676-4F2C-883D-3931C3564190",
+            "providus" to "8B26F328-040F-4F27-A5BC-4414AB9D1EFA",
             "wemabank" to "1E3D050B-6995-495F-982A-0511114959C8", "zenith" to "3D9B3E2D-5171-4D6A-99CC-E2799D16DD56")
 
         for (element in bankList) {
             if (element.key == BuildConfig.FLAVOR)
                 partnerID = element.value
             //Timber.d("CODEBANK---->${element.value}")
-
         }
     }
 
@@ -179,7 +182,15 @@ class ExistingCustomersRegistrationFragment : BaseFragment() {
 
                         val alertDialog: AlertDialog = dialogBuilder.create()
                         alertDialog.show()
-                        dialogView.pdf.fromAsset("providus.pdf").load()
+                        if (BuildConfig.FLAVOR.contains("providus")){
+                            dialogView.pdf.fromAsset("providus.pdf").load()
+                        }else if (BuildConfig.FLAVOR.contains("fcmb")){
+                            dialogView.pdf.fromAsset("qlick.pdf").load()
+                        }else if (BuildConfig.FLAVOR.contains("easypay")){
+                            dialogView.pdf.fromAsset("qlick.pdf").load()
+                        }else if (BuildConfig.FLAVOR.contains("fcmbeasypay")){
+                            dialogView.pdf.fromAsset("qlick.pdf").load()
+                        }
                         dialogView.accept_button.setOnClickListener {
                             alertDialog.dismiss()
                             registerExistingCustomer()
@@ -296,12 +307,11 @@ class ExistingCustomersRegistrationFragment : BaseFragment() {
             username = emailView.text.toString().trim(),
             password = passwordView.text.toString().trim(),
             phoneNumber = phoneNumber.text.toString().trim()
-//            terminalId = "2035095W",
-//            merchantId = "2035FC190031251"
         )
         viewModel.registerExistingAccount(
             existingAccountRegReq,
-            partnerId = partnerID
+            partnerId = partnerID,
+            deviceSerialId = deviceSerialID
         )
         observeServerResponse(
             viewModel.existingRegRequestResponse,
