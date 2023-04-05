@@ -70,8 +70,8 @@ fun checkAppToken(): Boolean {
 
 fun getAppToken(stormApiService: StormApiService): Single<Boolean> {
     val credentials = JsonObject()
-    credentials.addProperty("appname", "storm_app")
-    credentials.addProperty("password", "C0R3MELTDOWN!")
+    credentials.addProperty("appname", UtilityParam.APP_NAME)
+    credentials.addProperty("password", UtilityParam.APP_PASSWORD)
     Timber.e("get resp")
     return stormApiService.appToken(credentials)
         .flatMap {

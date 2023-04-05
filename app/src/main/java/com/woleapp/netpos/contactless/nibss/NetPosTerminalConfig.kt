@@ -21,12 +21,9 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 
-// const val NIBSS_TEST_IP = "196.6.103.72"
-// const val NIBSS_PROD_IP = "196.6.103.73"
-// const val TERMINAL_SERIAL = "0123456789ABC"
+
 const val CONFIGURATION_STATUS = "terminal_configuration_status"
 const val CONFIGURATION_ACTION = "com.woleapp.netpos.TERMINAL_CONFIGURATION"
-// const val DEFAULT_TERMINAL_ID = "2057H63U"
 
 class NetPosTerminalConfig {
     companion object {

@@ -1,6 +1,7 @@
 package com.woleapp.netpos.contactless.network
 
 import com.woleapp.netpos.contactless.model.RegistrationModel
+import com.woleapp.netpos.contactless.util.UtilityParam
 import io.reactivex.Single
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -21,7 +22,7 @@ interface ContactlessRegistrationService {
 
 
 object ContactlessClient {
-    private const val contactlessBaseUrl = "https://contactless.netpluspay.com/"
+    private val contactlessBaseUrl = UtilityParam.STRING_CONTACTLESS_EXISTING_BASE_URL
     var contactlessClientInstance: ContactlessRegistrationService? = null
     fun getContactlessService(): ContactlessRegistrationService =
         contactlessClientInstance ?: synchronized(this) {

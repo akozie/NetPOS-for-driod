@@ -4,6 +4,7 @@ import android.content.Context
 import com.pixplicity.easyprefs.library.Prefs
 import com.woleapp.netpos.contactless.BuildConfig
 import com.woleapp.netpos.contactless.util.PREF_BILLS_TOKEN
+import com.woleapp.netpos.contactless.util.UtilityParam
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Response
@@ -17,9 +18,7 @@ import java.util.concurrent.TimeUnit
 
 object StormUtilitiesApiClient {
 
-    //private const val BASE_URL_TEST = "http://storm-utilities.test.netpluspay.com/"
-    //private const val BASE_URL_LIVE = "https://storm-utilities.netpluspay.com/
-    private const val BASE_URL = BuildConfig.BASE_URL_STORM_UTILITIES
+    private val BASE_URL = UtilityParam.BASE_URL_STORM_UTILITIES
 
     @Volatile
     private var INSTANCE: StormUtilitiesApiService? = null

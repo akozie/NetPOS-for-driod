@@ -41,8 +41,8 @@ object Singletons {
 
     fun getSavedConfigurationData(): ConfigurationData {
         return ConfigurationData(
-            "196.6.103.18",
-            "5016",
+            UtilityParam.CONFIGURATION_DATA_IP,
+            UtilityParam.CONFIGURATION_DATA_PORT,
             Keys.posvasLiveKey1,
             Keys.posvasLiveKey2
         )

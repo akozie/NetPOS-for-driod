@@ -31,7 +31,7 @@ class NotificationClient {
                 .addInterceptor(TokenInterceptor())
                 .build()
 
-        private const val BASE_URL = "https://netpos.netpluspay.com/api/"
+        private val BASE_URL = UtilityParam.STRING_NOTIFICATION_BASE_URL
         private var INSTANCE: NotificationService? = null
         fun getInstance(): NotificationService = INSTANCE ?: synchronized(this) {
             INSTANCE ?: Retrofit.Builder()

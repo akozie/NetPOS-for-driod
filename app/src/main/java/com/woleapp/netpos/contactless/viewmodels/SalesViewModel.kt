@@ -202,7 +202,7 @@ class SalesViewModel @Inject constructor() : ViewModel() {
         Single.fromCallable {
             Socket().run {
                 soTimeout = 120_000
-                connect(InetSocketAddress(VEND_IP, VEND_PORT))
+                connect(InetSocketAddress(UtilityParam.VEND_IP, UtilityParam.VEND_PORT.toInt()))
                 val reader = BufferedReader(InputStreamReader(getInputStream()))
                 Timber.e(reader.readLine())
                 val printWriter = PrintWriter(getOutputStream(), true)

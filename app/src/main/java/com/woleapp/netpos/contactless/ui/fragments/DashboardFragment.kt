@@ -491,7 +491,7 @@ class DashboardFragment : BaseFragment() {
             var reader: BufferedReader? = null
             Observable.fromCallable {
                 socket.soTimeout = 120_000
-                socket.connect(InetSocketAddress(VEND_IP, VEND_PORT))
+                socket.connect(InetSocketAddress(UtilityParam.VEND_IP, UtilityParam.VEND_PORT.toInt()))
                 printWriter = PrintWriter(socket.getOutputStream(), true)
                 reader = BufferedReader(InputStreamReader(socket.getInputStream()))
                 val firstData = reader?.readLine()

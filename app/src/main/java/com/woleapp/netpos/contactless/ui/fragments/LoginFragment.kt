@@ -32,6 +32,7 @@ import com.woleapp.netpos.contactless.network.StormApiClient
 import com.woleapp.netpos.contactless.nibss.NetPosTerminalConfig
 import com.woleapp.netpos.contactless.ui.activities.MainActivity
 import com.woleapp.netpos.contactless.util.RandomPurposeUtil.getDeviceId
+import com.woleapp.netpos.contactless.util.UtilityParam
 import com.woleapp.netpos.contactless.viewmodels.AuthViewModel
 
 
@@ -66,8 +67,8 @@ class LoginFragment : BaseFragment() {
             passwordResetDialog.cancel()
         }
         val credentials = JsonObject()
-        credentials.addProperty("appname", getString(R.string._app_name))
-        credentials.addProperty("password", getString(R.string._password))
+        credentials.addProperty("appname", UtilityParam.APP_NAME)
+        credentials.addProperty("password", UtilityParam.APP_PASSWORD)
         viewModel.apply {
             stormApiService = StormApiClient.getInstance()
             appCredentials = credentials

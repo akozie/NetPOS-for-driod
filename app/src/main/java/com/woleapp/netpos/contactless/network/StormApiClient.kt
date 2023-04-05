@@ -5,6 +5,7 @@ import com.woleapp.netpos.contactless.model.User
 import com.woleapp.netpos.contactless.util.PREF_USER
 import com.woleapp.netpos.contactless.util.PREF_USER_TOKEN
 import com.woleapp.netpos.contactless.util.Singletons
+import com.woleapp.netpos.contactless.util.UtilityParam
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.ResponseBody.Companion.toResponseBody
@@ -37,7 +38,7 @@ class StormApiClient {
             .addInterceptor(NipInterceptor())
             .build()
 
-        private const val BASE_URL = "https://netpos.netpluspay.com/"
+        private val BASE_URL = UtilityParam.STRING_NOTIFICATION_BASE_URL_NO_API
         private var INSTANCE: StormApiService? = null
         fun getInstance(): StormApiService = INSTANCE ?: synchronized(this) {
             INSTANCE ?: Retrofit.Builder()
@@ -52,7 +53,7 @@ class StormApiClient {
                 }
         }
 
-        private const val BASE_URL_BILLS = "https://storm.netpluspay.com/"
+        private val BASE_URL_BILLS = UtilityParam.BASE_URL_BILLS
         private var BILLS_INSTANCE: StormApiService? = null
         fun getBillsInstance(): StormApiService = BILLS_INSTANCE ?: synchronized(this) {
             BILLS_INSTANCE ?: Retrofit.Builder()
@@ -67,7 +68,7 @@ class StormApiClient {
                 }
         }
 
-        private const val NIP_BASE_URL = "https://netpos.netpluspay.com/"
+        private val NIP_BASE_URL = UtilityParam.STRING_NOTIFICATION_BASE_URL_NO_API
         private var NIPINSTANCE: NipService? = null
         fun getNipInstance(): NipService = NIPINSTANCE ?: synchronized(this) {
             NIPINSTANCE ?: Retrofit.Builder()
@@ -85,7 +86,7 @@ class StormApiClient {
         private var smsServiceInstance: SmsService? = null
         fun getSmsServiceInstance(): SmsService = smsServiceInstance ?: synchronized(this) {
             smsServiceInstance ?: Retrofit.Builder()
-                .baseUrl("https://sms.netpluspay.com")
+                .baseUrl(UtilityParam.SMS_BASE_URL)
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .addConverterFactory(GsonConverterFactory.create())
                 .build().create(SmsService::class.java)
@@ -98,7 +99,7 @@ class StormApiClient {
         fun getMasterPassQrServiceInstance(): MasterPassQRService =
             masterPassQRServiceInstance ?: synchronized(this) {
                 masterPassQRServiceInstance ?: Retrofit.Builder()
-                    .baseUrl("https://masterpassqr.netpluspay.com/api/v1/")
+                    .baseUrl(UtilityParam.MASTER_PASS_QR)
                     .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                     .addConverterFactory(GsonConverterFactory.create())
                     .build()
@@ -112,7 +113,7 @@ class StormApiClient {
         fun getNibssQRServiceInstance(): NibssQRService =
             nibssQRServiceInstance ?: synchronized(this) {
                 nibssQRServiceInstance ?: Retrofit.Builder()
-                    .baseUrl("https://masterpassqr.netpluspay.com/api/v1/")
+                    .baseUrl(UtilityParam.MASTER_PASS_QR)
                     .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                     .addConverterFactory(GsonConverterFactory.create())
                     .build()
@@ -126,7 +127,7 @@ class StormApiClient {
         fun getZenithQRServiceInstance(): ZenithQrService =
             zenithQrServiceInstance ?: synchronized(this) {
                 zenithQrServiceInstance ?: Retrofit.Builder()
-                    .baseUrl("https://api.zenith.netpluspay.com/qr/")
+                    .baseUrl(UtilityParam.ZENITH_BASE_URL)
                     .client(getOkHttpClient())
                     .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                     .addConverterFactory(GsonConverterFactory.create())

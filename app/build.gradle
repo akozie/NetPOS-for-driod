@@ -44,25 +44,6 @@ android {
         else
             environmentPath = appProperties["env.path.staging"]
         buildConfigField "Boolean", "APPMODE_PROD", appModeProd
-        def envPropertiesFile = rootProject.file(environmentPath)
-        def envProperties = new Properties()
-        envProperties.load(new FileInputStream(envPropertiesFile))
-        for (String key : envProperties.keySet()) {
-            buildConfigField "String", key.replaceAll("\\.", "_").toUpperCase(), envProperties[key]
-        }
-//        Properties prop = new Properties();
-//        prop.load(rootProject.file("local.properties").newDataInputStream())
-//
-//        buildConfigField("String", "STRING_AUTH_USER_NAME", "\"${prop.getProperty("STRING_AUTH_USER_NAME")}\"")
-//        buildConfigField("String", "STRING_AUTH_PASSWORD", "\"${prop.getProperty("STRING_AUTH_PASSWORD")}\"")
-//        buildConfigField("String", "STRING_GET_QR_BASE_URL", "\"${prop.getProperty("STRING_GET_QR_BASE_URL")}\"")
-//        buildConfigField("String", "STRING_MERCHANT_ID", "\"${prop.getProperty("STRING_MERCHANT_ID")}\"")
-//        buildConfigField("String", "STRING_SEND_VERVE_OTP_BASE_URL", "\"${prop.getProperty("STRING_SEND_VERVE_OTP_BASE_URL")}\"")
-//        buildConfigField("String", "STRING_MPGS_TAG", "\"${prop.getProperty("STRING_MPGS_TAG")}\"")
-//
-//        buildConfigField("String", "STRING_WEB_VIEW_BASE_URL", "\"${prop.get("STRING_WEB_VIEW_BASE_URL")}\"")
-//        buildConfigField("String", "STRING_CONTACTLESS_EXISTING_BASE_URL", "\"${prop.getProperty("STRING_CONTACTLESS_EXISTING_BASE_URL")}\"")
-//        buildConfigField("String", "STRING_CONTACTLESS_PAYMENT_WITH_QR_BASE_URL", "\"${prop.getProperty("STRING_CONTACTLESS_PAYMENT_WITH_QR_BASE_URL")}\"")
     }
 
     dataBinding {
@@ -209,8 +190,8 @@ dependencies {
     implementation "io.reactivex.rxjava2:rxkotlin:2.4.0"
 
     //epms
-    implementation project(path: ':epmslib-release')
     implementation 'net.sf.j8583:j8583:1.12.0'
+    implementation 'com.github.netplus2:epmsLibrary:1.0.3'
 
     //Timber
     implementation 'com.jakewharton.timber:timber:4.7.1'
@@ -255,7 +236,7 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.5.1"
 
     //easyprefs
-    implementation 'com.pixplicity.easyprefs:library:1.9.0'
+    implementation 'com.pixplicity.easyprefs:EasyPrefs:1.10.0'
 
     //JWT
     implementation 'com.auth0:java-jwt:3.10.0'

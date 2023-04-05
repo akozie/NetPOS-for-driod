@@ -54,3 +54,75 @@ Java_com_woleapp_netpos_contactless_util_UtilityParam_getNotificationBaseUrl(JNI
                                                                              jobject thiz) {
     return (*env) ->NewStringUTF(env, "https://netpos.netpluspay.com/api/");
 }
+
+JNIEXPORT jstring JNICALL
+Java_com_woleapp_netpos_contactless_util_UtilityParam_getBaseUrlNetPosMqtt(JNIEnv *env,
+                                                                           jobject thiz) {
+    return (*env)->NewStringUTF(env, "storm-mqtt.netpluspay.com");
+}
+
+JNIEXPORT jstring JNICALL
+Java_com_woleapp_netpos_contactless_util_UtilityParam_getBaseUrlStormUtilities(JNIEnv *env,
+                                                                               jobject thiz) {
+    return (*env)->NewStringUTF(env, "https://storm-utilities.netpluspay.com/");
+}
+
+JNIEXPORT jstring JNICALL
+Java_com_woleapp_netpos_contactless_util_UtilityParam_getConfigurationDataIp(JNIEnv *env,
+                                                                             jobject thiz) {
+    return (*env) -> NewStringUTF(env, "196.6.103.18");
+}
+
+JNIEXPORT jstring JNICALL
+Java_com_woleapp_netpos_contactless_util_UtilityParam_getConfigurationDataPort(JNIEnv *env,
+                                                                               jobject thiz) {
+    return (*env) ->NewStringUTF(env, "5016");
+}
+
+JNIEXPORT jstring JNICALL
+Java_com_woleapp_netpos_contactless_util_UtilityParam_getConfigurationDataVendorIp(JNIEnv *env,
+                                                                                   jobject thiz) {
+    return (*env)->NewStringUTF(env, "192.168.100.68");
+}
+
+JNIEXPORT jstring JNICALL
+Java_com_woleapp_netpos_contactless_util_UtilityParam_getConfigurationDataVendorPort(JNIEnv *env,
+                                                                                     jobject thiz) {
+    return (*env)->NewStringUTF(env, "3535");
+}
+
+JNIEXPORT jstring JNICALL
+Java_com_woleapp_netpos_contactless_util_UtilityParam_getAppName(JNIEnv *env, jobject thiz) {
+    return (*env)->NewStringUTF(env, "storm_app");
+}
+
+JNIEXPORT jstring JNICALL
+Java_com_woleapp_netpos_contactless_util_UtilityParam_getAppPassword(JNIEnv *env, jobject thiz) {
+    return (*env)->NewStringUTF(env, "C0R3MELTDOWN!");
+}
+
+JNIEXPORT jstring JNICALL
+Java_com_woleapp_netpos_contactless_util_UtilityParam_getBaseUrlBills(JNIEnv *env, jobject thiz) {
+    return (*env)->NewStringUTF(env, "https://storm.netpluspay.com/");
+}
+
+JNIEXPORT jstring JNICALL
+Java_com_woleapp_netpos_contactless_util_UtilityParam_getMasterPassQr(JNIEnv *env, jobject thiz) {
+    return (*env)->NewStringUTF(env, "https://masterpassqr.netpluspay.com/api/v1/");
+}
+
+JNIEXPORT jstring JNICALL
+Java_com_woleapp_netpos_contactless_util_UtilityParam_getSmsBaseUrl(JNIEnv *env, jobject thiz) {
+    return (*env)->NewStringUTF(env, "https://sms.netpluspay.com");
+}
+
+JNIEXPORT jstring JNICALL
+Java_com_woleapp_netpos_contactless_util_UtilityParam_getZenithBaseUrl(JNIEnv *env, jobject thiz) {
+    return (*env)->NewStringUTF(env, "https://api.zenith.netpluspay.com/qr/");
+}
+
+JNIEXPORT jstring JNICALL
+Java_com_woleapp_netpos_contactless_util_UtilityParam_getStringNotificationBaseUrlNoApi(JNIEnv *env,
+                                                                                        jobject thiz) {
+    return (*env)->NewStringUTF(env, "https://netpos.netpluspay.com/");
+}

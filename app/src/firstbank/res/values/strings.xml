@@ -1,6 +1,4 @@
 <resources>
-    <string name="_app_name">FirstBank</string>
-    <string name="_password">C0R3MELTDOWN!</string>
     <string name="netpos_logo">Netpos Logo</string>
     <string name="username">Username</string>
     <string name="login">Login</string>
