@@ -288,7 +288,7 @@ dependencies {
     implementation 'com.github.barteksc:android-pdf-viewer:2.8.2'
 
     //workmanager
-    def work_version = "2.5.0"
+    def work_version = "2.7.0-alpha05"
     implementation "androidx.work:work-runtime-ktx:$work_version"
 
     // Firebase
