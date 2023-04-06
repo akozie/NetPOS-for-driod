@@ -74,7 +74,7 @@ class LoginFragment : BaseFragment() {
             appCredentials = credentials
         }
         val uniqueNumber = getDeviceId(requireContext()).toString()
-        Log.d("IMEI", uniqueNumber)
+     //   Log.d("IMEI", uniqueNumber)
         binding.btnLogin.setOnClickListener {
             viewModel.login(uniqueNumber)
         }

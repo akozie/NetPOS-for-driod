@@ -701,9 +701,9 @@ class MainActivity @Inject constructor() : AppCompatActivity(), EasyPermissions.
                             receiptDialogBinding.transactionContent.text.toString(),
                             receiptDialogBinding.telephone.text.toString()
                         )
-                        Log.d(
-                            "PHONENUMBER", receiptDialogBinding.transactionContent.text.toString()
-                        )
+//                        Log.d(
+//                            "PHONENUMBER", receiptDialogBinding.transactionContent.text.toString()
+//                        )
                         receiptDialogBinding.progress.visibility = View.VISIBLE
                         receiptDialogBinding.sendButton.isEnabled = false
                     }
