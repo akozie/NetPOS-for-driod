@@ -369,7 +369,7 @@ class MainActivity @Inject constructor() :
 //                        getBalance()
 //                    }
                     R.id.scanQR -> {
-                        showFragment(FragmentBarCodeScanner(), "Scan QR")
+                        showFragment(FragmentBarCodeScannerRefactored(), "Scan QR")
                     }
                     R.id.endOfDay -> {
                         showFragment(TransactionsFragment(), "Transactions")
@@ -788,7 +788,10 @@ class MainActivity @Inject constructor() :
         ).show()
     }
 
-    private fun getEndOfDayTransactions(timestamp: Long? = null, actionToTake: (transactions: List<TransactionResponse>) -> Unit) {
+    private fun getEndOfDayTransactions(
+        timestamp: Long? = null,
+        actionToTake: (transactions: List<TransactionResponse>) -> Unit,
+    ) {
         Toast.makeText(this, "Please wait", Toast.LENGTH_LONG).show()
         val livedata =
             AppDatabase.getDatabaseInstance(this).transactionResponseDao().getEndOfDayTransaction(
@@ -1053,9 +1056,18 @@ class MainActivity @Inject constructor() :
                     if (intentAction == STRING_FIREBASE_INTENT_ACTION) {
                         if (intentExtra) {
                             val currentDateTime = getCurrentDateTime()
-                            getEndOfDayTransactions(dateStr2Long(currentDateTime, "yyyy-MM-dd hh:mm a")) {
+                            getEndOfDayTransactions(
+                                dateStr2Long(
+                                    currentDateTime,
+                                    "yyyy-MM-dd hh:mm a",
+                                ),
+                            ) {
                                 transactionViewModel.setEndOfDayList(it)
-                                addFragmentWithoutRemove(TransactionHistoryFragment.newInstance(HISTORY_ACTION))
+                                addFragmentWithoutRemove(
+                                    TransactionHistoryFragment.newInstance(
+                                        HISTORY_ACTION,
+                                    ),
+                                )
                             }
                         }
                     }
