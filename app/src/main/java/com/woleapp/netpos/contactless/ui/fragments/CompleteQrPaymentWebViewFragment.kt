@@ -39,13 +39,13 @@ class CompleteQrPaymentWebViewFragment @Inject constructor() : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         binding = DataBindingUtil.inflate(
             inflater,
             R.layout.fragment_complete_qr_payment_web_view,
             container,
-            false
+            false,
         )
 
         // Handle Back Press
@@ -61,7 +61,7 @@ class CompleteQrPaymentWebViewFragment @Inject constructor() : Fragment() {
                         }
                     }
                 }
-            }
+            },
         )
 
         // Inflate the layout for this fragment
@@ -80,7 +80,7 @@ class CompleteQrPaymentWebViewFragment @Inject constructor() : Fragment() {
                     it.MD,
                     it.PaReq,
                     it.ACSUrl,
-                    it.transId
+                    it.transId,
                 )
             }
             setUpWebView(wbView)

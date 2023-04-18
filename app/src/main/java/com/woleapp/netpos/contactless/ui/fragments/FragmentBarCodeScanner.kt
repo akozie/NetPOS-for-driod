@@ -20,18 +20,18 @@ import com.budiyev.android.codescanner.* // ktlint-disable no-wildcard-imports
 import com.google.gson.Gson
 import com.woleapp.netpos.contactless.R
 import com.woleapp.netpos.contactless.model.QrScannedDataModel
-import com.woleapp.netpos.contactless.viewmodels.ScanQrViewModel
 import com.woleapp.netpos.contactless.util.AppConstants.PERMISSION_REQUEST_CODE
 import com.woleapp.netpos.contactless.util.AppConstants.STRING_QR_READ_RESULT_BUNDLE_KEY
 import com.woleapp.netpos.contactless.util.AppConstants.STRING_QR_READ_RESULT_REQUEST_KEY
 import com.woleapp.netpos.contactless.util.RandomPurposeUtil.base64ToPlainText
 import com.woleapp.netpos.contactless.util.RandomPurposeUtil.showSnackBar
+import com.woleapp.netpos.contactless.viewmodels.ScanQrViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class FragmentBarCodeScanner @Inject constructor() : Fragment() {
+class FragmentBarCodeScanner : Fragment() {
     @Inject
     lateinit var gson: Gson
     private lateinit var codeScanner: CodeScanner
@@ -40,7 +40,7 @@ class FragmentBarCodeScanner @Inject constructor() : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         activity?.onBackPressedDispatcher?.addCallback(
             viewLifecycleOwner,
@@ -49,7 +49,7 @@ class FragmentBarCodeScanner @Inject constructor() : Fragment() {
                     showSnackBar(requireView(), getString(R.string.scanning_not_completed))
                     requireActivity().supportFragmentManager.popBackStack()
                 }
-            }
+            },
         )
 
         return inflater.inflate(R.layout.layout_fragment_barcode, container, false)
@@ -82,7 +82,7 @@ class FragmentBarCodeScanner @Inject constructor() : Fragment() {
                             .show()
                         requireActivity().supportFragmentManager.setFragmentResult(
                             STRING_QR_READ_RESULT_REQUEST_KEY,
-                            bundleOf(STRING_QR_READ_RESULT_BUNDLE_KEY to scannedData)
+                            bundleOf(STRING_QR_READ_RESULT_BUNDLE_KEY to scannedData),
                         )
                     } else {
                         showSnackBar(view, getString(R.string.invalid_qr))
@@ -111,7 +111,7 @@ class FragmentBarCodeScanner @Inject constructor() : Fragment() {
     private fun checkPermission(): Boolean {
         return ContextCompat.checkSelfPermission(
             requireContext(),
-            Manifest.permission.CAMERA
+            Manifest.permission.CAMERA,
         ) === PackageManager.PERMISSION_GRANTED
     }
 
@@ -119,7 +119,7 @@ class FragmentBarCodeScanner @Inject constructor() : Fragment() {
         ActivityCompat.requestPermissions(
             requireActivity(),
             arrayOf<String>(Manifest.permission.CAMERA),
-            PERMISSION_REQUEST_CODE
+            PERMISSION_REQUEST_CODE,
         )
     }
 
@@ -127,14 +127,14 @@ class FragmentBarCodeScanner @Inject constructor() : Fragment() {
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
-        grantResults: IntArray
+        grantResults: IntArray,
     ) {
         when (requestCode) {
             PERMISSION_REQUEST_CODE -> if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(
                     requireContext(),
                     "Permission Granted",
-                    Toast.LENGTH_SHORT
+                    Toast.LENGTH_SHORT,
                 ).show()
 
                 // main logic
@@ -142,12 +142,12 @@ class FragmentBarCodeScanner @Inject constructor() : Fragment() {
                 Toast.makeText(
                     requireContext(),
                     "Permission Denied",
-                    Toast.LENGTH_SHORT
+                    Toast.LENGTH_SHORT,
                 ).show()
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     if (ContextCompat.checkSelfPermission(
                             requireContext(),
-                            Manifest.permission.CAMERA
+                            Manifest.permission.CAMERA,
                         )
                         !== PackageManager.PERMISSION_GRANTED
                     ) {

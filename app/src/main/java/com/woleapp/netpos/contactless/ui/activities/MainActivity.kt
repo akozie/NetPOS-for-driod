@@ -83,7 +83,9 @@ import javax.inject.Inject
 
 @Suppress("DEPRECATION")
 @AndroidEntryPoint
-class MainActivity @Inject constructor() : AppCompatActivity(), EasyPermissions.PermissionCallbacks,
+class MainActivity @Inject constructor() :
+    AppCompatActivity(),
+    EasyPermissions.PermissionCallbacks,
     NfcAdapter.ReaderCallback {
 
     private lateinit var receiptPdf: File
@@ -136,9 +138,10 @@ class MainActivity @Inject constructor() : AppCompatActivity(), EasyPermissions.
         registerReceiver(batteryReceiver, iFilter)
         // LocalBroadcastManager.getInstance(this).registerReceiver(receiver, IntentFilter(CONFIGURATION_ACTION))
         when ( // NetPosTerminalConfig.isConfigurationInProcess -> showProgressDialog()
-            NetPosTerminalConfig.configurationStatus) {
+            NetPosTerminalConfig.configurationStatus
+        ) {
             -1 -> NetPosTerminalConfig.init(
-                applicationContext
+                applicationContext,
             )
             1 -> {
                 dismissProgressDialogIfShowing()
@@ -160,7 +163,8 @@ class MainActivity @Inject constructor() : AppCompatActivity(), EasyPermissions.
                     .setCancelable(false).setPositiveButton("Settings") { dialog, _ ->
                         dialog.dismiss()
                         startActivityForResult(
-                            Intent(android.provider.Settings.ACTION_NFC_SETTINGS), 0
+                            Intent(android.provider.Settings.ACTION_NFC_SETTINGS),
+                            0,
                         )
                     }.show()
             }
@@ -176,7 +180,10 @@ class MainActivity @Inject constructor() : AppCompatActivity(), EasyPermissions.
 
     private fun startNfcPayment() {
         nfcAdapter?.enableReaderMode(
-            this, this, READER_FLAGS, Bundle()
+            this,
+            this,
+            READER_FLAGS,
+            Bundle(),
         )
     }
 
@@ -264,7 +271,7 @@ class MainActivity @Inject constructor() : AppCompatActivity(), EasyPermissions.
                 Manifest.permission.ACCESS_FINE_LOCATION,
                 Manifest.permission.ACCESS_COARSE_LOCATION,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                Manifest.permission.READ_EXTERNAL_STORAGE
+                Manifest.permission.READ_EXTERNAL_STORAGE,
             )
         ) {
             EasyPermissions.requestPermissions(
@@ -274,7 +281,7 @@ class MainActivity @Inject constructor() : AppCompatActivity(), EasyPermissions.
                 Manifest.permission.ACCESS_COARSE_LOCATION,
                 Manifest.permission.ACCESS_FINE_LOCATION,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                Manifest.permission.READ_EXTERNAL_STORAGE
+                Manifest.permission.READ_EXTERNAL_STORAGE,
             )
         }
         progressDialog = ProgressDialog(this).apply {
@@ -285,20 +292,26 @@ class MainActivity @Inject constructor() : AppCompatActivity(), EasyPermissions.
         val mid = Singletons.getConfigData()?.cardAcceptorIdCode ?: ""
         requestNarration =
             if (Singletons.getCurrentlyLoggedInUser()?.terminal_id?.isNotEmpty() == true) {
-                "${mid}:${Singletons.getCurrentlyLoggedInUser()?.terminal_id}:${UtilityParam.STRING_MPGS_TAG}"
+                "$mid:${Singletons.getCurrentlyLoggedInUser()?.terminal_id}:${UtilityParam.STRING_MPGS_TAG}"
             } else {
                 ""
             }
 
         this.supportFragmentManager.setFragmentResultListener(
-            STRING_QR_READ_RESULT_REQUEST_KEY, this
+            STRING_QR_READ_RESULT_REQUEST_KEY,
+            this,
         ) { _, bundle ->
             val data = bundle.getParcelable<QrScannedDataModel>(STRING_QR_READ_RESULT_BUNDLE_KEY)
             data?.let {
                 if (it.card_scheme.contains(
-                        "verve", true
+                        "verve",
+                        true,
                     )
-                ) showAmountDialogForVerveCard() else showAmountDialog(it)
+                ) {
+                    showAmountDialogForVerveCard()
+                } else {
+                    showAmountDialog(it)
+                }
             }
         }
         resultLauncher =
@@ -309,7 +322,9 @@ class MainActivity @Inject constructor() : AppCompatActivity(), EasyPermissions.
                         if (it.hasExtra(RESULT_CODE_TEXT)) {
                             val text = it.getStringExtra(RESULT_CODE_TEXT)
                             Toast.makeText(
-                                this, getString(R.string.qr_scanned), Toast.LENGTH_SHORT
+                                this,
+                                getString(R.string.qr_scanned),
+                                Toast.LENGTH_SHORT,
                             ).show()
                             text?.let { qrCardData ->
                                 val qrReadResult =
@@ -406,7 +421,8 @@ class MainActivity @Inject constructor() : AppCompatActivity(), EasyPermissions.
                 dialogContactlessReaderBinding.contactlessHeader.text =
                     getString(R.string.nfc_message, it.cardScheme)
                 dialogContactlessReaderBinding.contactlessHeader.highlightTexts(
-                    NfcPaymentType.MASTERCARD.cardScheme, NfcPaymentType.VISA.cardScheme
+                    NfcPaymentType.MASTERCARD.cardScheme,
+                    NfcPaymentType.VISA.cardScheme,
                 )
                 dialogContactlessReaderBinding.cardScheme.setImageResource(it.icon)
                 waitingDialog.show()
@@ -424,7 +440,9 @@ class MainActivity @Inject constructor() : AppCompatActivity(), EasyPermissions.
                     receiptAlertDialog.dismiss()
                 } else {
                     Toast.makeText(
-                        this, getString(R.string.error_sending_receipt), Toast.LENGTH_LONG
+                        this,
+                        getString(R.string.error_sending_receipt),
+                        Toast.LENGTH_LONG,
                     ).show()
                     receiptDialogBinding.telephone.text?.clear()
                     receiptAlertDialog.dismiss()
@@ -443,13 +461,13 @@ class MainActivity @Inject constructor() : AppCompatActivity(), EasyPermissions.
                         Toast.makeText(
                             this@MainActivity,
                             "Please enter a valid phone number",
-                            Toast.LENGTH_LONG
+                            Toast.LENGTH_LONG,
                         ).show()
                         return@setOnClickListener
                     }
                     viewModel.sendSmS(
                         receiptDialogBinding.transactionContent.text.toString(),
-                        receiptDialogBinding.telephone.text.toString()
+                        receiptDialogBinding.telephone.text.toString(),
                     )
                     Log.d("PHONENUMBER", receiptDialogBinding.transactionContent.text.toString())
                     progress.visibility = View.VISIBLE
@@ -469,13 +487,15 @@ class MainActivity @Inject constructor() : AppCompatActivity(), EasyPermissions.
             viewModel.stopNfcReader()
         }
 
-        FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
-            if (!task.isSuccessful) {
-                return@OnCompleteListener
-            }
-            val token = task.result // this is the token retrieved
-            Log.d("FCM", token)
-        })
+        FirebaseMessaging.getInstance().token.addOnCompleteListener(
+            OnCompleteListener { task ->
+                if (!task.isSuccessful) {
+                    return@OnCompleteListener
+                }
+                val token = task.result // this is the token retrieved
+                Log.d("FCM", token)
+            },
+        )
         qrAmoutDialogBinding = QrAmoutDialogBinding.inflate(layoutInflater, null, false).apply {
             executePendingBindings()
             lifecycleOwner = this@MainActivity
@@ -501,7 +521,7 @@ class MainActivity @Inject constructor() : AppCompatActivity(), EasyPermissions.
 //            sendTokenToBackend(it, terminalId, userName)
 //        }
 
-  //      getIntentDataSentInFromFirebaseService()
+        //      getIntentDataSentInFromFirebaseService()
     }
 
     override fun onResume() {
@@ -509,9 +529,10 @@ class MainActivity @Inject constructor() : AppCompatActivity(), EasyPermissions.
         handlePdfReceiptPrinting()
     }
 
-
     override fun onRequestPermissionsResult(
-        requestCode: Int, permissions: Array<out String>, grantResults: IntArray
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray,
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
@@ -536,7 +557,8 @@ class MainActivity @Inject constructor() : AppCompatActivity(), EasyPermissions.
             }
 
             @Deprecated(
-                "Deprecated from api", ReplaceWith("Check documentation, mfpm")
+                "Deprecated from api",
+                ReplaceWith("Check documentation, mfpm"),
             )
             override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {
             }
@@ -550,7 +572,10 @@ class MainActivity @Inject constructor() : AppCompatActivity(), EasyPermissions.
             }
         }
         locationManager.requestLocationUpdates(
-            LocationManager.GPS_PROVIDER, 0L, 0f, locationListener
+            LocationManager.GPS_PROVIDER,
+            0L,
+            0f,
+            locationListener,
         )
         // locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
         locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
@@ -559,16 +584,20 @@ class MainActivity @Inject constructor() : AppCompatActivity(), EasyPermissions.
     private fun showPinDialog(pan: String) {
         Timber.e("pan from show pin dialog")
         Timber.e(pan)
-        PasswordDialog(this, pan, object : PasswordDialog.Listener {
-            override fun onConfirm(pinBlock: String?) {
-                viewModel.setPinBlock(pinBlock)
-            }
+        PasswordDialog(
+            this,
+            pan,
+            object : PasswordDialog.Listener {
+                override fun onConfirm(pinBlock: String?) {
+                    viewModel.setPinBlock(pinBlock)
+                }
 
-            override fun onError(message: String?) {
-                Toast.makeText(this@MainActivity, message, Toast.LENGTH_SHORT).show()
-                viewModel.setIccCardHelperLiveData(ICCCardHelper(error = Throwable(message)))
-            }
-        }).showDialog()
+                override fun onError(message: String?) {
+                    Toast.makeText(this@MainActivity, message, Toast.LENGTH_SHORT).show()
+                    viewModel.setIccCardHelperLiveData(ICCCardHelper(error = Throwable(message)))
+                }
+            },
+        ).showDialog()
     }
 
     private fun showFragment(targetFragment: Fragment, className: String) {
@@ -587,7 +616,9 @@ class MainActivity @Inject constructor() : AppCompatActivity(), EasyPermissions.
         var dialogSelectAccountTypeBinding: DialogSelectAccountTypeBinding
         val dialog = AlertDialog.Builder(this).apply {
             dialogSelectAccountTypeBinding = DialogSelectAccountTypeBinding.inflate(
-                LayoutInflater.from(context), null, false
+                LayoutInflater.from(context),
+                null,
+                false,
             ).apply {
                 executePendingBindings()
             }
@@ -635,7 +666,7 @@ class MainActivity @Inject constructor() : AppCompatActivity(), EasyPermissions.
             this,
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             WRITE_PERMISSION_REQUEST_CODE,
-            getString(R.string.storage_permission_rationale_for_download)
+            getString(R.string.storage_permission_rationale_for_download),
         ) {
             receiptPdf = createPdf(view, this)
         }
@@ -643,7 +674,8 @@ class MainActivity @Inject constructor() : AppCompatActivity(), EasyPermissions.
 
     private fun downloadPflImplForQrTransaction(qrTransaction: QrTransactionResponseFinalModel) {
         initViewsForPdfLayout(
-            qrPdfView, qrTransaction
+            qrPdfView,
+            qrTransaction,
         )
         getPermissionAndCreatePdf(qrPdfView)
     }
@@ -661,7 +693,8 @@ class MainActivity @Inject constructor() : AppCompatActivity(), EasyPermissions.
                     receiptDialogBinding.sendButton.setOnClickListener {
                         downloadPflImplForQrTransaction(qrTransaction)
                         showSnackBar(
-                            binding.root, getString(R.string.fileDownloaded)
+                            binding.root,
+                            getString(R.string.fileDownloaded),
                         )
                     }
                 }
@@ -693,21 +726,21 @@ class MainActivity @Inject constructor() : AppCompatActivity(), EasyPermissions.
                             Toast.makeText(
                                 this@MainActivity,
                                 "Please enter a valid phone number",
-                                Toast.LENGTH_LONG
+                                Toast.LENGTH_LONG,
                             ).show()
                             return@setOnClickListener
                         }
                         viewModel.sendSmS(
                             receiptDialogBinding.transactionContent.text.toString(),
-                            receiptDialogBinding.telephone.text.toString()
+                            receiptDialogBinding.telephone.text.toString(),
                         )
                         Log.d(
-                            "PHONENUMBER", receiptDialogBinding.transactionContent.text.toString()
+                            "PHONENUMBER",
+                            receiptDialogBinding.transactionContent.text.toString(),
                         )
                         receiptDialogBinding.progress.visibility = View.VISIBLE
                         receiptDialogBinding.sendButton.isEnabled = false
                     }
-
                 }
             }
             else -> {
@@ -724,7 +757,8 @@ class MainActivity @Inject constructor() : AppCompatActivity(), EasyPermissions.
                     receiptDialogBinding.sendButton.setOnClickListener {
                         downloadPflImplForQrTransaction(qrTransaction)
                         showSnackBar(
-                            binding.root, getString(R.string.fileDownloaded)
+                            binding.root,
+                            getString(R.string.fileDownloaded),
                         )
                         sharePdf(receiptPdf, this@MainActivity)
                     }
@@ -743,24 +777,24 @@ class MainActivity @Inject constructor() : AppCompatActivity(), EasyPermissions.
             this,
             { _, i, i2, i3 ->
                 getEndOfDayTransactions(
-                    Calendar.getInstance().apply { set(i, i2, i3) }.timeInMillis
-                ){
+                    Calendar.getInstance().apply { set(i, i2, i3) }.timeInMillis,
+                ) {
                     showEndOfDayBottomSheetDialog(it)
                 }
             },
             calendar.get(Calendar.YEAR),
             calendar.get(Calendar.MONTH),
-            calendar.get(Calendar.DAY_OF_MONTH)
+            calendar.get(Calendar.DAY_OF_MONTH),
         ).show()
     }
 
-    private fun getEndOfDayTransactions(timestamp: Long? = null, actionToTake: (transactions:List<TransactionResponse>)->Unit) {
+    private fun getEndOfDayTransactions(timestamp: Long? = null, actionToTake: (transactions: List<TransactionResponse>) -> Unit) {
         Toast.makeText(this, "Please wait", Toast.LENGTH_LONG).show()
         val livedata =
             AppDatabase.getDatabaseInstance(this).transactionResponseDao().getEndOfDayTransaction(
                 getBeginningOfDay(timestamp),
                 getEndOfDayTimeStamp(timestamp),
-                NetPosTerminalConfig.getTerminalId()
+                NetPosTerminalConfig.getTerminalId(),
             )
         livedata.observe(this) {
             actionToTake.invoke(it)
@@ -785,7 +819,9 @@ class MainActivity @Inject constructor() : AppCompatActivity(), EasyPermissions.
                 }.apply {
                     if (isEmpty()) {
                         Toast.makeText(
-                            this@MainActivity, "No transactions to print", Toast.LENGTH_SHORT
+                            this@MainActivity,
+                            "No transactions to print",
+                            Toast.LENGTH_SHORT,
                         ).show()
                     }
                 }
@@ -801,7 +837,8 @@ class MainActivity @Inject constructor() : AppCompatActivity(), EasyPermissions.
             transactionViewModel.setEndOfDayList(transactions)
             bottomSheet.dismiss()
             showFragment(
-                TransactionHistoryFragment.newInstance(HISTORY_ACTION_EOD), "Transaction History"
+                TransactionHistoryFragment.newInstance(HISTORY_ACTION_EOD),
+                "Transaction History",
             )
         }
         endOfDay.closeButton.setOnClickListener {
@@ -813,8 +850,10 @@ class MainActivity @Inject constructor() : AppCompatActivity(), EasyPermissions.
         qrAmountDialog.show()
         qrAmoutDialogBinding.proceed.setOnClickListener {
             val amountDouble = qrAmoutDialogBinding.amount.text.toString().toDoubleOrNull()
-            if (qrAmoutDialogBinding.amount.text.isNullOrEmpty()) qrAmoutDialogBinding.amount.error =
-                getString(R.string.amount_empty)
+            if (qrAmoutDialogBinding.amount.text.isNullOrEmpty()) {
+                qrAmoutDialogBinding.amount.error =
+                    getString(R.string.amount_empty)
+            }
             amountDouble?.let {
                 qrAmoutDialogBinding.amount.text?.clear()
                 qrAmountDialog.cancel()
@@ -822,7 +861,7 @@ class MainActivity @Inject constructor() : AppCompatActivity(), EasyPermissions.
                     it,
                     qrData.data,
                     merchantId = UtilityParam.STRING_MERCHANT_ID,
-                    naration = requestNarration
+                    naration = requestNarration,
                 )
                 scanQrViewModel.setScannedQrIsVerveCard(false)
                 scanQrViewModel.postScannedQrRequestToServer(qrDataToSendToBackend)
@@ -831,10 +870,10 @@ class MainActivity @Inject constructor() : AppCompatActivity(), EasyPermissions.
                     this,
                     scanQrViewModel.sendQrToServerResponse,
                     LoadingDialog(),
-                    supportFragmentManager
+                    supportFragmentManager,
                 ) {
                     addFragmentWithoutRemove(
-                        CompleteQrPaymentWebViewFragment()
+                        CompleteQrPaymentWebViewFragment(),
                     )
                 }
             }
@@ -871,7 +910,8 @@ class MainActivity @Inject constructor() : AppCompatActivity(), EasyPermissions.
                             receiptDialogBinding.sendButton.setOnClickListener {
                                 downloadPdfImpl()
                                 showSnackBar(
-                                    binding.root, getString(R.string.fileDownloaded)
+                                    binding.root,
+                                    getString(R.string.fileDownloaded),
                                 )
                             }
                         }
@@ -886,17 +926,17 @@ class MainActivity @Inject constructor() : AppCompatActivity(), EasyPermissions.
                                     Toast.makeText(
                                         this@MainActivity,
                                         "Please enter a valid phone number",
-                                        Toast.LENGTH_LONG
+                                        Toast.LENGTH_LONG,
                                     ).show()
                                     return@setOnClickListener
                                 }
                                 viewModel.sendSmS(
                                     receiptDialogBinding.transactionContent.text.toString(),
-                                    receiptDialogBinding.telephone.text.toString()
+                                    receiptDialogBinding.telephone.text.toString(),
                                 )
                                 Log.d(
                                     "PHONENUMBER",
-                                    receiptDialogBinding.transactionContent.text.toString()
+                                    receiptDialogBinding.transactionContent.text.toString(),
                                 )
                                 receiptDialogBinding.progress.visibility = View.VISIBLE
                                 receiptDialogBinding.sendButton.isEnabled = false
@@ -926,7 +966,8 @@ class MainActivity @Inject constructor() : AppCompatActivity(), EasyPermissions.
                             receiptDialogBinding.sendButton.setOnClickListener {
                                 downloadPdfImpl()
                                 showSnackBar(
-                                    binding.root, getString(R.string.fileDownloaded)
+                                    binding.root,
+                                    getString(R.string.fileDownloaded),
                                 )
                                 sharePdf(receiptPdf, this@MainActivity)
                             }
@@ -947,12 +988,14 @@ class MainActivity @Inject constructor() : AppCompatActivity(), EasyPermissions.
                 val qrTransaction = it.copy(TVR = it.TVR.replace(IS_QR_TRANSACTION, ""))
                     .mapTransactionResponseToQrTransaction()
                 initViewsForPdfLayout(
-                    qrPdfView, qrTransaction
+                    qrPdfView,
+                    qrTransaction,
                 )
                 getPermissionAndCreatePdf(qrPdfView)
             } else {
                 initViewsForPdfLayout(
-                    pdfView, viewModel.lastPosTransactionResponse.value
+                    pdfView,
+                    viewModel.lastPosTransactionResponse.value,
                 )
                 getPermissionAndCreatePdf(pdfView)
             }
@@ -960,7 +1003,9 @@ class MainActivity @Inject constructor() : AppCompatActivity(), EasyPermissions.
     }
 
     fun addFragmentWithoutRemove(
-        fragment: Fragment, containerViewId: Int = R.id.container_main, fragmentName: String? = null
+        fragment: Fragment,
+        containerViewId: Int = R.id.container_main,
+        fragmentName: String? = null,
     ) {
         val tag = fragment.javaClass.simpleName
         supportFragmentManager.beginTransaction().apply {
@@ -968,33 +1013,36 @@ class MainActivity @Inject constructor() : AppCompatActivity(), EasyPermissions.
                 R.anim.right_to_left,
                 R.anim.left_to_right,
                 R.anim.right_to_left,
-                R.anim.left_to_right
+                R.anim.left_to_right,
             )
             add(containerViewId, fragment, fragmentName)
             addToBackStack(tag)
         }.commit()
     }
 
-    private fun sendTokenToBackend(token: String, terminalId: String,
-                                   username: String) {
+    private fun sendTokenToBackend(
+        token: String,
+        terminalId: String,
+        username: String,
+    ) {
         notificationModel.registerDeviceToken(token, terminalId, username)
     }
 
     private fun getFireBaseToken(
         firebaseMessagingInstance: FirebaseMessaging,
-        actionToPerformWithTheReceivedToken: (received: String) -> Unit
+        actionToPerformWithTheReceivedToken: (received: String) -> Unit,
     ) {
         firebaseMessagingInstance.token.addOnCompleteListener(
             OnCompleteListener { task ->
                 if (!task.isSuccessful) {
-                 //   Log.w(TAG1, "Fetching FCM registgitration token failed", task.exception)
+                    //   Log.w(TAG1, "Fetching FCM registgitration token failed", task.exception)
                     return@OnCompleteListener
                 }
 
                 // Get new FCM registration token
                 val token = task.result
                 actionToPerformWithTheReceivedToken(token)
-            }
+            },
         )
     }
 
@@ -1005,7 +1053,7 @@ class MainActivity @Inject constructor() : AppCompatActivity(), EasyPermissions.
                     if (intentAction == STRING_FIREBASE_INTENT_ACTION) {
                         if (intentExtra) {
                             val currentDateTime = getCurrentDateTime()
-                            getEndOfDayTransactions(dateStr2Long(currentDateTime, "yyyy-MM-dd hh:mm a")){
+                            getEndOfDayTransactions(dateStr2Long(currentDateTime, "yyyy-MM-dd hh:mm a")) {
                                 transactionViewModel.setEndOfDayList(it)
                                 addFragmentWithoutRemove(TransactionHistoryFragment.newInstance(HISTORY_ACTION))
                             }
