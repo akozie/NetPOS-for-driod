@@ -124,6 +124,7 @@ class MainActivity @Inject constructor() : AppCompatActivity(), EasyPermissions.
 
     private val notificationModel: NotificationViewModel by viewModels()
     private lateinit var firebaseInstance: FirebaseMessaging
+    private lateinit var deviceNotSupportedAlertDialog: AlertDialog
 
     override fun onStop() {
         super.onStop()
@@ -165,12 +166,7 @@ class MainActivity @Inject constructor() : AppCompatActivity(), EasyPermissions.
                     }.show()
             }
         } else {
-            AlertDialog.Builder(this).setTitle("NFC Message").setCancelable(false)
-                .setMessage("Device dose not have NFC support")
-                .setPositiveButton("Close") { dialog, _ ->
-                    dialog.dismiss()
-                    // finish()
-                }.show()
+            deviceNotSupportedAlertDialog.show()
         }
     }
 
@@ -494,18 +490,23 @@ class MainActivity @Inject constructor() : AppCompatActivity(), EasyPermissions.
         qrAmountDialogForVerveCard = androidx.appcompat.app.AlertDialog.Builder(this).apply {
             setView(verveCardQrAmountDialogBinding.root)
         }.create()
+        deviceNotSupportedAlertDialog = AlertDialog.Builder(this).setTitle("NFC Message").setCancelable(false)
+            .setMessage("Device dose not have NFC support")
+            .setPositiveButton("Close") { dialog, _ ->
+                dialog.dismiss()
+                // finish()
+            }.create()
         val terminalId = Singletons.getCurrentlyLoggedInUser()?.terminal_id.toString()
         val userName = Singletons.getCurrentlyLoggedInUser()?.netplus_id.toString()
         firebaseInstance = FirebaseMessaging.getInstance()
-//        getFireBaseToken(firebaseInstance) {
-//            sendTokenToBackend(it, terminalId, userName)
-//        }
-
-  //      getIntentDataSentInFromFirebaseService()
+        getFireBaseToken(firebaseInstance) {
+            sendTokenToBackend(it, terminalId, userName)
+        }
     }
 
     override fun onResume() {
         super.onResume()
+        getIntentDataSentInFromFirebaseService()
         handlePdfReceiptPrinting()
     }
 
@@ -754,7 +755,7 @@ class MainActivity @Inject constructor() : AppCompatActivity(), EasyPermissions.
         ).show()
     }
 
-    private fun getEndOfDayTransactions(timestamp: Long? = null, actionToTake: (transactions:List<TransactionResponse>)->Unit) {
+    private fun getEndOfDayTransactions(timestamp: Long?=null, actionToTake: (transactions:List<TransactionResponse>)->Unit) {
         Toast.makeText(this, "Please wait", Toast.LENGTH_LONG).show()
         val livedata =
             AppDatabase.getDatabaseInstance(this).transactionResponseDao().getEndOfDayTransaction(
@@ -894,10 +895,6 @@ class MainActivity @Inject constructor() : AppCompatActivity(), EasyPermissions.
                                     receiptDialogBinding.transactionContent.text.toString(),
                                     receiptDialogBinding.telephone.text.toString()
                                 )
-                                Log.d(
-                                    "PHONENUMBER",
-                                    receiptDialogBinding.transactionContent.text.toString()
-                                )
                                 receiptDialogBinding.progress.visibility = View.VISIBLE
                                 receiptDialogBinding.sendButton.isEnabled = false
                             }
@@ -1006,8 +1003,9 @@ class MainActivity @Inject constructor() : AppCompatActivity(), EasyPermissions.
                         if (intentExtra) {
                             val currentDateTime = getCurrentDateTime()
                             getEndOfDayTransactions(dateStr2Long(currentDateTime, "yyyy-MM-dd hh:mm a")){
-                                transactionViewModel.setEndOfDayList(it)
-                                addFragmentWithoutRemove(TransactionHistoryFragment.newInstance(HISTORY_ACTION))
+                              transactionViewModel.setEndOfDayList(it)
+                                deviceNotSupportedAlertDialog.dismiss()
+                                addFragmentWithoutRemove(TransactionHistoryFragment.newInstance(HISTORY_ACTION_EOD))
                             }
                         }
                     }

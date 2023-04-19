@@ -27,7 +27,7 @@ class SaveTransactionFromFirebaseMessagingServiceToDbWorker(
             Gson().fromJson(inputData, TransactionResponse::class.java)
         val affectedRows = transactionToSave?.let { pbtTransaction ->
             var numberOfAffectedRows = 0L
-            transactionResponseDao.insertNewTransaction(pbtTransaction)
+            transactionResponseDao.insertNewTransaction(pbtTransaction.copy(amount = (pbtTransaction.amount) * 100))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { t1, t2 ->

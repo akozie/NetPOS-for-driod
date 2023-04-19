@@ -192,7 +192,9 @@ class TransactionsFragment @Inject constructor() : BaseFragment() {
         val listOfService = ArrayList<Service>()
             .apply {
                 add(Service(0, "Purchase", R.drawable.ic_purchase))
-                add(Service(7, "Purchase With Cashback", R.drawable.ic_purchase))
+                    if (!BuildConfig.FLAVOR.contains("providus")) {
+                        add(Service(7, "Purchase With Cashback", R.drawable.ic_purchase))
+                    }
                 // add(Service(1, "Refund", R.drawable.ic_loop))
                 // add(Service(8, "Reversal", R.drawable.ic_loop))
                 // add(Service(2, "PRE AUTHORIZATION", R.drawable.ic_pre_auth))
