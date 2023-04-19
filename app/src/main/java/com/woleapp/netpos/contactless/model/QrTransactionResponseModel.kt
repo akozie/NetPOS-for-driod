@@ -19,12 +19,12 @@ data class QrTransactionResponseModel(
     val orderId: String,
     val result: String,
     val status: String,
-    val transId: String
+    val transId: String,
 ) : Parcelable {
     fun mapQrTransRespToQrRespFinalModel(
         accType: String,
         terminalId: String,
-        merchantId: String
+        merchantId: String,
     ): QrTransactionResponseFinalModel {
         val transDateTime = getCurrentDateTime()
         return QrTransactionResponseFinalModel(
@@ -42,11 +42,11 @@ data class QrTransactionResponseModel(
             transDateTime,
             transactionTimeInMillis = dateStr2Long(
                 transDateTime,
-                STRING_QR_TRANSACTION_DATE_TIME_FORMAT
+                STRING_QR_TRANSACTION_DATE_TIME_FORMAT,
             ),
             accountType = IsoAccountType.DEFAULT_UNSPECIFIED,
             terminalId = terminalId,
-            merchantId = merchantId
+            merchantId = merchantId,
         )
     }
 }

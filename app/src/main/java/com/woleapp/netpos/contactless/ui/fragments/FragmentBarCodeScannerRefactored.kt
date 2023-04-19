@@ -53,7 +53,7 @@ class FragmentBarCodeScannerRefactored :
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
-        binding = DataBindingUtil.inflate(inflater, R.layout.activity_main, container, false)
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_bar_code_scanner_refactored, container, false)
         surfaceView = binding.scannerView
         detector = BarcodeDetector.Builder(requireContext())
             .setBarcodeFormats(Barcode.QR_CODE)
