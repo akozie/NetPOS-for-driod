@@ -20,13 +20,13 @@ private object ItemDiffUtil : DiffUtil.ItemCallback<Service>() {
 
 class ServiceAdapter(private val serviceClickListener: ServiceClickListener) :
     ListAdapter<Service, ServiceViewHolder>(
-        ItemDiffUtil
+        ItemDiffUtil,
     ) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ServiceViewHolder =
         ServiceViewHolder.from(
             parent,
-            serviceClickListener
+            serviceClickListener,
         )
 
     override fun onBindViewHolder(holder: ServiceViewHolder, position: Int) =
@@ -35,7 +35,7 @@ class ServiceAdapter(private val serviceClickListener: ServiceClickListener) :
 
 class ServiceViewHolder private constructor(
     private val binding: LayoutServiceItemBinding,
-    private val serviceClickListener: ServiceClickListener
+    private val serviceClickListener: ServiceClickListener,
 ) :
     RecyclerView.ViewHolder(binding.root) {
     companion object {
@@ -44,9 +44,9 @@ class ServiceViewHolder private constructor(
                 LayoutServiceItemBinding.inflate(
                     LayoutInflater.from(parent.context),
                     parent,
-                    false
+                    false,
                 ),
-                serviceClickListener
+                serviceClickListener,
             )
     }
 

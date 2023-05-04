@@ -55,7 +55,7 @@ object RandomPurposeUtil {
     fun getCurrentDateTime() =
         SimpleDateFormat(
             "yyyy-MM-dd hh:mm a",
-            Locale.getDefault()
+            Locale.getDefault(),
         ).format(System.currentTimeMillis())
             .format(Date())
 
@@ -88,7 +88,7 @@ object RandomPurposeUtil {
         text: String,
         startIndex: Int,
         endIndex: Int,
-        clickAction: () -> Unit
+        clickAction: () -> Unit,
     ): SpannableString {
         val spannedText = SpannableString(text)
         val styleSpan = StyleSpan(Typeface.BOLD)
@@ -105,7 +105,7 @@ object RandomPurposeUtil {
             clickableSpan,
             startIndex,
             endIndex,
-            Spanned.SPAN_INCLUSIVE_EXCLUSIVE
+            Spanned.SPAN_INCLUSIVE_EXCLUSIVE,
         )
         return spannedText
     }
@@ -116,7 +116,7 @@ object RandomPurposeUtil {
         serverResponse: LiveData<Resource<T>>,
         loadingDialog: LoadingDialog,
         fragmentManager: FragmentManager,
-        successAction: () -> Unit
+        successAction: () -> Unit,
     ) {
         serverResponse.observe(lifecycle) {
             when (it.status) {
@@ -139,7 +139,7 @@ object RandomPurposeUtil {
                 Status.LOADING -> {
                     loadingDialog.show(
                         fragmentManager,
-                        STRING_LOADING_DIALOG_TAG
+                        STRING_LOADING_DIALOG_TAG,
                     )
                 }
                 Status.ERROR -> {
@@ -154,12 +154,11 @@ object RandomPurposeUtil {
         }
     }
 
-
     fun <T> Fragment.observeServerResponse(
         serverResponse: LiveData<Resource<T>>,
         loadingDialog: LoadingDialog,
         fragmentManager: FragmentManager,
-        successAction: () -> Unit
+        successAction: () -> Unit,
     ) {
         serverResponse.observe(this.viewLifecycleOwner) {
             when (it.status) {
@@ -182,7 +181,7 @@ object RandomPurposeUtil {
                 Status.LOADING -> {
                     loadingDialog.show(
                         fragmentManager,
-                        STRING_LOADING_DIALOG_TAG
+                        STRING_LOADING_DIALOG_TAG,
                     )
                 }
                 Status.ERROR -> {
@@ -198,14 +197,13 @@ object RandomPurposeUtil {
         }
     }
 
-
     fun <T> Fragment.observeServerResponse(
         serverResponse: Single<Resource<T>>,
         loadingDialog: AlertDialog,
         compositeDisposable: CompositeDisposable,
         ioScheduler: Scheduler,
         mainThreadSchedulers: Scheduler,
-        successAction: () -> Unit
+        successAction: () -> Unit,
     ) {
         compositeDisposable.add(
             serverResponse.subscribeOn(ioScheduler).observeOn(mainThreadSchedulers)
@@ -228,7 +226,7 @@ object RandomPurposeUtil {
                                 } else {
                                     showSnackBar(
                                         this.requireView(),
-                                        getString(R.string.an_error_occurred)
+                                        getString(R.string.an_error_occurred),
                                     )
                                 }
                             }
@@ -245,24 +243,21 @@ object RandomPurposeUtil {
                                 showSnackBar(this.requireView(), getString(R.string.timeOut))
                             }
                         }
-
                     }
                     error?.let {
                         loadingDialog.cancel
                         loadingDialog.dismiss()
                         showSnackBar(this.requireView(), getString(R.string.an_error_occurred))
                     }
-
-                }
+                },
         )
     }
-
 
     fun <T> Fragment.observeServerResponse(
         serverResponse: LiveData<Resource<T>>,
         loadingDialog: AlertDialog,
         fragmentManager: FragmentManager,
-        successAction: () -> Unit
+        successAction: () -> Unit,
     ) {
         serverResponse.observe(this.viewLifecycleOwner) {
             when (it.status) {
@@ -313,12 +308,12 @@ object RandomPurposeUtil {
         val iswResponse = Gson().fromJson(iswResponseInStringFormat, Response::class.java)
         return transResponse.copy(
             code = iswResponse.errors.first().code,
-            message = iswResponse.errors.first().message
+            message = iswResponse.errors.first().message,
         )
     }
 
     fun alertDialog(
-        context: Context
+        context: Context,
     ): AlertDialog {
         val dialogView: View = LayoutInflater.from(context)
             .inflate(R.layout.layout_loading_dialog, null)
@@ -344,11 +339,10 @@ object RandomPurposeUtil {
             } else {
                 Settings.Secure.getString(
                     context.contentResolver,
-                    Settings.Secure.ANDROID_ID
+                    Settings.Secure.ANDROID_ID,
                 )
             }
         }
         return deviceId
     }
-
 }

@@ -24,7 +24,7 @@ interface TransactionResponseDao {
     fun getEndOfDayTransaction(
         beginningOfDay: Long,
         endOfDay: Long,
-        terminalId: String
+        terminalId: String,
     ): LiveData<List<TransactionResponse>>
 
     @Query("SELECT * FROM transactionresponse WHERE transactionType=:transactionType ORDER BY id DESC")
@@ -32,5 +32,4 @@ interface TransactionResponseDao {
 
     @Query("SELECT * FROM transactionresponse WHERE transactionType LIKE '%PURCHASE%' AND responseCode='00' ORDER BY id DESC")
     fun getRefundableTransactions(): LiveData<List<TransactionResponse>>
-
 }
