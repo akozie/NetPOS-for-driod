@@ -2,35 +2,27 @@
 
 package com.woleapp.netpos.contactless.ui.fragments
 
-import android.app.DatePickerDialog
 import android.app.ProgressDialog
 import android.content.DialogInterface
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
-import androidx.recyclerview.widget.GridLayoutManager
 import com.danbamitale.epmslib.entities.*
-import com.danbamitale.epmslib.entities.TransactionResponse
 import com.danbamitale.epmslib.extensions.formatCurrencyAmount
 import com.danbamitale.epmslib.processors.TransactionProcessor
 import com.danbamitale.epmslib.utils.IsoAccountType
-import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.snackbar.Snackbar
 import com.google.gson.JsonObject
 import com.pixplicity.easyprefs.library.Prefs
 import com.woleapp.netpos.contactless.R
 import com.woleapp.netpos.contactless.adapter.ServiceAdapter
-import com.woleapp.netpos.contactless.database.AppDatabase
 import com.woleapp.netpos.contactless.databinding.DialogPrintTypeBinding
 import com.woleapp.netpos.contactless.databinding.FragmentDashboardBinding
-import com.woleapp.netpos.contactless.databinding.LayoutPrintEndOfDayBinding
 import com.woleapp.netpos.contactless.model.*
 import com.woleapp.netpos.contactless.mqtt.MqttHelper
 import com.woleapp.netpos.contactless.nibss.NetPosTerminalConfig
@@ -67,13 +59,12 @@ class DashboardFragment : BaseFragment() {
     private lateinit var printTypeDialog: AlertDialog
     private lateinit var printerErrorDialog: AlertDialog
 
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
-     //   Log.d("MID", "------->${Singletons.getCurrentlyLoggedInUser()?.netplus_id}")
+        //   Log.d("MID", "------->${Singletons.getCurrentlyLoggedInUser()?.netplus_id}")
         binding = FragmentDashboardBinding.inflate(inflater, container, false)
         transactionType = TransactionType.PURCHASE
         isVend = arguments?.getBoolean("IS_VEND", false) ?: false
@@ -111,14 +102,14 @@ class DashboardFragment : BaseFragment() {
                 if (shouldGetCardData) {
                     showCardDialog(
                         requireActivity(),
-                        viewLifecycleOwner
+                        viewLifecycleOwner,
                     ).observe(viewLifecycleOwner) { event ->
                         event.getContentIfNotHandled()?.let {
                             Timber.e(it.toString())
                             nfcCardReaderViewModel.initiateNfcPayment(
                                 viewModel.amountLong,
                                 viewModel.cashbackLong,
-                                it
+                                it,
                             )
                         }
                     }
@@ -169,7 +160,7 @@ class DashboardFragment : BaseFragment() {
                 if (it) {
                     NetPosTerminalConfig.init(
                         requireContext().applicationContext,
-                        configureSilently = true
+                        configureSilently = true,
                     )
                 }
             }
@@ -185,7 +176,7 @@ class DashboardFragment : BaseFragment() {
                     Toast.makeText(
                         requireContext(),
                         error.message,
-                        Toast.LENGTH_LONG
+                        Toast.LENGTH_LONG,
                     )
                         .show()
                 }
@@ -202,10 +193,10 @@ class DashboardFragment : BaseFragment() {
         adapter = ServiceAdapter {
             when (it.id) {
                 0 -> showFragment(TransactionsFragment())
-                //1 -> getBalance()
+                // 1 -> getBalance()
                 2 -> showFragment(NipNotificationFragment.newInstance())
                 3 -> showFragment(BillsFragment())
-               // 4 -> showCalendarDialog()
+                // 4 -> showCalendarDialog()
                 5 -> {
                     parentFragmentManager.beginTransaction()
                         .replace(R.id.container_main, SettingsFragment())
@@ -456,8 +447,8 @@ class DashboardFragment : BaseFragment() {
                 }
             }
         }
-       // binding.rvDashboard.layoutManager = GridLayoutManager(context, 2)
-       // binding.rvDashboard.adapter = adapter
+        // binding.rvDashboard.layoutManager = GridLayoutManager(context, 2)
+        // binding.rvDashboard.adapter = adapter
     }
 
     private fun setServices() {
@@ -529,7 +520,7 @@ class DashboardFragment : BaseFragment() {
                         Toast.makeText(
                             context,
                             "Did not receive amount after waiting",
-                            Toast.LENGTH_LONG
+                            Toast.LENGTH_LONG,
                         ).show()
                         compositeDisposable.clear()
                         requireActivity().onBackPressed()
@@ -539,7 +530,7 @@ class DashboardFragment : BaseFragment() {
                     Toast.makeText(
                         requireContext(),
                         "Error ${it.localizedMessage}",
-                        Toast.LENGTH_SHORT
+                        Toast.LENGTH_SHORT,
                     ).show()
                     Timber.e("Error: ${it.localizedMessage}")
                     requireActivity().onBackPressed()
@@ -559,14 +550,12 @@ class DashboardFragment : BaseFragment() {
 
         Snackbar.make(
             requireActivity().findViewById(
-                R.id.container_main
+                R.id.container_main,
             ),
             message,
-            Snackbar.LENGTH_LONG
+            Snackbar.LENGTH_LONG,
         ).show()
     }
-
-
 
     override fun onResume() {
         super.onResume()
@@ -574,11 +563,9 @@ class DashboardFragment : BaseFragment() {
         Timber.d("THE_PREFS_GOTTEN======>%s", pref)
     }
 
-
-
     private fun checkBalance(
         cardData: CardData,
-        accountType: IsoAccountType = IsoAccountType.DEFAULT_UNSPECIFIED
+        accountType: IsoAccountType = IsoAccountType.DEFAULT_UNSPECIFIED,
     ) {
         if (NetPosTerminalConfig.getKeyHolder() == null) {
             Toast.makeText(requireContext(), "Terminal not configured", Toast.LENGTH_LONG).show()
@@ -589,7 +576,7 @@ class DashboardFragment : BaseFragment() {
             NetPosTerminalConfig.getTerminalId(),
             NetPosTerminalConfig.connectionData,
             NetPosTerminalConfig.getKeyHolder()!!,
-            NetPosTerminalConfig.getConfigData()!!
+            NetPosTerminalConfig.getConfigData()!!,
         )
         val requestData =
             TransactionRequestData(TransactionType.BALANCE, 0L, accountType = accountType)
@@ -609,7 +596,7 @@ class DashboardFragment : BaseFragment() {
                     Toast.makeText(
                         requireContext(),
                         "Error ${it.localizedMessage}",
-                        Toast.LENGTH_SHORT
+                        Toast.LENGTH_SHORT,
                     ).show()
                 }
 
@@ -619,7 +606,7 @@ class DashboardFragment : BaseFragment() {
                         Prefs.remove(PREF_KEYHOLDER)
                         NetPosTerminalConfig.init(
                             requireContext().applicationContext,
-                            configureSilently = true
+                            configureSilently = true,
                         )
                     }
 
@@ -638,7 +625,7 @@ class DashboardFragment : BaseFragment() {
                     showMessage(
                         if (it.isApproved) "Approved" else "Declined",
                         messageString,
-                        me.toString()
+                        me.toString(),
                     )
                 }
             }
@@ -658,6 +645,4 @@ class DashboardFragment : BaseFragment() {
                 create().show()
             }
     }
-
-
 }

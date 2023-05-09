@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#fabb15</color>
+    <color name="colorPrimaryDark">#fada8a</color>
+    <color name="colorPrimaryLight">#fabb15</color>
+    <color name="colorAccent">#323f46</color>
+    <color name="pinTextColor">#000</color>
+    <color name="white">#FFFFFF</color>
+    <color name="gray">#a4a4a4</color>
+    <color name="dashboard_color">#eeeeee</color>
+    <color name="icon_color">#FBFBFB</color>
+    <color name="pinButtonText">#ffffff</color>
+    <color name="pinButtonBackground">@color/colorPrimary</color>
+    <color name="colorError">#ffff4b55</color>
+    <color name="colorDivider">#ffe6ebf3</color>
+    <color name="transparent_black">#73000000</color>
+    <color name="success">#1A9211</color>
+    <color name="failed">#F01808</color>
+</resources>

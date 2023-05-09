@@ -583,6 +583,80 @@
     },
     {
       "client_info": {
+        "mobilesdk_app_id": "1:983048306918:android:1c1348d2da84b23abfbb27",
+        "android_client_info": {
+          "package_name": "com.woleapp.netpos.contactless.providussoftpos"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "983048306918-927qhamjedtjs1t9lgijus59200j2ia7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.woleapp.netpos.contactless.providussoftpos",
+            "certificate_hash": "d63b0a7a6a6a542ab3bf2133c65462e24660398d"
+          }
+        },
+        {
+          "client_id": "983048306918-3nd8524b8jqums09f9rau495c47sthjl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBIhdh0G7VzrVjZadvQlnOy6JuJfn5Et6o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "983048306918-3nd8524b8jqums09f9rau495c47sthjl.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:983048306918:android:b66a08628e740f41bfbb27",
+        "android_client_info": {
+          "package_name": "com.woleapp.netpos.contactless.providussoftpos.debug"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "983048306918-s552gintqbc30hvuohuo9gjgtg8v12db.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.woleapp.netpos.contactless.providussoftpos.debug",
+            "certificate_hash": "d63b0a7a6a6a542ab3bf2133c65462e24660398d"
+          }
+        },
+        {
+          "client_id": "983048306918-3nd8524b8jqums09f9rau495c47sthjl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBIhdh0G7VzrVjZadvQlnOy6JuJfn5Et6o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "983048306918-3nd8524b8jqums09f9rau495c47sthjl.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:983048306918:android:a322fdfc074a4a65bfbb27",
         "android_client_info": {
           "package_name": "com.woleapp.netpos.contactless.unitybank"

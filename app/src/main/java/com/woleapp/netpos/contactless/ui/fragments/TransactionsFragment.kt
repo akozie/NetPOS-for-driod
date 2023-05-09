@@ -8,7 +8,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.GridLayoutManager
 import com.danbamitale.epmslib.entities.*
@@ -72,15 +71,19 @@ class TransactionsFragment @Inject constructor() : BaseFragment() {
 
         requireActivity().supportFragmentManager.setFragmentResultListener(
             STRING_QR_READ_RESULT_REQUEST_KEY,
-            requireActivity()
+            requireActivity(),
         ) { _, bundle ->
             val data = bundle.getParcelable<QrScannedDataModel>(STRING_QR_READ_RESULT_BUNDLE_KEY)
             data?.let {
                 if (it.card_scheme.contains(
                         "verve",
-                        true
+                        true,
                     )
-                ) showAmountDialogForVerveCard() else showAmountDialog(it)
+                ) {
+                    showAmountDialogForVerveCard()
+                } else {
+                    showAmountDialog(it)
+                }
             }
         }
     }
@@ -88,11 +91,11 @@ class TransactionsFragment @Inject constructor() : BaseFragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentTransactionsBinding.inflate(inflater, container, false)
         adapter = ServiceAdapter {
-            val nextFrag:Any? = when (it.id) {
+            val nextFrag: Any? = when (it.id) {
                 0 -> {
 //                    nfcCardReaderViewModel.iccCardHelperLiveData.removeObservers(viewLifecycleOwner)
                     showFragment(SalesFragment.newInstance())
@@ -125,11 +128,11 @@ class TransactionsFragment @Inject constructor() : BaseFragment() {
                 5 -> showFragment(ReprintFragment())
 
                 3 -> {
-                //    if (!BuildConfig.FLAVOR.contains("providus")){
-                        parentFragmentManager.beginTransaction()
-                            .replace(R.id.container_main, SettingsFragment())
-                            .addToBackStack(null)
-                            .commit()
+                    //    if (!BuildConfig.FLAVOR.contains("providus")){
+                    parentFragmentManager.beginTransaction()
+                        .replace(R.id.container_main, SettingsFragment())
+                        .addToBackStack(null)
+                        .commit()
 //                    } else {
 //                    }
                 }
@@ -179,7 +182,6 @@ class TransactionsFragment @Inject constructor() : BaseFragment() {
         nfcCardReaderViewModel.iccCardHelperLiveData.removeObservers(viewLifecycleOwner)
     }
 
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         nfcCardReaderViewModel.iccCardHelperLiveData.removeObservers(viewLifecycleOwner)
@@ -191,18 +193,16 @@ class TransactionsFragment @Inject constructor() : BaseFragment() {
     private fun setService() {
         val listOfService = ArrayList<Service>()
             .apply {
-                add(Service(0, "Purchase", R.drawable.ic_purchase))
-                    if (!BuildConfig.FLAVOR.contains("providus")) {
-                        add(Service(7, "Purchase With Cashback", R.drawable.ic_purchase))
+                add(Service(0, "Purchase", R.drawable.purchase))
+             //   add(Service(0, "Purchase", R.drawable.ic_purchase))
+//                    if (!BuildConfig.FLAVOR.contains("providus")) {
+//                        add(Service(7, "Purchase With Cashback", R.drawable.ic_purchase))
+//                    }
+                if (!BuildConfig.FLAVOR.contains("providus") || !BuildConfig.FLAVOR.contains("providussoftpos")) {
+                        add(Service(7, "Purchase With Cashback", R.drawable.purchase))
                     }
-                // add(Service(1, "Refund", R.drawable.ic_loop))
-                // add(Service(8, "Reversal", R.drawable.ic_loop))
-                // add(Service(2, "PRE AUTHORIZATION", R.drawable.ic_pre_auth))
-                //   add(Service(3, "Cash Advance", R.drawable.ic_pay_cash_icon))
-             //   if (!BuildConfig.FLAVOR.contains("providus")){
-                    add(Service(3, "Settings", R.drawable.ic_baseline_settings))
-            //    }
-                if (BuildConfig.FLAVOR.contains("polaris")){
+                add(Service(3, "Settings", R.drawable.ic_baseline_settings))
+                if (BuildConfig.FLAVOR.contains("polaris")) {
                     remove(Service(3, "Settings", R.drawable.ic_baseline_settings))
                 }
                 add(Service(4, "Balance Enquiry", R.drawable.ic_write))
@@ -230,8 +230,8 @@ class TransactionsFragment @Inject constructor() : BaseFragment() {
                         dialog.dismiss()
                         addFragmentWithoutRemove(
                             TransactionHistoryFragment.newInstance(
-                                HISTORY_ACTION_PREAUTH
-                            )
+                                HISTORY_ACTION_PREAUTH,
+                            ),
                         )
                     }
                     cancelButton.setOnClickListener {
@@ -246,8 +246,10 @@ class TransactionsFragment @Inject constructor() : BaseFragment() {
         qrAmountDialog.show()
         qrAmoutDialogBinding.proceed.setOnClickListener {
             val amountDouble = qrAmoutDialogBinding.amount.text.toString().toDoubleOrNull()
-            if (qrAmoutDialogBinding.amount.text.isNullOrEmpty()) qrAmoutDialogBinding.amount.error =
-                getString(R.string.amount_empty)
+            if (qrAmoutDialogBinding.amount.text.isNullOrEmpty()) {
+                qrAmoutDialogBinding.amount.error =
+                    getString(R.string.amount_empty)
+            }
             amountDouble?.let {
                 qrAmoutDialogBinding.amount.text?.clear()
                 qrAmountDialog.cancel()
@@ -256,7 +258,7 @@ class TransactionsFragment @Inject constructor() : BaseFragment() {
                         it,
                         qrData.data,
                         merchantId = UtilityParam.STRING_MERCHANT_ID,
-                        naration = requestNarration
+                        naration = requestNarration,
                     )
                 Log.d("QRDATA", qrDataToSendToBackend.naration)
                 scanQrViewModel.setScannedQrIsVerveCard(false)
@@ -264,10 +266,10 @@ class TransactionsFragment @Inject constructor() : BaseFragment() {
                 observeServerResponse(
                     scanQrViewModel.sendQrToServerResponse,
                     LoadingDialog(),
-                    childFragmentManager
+                    childFragmentManager,
                 ) {
                     addFragmentWithoutRemove(
-                        CompleteQrPaymentWebViewFragment()
+                        CompleteQrPaymentWebViewFragment(),
                     )
                 }
             }
@@ -293,7 +295,7 @@ class TransactionsFragment @Inject constructor() : BaseFragment() {
     private fun getBalance() {
         showCardDialog(
             requireActivity(),
-            viewLifecycleOwner
+            viewLifecycleOwner,
         ).observe(viewLifecycleOwner) { event ->
             event.getContentIfNotHandled()?.let {
                 nfcCardReaderViewModel.initiateNfcPayment(10, 0, it)
@@ -319,7 +321,7 @@ class TransactionsFragment @Inject constructor() : BaseFragment() {
 
     private fun checkBalance(
         cardData: CardData,
-        accountType: IsoAccountType = IsoAccountType.DEFAULT_UNSPECIFIED
+        accountType: IsoAccountType = IsoAccountType.DEFAULT_UNSPECIFIED,
     ) {
         if (NetPosTerminalConfig.getKeyHolder() == null) {
             Toast.makeText(requireContext(), "Terminal not configured", Toast.LENGTH_LONG).show()
@@ -330,7 +332,7 @@ class TransactionsFragment @Inject constructor() : BaseFragment() {
             NetPosTerminalConfig.getTerminalId(),
             NetPosTerminalConfig.connectionData,
             NetPosTerminalConfig.getKeyHolder()!!,
-            NetPosTerminalConfig.getConfigData()!!
+            NetPosTerminalConfig.getConfigData()!!,
         )
         val requestData =
             TransactionRequestData(TransactionType.BALANCE, 0L, accountType = accountType)
@@ -350,7 +352,7 @@ class TransactionsFragment @Inject constructor() : BaseFragment() {
                     Toast.makeText(
                         requireContext(),
                         "Error ${it.localizedMessage}",
-                        Toast.LENGTH_SHORT
+                        Toast.LENGTH_SHORT,
                     ).show()
                 }
 
@@ -360,7 +362,7 @@ class TransactionsFragment @Inject constructor() : BaseFragment() {
                         Prefs.remove(PREF_KEYHOLDER)
                         NetPosTerminalConfig.init(
                             requireContext().applicationContext,
-                            configureSilently = true
+                            configureSilently = true,
                         )
                     }
 
@@ -379,7 +381,7 @@ class TransactionsFragment @Inject constructor() : BaseFragment() {
                     showMessage(
                         if (it.isApproved) "Approved" else "Declined",
                         messageString,
-                        me.toString()
+                        me.toString(),
                     )
                 }
             }
@@ -405,4 +407,3 @@ class TransactionsFragment @Inject constructor() : BaseFragment() {
         _binding = null
     }
 }
-

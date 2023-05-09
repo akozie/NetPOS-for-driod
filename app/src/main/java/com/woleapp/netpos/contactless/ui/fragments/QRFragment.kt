@@ -39,7 +39,7 @@ class QRFragment : BaseFragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         Timber.d("QR_FRAGMENT===>THIS_IS_CALLED")
         binding = FragmentTransactionsBinding.inflate(inflater, container, false)
@@ -55,7 +55,7 @@ class QRFragment : BaseFragment() {
             QrBottomSheetDialogBinding.inflate(
                 layoutInflater,
                 null,
-                false
+                false,
             ).apply {
                 executePendingBindings()
                 lifecycleOwner = viewLifecycleOwner
@@ -70,7 +70,7 @@ class QRFragment : BaseFragment() {
             QrBottomSheetDialogBinding.inflate(
                 layoutInflater,
                 null,
-                false
+                false,
             ).apply {
                 executePendingBindings()
                 lifecycleOwner = viewLifecycleOwner
@@ -158,7 +158,7 @@ class QRFragment : BaseFragment() {
                     this.setCancelable(false)
                     this.setButton(
                         DialogInterface.BUTTON_POSITIVE,
-                        "Cancel"
+                        "Cancel",
                     ) { _, _ ->
                         zenithQRProgressDialog.cancel()
                     }
@@ -173,7 +173,7 @@ class QRFragment : BaseFragment() {
             override fun onTick(millisUntilFinished: Long) {
                 nibssQrBottomSheetDialogBinding.scanToPay.text = getString(
                     R.string.requerying_qr_transaction,
-                    millisUntilFinished / 1000
+                    millisUntilFinished / 1000,
                 )
             }
 

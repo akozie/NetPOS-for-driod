@@ -5,6 +5,7 @@ import java.util.*
 object AppConstants {
     fun getGUID() = UUID.randomUUID().toString().replace("-", "")
     const val PERMISSION_REQUEST_CODE = 200
+    const val LONG_150 = 150L
     const val STRING_QR_READ_RESULT_REQUEST_KEY = "STRING_QR_READ_RESULT_REQUEST_KEY"
     const val STRING_QR_READ_RESULT_BUNDLE_KEY = "STRING_QR_READ_RESULT_BUNDLE_KEY"
     const val STRING_LOADING_DIALOG_TAG = "STRING_LOADING_DIALOG_TAG"

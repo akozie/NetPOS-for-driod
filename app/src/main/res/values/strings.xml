@@ -226,4 +226,9 @@ Nullam purus nulla, elementum nec tempor eget, rutrum et risus. Nullam ut suscip
     <string name="pay_now">PAY NOW</string>
     <string name="pdf">PDF</string>
     <string name="transacion_received">NetPos Transaction Notification!</string>
+    <string name="camera_perm_rationale">You need to allow access permissions before you can scan the QR inorder for the customer to make the payment</string>
+    <string name="ok">Ok</string>
+    <string name="perm_denied">Permission Denied</string>
+    <string name="perm_granted">Permission Granted</string>
+    <string name="scanner_closed">Scanner closed</string>
 </resources>
