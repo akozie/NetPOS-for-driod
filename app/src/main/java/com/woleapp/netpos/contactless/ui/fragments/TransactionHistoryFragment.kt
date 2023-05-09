@@ -1,6 +1,7 @@
 package com.woleapp.netpos.contactless.ui.fragments
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -94,6 +95,7 @@ class TransactionHistoryFragment : BaseFragment() {
         )
         if (action != HISTORY_ACTION_EOD) {
             viewModel.getTransactions().observe(viewLifecycleOwner) {
+                Log.d("TRANSACTIONLIST", it.toString())
                 adapter.submitList(it)
                 adapter.notifyDataSetChanged()
             }

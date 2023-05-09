@@ -10,7 +10,6 @@ data class FirebaseNotificationModelResponse(
     val merchantId: String,
     val message: String,
     val orderId: String,
-    val otherId: String,
     val provider: String,
     val responseMessage: String,
     val result: String,
@@ -19,3 +18,5 @@ data class FirebaseNotificationModelResponse(
     val terminalId: String,
     val transId: String
 )
+
+

@@ -142,7 +142,7 @@ class DisplayQrFragment : BaseFragment() {
     private fun initPartnerID() {
         val bankList = mapOf("firstbank" to "firstbank", "netpos" to "netpos", "fcmb" to "fcmb",
             "easypay" to "fcmb","fcmbeasypay" to "fcmb",
-            "providus" to "providus", "wemabank" to "wemabank", "zenith" to "zenith")
+            "providus" to "providus", "providussoftpos" to "providus", "wemabank" to "wemabank", "zenith" to "zenith")
 
         for (element in bankList) {
             if (element.key == BuildConfig.FLAVOR){

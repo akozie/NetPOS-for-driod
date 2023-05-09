@@ -35,8 +35,8 @@ android {
         applicationId "com.woleapp.netpos.contactless"
         minSdkVersion 23
         targetSdkVersion 32
-        versionCode 12
-        versionName "1.0.12"
+        versionCode 16
+        versionName "1.0.16"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         def environmentPath
         if (appModeProd == "true")
@@ -94,6 +94,10 @@ android {
         providus {
             dimension "whiteLabel"
             applicationIdSuffix ".providus"
+        }
+        providussoftpos {
+            dimension "whiteLabel"
+            applicationIdSuffix ".providussoftpos"
         }
         wemabank {
             dimension "whiteLabel"
@@ -294,6 +298,11 @@ dependencies {
     def work_version = "2.7.0-alpha05"
     implementation "androidx.work:work-runtime-ktx:$work_version"
 
+
+    //barcode
+    implementation 'com.google.android.gms:play-services-vision:20.1.3'
+
+    
     // Firebase
     implementation platform('com.google.firebase:firebase-bom:30.4.1')
     implementation 'com.google.firebase:firebase-analytics-ktx'

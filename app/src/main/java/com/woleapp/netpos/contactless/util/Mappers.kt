@@ -52,11 +52,9 @@ object Mappers {
     fun FirebaseNotificationModelResponse.mapToTransactionResponse(): TransactionResponse {
         val currentDateTime = getCurrentDateTime()
         return TransactionResponse().apply {
-            this.otherId =
-                this@mapToTransactionResponse.message // Since response message can not be set because it is a val from the sdk, hence i used other id to represent response message here
-            transactionType = TransactionType.PURCHASE
+              transactionType = TransactionType.PURCHASE
             maskedPan = this@mapToTransactionResponse.maskedPan
-            amount = this@mapToTransactionResponse.amount.toLong()
+            amount = this@mapToTransactionResponse.amount.toDouble().toLong()
             transmissionDateTime = currentDateTime
             STAN = ""
             RRN = this@mapToTransactionResponse.rrn

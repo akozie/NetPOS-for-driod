@@ -193,15 +193,15 @@ class TransactionsFragment @Inject constructor() : BaseFragment() {
     private fun setService() {
         val listOfService = ArrayList<Service>()
             .apply {
-                add(Service(0, "Purchase", R.drawable.ic_purchase))
-                add(Service(7, "Purchase With Cashback", R.drawable.ic_purchase))
-                // add(Service(1, "Refund", R.drawable.ic_loop))
-                // add(Service(8, "Reversal", R.drawable.ic_loop))
-                // add(Service(2, "PRE AUTHORIZATION", R.drawable.ic_pre_auth))
-                //   add(Service(3, "Cash Advance", R.drawable.ic_pay_cash_icon))
-                //   if (!BuildConfig.FLAVOR.contains("providus")){
+                add(Service(0, "Purchase", R.drawable.purchase))
+             //   add(Service(0, "Purchase", R.drawable.ic_purchase))
+//                    if (!BuildConfig.FLAVOR.contains("providus")) {
+//                        add(Service(7, "Purchase With Cashback", R.drawable.ic_purchase))
+//                    }
+                if (!BuildConfig.FLAVOR.contains("providus") || !BuildConfig.FLAVOR.contains("providussoftpos")) {
+                        add(Service(7, "Purchase With Cashback", R.drawable.purchase))
+                    }
                 add(Service(3, "Settings", R.drawable.ic_baseline_settings))
-                //    }
                 if (BuildConfig.FLAVOR.contains("polaris")) {
                     remove(Service(3, "Settings", R.drawable.ic_baseline_settings))
                 }

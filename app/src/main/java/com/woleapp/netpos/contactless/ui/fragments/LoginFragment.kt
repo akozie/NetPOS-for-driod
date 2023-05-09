@@ -74,13 +74,13 @@ class LoginFragment : BaseFragment() {
             appCredentials = credentials
         }
         val uniqueNumber = getDeviceId(requireContext()).toString()
-        Log.d("IMEI", uniqueNumber)
+     //   Log.d("IMEI", uniqueNumber)
         binding.btnLogin.setOnClickListener {
             viewModel.login(uniqueNumber)
         }
 
         binding.register.setOnClickListener {
-            if (BuildConfig.FLAVOR.contains("firstbank")||BuildConfig.FLAVOR.contains("providus")||
+            if (BuildConfig.FLAVOR.contains("firstbank")||BuildConfig.FLAVOR.contains("providus")||BuildConfig.FLAVOR.contains("providussoftpos")||
                 BuildConfig.FLAVOR.contains("wemabank")||BuildConfig.FLAVOR.contains("fcmb")||
                 BuildConfig.FLAVOR.contains("easypay")||BuildConfig.FLAVOR.contains("fcmbeasypay")||
                 BuildConfig.FLAVOR.contains("zenith")){

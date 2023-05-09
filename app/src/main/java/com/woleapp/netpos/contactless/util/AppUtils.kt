@@ -79,7 +79,7 @@ private fun requestForPermission(
 }
 
 fun vibrateThePhone(context: Context, duration: Long = LONG_150) {
-    if (Build.VERSION.SDK_INT >= VERSION_CODES.O) {
+    if (Build.VERSION.SDK_INT >= 26) {
         (context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator).vibrate(
             VibrationEffect.createOneShot(
                 duration,

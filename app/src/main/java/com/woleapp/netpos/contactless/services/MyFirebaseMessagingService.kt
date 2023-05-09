@@ -37,20 +37,16 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
 
+        Log.d("EREMOTEMESSAGE", remoteMessage.toString())
         // Check if message contains a data payload.
         if (remoteMessage.data.isNotEmpty()) {
-
             val transactionNotificationFromFirebase = remoteMessage.data["TransactionNotification"]
-
             val temporalTransaction: FirebaseNotificationModelResponse =
                 gson.fromJson(
                     transactionNotificationFromFirebase,
                     FirebaseNotificationModelResponse::class.java
                 )
-
             val transaction = gson.toJson(temporalTransaction.mapToTransactionResponse())
-
-
             transaction?.let {
                 scheduleJobToSaveTransactionToDatabase(it)
             }
@@ -70,7 +66,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
             sendNotification(
                 "${
-                    temporalTransaction.amount.toInt().formatCurrencyAmountUsingCurrentModule()
+                    temporalTransaction.amount.toDouble().formatCurrencyAmountUsingCurrentModule()
                 } Received \nFrom: ${temporalTransaction.customerName}   (${
                     temporalTransaction.maskedPan
                 })"

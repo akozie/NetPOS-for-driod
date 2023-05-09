@@ -140,6 +140,7 @@ class FragmentBarCodeScannerRefactored :
                 if (barcodes.size() > 0) {
                     val qrCodeText = barcodes.valueAt(0)?.rawValue
                     activity?.runOnUiThread {
+                        cameraSource.stop()
                         qrCodeText?.let {
                             vibrateThePhone(requireContext())
                             val scannedData: QrScannedDataModel? = try {
