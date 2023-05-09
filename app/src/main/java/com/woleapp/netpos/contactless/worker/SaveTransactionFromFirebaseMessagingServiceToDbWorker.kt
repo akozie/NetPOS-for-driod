@@ -15,7 +15,7 @@ import timber.log.Timber
 
 class SaveTransactionFromFirebaseMessagingServiceToDbWorker(
     context: Context,
-    workerParameters: WorkerParameters
+    workerParameters: WorkerParameters,
 ) : Worker(context, workerParameters) {
     private val compositeDisposable = CompositeDisposable()
     private val transactionResponseDao =
@@ -33,16 +33,22 @@ class SaveTransactionFromFirebaseMessagingServiceToDbWorker(
                 .subscribe { t1, t2 ->
                     t1?.let {
                         numberOfAffectedRows = it
-                    } ?: run { numberOfAffectedRows = 0 }
+                        Timber.tag("NUMBER_OF_I1").d(it.toString())
+                        numberOfAffectedRows
+                    } ?: run {
+                        numberOfAffectedRows = 0
+                        Timber.tag("NUMBER_OF_I2").d(numberOfAffectedRows.toString())
+                        0
+                    }
 
                     t2?.let {
                         numberOfAffectedRows = 0
-                        Timber.d(it)
+                        Timber.tag("ERROR_INSERT").d(it)
                     }
                 }.disposeWith(compositeDisposable)
             numberOfAffectedRows
         } ?: 0
-        return if (affectedRows > 0 || affectedRows < 0) Result.success() else Result.retry()
+        return if (affectedRows > 0) Result.success() else Result.retry()
     }
 
     override fun onStopped() {

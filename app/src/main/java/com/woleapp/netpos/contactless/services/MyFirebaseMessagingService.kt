@@ -1,20 +1,19 @@
 package com.woleapp.netpos.contactless.services
 
-
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP
+import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.media.RingtoneManager
 import android.os.Build
-import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.work.*
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.woleapp.netpos.contactless.R
-import com.woleapp.netpos.contactless.model.FirebaseNotificationModel
 import com.woleapp.netpos.contactless.model.FirebaseNotificationModelResponse
 import com.woleapp.netpos.contactless.ui.activities.MainActivity
 import com.woleapp.netpos.contactless.util.AppConstants.INT_FIREBASE_PENDING_INTENT_REQUEST_CODE
@@ -27,6 +26,7 @@ import com.woleapp.netpos.contactless.util.RandomPurposeUtil.formatCurrencyAmoun
 import com.woleapp.netpos.contactless.util.Singletons.gson
 import com.woleapp.netpos.contactless.worker.RegisterDeviceTokenToBackendOnTokenChangeWorker
 import com.woleapp.netpos.contactless.worker.SaveTransactionFromFirebaseMessagingServiceToDbWorker
+import timber.log.Timber
 
 class MyFirebaseMessagingService : FirebaseMessagingService() {
 
@@ -36,32 +36,36 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     }
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
-
-        Log.d("EREMOTEMESSAGE", remoteMessage.toString())
         // Check if message contains a data payload.
-        if (remoteMessage.data.isNotEmpty()) {
+        if (remoteMessage.data.toString().isNotEmpty()) {
             val transactionNotificationFromFirebase = remoteMessage.data["TransactionNotification"]
+            Timber.tag("INCOMING_M").d(gson.toJson(transactionNotificationFromFirebase))
             val temporalTransaction: FirebaseNotificationModelResponse =
                 gson.fromJson(
                     transactionNotificationFromFirebase,
-                    FirebaseNotificationModelResponse::class.java
+                    FirebaseNotificationModelResponse::class.java,
                 )
             val transaction = gson.toJson(temporalTransaction.mapToTransactionResponse())
             transaction?.let {
                 scheduleJobToSaveTransactionToDatabase(it)
             }
+
+            val intent = Intent(this, MainActivity::class.java)
+            intent.action = STRING_FIREBASE_INTENT_ACTION
+            intent.addFlags(FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TOP)
+            intent.putExtra(TAG_NOTIFICATION_RECEIVED_FROM_BACKEND, true)
+            this.startActivity(intent)
         }
 
         // Also if you intend on generating your own notifications as a result of a received FCM
         // message, here is where that should be initiated. See sendNotification method below.
         remoteMessage.data["TransactionNotification"]?.let {
-
             val transactionNotificationFromFirebase = remoteMessage.data["TransactionNotification"]
 
             val temporalTransaction: FirebaseNotificationModelResponse =
                 gson.fromJson(
                     transactionNotificationFromFirebase,
-                    FirebaseNotificationModelResponse::class.java
+                    FirebaseNotificationModelResponse::class.java,
                 )
 
             sendNotification(
@@ -69,7 +73,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                     temporalTransaction.amount.toDouble().formatCurrencyAmountUsingCurrentModule()
                 } Received \nFrom: ${temporalTransaction.customerName}   (${
                     temporalTransaction.maskedPan
-                })"
+                })",
             )
         }
     }
@@ -81,9 +85,9 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         intent.putExtra(TAG_NOTIFICATION_RECEIVED_FROM_BACKEND, true)
         val pendingIntent = PendingIntent.getActivity(
             this,
-            INT_FIREBASE_PENDING_INTENT_REQUEST_CODE /* Request code */,
+            INT_FIREBASE_PENDING_INTENT_REQUEST_CODE, /* Request code */
             intent,
-            PendingIntent.FLAG_IMMUTABLE
+            PendingIntent.FLAG_IMMUTABLE,
         )
 
         val channelId = "fcm_default_channel"
@@ -105,7 +109,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             val channel = NotificationChannel(
                 channelId,
                 getString(R.string.transacion_received),
-                NotificationManager.IMPORTANCE_DEFAULT
+                NotificationManager.IMPORTANCE_DEFAULT,
             )
             notificationManager.createNotificationChannel(channel)
         }
@@ -114,7 +118,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     }
 
     private fun sendTokenToServer(token: String) {
-        scheduleJobToSendTokenToServer(token) //This method schedules job to send new token to the server
+        scheduleJobToSendTokenToServer(token) // This method schedules job to send new token to the server
     }
 
     private fun scheduleJobToSaveTransactionToDatabase(transactionFromFireBaseInStringFormat: String) {

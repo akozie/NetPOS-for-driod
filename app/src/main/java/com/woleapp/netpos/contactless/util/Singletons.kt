@@ -15,7 +15,7 @@ fun useStormTerminalId() = Prefs.getBoolean(PREF_USE_STORM_TERMINAL_ID, true)
 fun TransactionResponse.toNibssResponse(remark: String? = null): NibssResponse =
     Singletons.gson.fromJson(
         Singletons.gson.toJson(this),
-        NibssResponse::class.java
+        NibssResponse::class.java,
     ).also {
         it.responseMessage = try {
             this.responseMessage
@@ -44,7 +44,7 @@ object Singletons {
             UtilityParam.CONFIGURATION_DATA_IP,
             UtilityParam.CONFIGURATION_DATA_PORT,
             Keys.posvasLiveKey1,
-            Keys.posvasLiveKey2
+            Keys.posvasLiveKey2,
         )
 //        return ConfigurationData(
 //            "196.6.103.10",

@@ -15,12 +15,11 @@ import io.reactivex.disposables.CompositeDisposable
 
 class RegisterDeviceTokenToBackendOnTokenChangeWorker(
     val context: Context,
-    private val workParameters: WorkerParameters
+    private val workParameters: WorkerParameters,
 ) : Worker(context, workParameters) {
-    private lateinit var compositeDisposable: CompositeDisposable
+    private val compositeDisposable: CompositeDisposable = CompositeDisposable()
 
     private val notificationRepository = NotificationClient.getInstance()
-
 
     override fun doWork(): Result {
         val terminalId = Singletons.getCurrentlyLoggedInUser()?.terminal_id

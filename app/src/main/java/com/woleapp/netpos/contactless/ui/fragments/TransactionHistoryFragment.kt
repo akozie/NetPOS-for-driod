@@ -37,7 +37,7 @@ class TransactionHistoryFragment : BaseFragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         binding = FragmentTransactionHistoryBinding.inflate(inflater, container, false)
         viewModel.setAppDatabase(AppDatabase.getDatabaseInstance(requireContext()))
@@ -90,8 +90,8 @@ class TransactionHistoryFragment : BaseFragment() {
         binding.rvTransactionsHistory.addItemDecoration(
             DividerItemDecoration(
                 requireContext(),
-                DividerItemDecoration.VERTICAL
-            )
+                DividerItemDecoration.VERTICAL,
+            ),
         )
         if (action != HISTORY_ACTION_EOD) {
             viewModel.getTransactions().observe(viewLifecycleOwner) {
@@ -115,10 +115,10 @@ class TransactionHistoryFragment : BaseFragment() {
                     viewModel.transactionList?.filter { transactionResponse ->
                         (transactionResponse.RRN.contains(query.toString())).or(
                             transactionResponse.STAN.contains(
-                                query.toString()
-                            )
+                                query.toString(),
+                            ),
                         )
-                    }
+                    },
                 )
                 return true
             }
@@ -132,30 +132,29 @@ class TransactionHistoryFragment : BaseFragment() {
                     viewModel.transactionList?.filter { transactionResponse ->
                         (transactionResponse.RRN.contains(newText ?: "")).or(
                             transactionResponse.STAN.contains(
-                                newText ?: ""
-                            )
+                                newText ?: "",
+                            ),
                         )
-                    }
+                    },
                 )
                 return true
             }
         })
     }
 
-
     private fun setSelectedTab(selectedTab: Int = 0) {
         if (selectedTab == 0) {
             binding.historyButton.setBackgroundColor(
                 ContextCompat.getColor(
                     requireContext(),
-                    R.color.colorPrimary
-                )
+                    R.color.colorPrimary,
+                ),
             )
             binding.searchButton.setBackgroundColor(
                 ContextCompat.getColor(
                     requireContext(),
-                    android.R.color.darker_gray
-                )
+                    android.R.color.darker_gray,
+                ),
             )
             binding.historyButton.isEnabled = false
             binding.searchButton.isEnabled = true
@@ -167,14 +166,14 @@ class TransactionHistoryFragment : BaseFragment() {
             binding.historyButton.setBackgroundColor(
                 ContextCompat.getColor(
                     requireContext(),
-                    android.R.color.darker_gray
-                )
+                    android.R.color.darker_gray,
+                ),
             )
             binding.searchButton.setBackgroundColor(
                 ContextCompat.getColor(
                     requireContext(),
-                    R.color.colorPrimary
-                )
+                    R.color.colorPrimary,
+                ),
             )
             binding.searchLayout.visibility = View.VISIBLE
             binding.rvTransactionsHistory.visibility = View.GONE
